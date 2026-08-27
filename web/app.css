@@ -1,0 +1,1602 @@
+/* ================== shared design tokens ================== */
+:root{
+  --mint:#84CBB6; --sky:#8DB5DF; --lilac:#AEA1D8; --sand:#D9A97F;
+  --warn:#E3A76B; --alert:#DE8A8A;
+  --r-lg:22px; --r-md:16px; --r-sm:11px;
+  --card-min:178px;
+  --shadow-soft:0 14px 34px -18px rgba(0,0,0,.72);
+  --shadow-lift:0 22px 46px -20px rgba(0,0,0,.8);
+}
+html[data-depth="deep"]{--bg:#191C24;--surface:#22262F;--surface-2:#2A2F3A;--line:#333846;
+  --text:#E5E3EA;--dim:#959AA9;--dimmer:#6F7484}
+html[data-depth="mid"]{--bg:#2C313C;--surface:#363C49;--surface-2:#414857;--line:#4B5262;
+  --text:#EBE9F0;--dim:#A8ADBB;--dimmer:#848A99}
+html[data-accent="mint"] {--mint:#84CBB6}
+html[data-accent="sky"]  {--mint:#8DB5DF}
+html[data-accent="lilac"]{--mint:#AEA1D8}
+html[data-accent="sand"] {--mint:#D9A97F}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:Nunito,system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;transition:background .35s ease}
+h1,h2,h3,h4{font-family:Nunito,system-ui,sans-serif;font-weight:800;letter-spacing:-.015em}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+
+/* the error message */
+.err{display:none;margin-top:12px;padding:10px 13px;border-radius:var(--r-sm);font-size:13.5px;
+  background:color-mix(in srgb,var(--alert) 15%,var(--surface-2));
+  border:1px solid color-mix(in srgb,var(--alert) 34%,var(--line));color:var(--text)}
+.err.show{display:block}
+.busy{opacity:.6;pointer-events:none}
+[hidden]{display:none!important}
+.ava img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.skeleton{background:linear-gradient(90deg,var(--surface-2),var(--line),var(--surface-2));
+  background-size:200% 100%;animation:sk 1.3s ease-in-out infinite;border-radius:var(--r-md)}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ==================== MAIN PAGE ==================== */
+/* ================= LOGO ================= */
+.mark{width:34px;height:34px;flex:none;border-radius:11px;display:block}
+
+/* ================= SIGN-IN SCREEN ================= */
+.gate{
+  position:fixed;inset:0;z-index:200;background:var(--bg);
+  display:grid;place-items:center;padding:24px;overflow-y:auto;
+}
+.gate.hide{display:none}
+.gate .aura{
+  position:absolute;width:520px;height:520px;border-radius:50%;filter:blur(120px);opacity:.2;
+  background:radial-gradient(circle,var(--sky),transparent 70%);top:-140px;left:50%;margin-left:-260px;
+  pointer-events:none;
+}
+.gate .aura2{
+  position:absolute;width:420px;height:420px;border-radius:50%;filter:blur(120px);opacity:.16;
+  background:radial-gradient(circle,var(--mint),transparent 70%);bottom:-160px;right:-80px;pointer-events:none;
+}
+.box{
+  position:relative;width:100%;max-width:392px;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-lg);padding:30px 28px 26px;
+  box-shadow:var(--shadow-lift);
+}
+.box .top{display:flex;align-items:center;gap:11px;margin-bottom:22px}
+.box .top b{font-family:Nunito;font-weight:700;font-size:20px}
+.box h2{font-size:20px;font-weight:700;margin:0 0 5px}
+.box .lead{color:var(--dim);font-size:14px;margin:0 0 20px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12.5px;color:var(--dim);margin-bottom:6px;font-family:Nunito;font-weight:600}
+.field input{
+  width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+  border-radius:var(--r-sm);padding:11px 14px;font-family:inherit;font-size:15px;transition:.2s;
+}
+.field input::placeholder{color:var(--dimmer)}
+.field input:focus{outline:none;border-color:var(--sky);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--sky) 15%,transparent)}
+.wide{
+  width:100%;border:none;cursor:pointer;background:var(--mint);color:#16201D;
+  border-radius:999px;padding:12px;font-family:Nunito;font-weight:700;font-size:15px;transition:.2s;
+}
+.wide:hover{transform:translateY(-2px);box-shadow:0 12px 24px -12px var(--mint)}
+.wide.ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--line)}
+.wide.ghost:hover{box-shadow:0 12px 24px -14px #000;border-color:var(--dimmer)}
+.split{display:flex;align-items:center;gap:11px;margin:18px 0;color:var(--dimmer);font-size:12px}
+.split::before,.split::after{content:'';flex:1;height:1px;background:var(--line)}
+.locked{
+  margin-top:18px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:11px 13px;font-size:12.5px;color:var(--dim);display:flex;gap:9px;align-items:flex-start;
+}
+.locked svg{flex:none;margin-top:2px}
+.gate .langrow{display:flex;justify-content:center;gap:6px;margin-top:16px}
+
+/* ================= SWITCHES ================= */
+.seg{display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:999px;border:1px solid var(--line)}
+.seg button{
+  border:none;background:none;color:var(--dim);cursor:pointer;border-radius:999px;
+  font-family:Nunito;font-weight:600;font-size:13px;padding:6px 12px;transition:.2s;
+}
+.seg button:hover{color:var(--text)}
+.seg button.on{background:var(--surface-2);color:var(--text)}
+
+/* ================= GUEST BANNER ================= */
+.stickytop{position:sticky;top:0;z-index:80}
+.guest{
+  display:none;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:9px 24px;background:color-mix(in srgb,var(--sky) 15%,var(--surface));
+  border-bottom:1px solid color-mix(in srgb,var(--sky) 30%,var(--line));
+  font-size:13.5px;
+}
+.guest.show{display:flex}
+.guest .in{max-width:1160px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.guest .tag{
+  background:var(--sky);color:#151D27;border-radius:999px;padding:2px 10px;
+  font-family:Nunito;font-weight:700;font-size:11.5px;flex:none;
+}
+.guest .clock{font-family:Nunito;font-weight:700;font-variant-numeric:tabular-nums}
+.guest .txt{color:var(--dim)}
+.guest .sp{flex:1;min-width:6px}
+.guest .rail{height:4px;border-radius:99px;background:color-mix(in srgb,#000 24%,transparent);
+  position:relative;width:150px;flex:none}
+.guest .rail i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--sky);transition:width 1s linear}
+.guest .mini-btn{
+  border:1px solid var(--line);background:var(--surface);color:var(--dim);cursor:pointer;
+  border-radius:999px;padding:4px 11px;font-size:12px;font-family:Nunito;font-weight:600;
+}
+.guest .mini-btn:hover{color:var(--text)}
+/* the warning and the last minute */
+.guest.warn{background:color-mix(in srgb,var(--warn) 17%,var(--surface));
+  border-bottom-color:color-mix(in srgb,var(--warn) 34%,var(--line))}
+.guest.warn .tag{background:var(--warn)} .guest.warn .rail i{background:var(--warn)}
+.guest.last{background:color-mix(in srgb,var(--alert) 18%,var(--surface));
+  border-bottom-color:color-mix(in srgb,var(--alert) 36%,var(--line))}
+.guest.last .tag{background:var(--alert)} .guest.last .rail i{background:var(--alert)}
+.guest .lastmsg{display:none;width:100%;color:var(--text);font-size:13px;padding-top:2px}
+.guest.last .lastmsg{display:block}
+
+/* ================= HEADER ================= */
+header{
+  background:color-mix(in srgb,var(--bg) 94%,transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+}
+.bar{max-width:1160px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit;flex:none}
+.brand b{font-family:Nunito;font-weight:700;font-size:19px;white-space:nowrap}
+.brand b i{font-style:normal;color:var(--mint)}
+.find{flex:1;min-width:170px;position:relative}
+.find input{
+  width:100%;border:1px solid var(--line);background:var(--surface);color:var(--text);
+  border-radius:999px;padding:11px 18px 11px 42px;font-family:inherit;font-size:15px;transition:.22s;
+}
+.find input::placeholder{color:var(--dimmer)}
+.find input:focus{outline:none;border-color:var(--sky);background:var(--surface-2);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--sky) 16%,transparent)}
+.find::before{
+  content:'';position:absolute;left:17px;top:50%;width:11px;height:11px;margin-top:-7px;
+  border:1.7px solid var(--dimmer);border-radius:50%;box-shadow:6px 6px 0 -4.6px var(--dimmer);
+}
+/* Tab styles are gone along with the tabs themselves: the library is one list. */
+.iconbtn{
+  width:36px;height:36px;flex:none;border-radius:50%;border:1px solid var(--line);
+  background:var(--surface);color:var(--dim);cursor:pointer;display:grid;place-items:center;transition:.2s;
+}
+.iconbtn:hover{color:var(--text);border-color:var(--dimmer)}
+.iconbtn.accent{color:var(--mint);border-color:color-mix(in srgb,var(--mint) 40%,var(--line))}
+.who{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+  border-radius:999px;padding:4px 6px 4px 12px}
+.who span{font-size:13px;color:var(--dim);white-space:nowrap}
+.who button{border:none;background:var(--surface-2);color:var(--dim);cursor:pointer;border-radius:999px;
+  padding:5px 11px;font-family:Nunito;font-weight:600;font-size:12.5px}
+.who button:hover{color:var(--text)}
+
+main{max-width:1160px;margin:0 auto;padding:0 24px 90px}
+
+/* ================= TOP: the row and the counters ================= */
+.topline{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:28px 0 14px}
+.topline h2{font-family:Nunito;font-size:20px;font-weight:700;margin:0}
+.topline .cnt{font-size:13.5px;color:var(--dim)}
+.topline .sp{flex:1;min-width:8px}
+.pills{display:flex;gap:7px;flex-wrap:wrap}
+.pill{display:flex;align-items:baseline;gap:6px;background:var(--surface);border:1px solid var(--line);
+  border-radius:999px;padding:6px 13px;white-space:nowrap}
+.pill b{font-family:Nunito;font-weight:700;font-size:14.5px;line-height:1}
+.pill span{font-size:12px;color:var(--dim)}
+.pill.accent b{color:var(--mint)}
+.pill.cool b{color:var(--sky)}
+
+/* "Continue".
+   This used to be a strip scrolling sideways (.rowline): three or four
+   cards fitted, the rest had to be dragged with the mouse, and how many
+   there were in total was invisible. Now it is a grid: everything in plain
+   sight at once, wrapping by itself to the screen width. */
+.contgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.mini{
+  display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:11px;transition:.22s;position:relative;min-width:0;
+}
+.mini:hover{transform:translateY(-3px);box-shadow:var(--shadow-soft);border-color:var(--dimmer)}
+.mini .mp{width:52px;height:70px;border-radius:9px;overflow:hidden;position:relative;flex:none;
+  background:var(--surface-2)}
+.mini .mp i{position:absolute;inset:0;background-size:cover;background-position:center}
+.mini .mp .noart{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:Nunito;font-weight:700;font-size:20px;color:var(--dimmer)}
+.mini .mb{min-width:0;flex:1}
+.mini h4{font-family:Nunito;font-weight:700;font-size:14px;margin:0 0 3px;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .ms{font-size:12px;color:var(--dim);display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.mini .ms b{color:var(--text);font-family:Nunito;font-weight:700}
+.mini .ms .at{color:var(--mint);font-family:Nunito;font-weight:700}
+.mini .mr{height:4px;border-radius:99px;background:var(--surface-2);margin-top:7px;position:relative}
+.mini .mr i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--sky)}
+.mini .mleft{font-size:11.5px;color:var(--dimmer);margin-top:5px}
+
+/* ================= GRID ================= */
+.sec{display:flex;align-items:baseline;gap:12px;margin:38px 0 18px}
+.sec h2{font-size:21px;font-weight:700;margin:0}
+.sec span{font-size:14px;color:var(--dim)}
+.sec .sp{flex:1}
+.sec a{font-family:Nunito;font-weight:600;font-size:14px;color:var(--sky);text-decoration:none}
+.sec a:hover{text-decoration:underline}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-min),1fr));gap:24px 20px}
+.card{text-decoration:none;color:inherit;display:block;position:relative}
+.card .wrap{position:relative;border-radius:var(--r-md)}
+.card .pic{position:relative;aspect-ratio:3/4.2;border-radius:var(--r-md);overflow:hidden;
+  box-shadow:var(--shadow-soft);transition:transform .26s cubic-bezier(.2,.7,.3,1),box-shadow .26s}
+.card .pic i{position:absolute;inset:0}
+.card:hover .pic{transform:translateY(-6px);box-shadow:var(--shadow-lift)}
+.card .cardglow{position:absolute;left:12%;right:12%;bottom:-6px;height:56px;border-radius:50%;
+  filter:blur(26px);opacity:0;transition:opacity .3s;z-index:-1}
+.card:hover .cardglow{opacity:.55}
+.card .badge{position:absolute;right:9px;top:9px;z-index:2;border-radius:999px;padding:3px 10px;
+  font-family:Nunito;font-weight:700;font-size:11.5px;
+  background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(6px);color:var(--text)}
+.card .badge.done{background:color-mix(in srgb,var(--mint) 88%,transparent);color:#16201D}
+.card .resume{position:absolute;left:9px;top:9px;z-index:2;border-radius:999px;padding:3px 9px;
+  font-family:Nunito;font-weight:700;font-size:11px;background:var(--sky);color:#151D27}
+.card .line{position:absolute;left:11px;right:11px;bottom:11px;height:5px;border-radius:99px;z-index:2;
+  background:color-mix(in srgb,#000 46%,transparent);overflow:hidden}
+.card .line i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--sky)}
+.card h3{font-family:Nunito;font-weight:700;font-size:15.5px;margin:12px 0 2px;line-height:1.25}
+.card .meta{font-size:13px;color:var(--dim)}
+
+/* The "remove from the library" button. The only free corner of a cover is
+   the bottom right: top right is the episode counter, top left "continue",
+   bottom left the second you stopped at, and along the bottom the progress
+   bar. A 22px bottom offset lifts the button just above the bar, so it does
+   not touch it. With a mouse it appears on hover, so as not to flicker
+   across the grid. On a touch screen there is no hover, so there it is
+   always visible: otherwise the button simply does not exist for a phone. */
+.card .del{position:absolute;right:9px;bottom:22px;z-index:4;width:26px;height:26px;
+  border-radius:50%;border:1px solid var(--line);cursor:pointer;padding:0;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(6px);
+  color:var(--dim);font-size:16px;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .16s,color .16s,border-color .16s,background .16s}
+.card:hover .del,.card .del:focus-visible{opacity:1}
+.card .del:hover{color:var(--sand);border-color:var(--sand);
+  background:color-mix(in srgb,var(--bg) 92%,transparent)}
+@media (hover:none){.card .del{opacity:1}}
+
+/* ================= EPISODES ================= */
+.eps-box{margin-top:52px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:24px;box-shadow:var(--shadow-soft)}
+.eps-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.eps-head h3{font-size:18px;font-weight:700;margin:0}
+.eps-head span{font-size:13.5px;color:var(--dim)}
+.eps{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px}
+.ep{border:1px solid var(--line);background:var(--surface-2);color:var(--dim);border-radius:var(--r-sm);
+  padding:11px 0;cursor:pointer;font-family:Nunito;font-weight:600;font-size:14px;transition:.18s}
+.ep:hover{color:var(--text);border-color:var(--dimmer);transform:translateY(-2px)}
+.ep.seen{background:transparent;color:var(--dimmer);border-color:transparent}
+.ep.seen::after{content:' ✓';color:var(--mint);font-size:11px}
+.ep.now{background:var(--sky);border-color:var(--sky);color:#151D27;box-shadow:0 10px 22px -12px var(--sky)}
+
+footer{border-top:1px solid var(--line);margin-top:56px}
+.beta{max-width:62ch;line-height:1.45}
+footer .in{max-width:1160px;margin:0 auto;padding:20px 24px;display:flex;
+  justify-content:space-between;align-items:center;
+  gap:18px;flex-wrap:wrap;font-size:13.5px;color:var(--dim)}
+
+/* The banner above the player: why there is nothing to watch */
+.notice{
+  display:flex;gap:11px;align-items:flex-start;margin-bottom:14px;padding:13px 16px;
+  border-radius:var(--r-md);border:1px solid color-mix(in srgb,var(--sand) 45%,var(--line));
+  background:color-mix(in srgb,var(--sand) 12%,var(--surface));
+}
+.notice[hidden]{display:none}
+.notice .ic{
+  flex:none;width:22px;height:22px;border-radius:50%;background:var(--sand);color:#20180E;
+  display:flex;align-items:center;justify-content:center;
+  font-family:Nunito;font-weight:700;font-size:14px;line-height:1;
+}
+.notice .tx{min-width:0;font-size:13.5px;color:var(--dim);line-height:1.45}
+.notice .tx b{display:block;color:var(--text);font-family:Nunito;font-weight:700;
+  font-size:14.5px;margin-bottom:2px}
+
+/* Full screen.
+   Without these lines the container goes full screen while inside it the
+   previous box with its aspect ratio stays: a small video in the middle of
+   a huge black field. From the outside it looks like "the button does not
+   work". */
+#screen:-webkit-full-screen{width:100vw;height:100vh;border-radius:0}
+#screen:-webkit-full-screen video{width:100%;height:100%;object-fit:contain}
+footer a{color:var(--sky);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* ================= THE "ABOUT THE SITE" DIALOG ================= */
+.veil{position:fixed;inset:0;z-index:150;background:rgba(8,10,14,.72);backdrop-filter:blur(5px);
+  display:none;place-items:center;padding:22px;overflow-y:auto}
+.veil.show{display:grid}
+.sheet{
+  position:relative;width:100%;max-width:520px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:28px;box-shadow:var(--shadow-lift);
+}
+.sheet .close{position:absolute;right:16px;top:16px;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--line);background:var(--surface-2);color:var(--dim);cursor:pointer;font-size:17px;line-height:1}
+.sheet .close:hover{color:var(--text)}
+.sheet .chip{display:inline-flex;align-items:center;gap:7px;background:color-mix(in srgb,var(--lilac) 18%,var(--surface-2));
+  border:1px solid color-mix(in srgb,var(--lilac) 34%,var(--line));border-radius:999px;padding:5px 13px;
+  font-family:Nunito;font-weight:700;font-size:12px;color:var(--lilac);margin-bottom:15px}
+.sheet h3{font-size:22px;font-weight:700;margin:0 0 12px}
+.sheet p{color:var(--dim);font-size:14.5px;margin:0 0 13px}
+.sheet p.strong{color:var(--text)}
+.made{display:grid;gap:8px;margin:18px 0}
+.made .r{display:flex;align-items:center;gap:11px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:var(--r-sm);padding:10px 13px}
+.made .r b{font-family:Nunito;font-weight:700;font-size:13.5px;min-width:104px}
+.made .r span{font-size:13px;color:var(--dim)}
+.made .r .who-ai{color:var(--lilac)} .made .r .who-me{color:var(--mint)}
+
+/* ================= FILTERS ================= */
+.filtbtn{
+  display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+  color:var(--dim);border-radius:999px;padding:10px 16px;cursor:pointer;flex:none;
+  font-family:Nunito;font-weight:600;font-size:14px;transition:.2s;
+}
+.filtbtn:hover{color:var(--text);border-color:var(--dimmer)}
+.filtbtn.on{background:color-mix(in srgb,var(--mint) 16%,var(--surface));border-color:var(--mint);color:var(--text)}
+
+/* The filter panel's styles (.filters, .frow, .chips, .chip, .fbot) have
+   been deleted along with the panel itself: it picked only among what was
+   already saved, while the sources cannot search for new anime by genre.
+   .chip stayed only inside .sheet — it is the "assembled with AI" badge. */
+
+.empty{
+  display:none;text-align:center;padding:44px 20px;color:var(--dim);
+  background:var(--surface);border:1px dashed var(--line);border-radius:var(--r-lg);
+}
+.empty.show{display:block}
+.empty b{display:block;font-family:Nunito;font-weight:700;font-size:16px;color:var(--text);margin-bottom:5px}
+.card.hidden{display:none}
+
+/* ================= ROULETTE ================= */
+.roul{
+  position:relative;width:100%;max-width:430px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:26px;box-shadow:var(--shadow-lift);text-align:center;
+}
+.roul h3{margin:0 0 4px;font-size:20px;font-weight:700}
+.roul .sub{color:var(--dim);font-size:13.5px;margin-bottom:20px}
+
+.roul .pickres{display:none;margin-bottom:16px}
+.roul.done .pickres{display:block}
+.roul .pickres .m{font-size:12.5px;color:var(--dim)}
+/* The cover of the title that came up: the result used to be one line of text */
+.roul .pickres .cover{
+  width:96px;aspect-ratio:3/4.2;margin:2px auto 12px;border-radius:var(--r-md);
+  background:var(--surface-2);background-size:cover;background-position:center;
+  border:1px solid var(--line);box-shadow:var(--shadow-soft);
+  display:flex;align-items:center;justify-content:center;
+}
+.roul .pickres .cover .noart{font-family:Nunito;font-weight:700;font-size:30px;color:var(--dimmer)}
+.roul .pickres .nm{font-family:Nunito;font-weight:700;font-size:19px;margin:3px 0 2px}
+/* The "Watch" button appears only together with the result */
+.roul #roul-watch{display:none;text-decoration:none;text-align:center;margin-bottom:9px}
+.roul.done #roul-watch{display:block}
+
+/* ================= LOADING SCREEN ================= */
+.boot{
+  position:fixed;inset:0;z-index:190;background:var(--bg);display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:26px;text-align:center;
+}
+.boot.show{display:flex}
+.boot .spin{width:46px;height:46px;border-radius:50%;border:3px solid var(--line);
+  border-top-color:var(--mint);animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.boot .fact{max-width:430px}
+.boot .fact .k{font-family:Nunito;font-weight:700;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--mint);margin-bottom:8px}
+.boot .fact .q{font-size:17px;line-height:1.45;font-family:Nunito;font-weight:600}
+.boot .fact .a{font-size:13px;color:var(--dim);margin-top:8px}
+.boot .bar{width:190px;height:3px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.boot .bar i{display:block;height:100%;width:0;background:var(--mint);border-radius:99px;transition:width .25s}
+
+/* ================= CONTINUE MARK ================= */
+.at{
+  display:inline-flex;align-items:center;gap:5px;color:var(--mint);
+  font-family:Nunito;font-weight:700;font-size:12px;
+}
+.at svg{flex:none}
+.card .stamp{
+  position:absolute;left:11px;bottom:22px;z-index:3;border-radius:7px;padding:2px 8px;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(6px);
+  font-family:Nunito;font-weight:700;font-size:11px;color:var(--mint);
+}
+
+/* ================= ACCOUNT PAGE ================= */
+.who{cursor:pointer}
+.who:hover{border-color:var(--dimmer)}
+.ava{
+  width:26px;height:26px;border-radius:50%;flex:none;display:grid;place-items:center;
+  font-family:Nunito;font-weight:700;font-size:12px;color:#171A21;
+  background-size:cover;background-position:center;overflow:hidden;
+}
+/* the role under the name */
+.role{
+  display:inline-block;margin-top:3px;border-radius:999px;padding:2px 10px;
+  font-family:Nunito;font-weight:700;font-size:11px;letter-spacing:.04em;
+  background:color-mix(in srgb,var(--mint) 20%,var(--surface-2));
+  border:1px solid color-mix(in srgb,var(--mint) 38%,var(--line));color:var(--mint);
+}
+.role[data-kind="user"]{
+  background:color-mix(in srgb,var(--sky) 20%,var(--surface-2));
+  border-color:color-mix(in srgb,var(--sky) 38%,var(--line));color:var(--sky);
+}
+.role[data-kind="guest"]{
+  background:color-mix(in srgb,var(--sand) 20%,var(--surface-2));
+  border-color:color-mix(in srgb,var(--sand) 38%,var(--line));color:var(--sand);
+}
+
+.panel{
+  position:relative;width:100%;max-width:560px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-lift);overflow:hidden;
+}
+.panel .phead{display:flex;align-items:center;gap:13px;padding:22px 24px;border-bottom:1px solid var(--line)}
+.panel .phead .ava{width:44px;height:44px;font-size:18px}
+.panel .phead b{font-family:Nunito;font-weight:700;font-size:18px;display:block}
+.panel .phead span{font-size:12.5px;color:var(--dim)}
+.panel .pbody{padding:6px 24px 22px;max-height:min(66vh,620px);overflow-y:auto}
+.panel .pfoot{padding:16px 24px;border-top:1px solid var(--line);display:flex;gap:10px}
+
+.grp{padding:18px 0;border-bottom:1px solid var(--line)}
+.grp:last-child{border-bottom:none}
+.grp > h4{font-family:Nunito;font-weight:700;font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--dimmer);margin:0 0 13px}
+.opt{display:flex;align-items:center;gap:14px;padding:8px 0;flex-wrap:wrap}
+.opt .lb{flex:1;min-width:150px}
+.opt .lb b{display:block;font-family:Nunito;font-weight:600;font-size:14.5px}
+.opt .lb span{font-size:12.5px;color:var(--dim)}
+
+.inp{
+  background:var(--surface-2);border:1px solid var(--line);color:var(--text);border-radius:var(--r-sm);
+  padding:9px 12px;font-family:inherit;font-size:14px;min-width:150px;
+}
+.inp:focus{outline:none;border-color:var(--mint);box-shadow:0 0 0 3px color-mix(in srgb,var(--mint) 16%,transparent)}
+select.inp{cursor:pointer}
+
+/* the yes/no switch */
+.sw{width:44px;height:25px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);
+  position:relative;cursor:pointer;flex:none;transition:.22s;padding:0}
+.sw::after{content:'';position:absolute;left:3px;top:2.5px;width:18px;height:18px;border-radius:50%;
+  background:var(--dimmer);transition:.22s}
+.sw[aria-checked="true"]{background:color-mix(in srgb,var(--mint) 35%,var(--surface-2));border-color:var(--mint)}
+.sw[aria-checked="true"]::after{left:22px;background:var(--mint)}
+
+/* colour swatches */
+.swatches{display:flex;gap:8px}
+.sc{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;transition:.18s}
+.sc:hover{transform:scale(1.09)}
+.sc.on{border-color:var(--text);box-shadow:0 0 0 3px color-mix(in srgb,var(--text) 14%,transparent)}
+
+/* choosing a logo */
+.logos{display:flex;gap:9px;flex-wrap:wrap}
+.logopick{
+  width:52px;height:52px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface-2);
+  cursor:pointer;display:grid;place-items:center;transition:.18s;padding:0;
+}
+.logopick:hover{border-color:var(--dimmer)}
+.logopick.on{border-color:var(--mint);box-shadow:0 0 0 3px color-mix(in srgb,var(--mint) 16%,transparent)}
+.logo-v{display:none}
+.logo-v.on{display:block}
+
+/* the administrator's block */
+.adm{background:color-mix(in srgb,var(--lilac) 11%,var(--surface-2));
+  border:1px solid color-mix(in srgb,var(--lilac) 26%,var(--line));border-radius:var(--r-md);padding:14px}
+.adm .accs{display:grid;gap:7px;margin:11px 0}
+.adm .acc{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-sm);padding:8px 11px;font-size:13.5px}
+.adm .acc .ava{width:22px;height:22px;font-size:10px}
+.adm .acc .sp{flex:1}
+.adm .acc em{font-style:normal;font-size:12px;color:var(--dim)}
+.small{
+  border:1px solid var(--line);background:var(--surface);color:var(--dim);cursor:pointer;
+  border-radius:999px;padding:7px 14px;font-family:Nunito;font-weight:600;font-size:13px;transition:.2s;
+}
+.small:hover{color:var(--text);border-color:var(--dimmer)}
+.small.warn{color:var(--alert);border-color:color-mix(in srgb,var(--alert) 34%,var(--line))}
+
+.saved{
+  font-size:12.5px;color:var(--mint);opacity:0;transition:.3s;font-family:Nunito;font-weight:600;
+  align-self:center;margin-left:auto;
+}
+.saved.show{opacity:1}
+
+/* ---------- for a guest the settings are read-only ---------- */
+.lockbar{
+  display:none;align-items:flex-start;gap:10px;margin:14px 0 2px;padding:11px 13px;
+  background:color-mix(in srgb,var(--sand) 14%,var(--surface-2));
+  border:1px solid color-mix(in srgb,var(--sand) 32%,var(--line));
+  border-radius:var(--r-md);font-size:13px;color:var(--dim);
+}
+.lockbar.show{display:flex}
+.lockbar b{color:var(--sand);font-family:Nunito;display:block;margin-bottom:2px;font-size:13.5px}
+.pbody.ro .grp{opacity:.55;pointer-events:none}
+.pbody.ro .lockbar{opacity:1;pointer-events:auto}
+.pfoot.ro #set-save{display:none}
+
+/* ---------- photo cropping ---------- */
+.cropwrap{max-width:300px}
+.stage{
+  width:220px;height:220px;border-radius:50%;overflow:hidden;position:relative;margin:0 auto 14px;
+  background:var(--surface-2);border:1px solid var(--line);cursor:grab;touch-action:none;
+}
+.stage.drag{cursor:grabbing}
+.stage img{position:absolute;left:0;top:0;transform-origin:0 0;user-select:none;-webkit-user-drag:none}
+.stage::after{
+  content:'';position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--mint) 60%,transparent);
+}
+.zoomrow{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.zoomrow span{font-size:12px;color:var(--dim);font-family:Nunito;font-weight:600}
+input[type=range]{
+  flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;background:var(--surface-2);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--mint);cursor:pointer;
+  border:none;box-shadow:0 3px 8px -3px #000;
+}
+input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--mint);
+  cursor:pointer;border:none}
+.hint{font-size:12px;color:var(--dimmer);text-align:center;margin-bottom:14px}
+
+/* ---------- notifications ---------- */
+.bellwrap{position:relative}
+.dotcount{
+  position:absolute;right:-2px;top:-2px;min-width:17px;height:17px;border-radius:99px;
+  background:var(--sand);color:#1B140C;font-family:Nunito;font-weight:700;font-size:10.5px;
+  display:grid;place-items:center;padding:0 4px;border:2px solid var(--bg);
+}
+.drop{
+  position:absolute;right:0;top:46px;width:min(340px,calc(100vw - 32px));z-index:90;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow-lift);overflow:hidden;display:none;
+}
+.drop.show{display:block}
+.drop .dh{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:9px}
+.drop .dh b{font-family:Nunito;font-weight:700;font-size:14.5px}
+.drop .dh span{font-size:11.5px;color:var(--dimmer);margin-left:auto}
+.drop .dl{max-height:330px;overflow-y:auto}
+.nrow{display:flex;gap:11px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line);
+  text-decoration:none;color:inherit}
+.nrow:last-child{border-bottom:none}
+.nrow:hover{background:var(--surface-2)}
+.nrow .th{width:34px;height:46px;border-radius:8px;overflow:hidden;position:relative;flex:none}
+.nrow .th i{position:absolute;inset:0}
+.nrow .nb{min-width:0;flex:1}
+.nrow .nb b{display:block;font-family:Nunito;font-weight:600;font-size:13.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nrow .nb span{font-size:12px;color:var(--dim)}
+.nrow .when{font-size:11.5px;font-family:Nunito;font-weight:700;white-space:nowrap;color:var(--dim)}
+.nrow.fresh{background:color-mix(in srgb,var(--mint) 8%,transparent)}
+.nrow.fresh .when{color:var(--mint)}
+.nrow.soon .when{color:var(--sand)}
+.drop .df{padding:10px 15px;font-size:12px;color:var(--dimmer);border-top:1px solid var(--line)}
+
+/* ================= NOTIFICATION AT SIGN-IN ================= */
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,26px);z-index:170;
+  max-width:min(440px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:13px 16px;box-shadow:var(--shadow-lift);
+  display:flex;gap:11px;align-items:flex-start;opacity:0;pointer-events:none;transition:.35s;
+}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast .ic{width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--lilac) 22%,var(--surface-2));color:var(--lilac);font-size:13px;font-weight:700}
+.toast .tx{font-size:13.5px;color:var(--dim);line-height:1.42}
+.toast .tx b{color:var(--text);font-family:Nunito;display:block;margin-bottom:2px;font-size:14px}
+.toast .x{border:none;background:none;color:var(--dimmer);cursor:pointer;font-size:17px;line-height:1;padding:0 2px}
+.toast .x:hover{color:var(--text)}
+
+@media (max-width:760px){
+  .bar{gap:10px}
+  .find{order:5;width:100%;flex-basis:100%}
+  .guest .rail{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ==================== WATCHING ==================== */
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 94%,transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar{max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.back{display:flex;align-items:center;gap:8px;color:var(--dim);text-decoration:none;
+  font-family:Nunito;font-weight:600;font-size:14px}
+.back:hover{color:var(--text)}
+.hcrumb{flex:1;min-width:0;font-size:13.5px;color:var(--dimmer);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hcrumb b{color:var(--text);font-family:Nunito;font-weight:600}
+.iconbtn{width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--line);
+  background:var(--surface);color:var(--dim);cursor:pointer;display:grid;place-items:center}
+.iconbtn:hover{color:var(--text);border-color:var(--dimmer)}
+
+/* ---------- the page's frame ---------- */
+.page{max-width:1240px;margin:0 auto;padding:22px 24px 80px;
+  display:grid;grid-template-columns:1fr 316px;gap:26px;align-items:start}
+
+/* ---------- the player ---------- */
+.player{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#0D0F14;
+  box-shadow:var(--shadow-lift)}
+.screen{aspect-ratio:16/9;position:relative;overflow:hidden;display:grid;place-items:center}
+.screen .bgart{position:absolute;inset:0;background:linear-gradient(155deg,#2B3B4A,#5C7285 52%,#101820)}
+.screen .veilg{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,transparent,rgba(8,10,14,.72))}
+.playbtn{
+  position:relative;z-index:3;width:74px;height:74px;border-radius:50%;border:none;cursor:pointer;
+  background:color-mix(in srgb,var(--mint) 92%,transparent);color:#16201D;
+  display:grid;place-items:center;transition:.22s;box-shadow:0 18px 40px -16px rgba(0,0,0,.9);
+}
+.playbtn:hover{transform:scale(1.06)}
+/* The large heading has been moved down: above it there is now a strip
+   with the dub and the source, and they used to overlap — the name was read
+   twice, one over the other. */
+/* The name and the episode number stayed in the markup, but out of sight:
+   the code and screen readers read them. Over the frame they hung as a
+   third copy of the same name and covered the picture. */
+.titlemeta{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);
+  white-space:nowrap;pointer-events:none}
+
+/* the time bar */
+/* touch-action:none is essential: without it a finger on the bar scrolls
+   the page rather than dragging the handle — the browser gives the gesture
+   to scrolling and stops sending pointermove. The strip is taller than the
+   bar itself (5px cannot be caught with a finger), so it has an invisible
+   margin above and below. */
+.track{position:relative;height:5px;background:color-mix(in srgb,#fff 12%,transparent);
+  cursor:pointer;touch-action:none}
+.track::before{content:'';position:absolute;left:0;right:0;top:-9px;bottom:-9px}
+/* While it is being dragged the bar is thicker and the handle larger: it
+   is visible that it is this you are holding, and where you will land. */
+.track.dragging{height:7px;margin-top:-1px}
+.track.dragging .knob{transform:scale(1.6)}
+.track:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+.track .buf{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,#fff 14%,transparent);width:74%}
+.track .pos{position:absolute;left:0;top:0;bottom:0;background:var(--mint);width:38%}
+.track .knob{position:absolute;left:38%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;
+  border-radius:50%;background:var(--mint);box-shadow:0 3px 10px -3px #000;transition:transform .18s}
+.track:hover .knob{transform:scale(1.25)}
+/* markers: the opening and the preview of the next episode */
+.track .mark{position:absolute;top:0;bottom:0;width:2px;background:var(--sand);opacity:.75}
+
+/* the bottom panel */
+.ctrl{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#14171E;flex-wrap:wrap}
+.cbtn{width:36px;height:36px;border-radius:10px;border:none;background:transparent;color:var(--dim);
+  cursor:pointer;display:grid;place-items:center;transition:.16s;flex:none}
+.cbtn:hover{background:#1E222B;color:var(--text)}
+.time{font-family:Nunito;font-weight:600;font-size:13px;color:var(--dim);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.time b{color:var(--text)}
+.ctrl .sp{flex:1;min-width:4px}
+
+/* the drop-down settings in the panel */
+.sel{position:relative}
+.selbtn{
+  display:flex;align-items:center;gap:7px;background:#1E222B;border:1px solid #2B303B;color:var(--dim);
+  border-radius:999px;padding:7px 13px;cursor:pointer;font-family:Nunito;font-weight:600;font-size:13px;
+  transition:.16s;white-space:nowrap;
+}
+.selbtn:hover{color:var(--text);border-color:#3A4150}
+.selbtn i{font-style:normal;color:var(--text)}
+.selbtn .cap{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer)}
+.menu{
+  position:absolute;right:0;bottom:46px;min-width:190px;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow-lift);
+  padding:6px;display:none;z-index:20;
+  /* The menu grows upwards from the button, and it has nowhere to grow:
+     eight sources, three headings and their captions do not fit into a
+     short window — the top items go off the edge of the screen, and there
+     is no way to reach them at all. And at the top is exactly what is
+     needed most: "it is here". Hence a ceiling and a scrollbar of its own.
+     The same for the list of dubs: there can be up to forty of them. */
+  max-height:min(62vh,430px);overflow-y:auto;overscroll-behavior:contain;
+}
+.menu.show{display:block}
+.menu .mh{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dimmer);
+  padding:7px 10px 5px}
+.menu button{
+  display:flex;width:100%;align-items:center;gap:9px;background:none;border:none;color:var(--dim);
+  cursor:pointer;text-align:left;padding:8px 10px;border-radius:9px;font-size:13.5px;transition:.14s;
+}
+.menu button:hover{background:var(--surface-2);color:var(--text)}
+.menu button.on{color:var(--text)}
+.menu button.on::after{content:'✓';margin-left:auto;color:var(--mint)}
+.menu .sub{font-size:11.5px;color:var(--dimmer);margin-left:auto}
+
+/* ---------- under the player ---------- */
+.under{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.chipbtn{
+  display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+  color:var(--text);border-radius:999px;padding:9px 16px;cursor:pointer;text-decoration:none;
+  font-family:Nunito;font-weight:600;font-size:14px;transition:.18s;
+}
+.chipbtn:hover{border-color:var(--dimmer);transform:translateY(-1px)}
+.chipbtn.primary{background:var(--mint);color:#16201D;border-color:var(--mint)}
+.chipbtn.primary:hover{box-shadow:0 12px 24px -12px var(--mint)}
+.chipbtn.mute{color:var(--dim)}
+
+.tag{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:999px;padding:4px 11px;font-size:12px;color:var(--dim)}
+.tag b{color:var(--text);font-family:Nunito;font-weight:600}
+/* An empty banner is not a banner, it is a grey rectangle about nothing.
+   Exactly such a one hung next to the "Next episode" button: "continue from
+   09:08" is written into it, but until an episode has been started there is
+   nothing to write, while the background and the border stayed. */
+.tag:empty{display:none}
+
+/* the description */
+.desc{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:20px 22px;box-shadow:var(--shadow-soft)}
+.desc h3{margin:0 0 8px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:9px}
+.nospoil{
+  font-family:Nunito;font-weight:700;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  background:color-mix(in srgb,var(--mint) 18%,var(--surface-2));
+  border:1px solid color-mix(in srgb,var(--mint) 36%,var(--line));
+  color:var(--mint);border-radius:999px;padding:3px 9px;
+}
+.epnote{font-size:13.5px}
+.desc p{margin:0 0 14px;color:var(--dim);font-size:14.5px}
+.tags{display:flex;gap:7px;flex-wrap:wrap}
+
+/* frames from the episode */
+.strip{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;margin-top:8px;scrollbar-width:thin}
+.shot{flex:0 0 168px;border-radius:var(--r-sm);overflow:hidden;position:relative;aspect-ratio:16/9;
+  border:1px solid var(--line);cursor:pointer;transition:.2s}
+.shot:hover{transform:translateY(-3px);box-shadow:var(--shadow-soft)}
+.shot i{position:absolute;inset:0}
+.shot span{position:absolute;right:6px;bottom:6px;background:rgba(10,12,17,.8);border-radius:6px;
+  padding:1px 7px;font-family:Nunito;font-weight:600;font-size:11px}
+
+/* ---------- the right column ----------
+   The panels here are called by the same word, card, as the title cards in
+   the library — the name is taken twice. While the rule stood without a
+   qualifier, it reached the cards in the grid too: the poster got a border
+   and a background that have no business being there. We limit it to the
+   column. */
+.side{display:grid;gap:18px;position:sticky;top:80px}
+.side .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-soft);overflow:hidden}
+.card .ch{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:9px}
+.card .ch h3{margin:0;font-size:15px;font-weight:700}
+.card .ch span{font-size:12.5px;color:var(--dim);margin-left:auto}
+.card .cb{padding:14px 18px 18px}
+
+/* the next episode */
+.next{display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit}
+.next .nt{width:74px;height:44px;border-radius:9px;overflow:hidden;position:relative;flex:none}
+.next .nt i{position:absolute;inset:0}
+.next .nb b{display:block;font-family:Nunito;font-weight:700;font-size:14px}
+.next .nb span{font-size:12.5px;color:var(--dim)}
+.autonext{display:flex;align-items:center;gap:9px;margin-top:13px;font-size:12.5px;color:var(--dim)}
+.sw{width:40px;height:23px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);
+  position:relative;cursor:pointer;flex:none;padding:0;transition:.22s}
+.sw::after{content:'';position:absolute;left:3px;top:2px;width:17px;height:17px;border-radius:50%;
+  background:var(--dimmer);transition:.22s}
+.sw[aria-checked="true"]{background:color-mix(in srgb,var(--mint) 35%,var(--surface-2));border-color:var(--mint)}
+.sw[aria-checked="true"]::after{left:19px;background:var(--mint)}
+
+/* the episode list */
+.eplist{max-height:330px;overflow-y:auto;padding:8px 10px 10px}
+.eprow{display:flex;align-items:center;gap:11px;width:100%;background:none;border:none;cursor:pointer;
+  color:inherit;padding:8px 9px;border-radius:10px;text-align:left;transition:.14s}
+.eprow:hover{background:var(--surface-2)}
+.eprow .n{width:26px;font-family:Nunito;font-weight:700;font-size:13px;color:var(--dimmer);flex:none}
+.eprow .tt{flex:1;min-width:0;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eprow .dur{font-size:12px;color:var(--dimmer)}
+.eprow.seen .n{color:var(--mint)}
+.eprow.seen .tt{color:var(--dim)}
+.eprow.now{background:color-mix(in srgb,var(--mint) 16%,var(--surface-2))}
+.eprow.now .n{color:var(--mint)}
+
+/* the title's progress */
+.prog{height:6px;border-radius:99px;background:var(--surface-2);position:relative;margin:11px 0 8px}
+.prog i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--mint)}
+.pnote{font-size:12.5px;color:var(--dim);display:flex;justify-content:space-between;gap:8px}
+
+@media (max-width:1000px){
+  .page{grid-template-columns:1fr}
+  .side{position:static}
+}
+@media (max-width:620px){
+  .ctrl{gap:7px;padding:9px 10px}
+  .time{width:100%;order:9}
+  .page{padding:16px 14px 60px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ==================== THE YEAR IN REVIEW ==================== */
+header{border-bottom:1px solid var(--line)}
+.bar{max-width:960px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px}
+.back{display:flex;align-items:center;gap:8px;color:var(--dim);text-decoration:none;
+  font-family:Nunito;font-weight:600;font-size:14px}
+.back:hover{color:var(--text)}
+.bar .sp{flex:1}
+.share{
+  display:inline-flex;align-items:center;gap:8px;background:var(--mint);color:#16201D;border:none;
+  border-radius:999px;padding:9px 17px;cursor:pointer;font-family:Nunito;font-weight:700;font-size:14px;
+  transition:.2s;
+}
+.share:hover{transform:translateY(-2px);box-shadow:0 12px 24px -12px var(--mint)}
+
+/* The container of the year-in-review page.
+   The selector used to be simply `.wrap` — and it hit EVERY element with
+   that class, including the cover wrapper inside a card on the main page. A
+   card 206px wide got a 112px cover (24px of padding on each side) and 90px
+   of emptiness under it. That is, half the room on the main page went
+   nowhere because of a rule belonging to an entirely different page.
+   `body > .wrap` — the page's container lies directly in body, a card's
+   wrapper does not. */
+body > .wrap{max-width:960px;margin:0 auto;padding:0 24px 90px}
+
+/* ---------- the title ---------- */
+.hero{position:relative;text-align:center;padding:58px 0 44px}
+.hero .glow{position:absolute;left:50%;top:0;width:520px;height:300px;margin-left:-260px;
+  border-radius:50%;filter:blur(90px);opacity:.24;pointer-events:none;
+  background:radial-gradient(circle,var(--mint),transparent 70%)}
+.hero .k{position:relative;font-family:Nunito;font-weight:700;font-size:12px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--mint);margin-bottom:12px}
+.hero h1{position:relative;margin:0 0 10px;font-size:clamp(38px,8vw,72px);font-weight:700;line-height:.98}
+.hero h1 em{font-style:normal;color:var(--mint)}
+.hero p{position:relative;color:var(--dim);margin:0;font-size:16px}
+
+/* ---------- the large numbers ---------- */
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:16px}
+.b{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:22px;box-shadow:var(--shadow-soft);position:relative;overflow:hidden}
+.b .n{font-family:Nunito;font-weight:700;font-size:clamp(34px,5.4vw,46px);line-height:1;margin-bottom:5px}
+.b .l{font-size:13.5px;color:var(--dim)}
+.b .sub{font-size:12.5px;color:var(--dimmer);margin-top:7px}
+.b.mint .n{color:var(--mint)} .b.sky .n{color:var(--sky)}
+.b.lilac .n{color:var(--lilac)} .b.sand .n{color:var(--sand)}
+
+/* ---------- the year's calendar ----------
+   The same clash of names as with the right column: here card is a block of
+   the page, not a title card. We qualify by tag: the year's blocks are
+   marked up as section, the cards in the library as links. */
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:22px;box-shadow:var(--shadow-soft);margin-top:16px}
+section.card > h3{margin:0 0 4px;font-size:17px;font-weight:700}
+section.card > .cap{font-size:13.5px;color:var(--dim);margin-bottom:18px}
+.year{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.mon{flex:0 0 auto}
+.mon .mn{font-size:11px;color:var(--dimmer);font-family:Nunito;font-weight:600;margin-bottom:6px;
+  text-align:center}
+.days{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;gap:3px}
+.d{width:9px;height:9px;border-radius:2.5px;background:var(--surface-2)}
+.d.l1{background:color-mix(in srgb,var(--mint) 28%,var(--surface-2))}
+.d.l2{background:color-mix(in srgb,var(--mint) 55%,var(--surface-2))}
+.d.l3{background:color-mix(in srgb,var(--mint) 80%,var(--surface-2))}
+.d.l4{background:var(--mint)}
+.legend{display:flex;align-items:center;gap:7px;margin-top:13px;font-size:12px;color:var(--dimmer)}
+
+/* ---------- genres ---------- */
+.gen{display:grid;gap:11px}
+.g{display:flex;align-items:center;gap:12px}
+.g .nm{width:130px;font-family:Nunito;font-weight:600;font-size:14px;flex:none}
+.g .track{flex:1;height:9px;border-radius:99px;background:var(--surface-2);position:relative;overflow:hidden}
+.g .track i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}
+.g .v{width:52px;text-align:right;font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
+
+/* ---------- two columns ---------- */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+
+/* a record */
+.rec{display:flex;align-items:center;gap:16px}
+.rec .num{font-family:Nunito;font-weight:700;font-size:52px;line-height:1;color:var(--sand)}
+.rec .tx b{display:block;font-family:Nunito;font-weight:600;font-size:15px;margin-bottom:2px}
+.rec .tx span{font-size:13px;color:var(--dim)}
+
+/* the top title */
+.top1{display:flex;gap:14px;align-items:center}
+.top1 .cv{width:62px;height:88px;border-radius:10px;overflow:hidden;position:relative;flex:none;
+  box-shadow:var(--shadow-soft)}
+.top1 .cv i{position:absolute;inset:0}
+.top1 .tx b{display:block;font-family:Nunito;font-weight:700;font-size:16px;margin-bottom:3px}
+.top1 .tx span{font-size:13px;color:var(--dim);display:block}
+
+/* the strip of months */
+.months{display:grid;gap:9px;margin-top:2px}
+.m{display:flex;align-items:center;gap:11px}
+.m .mm{width:34px;font-size:12px;color:var(--dimmer);font-family:Nunito;font-weight:600;flex:none}
+.m .tr{flex:1;height:7px;border-radius:99px;background:var(--surface-2);position:relative}
+.m .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--sky)}
+.m .vv{width:42px;text-align:right;font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+.m.best .tr i{background:var(--mint)}
+.m.best .vv{color:var(--mint)}
+
+footer{border-top:1px solid var(--line);margin-top:44px}
+footer .in{max-width:960px;margin:0 auto;padding:20px 24px;font-size:13.5px;color:var(--dim);
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ==================== REAL VIDEO ==================== */
+#video{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;background:#000;display:block;z-index:1;
+}
+.screen .bgart,.screen .veilg{transition:opacity .3s;z-index:2}
+.playbtn{z-index:5}
+.loadwrap{
+  position:absolute;inset:0;z-index:6;display:grid;place-items:center;
+  background:rgba(8,10,14,.45);
+}
+.loadwrap .spin{
+  width:42px;height:42px;border-radius:50%;
+  border:3px solid rgba(255,255,255,.18);border-top-color:var(--mint);
+  animation:sp 1s linear infinite;
+}
+
+/* ==================== PERFORMANCE ==================== */
+/* Blur is the most expensive operation for a browser. On large areas and
+   on hover it was what gave the feeling of stuttering. We keep it only
+   where it really shows, and make it softer. */
+.card .cardglow{display:none}
+.glow,.glowS{filter:blur(48px);opacity:.22}
+.gate .aura,.gate .aura2{filter:blur(80px)}
+header{backdrop-filter:none;background:var(--bg)}
+.stickytop{background:var(--bg)}
+.card .badge{backdrop-filter:none;background:rgba(16,19,26,.82)}
+.card .resume,.card .stamp{backdrop-filter:none;background:rgba(16,19,26,.85)}
+.veil{backdrop-filter:none;background:rgba(8,10,14,.82)}
+
+/* We hint to the browser that only the position moves —
+   then it does not redraw the whole card. */
+.card .pic,.mini{will-change:transform}
+.card:not(:hover) .pic,.mini:not(:hover){will-change:auto}
+
+/* ==================== COVERS ==================== */
+/* Pictures from the sources come in any shape. They used to be stretched
+   and blurred — now they fill the card, centred and undistorted. */
+.card .pic i,.mini .mp i,.nrow .th i,.next .nt i,.top1 .cv i{
+  background-size:cover;background-position:center center;background-repeat:no-repeat;
+}
+.card .pic{background:var(--surface-2)}
+
+/* ==================== VOLUME ==================== */
+.volbox{display:flex;align-items:center;gap:6px;flex:none}
+#c-vol{
+  width:74px;height:4px;-webkit-appearance:none;appearance:none;border-radius:99px;
+  background:linear-gradient(to right,var(--mint) var(--fill,100%),#2B303B var(--fill,100%));
+  cursor:pointer;
+}
+#c-vol::-webkit-slider-thumb{
+  -webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+  background:var(--mint);border:none;cursor:pointer;
+}
+#c-vol::-moz-range-thumb{
+  width:13px;height:13px;border-radius:50%;background:var(--mint);border:none;cursor:pointer;
+}
+@media (max-width:700px){ #c-vol{display:none} }
+
+/* ==================== COVER PLACEHOLDER ==================== */
+/* If there is no cover, instead of an empty rectangle we show the name's
+   first letter — that way the cards look alike. */
+.card .pic .noart,.mini .mp .noart{
+  position:absolute;inset:0;display:grid;place-items:center;z-index:0;
+  font-family:Nunito,sans-serif;font-weight:700;color:rgba(255,255,255,.32);
+  background:linear-gradient(155deg,#333A47,#232936 60%,#1B2029);
+}
+.card .pic .noart{font-size:44px}
+.mini .mp .noart{font-size:18px}
+
+/* ==================== THE SAME LOOK ON EVERY SCREEN ==================== */
+/* The player and the panel under it used to sprawl on narrow screens:
+   the buttons wrapped one at a time, the time slid down. */
+@media (max-width:900px){
+  .page{grid-template-columns:1fr;gap:20px}
+  .side{position:static}
+  .eplist{max-height:260px}
+}
+@media (max-width:700px){
+  .page{padding:14px 12px 60px}
+  .ctrl{gap:6px;padding:9px 8px;flex-wrap:wrap}
+  .cbtn{width:34px;height:34px}
+  .time{font-size:12px;order:0}
+  .ctrl .sp{display:none}
+  .sel{flex:1 1 auto;min-width:0}
+  .selbtn{width:100%;justify-content:center;padding:8px 10px;font-size:12.5px}
+  .selbtn .cap{display:none}
+  .menu{left:0;right:auto;min-width:170px;max-width:calc(100vw - 32px)}
+  .under{gap:8px}
+  .chipbtn{flex:1 1 auto;justify-content:center;font-size:13px;padding:9px 12px}
+  .desc{padding:16px 15px}
+  .bar{padding:11px 12px;gap:9px}
+  .brand b{font-size:17px}
+  .topline{gap:9px}
+  .pills{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px}
+  .pill{flex:none}
+  .hcrumb{font-size:12.5px}
+}
+@media (max-width:480px){
+  main{padding-left:12px;padding-right:12px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px 10px}
+  .mini{flex-basis:180px}
+  .chip{padding:6px 11px;font-size:13px}
+  .panel .pbody{padding:6px 16px 18px}
+  .panel .phead,.panel .pfoot{padding:16px}
+  .opt{gap:10px}
+  .opt .lb{min-width:120px}
+  .inp{min-width:120px;width:100%}
+}
+/* The settings panel and the dialogs must not run off the screen */
+.veil{padding:16px}
+.panel,.sheet,.roul{max-height:calc(100vh - 32px);overflow-y:auto}
+
+/* The cover covers the letter placeholder once it has loaded */
+.card .pic i,.mini .mp i{z-index:1}
+.card .badge,.card .resume,.card .stamp,.card .line{z-index:3}
+
+/* A player error goes on a line of its own over the frame, not in place of the name */
+.playerr{
+  position:absolute;left:16px;right:16px;bottom:16px;z-index:7;margin:0;
+  text-align:center;
+}
+
+/* ================= LIBRARY TABS ================= */
+.sec .tabs{display:flex;gap:4px;background:var(--surface);padding:4px;
+  border-radius:999px;border:1px solid var(--line);flex:none}
+.sec .tabs a{padding:7px 15px;border-radius:999px;text-decoration:none;color:var(--dim);
+  font-weight:700;font-size:13.5px;transition:.18s;white-space:nowrap}
+.sec .tabs a:hover{color:var(--text)}
+.sec .tabs a.on{background:var(--surface-2);color:var(--text);box-shadow:0 4px 12px -8px #000}
+
+/* Marks on the cover: finished, or which episode you stopped at */
+.card .done-mark{position:absolute;left:9px;top:9px;z-index:2;border-radius:999px;
+  padding:4px 11px;font-weight:800;font-size:11px;
+  background:color-mix(in srgb,var(--mint) 90%,transparent);color:#16201D}
+.card .count{position:absolute;right:9px;top:9px;z-index:2;border-radius:999px;
+  padding:4px 10px;font-weight:800;font-size:11.5px;color:var(--text);
+  background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(6px)}
+/* The watch bar: how many episodes are behind you */
+.card .line{position:absolute;left:11px;right:11px;bottom:11px;height:5px;
+  border-radius:99px;z-index:2;overflow:hidden;
+  background:color-mix(in srgb,#000 52%,transparent)}
+.card .line i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;
+  background:var(--sky)}
+
+/* ================= THE ADMINISTRATOR'S ANNOUNCEMENT ================= */
+.sitenews{display:flex;gap:12px;align-items:flex-start;margin-bottom:22px;
+  padding:14px 18px;border-radius:var(--r-md);
+  border:1px solid color-mix(in srgb,var(--sky) 42%,var(--line));
+  background:color-mix(in srgb,var(--sky) 11%,var(--surface))}
+.sitenews[hidden]{display:none}
+.sitenews .ic{flex:none;width:22px;height:22px;border-radius:50%;background:var(--sky);
+  color:#151D27;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:13px;line-height:1}
+.sitenews .tx{min-width:0;font-size:14px;color:var(--text);line-height:1.55;
+  white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* ================= ROULETTE ================= */
+.roul-load{padding:26px 0}
+.roul-load[hidden]{display:none}
+.roul .pickres .rtags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:9px}
+.roul .pickres .rtags .tag{background:var(--surface-2);border:1px solid var(--line);
+  border-radius:999px;padding:4px 11px;font-size:12px;color:var(--dim)}
+.roul .pickres .about{margin-top:12px;font-size:13.5px;line-height:1.55;color:var(--dim);
+  text-align:left;max-height:168px;overflow:auto}
+
+/* ================= SIGN-IN BY CODE ================= */
+.check{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px;
+  color:var(--dim);user-select:none}
+.check input{width:17px;height:17px;accent-color:var(--mint);cursor:pointer}
+.twofa{display:flex;gap:18px;flex-wrap:wrap;padding:16px 0 4px;
+  border-top:1px solid var(--line);margin-top:4px}
+.twofa[hidden]{display:none}
+.twofa .qrwrap{flex:none;background:#fff;padding:10px;border-radius:var(--r-md);
+  line-height:0;box-shadow:var(--shadow-soft)}
+.twofa .qrwrap img{display:block;width:184px;height:184px;image-rendering:pixelated}
+.twofa-steps{flex:1;min-width:220px;font-size:13.5px;color:var(--dim);line-height:1.6}
+.twofa-steps p{margin:0 0 6px}
+.codrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.inp.code{width:120px;letter-spacing:.28em;font-weight:800;text-align:center;
+  font-variant-numeric:tabular-nums}
+.manual{margin-top:10px;font-size:12.5px}
+.manual summary{cursor:pointer;color:var(--sky)}
+.manual code{display:block;margin-top:7px;padding:9px 11px;border-radius:9px;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+  font-size:12.5px;word-break:break-all;letter-spacing:.06em}
+
+/* A calm paragraph in the "about the project" dialog */
+.sheet .quiet{color:var(--dimmer);font-size:13px;line-height:1.6}
+
+/* ================= OUR OWN DIALOGS (instead of confirm/prompt/alert) ================= */
+/* Our own dialog must lie over everything, including the account page and
+   the news dialog: it is always opened FROM them. At z-index:60 it ended up
+   under the settings panel (which has 150) — the dialog was created but
+   could not be seen, and the click looked like "nothing happened". */
+.veil.dialog{z-index:400}
+.dbox{
+  width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:24px;box-shadow:var(--shadow-lift);
+}
+.dbox h3{margin:0 0 8px;font-size:19px;font-weight:800;line-height:1.3}
+.dbox p{margin:0 0 18px;font-size:14px;color:var(--dim);line-height:1.55}
+.dbox .inp{margin-bottom:18px}
+.dbox .drow{display:flex;flex-direction:column;gap:9px}
+.dbox .wide{width:100%}
+.dbox .wide.danger{background:var(--sand);color:#20180E}
+.dbox .wide.danger:hover{filter:brightness(1.06)}
+
+/* ==================== PARTS OF A FRANCHISE ====================
+   A list of what came out for one story: seasons, films, OVAs and specials
+   by year. It opens on a click on a card from the search. */
+.frsheet{max-width:620px;padding:24px}
+.frhead{display:flex;gap:15px;align-items:flex-start;margin:0 30px 16px 0}
+.frart{
+  width:74px;height:100px;flex:none;border-radius:var(--r-sm);background:var(--surface-2);
+  background-size:cover;background-position:center;display:flex;align-items:center;
+  justify-content:center;overflow:hidden;
+}
+.frart .noart{font-family:Nunito;font-weight:700;font-size:26px;color:var(--dimmer)}
+.frtx{min-width:0;padding-top:2px}
+.frtx h3{margin:0;font-size:20px;font-weight:700;line-height:1.2}
+.frsub{color:var(--dimmer);font-size:13px;margin-top:3px}
+.frsub:empty{display:none}
+.frnote{color:var(--dim);font-size:13px;margin-top:7px}
+
+/* The list scrolls inside itself: "Ван-Пис" has seventy-six parts, and
+   without this the sheet would run three screens down along with the
+   header. */
+.parts{max-height:min(56vh,460px);overflow-y:auto;margin:0 -6px;padding:0 6px}
+.part{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:8px 10px;margin-bottom:8px;color:inherit;transition:border-color .18s ease,transform .18s ease;
+}
+.part:hover{border-color:var(--dimmer);transform:translateX(2px)}
+.part.busy{opacity:.55;pointer-events:none}
+.part .th{
+  width:38px;height:52px;flex:none;border-radius:8px;background:var(--surface);
+  position:relative;overflow:hidden;
+}
+.part .th i{position:absolute;inset:0;background-size:cover;background-position:center}
+.part .tx{min-width:0;flex:1;display:block}
+.part .nm{
+  display:block;font-family:Nunito;font-weight:700;font-size:14.5px;line-height:1.3;
+  color:var(--text);
+}
+.part .m{display:block;font-size:12.5px;color:var(--dim);margin-top:2px}
+/* The mark on the first row. The list is sorted by year, but twenty-nine
+   identical rows still do not answer the question "where do I start" — the
+   mark does. */
+.part .first{
+  display:inline-block;margin-left:7px;vertical-align:middle;border-radius:999px;
+  padding:1px 8px;font-size:11px;font-weight:700;line-height:1.5;
+  background:color-mix(in srgb,var(--mint) 20%,var(--surface));
+  color:var(--mint);border:1px solid color-mix(in srgb,var(--mint) 34%,var(--line));
+}
+.part .go{flex:none;color:var(--dimmer);font-size:20px;line-height:1;width:14px;text-align:center}
+.part:hover .go{color:var(--mint)}
+
+@media (max-width:520px){
+  .frsheet{padding:20px 16px}
+  .frhead{gap:12px;margin-right:26px}
+  .frart{width:58px;height:80px}
+  .frtx h3{font-size:18px}
+}
+
+/* ==================== THIS STORY IN FULL ====================
+   The same list of parts as in the search, but in the narrow column next to
+   the player. Two differences: it is tighter, and what is open right now is
+   marked in it. */
+.sideparts{max-height:300px;overflow-y:auto;padding:10px 12px 12px;margin:0}
+.sideparts .part{padding:7px 8px;gap:9px;margin-bottom:7px}
+.sideparts .part:last-child{margin-bottom:0}
+.sideparts .part .th{width:32px;height:44px}
+.sideparts .part .nm{font-size:13.5px}
+.sideparts .part .m{font-size:12px}
+.sideparts .part .go{font-size:17px}
+
+/* The open part is not a button: there is nowhere to click on what is
+   already open. So it is not highlighted on hover and does not slide
+   sideways. */
+.part.now{
+  border-color:color-mix(in srgb,var(--mint) 45%,var(--line));
+  background:color-mix(in srgb,var(--mint) 11%,var(--surface-2));
+  cursor:default;
+}
+.part.now:hover{transform:none;border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}
+.part.now .go{color:var(--mint)}
+.part .now-tag{
+  display:inline-block;margin-left:7px;vertical-align:middle;border-radius:999px;
+  padding:1px 8px;font-size:11px;font-weight:700;line-height:1.5;
+  background:var(--mint);color:#16201D;
+}
+
+@media (max-width:900px){
+  .sideparts{max-height:260px}
+}
+
+/* ---------- division inside the menu ----------
+   A heading for a part of the list. In its place there used to be the .sub
+   class — the same as the "many dubs" caption inside the buttons. The
+   heading and the contents looked alike, and the division did not read: the
+   line "it is here" looked like just another line of small grey text.
+
+   Now it has a line above it, a round icon and a colour of its own — green
+   where the title is, muted where it was not checked, and dim where it was
+   looked for and not found. */
+/* The list of sources is wider than the other menus: every row has a
+   caption ("many dubs", "not here"), and in a narrow column it wrapped onto
+   a second line — because of which eight items looked like sixteen and the
+   group headings were lost in that mush. */
+#m-s{min-width:264px}
+.menu .sub{white-space:nowrap}
+.menu button{gap:12px}
+
+.menu .mgroup{
+  display:flex;align-items:center;gap:7px;margin:8px 4px 4px;padding:9px 6px 5px;
+  white-space:nowrap;
+  border-top:1px solid var(--line);
+  font-family:Nunito;font-weight:700;font-size:11px;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--dimmer);
+}
+.menu .mgroup:first-of-type{margin-top:4px;border-top:none;padding-top:2px}
+.menu .mgroup .dot{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:15px;height:15px;border-radius:50%;font-size:9px;font-style:normal;
+  background:var(--surface-2);color:var(--dimmer);line-height:1;
+}
+.menu .mgroup.yes{color:var(--mint)}
+.menu .mgroup.yes .dot{background:color-mix(in srgb,var(--mint) 26%,var(--surface-2));
+  color:var(--mint)}
+.menu .mgroup.no .dot{background:color-mix(in srgb,var(--alert) 20%,var(--surface-2));
+  color:var(--alert)}
+
+/* A source that does not have this title. We do not hide it: a vanished
+   row explains nothing, a person sees seven items instead of eight and does
+   not know where the eighth went. We show it switched off — that is the
+   answer. */
+.menu button.gone{color:var(--dimmer);cursor:default;opacity:.72}
+.menu button.gone:hover{background:none;color:var(--dimmer)}
+.menu button.gone .sub{color:color-mix(in srgb,var(--alert) 70%,var(--dimmer))}
+
+/* A service line in the menu: "loading…", "looking at who has it…".
+   Neither a heading nor a button — simply a state. */
+.menu .mnote{padding:7px 10px;font-size:12px;color:var(--dimmer)}
+
+/* A caption instead of a menu: when there is nothing to choose from, the
+   button stops looking like a button — but the dub's name stays in sight. */
+.selbtn.flat{cursor:default;opacity:.85}
+.selbtn.flat:hover{border-color:var(--line);color:inherit}
+.selbtn.flat::after{display:none}
+/* The "as text" mark on subtitles: this is not another dub but another way
+   to watch, and the difference must be visible before the click. */
+.menu button .sub{margin-left:7px;font-size:11px;color:var(--dimmer)}
+
+/* The button on the banner: "Choose another source". It stands where the
+   person reads about the trouble — not where the cure is hidden away. */
+.noticego{
+  flex:none;align-self:center;margin-left:auto;white-space:nowrap;cursor:pointer;
+  background:var(--sand);color:#20180E;border:none;border-radius:999px;
+  padding:8px 15px;font-family:Nunito;font-weight:700;font-size:12.5px;transition:.15s;
+}
+.noticego:hover{transform:translateY(-1px);box-shadow:0 10px 20px -12px var(--sand)}
+.noticego[hidden]{display:none}
+@media (max-width:620px){
+  .notice{flex-wrap:wrap}
+  .noticego{margin-left:33px;align-self:flex-start}
+}
+
+/* The "Original with subtitles" row at the bottom of the dub list. This is
+   not one of the dubs but an offer to look elsewhere — hence it is set off
+   by a line and highlighted. */
+.menu button.findsubs{
+  margin-top:6px;padding-top:11px;border-top:1px solid var(--line);
+  border-radius:0 0 9px 9px;color:var(--mint);font-weight:700;
+}
+.menu button.findsubs:hover{background:color-mix(in srgb,var(--mint) 10%,transparent)}
+.menu button.findsubs .sub{color:var(--dimmer);font-weight:400}
+
+/* ==================== SCROLLBARS ====================
+   The browser draws them its own way: on Windows that is a white strip with
+   little arrows, and in the middle of a dark site it looks like a cut-out
+   from another program. We paint them to match our own look — both in new
+   browsers (scrollbar-color) and in those that understand only the WebKit
+   way. */
+:root{scrollbar-color:var(--line) transparent;scrollbar-width:thin}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{
+  background:var(--line);border-radius:99px;
+  border:2px solid transparent;background-clip:content-box;
+}
+*::-webkit-scrollbar-thumb:hover{background:var(--dimmer);background-clip:content-box}
+/* Arrows at the ends are a habit from the nineties, they take up more room
+   than they help. */
+*::-webkit-scrollbar-button{display:none}
+*::-webkit-scrollbar-corner{background:transparent}
+
+/* ==================== PLAYER: PANELS AND FULL SCREEN ==================== */
+
+/* A transparent layer for clicks on the picture. It lies OVER the video but
+   UNDER the captions and buttons: a click on the "watch" button must not
+   count as a click on the screen at the same time. */
+.screen .tapzone{position:absolute;inset:0;z-index:3;cursor:pointer}
+
+/* The sign that flashes in the middle on play and pause. Without it a click
+   on the picture looks like "nothing happened": the image froze, and why is
+   unclear. */
+.screen .tapflash{
+  position:absolute;left:50%;top:50%;width:74px;height:74px;margin:-37px 0 0 -37px;
+  border-radius:50%;background:rgba(10,12,16,.62);color:#fff;z-index:6;
+  display:grid;place-items:center;pointer-events:none;opacity:0;
+}
+.screen .tapflash svg{width:30px;height:30px}
+.screen .tapflash.show{animation:tapflash .5s ease-out}
+@keyframes tapflash{
+  0%{opacity:0;transform:scale(.72)}
+  22%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.32)}
+}
+
+/* The top strip over the picture: what is open and what to watch it with. */
+.screen .topbar{
+  position:absolute;left:0;right:0;top:0;z-index:5;
+  display:flex;align-items:center;gap:9px;padding:12px 14px;flex-wrap:nowrap;
+  background:linear-gradient(rgba(8,10,14,.82),rgba(8,10,14,0));
+  transition:opacity .22s ease,transform .22s ease;
+}
+.screen .topbar .tb-name{
+  font-family:Nunito;font-weight:700;font-size:14px;color:#EDEBF2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46%;
+  text-shadow:0 1px 6px rgba(0,0,0,.7);
+}
+.screen .topbar .sp{flex:1;min-width:4px}
+
+/* A menu from the top strip opens downwards: it has nowhere to go up. */
+.menu.down{bottom:auto;top:44px}
+
+/* While people watch, the panels go away. They come back on any movement of
+   the mouse, on pause and on hover. */
+.player.idle .topbar,
+.player.idle .ctrl,
+.player.idle .track{opacity:0;pointer-events:none}
+.player.idle .screen .tapzone{cursor:none}
+.player.idle .topbar{transform:translateY(-8px)}
+
+/* ---------- full screen ----------
+   The whole player expands, not the picture alone: otherwise the seek bar
+   and the buttons stay outside full screen, and the only way out is the
+   Escape key.
+
+   Every rule is written twice: through `:fullscreen` and through the `.fs`
+   class that the code hangs itself. Not everyone supports the pseudo-class
+   — on an iPhone the video expands its own way, and `:fullscreen` does not
+   fire there at all. The class works the same everywhere. */
+.player:fullscreen,
+.player.fs{
+  /* fixed, not merely dimensions: in real full screen the browser puts the
+     element over everything itself, while the class has to be told so
+     explicitly — otherwise the player stays in the page flow, the seek bar
+     and the panel are measured from its top edge and slide below the
+     screen. */
+  position:fixed;inset:0;z-index:200;
+  width:100vw;height:100vh;border-radius:0;background:#000;
+  display:flex;flex-direction:column;
+}
+.player:fullscreen .screen,
+.player.fs .screen{flex:1;min-height:0;aspect-ratio:auto;border-radius:0}
+.player:fullscreen video,
+.player.fs video{width:100%;height:100%;object-fit:contain}
+/* The seek bar and the panel lie over the picture rather than taking room from it. */
+.player:fullscreen .track,
+.player.fs .track{position:absolute;left:0;right:0;bottom:52px;z-index:7}
+.player:fullscreen .ctrl,
+.player.fs .ctrl{
+  position:absolute;left:0;right:0;bottom:0;z-index:7;
+  background:linear-gradient(rgba(8,10,14,0),rgba(8,10,14,.9) 42%);
+  padding:14px 20px 16px;
+}
+.player:fullscreen .screen .topbar,
+.player.fs .screen .topbar{padding:16px 20px}
+.player:fullscreen .screen .topbar .tb-name,
+.player.fs .screen .topbar .tb-name{font-size:16px}
+/* Menus must fit in full screen: the screen is tall, while there is just as
+   much room above the bottom panel. */
+.player:fullscreen .menu,
+.player.fs .menu{max-height:min(56vh,420px)}
+
+/* ---------- the bottom panel ----------
+   There is no more wrapping. flex-wrap used to stand here, and as soon as
+   seven blocks stopped fitting, "source" together with the full-screen
+   button moved to a second line — the panel looked broken. Now the surplus
+   leaves it by itself: the selects' captions hide first, then the volume. */
+.ctrl{flex-wrap:nowrap;overflow:visible}
+.ctrl .time{white-space:nowrap;font-variant-numeric:tabular-nums}
+
+@media (max-width:760px){
+  .ctrl .selbtn .cap{display:none}
+  .ctrl{gap:7px;padding:10px}
+}
+@media (max-width:560px){
+  .volbox #c-vol{display:none}
+  .screen .topbar{padding:10px}
+  .screen .topbar .selbtn .cap{display:none}
+  .screen .topbar .tb-name{max-width:34%;font-size:13px}
+}
+
+/* ---------- the buttons' response ----------
+   A button that does not respond to a press in any way feels broken: while
+   the video is thinking, there is no telling whether the press counted at
+   all. */
+.cbtn{transition:transform .12s ease,color .14s ease,background .14s ease}
+.cbtn:active{transform:scale(.86)}
+.selbtn{transition:transform .12s ease,border-color .14s ease,color .14s ease}
+.selbtn:active{transform:scale(.96)}
+.playbtn{transition:transform .16s ease,box-shadow .16s ease,opacity .2s ease}
+.playbtn:active{transform:scale(.92)}
+.playbtn[hidden]{display:none}
+
+/* The grid of episode numbers in the "Episode" menu. As a list of rows they
+   would take up the whole screen — "Ван-Пис" has more than a thousand. */
+.menu .epgrid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));
+  gap:5px;padding:4px 4px 6px;max-height:230px;overflow-y:auto;
+}
+.menu .epgrid button{
+  justify-content:center;padding:7px 4px;font-variant-numeric:tabular-nums;
+  background:var(--surface-2);border-radius:8px;font-size:12.5px;
+}
+.menu .epgrid button.seen{color:var(--dimmer)}
+.menu .epgrid button.on{background:var(--mint);color:#16201D;font-weight:700}
+.menu .epgrid button.on::after{content:none}
+#m-e{min-width:290px}
+
+
+/* ---------- the menu from the top strip ----------
+   It used to open to the player's full height: the thirty-seven dubs of
+   "Магическая битва" ran into the bottom edge of the picture, were cut off
+   mid-word and covered the play button in the middle at the same time. A
+   list that cannot be seen to the end and that gets in the way of clicking
+   the video itself is worse than a short one.
+
+   The ceiling is measured from the player's height, not the screen's: the
+   menu lives inside the picture and cannot get out of it — `.player` clips
+   everything surplus, and the rest of the list would simply disappear. */
+.screen .topbar .menu{max-height:min(52vh,320px)}
+.player:fullscreen .screen .topbar .menu,
+.player.fs .screen .topbar .menu{max-height:min(64vh,440px)}
+
+/* ---------- alignment in the bottom panel ----------
+   "Quality" stood higher than its neighbours: the `.sel` wrapper is a block
+   rather than a flex, and the button inside it sat on the top edge of the
+   line instead of the middle, as the other icons do. */
+.ctrl .sel{display:flex;align-items:center}
+.ctrl .selbtn{display:inline-flex;align-items:center}
+
+/* While a list is open, the large play button steps into the background:
+   they stand in the same place in the middle of the frame and compete for
+   attention. Hiding it altogether is not allowed — after choosing, it is
+   exactly this that has to be pressed again. */
+.player:has(.menu.show) .playbtn{opacity:.22}
+
+/* ==================== BOXES IN THE LIBRARY ====================
+   One card per story rather than per record. "Ван-Пис" used to have four in
+   a row — the series from two sources, a film and one more with no cover;
+   four identical names in a row read as a mistake. */
+
+/* The number of parts on the cover — like the spines of discs on the side of a box set. */
+.card .pic .discs{
+  position:absolute;left:9px;top:9px;z-index:2;border-radius:999px;padding:3px 9px;
+  font-family:Nunito;font-weight:700;font-size:11.5px;line-height:1.35;
+  background:rgba(16,19,26,.74);color:#E6E4EC;backdrop-filter:blur(3px);
+}
+/* A box is a little deeper than an ordinary card: a thin strip on the left
+   hints at the stack inside. */
+.card.boxcard .wrap::before{
+  content:'';position:absolute;left:-4px;top:8px;bottom:8px;width:4px;border-radius:4px 0 0 4px;
+  background:color-mix(in srgb,var(--mint) 34%,var(--surface-2));opacity:.75;
+}
+.card.boxcard:hover .wrap::before{opacity:1}
+
+
+/* Your own parts in an open box are links, leading straight to the player. */
+.part.mine{text-decoration:none}
+.part.mine .nm{color:var(--text)}
+
+/* The language switch in the header: more compact than on the sign-in
+   screen, so as not to compete with the rest. */
+.lang-seg{flex:none;padding:3px}
+.lang-seg .lang{
+  border:none;background:none;color:var(--dimmer);cursor:pointer;border-radius:999px;
+  padding:5px 10px;font-family:Nunito;font-weight:700;font-size:11.5px;letter-spacing:.04em;
+  transition:.14s;
+}
+.lang-seg .lang:hover{color:var(--text)}
+.lang-seg .lang.on{background:var(--surface-2);color:var(--text)}
+@media (max-width:560px){.lang-seg .lang{padding:5px 8px;font-size:11px}}
+
+/* ==================== THE CARD: AN EVEN ROW ====================
+   What was wrong.
+
+   The row came out ragged: some names take one line, others two, others
+   have a line about the part under the name as well — "Магическая битва 0.
+   Фильм · ep. 1 / 1". The cards came out at different heights, and the grid
+   slid.
+
+   And the watch bar stood right under the name and read as an underline —
+   as though the name were emphasised somehow.
+
+   Now the card has a constant layout: the cover, two lines under the name,
+   one line about the place in watching. The bar has gone back onto the
+   cover — there it does not compete with the text. */
+.card{display:flex;flex-direction:column}
+
+/* The name: no more than two lines. A long one is trimmed with an ellipsis
+   — otherwise one card stretches while its neighbours stay short. We do not
+   reserve height for it: the bottom line is pressed to the bottom anyway,
+   and the row is even without that. */
+.card h3{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  margin:11px 0 0;
+}
+
+/* ---------- the card's bottom line ----------
+   The watch bar and the episode number on one line, pressed to the bottom.
+
+   Pressed there not for looks: names are of different lengths — one on a
+   line, another on two — and the line that follows straight after the name
+   ends up at a different height on every card. The row looks scattered
+   because of it.
+
+   The bar cannot lie on the cover: covers are all different, and on a light
+   one it is lost, on a dark one it cuts the eye, on a busy one it cannot be
+   seen at all. */
+.card .foot{
+  margin-top:auto;padding-top:10px;
+  display:flex;align-items:center;gap:10px;
+}
+.card .foot .seenbar{
+  position:relative;flex:1;min-width:0;height:3px;border-radius:99px;
+  background:color-mix(in srgb,var(--line) 70%,transparent);
+}
+.card .foot .seenbar i{
+  position:absolute;left:0;top:0;bottom:0;border-radius:99px;
+  background:var(--sky);transition:width .4s cubic-bezier(.2,.7,.3,1);
+}
+/* A dot at the end of the filled part: it shows where exactly you stand.
+   Without it a short stretch at the start of a long bar is barely readable —
+   for "Ван-Пис" that is two episodes out of a thousand. */
+.card .foot .seenbar i::after{
+  content:'';position:absolute;right:-3px;top:50%;width:7px;height:7px;
+  margin-top:-3.5px;border-radius:50%;background:var(--sky);
+}
+/* Finished gets a calm colour: the bar has nowhere left to grow, and
+   highlighting it as "in progress right now" would be wrong. */
+.card .foot .seenbar.full i,
+.card .foot .seenbar.full i::after{background:color-mix(in srgb,var(--mint) 75%,var(--line))}
+
+.card .foot .num{
+  flex:none;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+/* When there is no bar, the number takes the line by itself and stands on the left. */
+.card .foot .num.only{margin-right:auto;color:var(--dimmer)}
+
+/* Covers come in any shape, while the tile is one. We fill it completely:
+   otherwise on some cards the picture spans the full width and on others it
+   has margins at the sides, and the row looks assembled from different
+   places. */
+.card .pic i{background-size:cover;background-position:center center}
+
+
+/* Captions and the counter by the announcement fields. */
+.newslabel{display:block;margin:14px 0 6px;font-size:12.5px;color:var(--dim);
+  font-family:Nunito;font-weight:600}
+.newscount{margin-top:5px;font-size:12px;color:var(--dimmer);text-align:right}
+.newscount.low{color:var(--sand)}
+
+
+/* ==================== DEMONSTRATION MODE ====================
+   A calm frame rather than an alarming one: this is neither an error nor a
+   warning but an explanation of what is being shown here. */
+.demonote{
+  display:flex;gap:11px;align-items:flex-start;margin:0 0 14px;padding:12px 16px;
+  border-radius:var(--r-md);border:1px solid color-mix(in srgb,var(--sky) 38%,var(--line));
+  background:color-mix(in srgb,var(--sky) 10%,var(--surface));
+}
+.demonote[hidden]{display:none}
+.demonote .ic{
+  flex:none;width:22px;height:22px;border-radius:50%;background:var(--sky);color:#0F1720;
+  display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1;
+}
+.demonote .tx{min-width:0;font-size:13.5px;color:var(--dim);line-height:1.45}

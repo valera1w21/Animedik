@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>анимеДик</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<!-- ==================== SIGN IN ==================== -->
+<div class="gate" id="gate" hidden>
+  <div class="aura"></div><div class="aura2"></div>
+  <div class="box">
+    <div class="top">
+      <svg class="logo-v on mark" data-v="1" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+        <rect width="34" height="34" rx="11" fill="url(#gA)"/>
+        <path d="M13.5 11.2v11.6l9.2-5.8-9.2-5.8Z" fill="#171A21"/>
+        <circle cx="9.4" cy="9.4" r="1.5" fill="#171A21" opacity=".55"/>
+        <defs><linearGradient id="gA" x1="0" y1="0" x2="34" y2="34">
+          <stop stop-color="#84CBB6"/><stop offset=".55" stop-color="#8DB5DF"/><stop offset="1" stop-color="#AEA1D8"/>
+        </linearGradient></defs>
+      </svg>
+      <svg class="logo-v mark" data-v="2" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+        <rect width="34" height="34" rx="11" fill="url(#gB)"/>
+        <path d="M8.6 12.4a3.4 3.4 0 0 1 3.4-3.4h10a3.4 3.4 0 0 1 3.4 3.4v6.1a3.4 3.4 0 0 1-3.4 3.4h-5.1l-4.4 3.5v-3.5h-.5a3.4 3.4 0 0 1-3.4-3.4v-6.1Z" fill="#171A21"/>
+        <path d="M15.3 12.9v5.9l5-3-5-2.9Z" fill="url(#gB)"/>
+        <defs><linearGradient id="gB" x1="0" y1="0" x2="34" y2="34">
+          <stop stop-color="#84CBB6"/><stop offset=".55" stop-color="#8DB5DF"/><stop offset="1" stop-color="#AEA1D8"/>
+        </linearGradient></defs>
+      </svg>
+      <svg class="logo-v mark" data-v="3" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+        <circle cx="17" cy="17" r="16" fill="#171A21" stroke="url(#gC)" stroke-width="2"/>
+        <ellipse cx="17" cy="17" rx="15.4" ry="6.2" stroke="url(#gC)" stroke-width="1.5" opacity=".55" transform="rotate(-28 17 17)"/>
+        <path d="M14.4 12.6v8.8l7.2-4.4-7.2-4.4Z" fill="url(#gC)"/>
+        <defs><linearGradient id="gC" x1="1" y1="1" x2="33" y2="33">
+          <stop stop-color="#84CBB6"/><stop offset=".55" stop-color="#8DB5DF"/><stop offset="1" stop-color="#AEA1D8"/>
+        </linearGradient></defs>
+      </svg>
+      <b>аниме<i style="color:var(--mint)">Дик</i></b>
+    </div>
+
+    <h2 data-ru="С возвращением" data-en="Welcome back">С возвращением</h2>
+    <p class="lead" data-ru="Введите свои данные, чтобы продолжить."
+       data-en="Enter your details to continue.">Введите свои данные, чтобы продолжить.</p>
+
+    <form id="login-form" autocomplete="on">
+      <div class="field">
+        <label for="lg-user" data-ru="Логин" data-en="Username">Логин</label>
+        <input id="lg-user" name="username" autocomplete="username" maxlength="64"
+               data-ru-ph="Ваш логин" data-en-ph="Your username" placeholder="Ваш логин">
+      </div>
+      <div class="field" style="margin-bottom:18px">
+        <label for="lg-pass" data-ru="Пароль" data-en="Password">Пароль</label>
+        <input id="lg-pass" name="password" type="password" autocomplete="current-password" maxlength="200"
+               data-ru-ph="Ваш пароль" data-en-ph="Your password" placeholder="Ваш пароль">
+      </div>
+      <!-- The field for the code. It appears only if the account has
+           sign-in by code switched on — there is no reason to ask everyone
+           for it. -->
+      <div class="field" id="lg-code-box" hidden style="margin-bottom:18px">
+        <label for="lg-code" data-ru="Код из приложения" data-en="Code from your app">Код из приложения</label>
+        <input id="lg-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"
+               placeholder="000000">
+      </div>
+      <button class="wide" id="btn-login" type="submit" data-ru="Войти" data-en="Sign in">Войти</button>
+    </form>
+
+    <div class="split" data-ru="или" data-en="or">или</div>
+
+    <button class="wide ghost" id="btn-guest"
+      data-ru="Зайти как гость на 60 минут" data-en="Browse as guest for 60 minutes">Зайти как гость на 60 минут</button>
+
+    <div class="err" id="gate-err" role="alert"></div>
+
+    <div class="locked">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <rect x="2.5" y="6" width="9" height="6.5" rx="2" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M4.7 6V4.4a2.3 2.3 0 1 1 4.6 0V6" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+      <span data-ru="Регистрация закрыта. Аккаунты создаёт только администратор — напишите ему, если нужен доступ."
+            data-en="Sign-up is closed. Accounts are created by the administrator only — message them if you need access.">
+        Регистрация закрыта. Аккаунты создаёт только администратор — напишите ему, если нужен доступ.</span>
+    </div>
+
+    <div class="langrow">
+      <div class="seg" role="group" aria-label="Язык">
+        <button class="lang on" type="button" data-set-lang="ru">RU</button>
+        <button class="lang" type="button" data-set-lang="en">EN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== THE APPLICATION ==================== -->
+<div id="app" hidden>
+
+<div class="stickytop">
+  <div class="guest" id="guestbar">
+    <div class="in">
+      <span class="tag" data-ru="Гость" data-en="Guest">Гость</span>
+      <span class="txt" data-ru="Осталось" data-en="Time left">Осталось</span>
+      <span class="clock" id="clock">--:--</span>
+      <span class="rail"><i id="rail" style="width:100%"></i></span>
+      <span class="sp"></span>
+      <div class="lastmsg"
+        data-ru="Время почти вышло. Сайт целиком собран с помощью ИИ, поэтому возможны сбои — по доступу и ошибкам пишите администратору."
+        data-en="Time is almost up. This site was built entirely with AI, so glitches are possible — contact the administrator about access or errors.">
+        Время почти вышло. Сайт целиком собран с помощью ИИ, поэтому возможны сбои — по доступу и ошибкам пишите администратору.</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bar">
+      <a class="brand" href="/">
+        <svg class="logo-v on mark" data-v="1" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+          <rect width="34" height="34" rx="11" fill="url(#hA)"/>
+          <path d="M13.5 11.2v11.6l9.2-5.8-9.2-5.8Z" fill="#171A21"/>
+          <circle cx="9.4" cy="9.4" r="1.5" fill="#171A21" opacity=".55"/>
+          <defs><linearGradient id="hA" x1="0" y1="0" x2="34" y2="34">
+            <stop stop-color="#84CBB6"/><stop offset=".55" stop-color="#8DB5DF"/><stop offset="1" stop-color="#AEA1D8"/>
+          </linearGradient></defs>
+        </svg>
+        <svg class="logo-v mark" data-v="2" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+          <rect width="34" height="34" rx="11" fill="url(#hB)"/>
+          <path d="M8.6 12.4a3.4 3.4 0 0 1 3.4-3.4h10a3.4 3.4 0 0 1 3.4 3.4v6.1a3.4 3.4 0 0 1-3.4 3.4h-5.1l-4.4 3.5v-3.5h-.5a3.4 3.4 0 0 1-3.4-3.4v-6.1Z" fill="#171A21"/>
+          <path d="M15.3 12.9v5.9l5-3-5-2.9Z" fill="url(#hB)"/>
+          <defs><linearGradient id="hB" x1="0" y1="0" x2="34" y2="34">
+            <stop stop-color="#84CBB6"/><stop offset=".55" stop-color="#8DB5DF"/><stop offset="1" stop-color="#AEA1D8"/>
+          </linearGradient></defs>
+        </svg>
+        <svg class="logo-v mark" data-v="3" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+          <circle cx="17" cy="17" r="16" fill="#171A21" stroke="url(#hC)" stroke-width="2"/>
+          <ellipse cx="17" cy="17" rx="15.4" ry="6.2" stroke="url(#hC)" stroke-width="1.5" opacity=".55" transform="rotate(-28 17 17)"/>
+          <path d="M14.4 12.6v8.8l7.2-4.4-7.2-4.4Z" fill="url(#hC)"/>
+          <defs><linearGradient id="hC" x1="1" y1="1" x2="33" y2="33">
+            <stop stop-color="#84CBB6"/><stop offset=".55" stop-color="#8DB5DF"/><stop offset="1" stop-color="#AEA1D8"/>
+          </linearGradient></defs>
+        </svg>
+        <b>аниме<i>Дик</i></b>
+      </a>
+
+      <div class="find">
+        <input id="q" maxlength="100" data-ru-ph="Что посмотрим?" data-en-ph="What are we watching?"
+               placeholder="Что посмотрим?" aria-label="Поиск">
+      </div>
+
+      <!-- There used to be a "Filters" button here. Filters are gone: they
+           picked only among what is already in your library, while there is
+           nothing to search for new anime by genre with — all eight sources
+           can do nothing but text search. The button promised what it did
+           not do. In its place is the roulette, which used to hide inside
+           those very filters. -->
+      <button class="filtbtn" id="btn-roul" type="button">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <rect x="2.2" y="2.2" width="11.6" height="11.6" rx="3" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="5.9" cy="5.9" r="1.15" fill="currentColor"/>
+          <circle cx="10.1" cy="10.1" r="1.15" fill="currentColor"/>
+          <circle cx="10.1" cy="5.9" r="1.15" fill="currentColor"/>
+          <circle cx="5.9" cy="10.1" r="1.15" fill="currentColor"/>
+        </svg>
+        <span data-ru="Реши за меня" data-en="Pick for me">Реши за меня</span>
+      </button>
+
+      <!-- The "Watching / Later / All" tabs are gone: the library is one
+           list anyway, and what is not wanted is removed with the cross on
+           the card itself. -->
+
+      <div class="bellwrap">
+        <button class="iconbtn" id="btn-bell" type="button" aria-label="Расписание">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M9 2.4a4.4 4.4 0 0 0-4.4 4.4v2.6L3.4 12.1h11.2L13.4 9.4V6.8A4.4 4.4 0 0 0 9 2.4Z"
+                  stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M7.3 14.1a1.8 1.8 0 0 0 3.4 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <span class="dotcount" id="bell-count" hidden>0</span>
+        </button>
+        <div class="drop" id="bell-drop">
+          <div class="dh">
+            <b data-ru="Новые серии" data-en="New episodes">Новые серии</b>
+          </div>
+          <div class="dl" id="bell-list"></div>
+          <div class="df"
+            data-ru="Только то, что вышло у сохранённых тайтлов"
+            data-en="Only what came out for titles you saved">Только то, что вышло у сохранённых тайтлов</div>
+        </div>
+      </div>
+
+      <!-- Site news. The button is visible only to an administrator: an
+           ordinary person has nothing to edit an announcement with, while
+           it would take up room in the header. -->
+      <button class="iconbtn" id="btn-news" type="button" aria-label="Новости"
+              title="Новости" hidden>
+        <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M3.2 4.6h9.2v8.8H4.6a1.4 1.4 0 0 1-1.4-1.4V4.6Z" stroke="currentColor"
+                stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M12.4 7.2h1.6a1.4 1.4 0 0 1 1.4 1.4v3.4a1.4 1.4 0 0 1-2.8 0" stroke="currentColor"
+                stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M5.6 7.2h4.4M5.6 9.8h4.4" stroke="currentColor" stroke-width="1.4"
+                stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <a class="iconbtn" id="btn-stats" href="/stats" aria-label="Итоги года" title="Итоги года">
+        <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M3.4 14.6V9.8M7.6 14.6V4.2M11.8 14.6v-7M16 14.6V6.6" stroke="currentColor"
+                stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+      </a>
+
+      <button class="iconbtn accent" id="btn-about" type="button" aria-label="Про сайт">
+        <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <circle cx="9" cy="9" r="7.1" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M9 8.1v4.2M9 5.6v.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- The language switch is in plain sight rather than in the settings.
+           A person who does not know Russian will never reach the settings:
+           to open them one must first understand what the button says. So
+           the language button is on every page and works before signing in
+           — the choice is remembered by the browser itself. -->
+      <div class="seg lang-seg" role="group" aria-label="Язык / Language">
+        <button class="lang" type="button" data-set-lang="ru">RU</button>
+        <button class="lang" type="button" data-set-lang="en">EN</button>
+      </div>
+      <div class="who" id="who" role="button" tabindex="0" title="Настройки">
+        <span class="ava" id="ava"></span>
+        <span id="whoami">—</span>
+        <button id="btn-out" type="button" data-ru="Выйти" data-en="Sign out">Выйти</button>
+      </div>
+    </div>
+  </header>
+</div>
+
+<main>
+
+  <!-- The administrator's announcement. Everyone sees it until it is taken down. -->
+  <!-- The banner about demonstration mode.
+
+       Three sentences with no legal turns of phrase. A long disclaimer
+       would be worse here than a short one: it protects nothing, while
+       proving the author knew what they were doing. This simply says what
+       is playing and under what licence. -->
+  <div class="demonote" id="demonote" hidden>
+    <span class="ic" aria-hidden="true">▶</span>
+    <span class="tx"
+      data-ru="Демонстрационный режим. Вместо серий проигрываются фильмы Blender Foundation под лицензией Creative Commons — так видно, как работают поиск, плеер и отметки о просмотре."
+      data-en="Demo mode. Instead of episodes it plays Blender Foundation films licensed under Creative Commons — enough to show how search, the player and watch progress work.">
+      Демонстрационный режим. Вместо серий проигрываются фильмы Blender Foundation под лицензией Creative Commons — так видно, как работают поиск, плеер и отметки о просмотре.</span>
+  </div>
+
+  <div class="sitenews" id="sitenews" hidden>
+    <span class="ic" aria-hidden="true">i</span>
+    <span class="tx" id="sitenews-text"></span>
+  </div>
+
+  <!-- search results -->
+  <section id="search-wrap" hidden>
+    <div class="sec">
+      <h2 data-ru="Найдено" data-en="Found">Найдено</h2>
+      <span id="search-note"></span>
+      <span class="sp"></span>
+      <a href="#" id="search-clear" data-ru="Очистить" data-en="Clear">Очистить</a>
+    </div>
+    <div class="grid" id="search-grid"></div>
+  </section>
+
+  <!-- The "Continue" section is gone entirely: it repeated the same cards
+       as the list below, only in a different shape. What is unfinished is
+       visible from the "Not finished" tab. -->
+
+  <div class="sec">
+    <h2 id="list-title" data-ru="Мой список" data-en="My list">Мой список</h2>
+    <span id="list-count"></span>
+    <span class="sp"></span>
+    <nav class="tabs" id="tabs">
+      <a href="#" class="on" data-tab="open"
+         data-ru="Не закончил" data-en="Not finished">Не закончил</a>
+      <a href="#" data-tab="done"
+         data-ru="Закончил смотреть" data-en="Finished">Закончил смотреть</a>
+    </nav>
+  </div>
+
+  <section class="grid" id="grid"></section>
+
+  <div class="empty" id="empty">
+    <b id="empty-t" data-ru="Здесь пока пусто" data-en="Nothing here yet">Здесь пока пусто</b>
+    <span id="empty-s" data-ru="Найдите что-нибудь через поиск наверху."
+          data-en="Find something with the search up top.">Найдите что-нибудь через поиск наверху.</span>
+  </div>
+
+</main>
+
+<footer><div class="in">
+  <span class="beta"
+    data-ru="Личный кинозал для аниме: список, отметки о просмотре и уведомления о новых сериях в одном месте. Версия пробная — что-то ещё может работать не так."
+    data-en="A personal home for your anime: your list, watch progress and new-episode alerts in one place. This is an early version — some things may still misbehave.">
+    Личный кинозал для аниме: список, отметки о просмотре и уведомления о новых сериях в одном месте. Версия пробная — что-то ещё может работать не так.</span>
+  <a href="#" id="foot-about" data-ru="О проекте" data-en="About">О проекте</a>
+</div></footer>
+</div><!-- /app -->
+
+<!-- ==================== ACCOUNT PAGE ==================== -->
+<div class="veil" id="veil-set">
+  <div class="panel" role="dialog" aria-modal="true" aria-label="Настройки">
+    <button class="close" id="set-close" type="button" aria-label="Закрыть"
+      style="position:absolute;right:16px;top:16px;width:32px;height:32px;border-radius:50%;
+      border:1px solid var(--line);background:var(--surface-2);color:var(--dim);cursor:pointer;
+      font-size:17px;line-height:1;z-index:2">×</button>
+
+    <div class="phead">
+      <span class="ava" id="set-ava"></span>
+      <div>
+        <b id="set-name">—</b>
+        <span class="role" id="set-role" data-kind="user">—</span>
+      </div>
+    </div>
+
+    <div class="pbody" id="pbody">
+      <div class="lockbar" id="lockbar">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex:none;margin-top:2px" aria-hidden="true">
+          <rect x="2.5" y="6" width="9" height="6.5" rx="2" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M4.7 6V4.4a2.3 2.3 0 1 1 4.6 0V6" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        <span>
+          <b data-ru="Только просмотр" data-en="View only">Только просмотр</b>
+          <span data-ru="Гость видит настройки, но менять их нельзя, и ничего не сохраняется. Нужен полный доступ — напишите администратору."
+                data-en="Guests can see the settings but cannot change them, and nothing is saved. Need full access? Message the administrator.">
+            Гость видит настройки, но менять их нельзя, и ничего не сохраняется. Нужен полный доступ — напишите администратору.</span>
+        </span>
+      </div>
+
+      <div class="grp">
+        <h4 data-ru="Профиль" data-en="Profile">Профиль</h4>
+        <div class="opt">
+          <span class="lb"><b data-ru="Отображаемое имя" data-en="Display name">Отображаемое имя</b>
+            <span data-ru="Как вас видно в шапке" data-en="How you appear in the header">Как вас видно в шапке</span></span>
+          <input class="inp" id="s-name" maxlength="40">
+        </div>
+        <div class="opt">
+          <span class="lb"><b data-ru="Фото" data-en="Photo">Фото</b>
+            <span data-ru="Заменит букву в кружке. Не больше 5 МБ, сохраняется как 128×128."
+                  data-en="Replaces the letter in the circle. Up to 5 MB, stored as 128×128.">
+              Заменит букву в кружке. Не больше 5 МБ, сохраняется как 128×128.</span></span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="file" id="s-photo" accept="image/jpeg,image/png,image/webp" hidden>
+            <button class="small" id="s-photo-btn" type="button" data-ru="Выбрать файл" data-en="Choose a file">Выбрать файл</button>
+            <button class="small" id="s-photo-clear" type="button" hidden
+              data-ru="Убрать фото" data-en="Remove photo">Убрать фото</button>
+          </div>
+        </div>
+        <div class="opt">
+          <span class="lb"><b data-ru="Цвет кружка" data-en="Avatar colour">Цвет кружка</b></span>
+          <div class="swatches" id="s-ava">
+            <button class="sc on" type="button" data-c="#84CBB6" style="background:#84CBB6" aria-label="мятный"></button>
+            <button class="sc" type="button" data-c="#8DB5DF" style="background:#8DB5DF" aria-label="голубой"></button>
+            <button class="sc" type="button" data-c="#AEA1D8" style="background:#AEA1D8" aria-label="лавандовый"></button>
+            <button class="sc" type="button" data-c="#D9A97F" style="background:#D9A97F" aria-label="песочный"></button>
+          </div>
+        </div>
+        <div class="opt">
+          <span class="lb"><b data-ru="Пароль" data-en="Password">Пароль</b>
+            <span data-ru="Администратор его не видит — у него только отпечаток"
+                  data-en="The administrator cannot see it — only a fingerprint is stored">
+              Администратор его не видит — у него только отпечаток</span></span>
+          <button class="small" id="s-pass" type="button" data-ru="Сменить пароль" data-en="Change password">Сменить пароль</button>
+        </div>
+        <div id="pass-box" hidden style="padding:4px 0 8px">
+          <div class="field" style="margin-bottom:9px">
+            <label data-ru="Текущий пароль" data-en="Current password">Текущий пароль</label>
+            <input class="inp" id="p-cur" type="password" autocomplete="current-password" style="width:100%">
+          </div>
+          <div class="field" style="margin-bottom:9px">
+            <label data-ru="Новый пароль (от 10 символов)" data-en="New password (10+ characters)">Новый пароль (от 10 символов)</label>
+            <input class="inp" id="p-new" type="password" autocomplete="new-password" style="width:100%">
+          </div>
+          <button class="small" id="p-save" type="button" data-ru="Сохранить пароль" data-en="Save password">Сохранить пароль</button>
+          <div class="err" id="p-err" role="alert"></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <h4 data-ru="Внешний вид" data-en="Appearance">Внешний вид</h4>
+        <div class="opt">
+          <span class="lb"><b data-ru="Язык" data-en="Language">Язык</b></span>
+          <div class="seg">
+            <button class="lang on" type="button" data-set-lang="ru">RU</button>
+            <button class="lang" type="button" data-set-lang="en">EN</button>
+          </div>
+        </div>
+        <div class="opt">
+          <span class="lb"><b data-ru="Фон" data-en="Background">Фон</b></span>
+          <div class="seg" id="s-depth">
+            <button class="on" type="button" data-set="deep" data-ru="Глубже" data-en="Deeper">Глубже</button>
+            <button type="button" data-set="mid" data-ru="Мягче" data-en="Softer">Мягче</button>
+          </div>
+        </div>
+        <div class="opt">
+          <span class="lb"><b data-ru="Акцентный цвет" data-en="Accent colour">Акцентный цвет</b></span>
+          <div class="swatches" id="s-accent">
+            <button class="sc on" type="button" data-a="mint" style="background:#84CBB6" aria-label="мята"></button>
+            <button class="sc" type="button" data-a="sky" style="background:#8DB5DF" aria-label="голубой"></button>
+            <button class="sc" type="button" data-a="lilac" style="background:#AEA1D8" aria-label="лаванда"></button>
+            <button class="sc" type="button" data-a="sand" style="background:#D9A97F" aria-label="песочный"></button>
+          </div>
+        </div>
+        <!-- "Cover size" is gone: a setting people set once and never
+             touch again, while it drags a lot of code behind it. -->
+        <div class="opt">
+          <span class="lb"><b data-ru="Логотип" data-en="Logo">Логотип</b></span>
+          <div class="logos" id="s-logo">
+            <button class="logopick on" type="button" data-l="1" aria-label="Вариант 1">
+              <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="11" fill="#8DB5DF"/><path d="M13.5 11.2v11.6l9.2-5.8-9.2-5.8Z" fill="#171A21"/></svg></button>
+            <button class="logopick" type="button" data-l="2" aria-label="Вариант 2">
+              <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="11" fill="#8DB5DF"/><path d="M8.6 12.4a3.4 3.4 0 0 1 3.4-3.4h10a3.4 3.4 0 0 1 3.4 3.4v6.1a3.4 3.4 0 0 1-3.4 3.4h-5.1l-4.4 3.5v-3.5h-.5a3.4 3.4 0 0 1-3.4-3.4v-6.1Z" fill="#171A21"/><path d="M15.3 12.9v5.9l5-3-5-2.9Z" fill="#8DB5DF"/></svg></button>
+            <button class="logopick" type="button" data-l="3" aria-label="Вариант 3">
+              <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="16" fill="#171A21" stroke="#8DB5DF" stroke-width="2"/><ellipse cx="17" cy="17" rx="15.4" ry="6.2" stroke="#8DB5DF" stroke-width="1.5" opacity=".55" transform="rotate(-28 17 17)"/><path d="M14.4 12.6v8.8l7.2-4.4-7.2-4.4Z" fill="#8DB5DF"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- The "Watching" and "Library" sections are gone entirely.
+           "Next episode automatically" stayed as a switch on the watch page
+           itself — that is where it is needed, right under the "next"
+           button. The automatic mark at 90% now simply always works: that
+           is exactly what people expect of a player, and a separate setting
+           for it is redundant. Sorting and "show finished" left along with
+           the tabs: the library is one list, freshest at the top. -->
+
+      <div class="grp">
+        <h4 data-ru="Уведомления" data-en="Notifications">Уведомления</h4>
+        <div class="opt">
+          <span class="lb"><b data-ru="Письма о новых сериях" data-en="Emails about new episodes">Письма о новых сериях</b>
+            <span data-ru="Придёт письмо, когда выйдет новая серия у тайтла из вашего списка"
+                  data-en="You get an email when a new episode of a saved title comes out">
+              Придёт письмо, когда выйдет новая серия у тайтла из вашего списка</span></span>
+          <button class="sw" id="s-mailnew" type="button" role="switch"
+                  aria-checked="false" aria-label="Письма о новых сериях"></button>
+        </div>
+        <div class="opt" id="opt-email" hidden>
+          <span class="lb"><b data-ru="Адрес почты" data-en="Email address">Адрес почты</b>
+            <span data-ru="Только для этих писем. Больше никуда не уходит."
+                  data-en="Used only for these emails. It goes nowhere else.">
+              Только для этих писем. Больше никуда не уходит.</span></span>
+          <input class="inp" id="s-email" type="email" maxlength="120" autocomplete="email"
+                 data-ru-ph="you@example.com" data-en-ph="you@example.com" placeholder="you@example.com">
+        </div>
+      </div>
+
+      <div class="grp">
+        <h4 data-ru="Безопасность" data-en="Security">Безопасность</h4>
+        <div class="opt">
+          <span class="lb"><b data-ru="Другие устройства" data-en="Other devices">Другие устройства</b>
+            <span id="sess-note"></span></span>
+          <button class="small warn" id="s-logoutall" type="button"
+            data-ru="Выйти везде" data-en="Sign out everywhere">Выйти везде</button>
+        </div>
+
+        <div class="opt">
+          <span class="lb"><b data-ru="Вход по коду из приложения" data-en="Sign-in code from an app">Вход по коду из приложения</b>
+            <span data-ru="Кроме пароля попросим шестизначный код. Подойдёт любое приложение-аутентификатор."
+                  data-en="Besides the password we ask for a six-digit code. Any authenticator app works.">
+              Кроме пароля попросим шестизначный код. Подойдёт любое приложение-аутентификатор.</span></span>
+          <button class="sw" id="s-2fa" type="button" role="switch"
+                  aria-checked="false" aria-label="Вход по коду из приложения"></button>
+        </div>
+
+        <!-- The code appears only after the box is ticked: there is no
+             reason to show it to everyone, let alone the secret. -->
+        <div class="twofa" id="twofa-box" hidden>
+          <div class="qrwrap"><img id="twofa-qr" alt="QR-код для приложения" width="184" height="184"></div>
+          <div class="twofa-steps">
+            <p data-ru="1. Откройте приложение-аутентификатор и отсканируйте код."
+               data-en="1. Open your authenticator app and scan the code.">
+              1. Откройте приложение-аутентификатор и отсканируйте код.</p>
+            <p data-ru="2. Введите шесть цифр, которые оно покажет."
+               data-en="2. Type the six digits it shows.">2. Введите шесть цифр, которые оно покажет.</p>
+            <div class="codrow">
+              <input class="inp code" id="twofa-code" inputmode="numeric" maxlength="6"
+                     autocomplete="one-time-code" placeholder="000000">
+              <button class="small" id="twofa-confirm" type="button"
+                data-ru="Подтвердить" data-en="Confirm">Подтвердить</button>
+            </div>
+            <div class="err" id="twofa-err" role="alert"></div>
+            <details class="manual">
+              <summary data-ru="Не сканируется? Ввести вручную" data-en="Cannot scan? Enter manually">Не сканируется? Ввести вручную</summary>
+              <code id="twofa-secret"></code>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <div class="grp" id="admin-grp" hidden>
+        <h4 data-ru="Администратор" data-en="Administrator">Администратор</h4>
+        <div class="adm">
+          <div style="font-size:13.5px;color:var(--dim)"
+            data-ru="Этот раздел виден только вам. Регистрации нет — аккаунты создаются здесь."
+            data-en="Only you can see this section. There is no sign-up — accounts are created here.">
+            Этот раздел виден только вам. Регистрации нет — аккаунты создаются здесь.</div>
+          <div class="accs" id="admin-list"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="small" id="a-new" type="button" data-ru="Создать аккаунт" data-en="Create account">Создать аккаунт</button>
+            <span id="guests-now" style="font-size:12.5px;color:var(--dim)"></span>
+          </div>
+          <div id="a-form" hidden style="margin-top:12px;display:grid;gap:8px">
+            <input class="inp" id="a-login" maxlength="32" data-ru-ph="логин латиницей" data-en-ph="username, latin letters" placeholder="логин латиницей">
+            <input class="inp" id="a-pass" type="password" maxlength="200" autocomplete="new-password"
+                   data-ru-ph="пароль от 10 символов" data-en-ph="password, 10+ characters" placeholder="пароль от 10 символов">
+            <label style="font-size:13px;color:var(--dim);display:flex;gap:8px;align-items:center">
+              <input type="checkbox" id="a-admin">
+              <span data-ru="сделать администратором" data-en="make administrator">сделать администратором</span>
+            </label>
+            <button class="small" id="a-save" type="button" data-ru="Создать" data-en="Create">Создать</button>
+            <div class="err" id="a-err" role="alert"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pfoot" id="pfoot">
+      <button class="wide" id="set-save" type="button" style="width:auto;padding:11px 24px"
+        data-ru="Сохранить" data-en="Save">Сохранить</button>
+      <!-- The "Close" button is gone: the cross in the corner does the
+           same thing, and two buttons side by side only make people choose
+           between them. -->
+      <span class="saved" id="saved" data-ru="Сохранено" data-en="Saved">Сохранено</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== NEWS (ADMIN) ==================== -->
+<div class="veil" id="veil-news">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Новости сайта" style="max-width:520px">
+    <button class="close" id="news-x" type="button" aria-label="Закрыть">×</button>
+    <span class="chip" data-ru="Только для администратора" data-en="Administrator only">Только для администратора</span>
+    <h3 data-ru="Объявление для всех" data-en="Announcement for everyone">Объявление для всех</h3>
+    <p data-ru="Текст появится вверху главной страницы у каждого, кто зайдёт. Например: сервер будет перезапущен в 23:00."
+       data-en="This text shows at the top of the main page for everyone. For example: the server restarts at 23:00.">
+      Текст появится вверху главной страницы у каждого, кто зайдёт. Например: сервер будет перезапущен в 23:00.</p>
+    <label class="newslabel" data-ru="По-русски" data-en="In Russian">По-русски</label>
+    <textarea class="inp" id="news-text" rows="3" maxlength="300"
+      style="width:100%;resize:vertical;font-family:inherit;font-size:14px;line-height:1.5"
+      data-ru-ph="Что сообщить людям…" data-en-ph="What to tell everyone…"
+      placeholder="Что сообщить людям…"></textarea>
+    <div class="newscount" id="news-count"></div>
+
+    <!-- The English version of the same announcement. There is nothing to
+         translate it by machine with: an announcement is written by a live
+         person in their own words, and running it through someone else's
+         translator means handing outside a text that never asked to go
+         there. Hence a second field, filled in by the same admin. Not
+         filled in — English speakers will see the Russian text: your own
+         announcement in the wrong language is more use than emptiness. -->
+    <label class="newslabel" data-ru="По-английски — необязательно"
+           data-en="In English — optional">По-английски — необязательно</label>
+    <textarea class="inp" id="news-text-en" rows="3" maxlength="300"
+      style="width:100%;resize:vertical;font-family:inherit;font-size:14px;line-height:1.5"
+      data-ru-ph="Не заполните — англоязычным покажется русский текст"
+      data-en-ph="Leave empty and English speakers see the Russian text"
+      placeholder="Не заполните — англоязычным покажется русский текст"></textarea>
+    <div class="newscount" id="news-count-en"></div>
+    <div style="display:flex;gap:9px;margin-top:14px;flex-wrap:wrap;align-items:center">
+      <button class="wide" id="news-save" type="button" style="width:auto;padding:11px 24px"
+        data-ru="Сохранить" data-en="Save">Сохранить</button>
+      <button class="small warn" id="news-del" type="button"
+        data-ru="Удалить" data-en="Delete">Удалить</button>
+      <span class="saved" id="news-saved" data-ru="Сохранено" data-en="Saved">Сохранено</span>
+    </div>
+    <div class="err" id="news-err" role="alert"></div>
+  </div>
+</div>
+
+<!-- ==================== PHOTO CROPPING ==================== -->
+<div class="veil" id="veil-crop">
+  <div class="sheet cropwrap" role="dialog" aria-modal="true" style="max-width:340px">
+    <h3 style="font-size:19px;margin-bottom:4px" data-ru="Обрежьте фото" data-en="Crop your photo">Обрежьте фото</h3>
+    <p style="margin-bottom:16px;font-size:13.5px"
+       data-ru="Тяните картинку и меняйте масштаб — в кружок попадёт то, что внутри круга."
+       data-en="Drag the image and change the zoom — whatever sits inside the circle becomes your avatar.">
+      Тяните картинку и меняйте масштаб — в кружок попадёт то, что внутри круга.</p>
+    <div class="stage" id="stage"><img id="cropimg" alt=""></div>
+    <div class="zoomrow">
+      <span data-ru="Масштаб" data-en="Zoom">Масштаб</span>
+      <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
+    </div>
+    <div class="hint" id="crophint">—</div>
+    <button class="wide" id="crop-ok" type="button" data-ru="Готово" data-en="Done">Готово</button>
+    <button class="wide ghost" id="crop-cancel" type="button" style="margin-top:9px"
+      data-ru="Отмена" data-en="Cancel">Отмена</button>
+  </div>
+</div>
+
+<!-- ==================== DECIDE FOR ME ==================== -->
+<div class="veil" id="veil-roul">
+  <div class="roul" id="roul" role="dialog" aria-modal="true">
+    <h3 data-ru="Реши за меня" data-en="Pick for me">Реши за меня</h3>
+    <div class="sub" data-ru="Случайное аниме из открытого каталога"
+         data-en="A random anime from an open catalogue">Случайное аниме из открытого каталога</div>
+
+    <div class="roul-load" id="roul-load" hidden><div class="spin"></div></div>
+    <div class="pickres" id="pickres"></div>
+    <div class="err" id="roul-err" role="alert"></div>
+
+    <!-- The button leads to the same search as the box at the top, and
+         that now goes to the catalogue first rather than straight to the
+         sources. The old caption, "Find at the sources", promised the wrong
+         step. -->
+    <a class="wide" id="roul-watch" href="#" hidden
+       data-ru="Найти на сайте" data-en="Find it here">Найти на сайте</a>
+    <button class="wide" id="roul-go" type="button" data-ru="Ещё раз" data-en="Again">Ещё раз</button>
+    <button class="wide ghost" id="roul-close" type="button" style="margin-top:9px"
+      data-ru="Закрыть" data-en="Close">Закрыть</button>
+  </div>
+</div>
+
+<!-- ==================== PARTS OF A FRANCHISE ====================
+
+     Here everything released for one story opens up: seasons, films, OVAs
+     and specials by year. Before this list, search gave one line for each
+     of them in a jumble, and there was no telling from such results where
+     to start "Наруто". -->
+<div class="veil" id="veil-fr">
+  <div class="sheet frsheet" role="dialog" aria-modal="true" aria-labelledby="fr-title">
+    <button class="close" id="fr-close" type="button" aria-label="Закрыть">&times;</button>
+    <div class="frhead">
+      <div class="frart" id="fr-art" aria-hidden="true"></div>
+      <div class="frtx">
+        <h3 id="fr-title"></h3>
+        <div class="frsub" id="fr-sub"></div>
+        <div class="frnote" id="fr-note"></div>
+      </div>
+    </div>
+    <div class="parts" id="fr-parts"></div>
+    <div class="err" id="fr-err" role="alert"></div>
+  </div>
+</div>
+
+<!-- ==================== ABOUT THE SITE ==================== -->
+<div class="veil" id="veil">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <button class="close" id="btn-close" type="button" aria-label="Закрыть">×</button>
+    <span class="chip" data-ru="О проекте" data-en="About">О проекте</span>
+    <h3 data-ru="анимеДик" data-en="anime Dick">анимеДик</h3>
+    <p class="strong"
+      data-ru="Личный кинозал для аниме. Список того, что смотрите, отметки о просмотре с точностью до секунды и уведомления, когда выходит новая серия."
+      data-en="A personal home for your anime. The list of what you are watching, progress saved down to the second, and a nudge when a new episode is out.">
+      Личный кинозал для аниме. Список того, что смотрите, отметки о просмотре с точностью до секунды и уведомления, когда выходит новая серия.</p>
+
+    <div class="made">
+      <div class="r"><b data-ru="Ваши данные" data-en="Your data">Ваши данные</b>
+        <span class="who-me" data-ru="только на этом сервере" data-en="on this server only">только на этом сервере</span></div>
+      <div class="r"><b data-ru="Реклама и слежка" data-en="Ads and tracking">Реклама и слежка</b>
+        <span class="who-me" data-ru="нет" data-en="none">нет</span></div>
+      <div class="r"><b data-ru="Видео" data-en="Video">Видео</b>
+        <span class="who-ai" data-ru="с открытых источников" data-en="from public sources">с открытых источников</span></div>
+      <div class="r"><b data-ru="Доступ" data-en="Access">Доступ</b>
+        <span class="who-ai" data-ru="по приглашению" data-en="by invitation">по приглашению</span></div>
+    </div>
+
+    <p data-ru="Сайт не хранит видео у себя — он находит его на открытых источниках и показывает в одном удобном плеере. Сохраняются только ваш список и место, на котором вы остановились."
+       data-en="The site does not host any video. It finds it on public sources and plays it in one convenient player. All it keeps is your list and where you left off.">
+      Сайт не хранит видео у себя — он находит его на открытых источниках и показывает в одном удобном плеере. Сохраняются только ваш список и место, на котором вы остановились.</p>
+
+    <p class="quiet"
+       data-ru="Проект личный и некоммерческий. Код написан с помощью ИИ, замысел и решения — мои. Версия пробная: если что-то работает не так или нужен доступ — напишите мне."
+       data-en="A personal, non-commercial project. The code was written with AI; the idea and the decisions are mine. This is an early version — if something breaks or you need access, message me.">
+      Проект личный и некоммерческий. Код написан с помощью ИИ, замысел и решения — мои. Версия пробная: если что-то работает не так или нужен доступ — напишите мне.</p>
+
+    <button class="wide" id="btn-close2" type="button" data-ru="Понятно" data-en="Got it">Понятно</button>
+  </div>
+</div>
+
+<!-- ==================== LOADING ==================== -->
+<div class="boot" id="boot">
+  <div class="spin"></div>
+  <div class="fact">
+    <div class="k" id="boot-k">Пока грузится</div>
+    <div class="q" id="boot-q">—</div>
+    <div class="a" id="boot-a"></div>
+  </div>
+  <div class="bar"><i id="boot-bar"></i></div>
+</div>
+
+<!-- ==================== NOTIFICATION ==================== -->
+<div class="toast" id="toast">
+  <span class="ic">ИИ</span>
+  <div class="tx">
+    <b data-ru="Сайт собран с помощью ИИ" data-en="This site was built with AI">Сайт собран с помощью ИИ</b>
+    <span data-ru="Весь код написан нейросетью, поэтому возможны сбои. По ошибкам и доступу — к администратору."
+          data-en="All the code was written by a neural network, so glitches happen. Contact the administrator about errors or access.">
+      Весь код написан нейросетью, поэтому возможны сбои. По ошибкам и доступу — к администратору.</span>
+  </div>
+  <button class="x" id="toast-x" type="button" aria-label="Закрыть">×</button>
+</div>
+
+<script src="/static/app.js"></script>
+<script src="/static/index.js"></script>
+</body>
+</html>

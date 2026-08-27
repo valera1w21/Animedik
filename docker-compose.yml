@@ -1,0 +1,42 @@
+services:
+  app:
+    build: .
+    container_name: animedik
+    # The port is not exposed: it can only be reached through nginx
+    ports:
+      - "127.0.0.1:8080:8000"
+    restart: unless-stopped
+    environment:
+      # Operating mode.
+      #
+      #   demo    — the public showcase: the player runs Blender Foundation
+      #             films under Creative Commons. There are no external
+      #             video sources, and nothing needs installing.
+      #   private — the personal version: video is taken from external
+      #             sources. Needs the dependencies from
+      #             requirements-private.txt.
+      #
+      # demo by default: if the variable is forgotten, the safe option
+      # comes up rather than the other way round.
+      MODE: "${MODE:-demo}"
+      # Before the first start, set your own string — it is mixed into the
+      # session fingerprints. Change the string → every session is closed.
+      SESSION_PEPPER: "${SESSION_PEPPER:?set SESSION_PEPPER in the .env file}"
+      # 1 — the site works over https (which is how it should be through
+      # the tunnel). Set COOKIE_SECURE=0 in .env when trying the site over
+      # http://localhost: with 1 the browser keeps no session cookie, and
+      # signing in looks broken for no visible reason.
+      COOKIE_SECURE: "${COOKIE_SECURE:-1}"
+      # 1 — trust the X-Forwarded-For header from our own nginx
+      TRUST_PROXY: "1"
+    volumes:
+      - anime-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/api/health')\" || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  anime-data:

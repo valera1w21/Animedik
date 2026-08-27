@@ -1,0 +1,31 @@
+# Settings with real values. Only .env.example belongs in the repository —
+# .env holds SESSION_PEPPER and the mail password.
+.env
+ops/bot.env
+
+# The database and its journal files. SQLite in WAL mode keeps part of the
+# data in -wal and -shm, so a commit of the .db alone would be a corrupt
+# copy anyway.
+*.db
+*.db-wal
+*.db-shm
+data/
+
+# Backups.
+*.db.bak
+backups/
+
+# Avatars and everything else people upload.
+uploads/
+
+# Python.
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editors and operating systems.
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

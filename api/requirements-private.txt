@@ -1,0 +1,10 @@
+# Dependencies of a personal version — what the public one does not have.
+#
+# They are installed on top of requirements.txt and are needed only with
+# MODE=private, when the site takes video from external sources:
+#
+#     pip install -r api/requirements.txt -r api/requirements-private.txt
+#
+# In the public repository this file is empty by content — everyone
+# installs the libraries themselves, if they understand what they are
+# doing.

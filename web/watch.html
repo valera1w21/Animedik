@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>анимеДик — просмотр</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+
+<header>
+  <div class="bar">
+    <a class="back" href="/">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <path d="M9.8 3.5 5.3 8l4.5 4.5" stroke="currentColor" stroke-width="1.7"
+              stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span data-ru="К списку" data-en="Back to list">К списку</span>
+    </a>
+    <div class="hcrumb"><b id="w-title">—</b> <span id="w-crumb"></span></div>
+    <span class="sp"></span>
+      <!-- The language switch is in plain sight rather than in the settings.
+           A person who does not know Russian will never reach the settings:
+           to open them one must first understand what the button says. So
+           the language button is on every page and works before signing in
+           — the choice is remembered by the browser itself. -->
+      <div class="seg lang-seg" role="group" aria-label="Язык / Language">
+        <button class="lang" type="button" data-set-lang="ru">RU</button>
+        <button class="lang" type="button" data-set-lang="en">EN</button>
+      </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ============ LEFT SIDE: THE PLAYER ============ -->
+  <div>
+    <!-- The banner above the player. Shown when there is nothing to watch
+         and it has to be explained why: the anime is not dubbed yet, it is
+         not at this source, or the source gave no players at all. In such
+         cases there used to be only a red line of error inside the player. -->
+    <!-- The banner about demonstration mode.
+
+         Three sentences with no legal turns of phrase. A long disclaimer
+         would be worse here than a short one: it protects nothing, while
+         proving the author knew what they were doing. This simply says what
+         is playing and under what licence. -->
+    <div class="demonote" id="demonote" hidden>
+      <span class="ic" aria-hidden="true">▶</span>
+      <span class="tx"
+        data-ru="Демонстрационный режим. Вместо серий проигрываются фильмы Blender Foundation под лицензией Creative Commons — так видно, как работают поиск, плеер и отметки о просмотре."
+        data-en="Demo mode. Instead of episodes it plays Blender Foundation films licensed under Creative Commons — enough to show how search, the player and watch progress work.">
+        Демонстрационный режим. Вместо серий проигрываются фильмы Blender Foundation под лицензией Creative Commons — так видно, как работают поиск, плеер и отметки о просмотре.</span>
+    </div>
+
+    <div class="notice" id="w-notice" hidden>
+      <span class="ic" aria-hidden="true">!</span>
+      <span class="tx"><b id="w-notice-t"></b><span id="w-notice-s"></span></span>
+      <!-- A button instead of the phrase "switch the source in the panel
+           under the player". Explaining where to look for the right button
+           is a sure way to have it never found: the panel is at the bottom,
+           the banner at the top, and the player is between them. -->
+      <button class="noticego" id="w-notice-go" type="button" hidden
+              data-ru="Выбрать другой источник" data-en="Pick another source">Выбрать другой источник</button>
+    </div>
+
+    <!-- The player as a whole, together with the seek bar and the panel.
+
+         It is this that goes to full screen, not the picture alone.
+         Only `#screen` used to be expanded, while the seek bar and the
+         buttons stayed outside it — that is, in full screen there was
+         neither pause, nor seeking, nor a way out. The only way out was
+         the Escape key, which not everyone knows about. -->
+    <div class="player" id="player">
+      <div class="screen" id="screen">
+        <!-- No crossorigin: with it the browser demands a permitting header
+             from someone else's server, and most video hosts do not send it
+             — so the video simply does not start. We do not need access to
+             the frames from code. -->
+        <video id="video" playsinline preload="metadata"></video>
+        <div class="bgart" id="bgart"></div>
+        <div class="veilg" id="veilg"></div>
+
+        <!-- A transparent layer over the whole picture: clicks are caught
+             on it. As a separate element rather than on the video itself,
+             because captions and buttons lie over the video, and a click on
+             them must not count as a click on the screen. -->
+        <div class="tapzone" id="tapzone"></div>
+
+        <!-- The sign that flashes in the middle on play and on pause.
+             Without it a click on the screen would look like "nothing
+             happened": the picture froze, and why is unclear. -->
+        <div class="tapflash" id="tapflash" aria-hidden="true">
+          <svg viewBox="0 0 26 26" fill="none"><path id="flash-icon"
+            d="M8.5 4.8v16.4L21 13 8.5 4.8Z" fill="currentColor"/></svg>
+        </div>
+
+        <!-- A large heading, "EPISODE 3 OF 24 / Магическая битва", used
+             to hang here over the picture. It repeated what is written
+             twice anyway: in the page header and in the strip right above
+             it. Three identical names on one screen are not a hint but
+             noise covering the frame.
+
+             The episode number and the name are still needed by the code:
+             it writes state into them ("Loading episodes…", "Episodes did
+             not load"). So they stayed, but invisible — for screen readers
+             rather than over the frame. -->
+        <div class="titlemeta" id="titleover">
+          <div class="ep" id="w-epno">—</div>
+          <h1 id="w-name">—</h1>
+        </div>
+
+        <!-- The top strip over the picture: what is open and what to watch
+             it with. The dub and the source moved here from the bottom
+             panel — there they were out of reach in full screen, and the
+             bottom panel broke into two rows because of them. -->
+        <div class="topbar" id="topbar">
+          <div class="tb-name" id="tb-name"></div>
+          <span class="sp"></span>
+          <div class="sel">
+            <button class="selbtn" id="eps-btn" data-menu="m-e">
+              <span class="cap" data-ru="Серия" data-en="Episode">Серия</span><i id="v-e">—</i>
+            </button>
+            <div class="menu down" id="m-e"><div class="mh" data-ru="Серии и части" data-en="Episodes and parts">Серии и части</div></div>
+          </div>
+          <div class="sel" id="sel-dub">
+            <button class="selbtn" id="dub-btn" data-menu="m-d">
+              <span class="cap" data-ru="Озвучка" data-en="Dub">Озвучка</span><i id="v-d">—</i>
+            </button>
+            <div class="menu down" id="m-d"><div class="mh" data-ru="Озвучка" data-en="Dub">Озвучка</div></div>
+          </div>
+          <div class="sel">
+            <button class="selbtn" data-menu="m-s">
+              <span class="cap" data-ru="Источник" data-en="Source">Источник</span><i id="v-s">source-a</i>
+            </button>
+            <div class="menu down" id="m-s"><div class="mh" data-ru="Откуда берётся видео" data-en="Video source">Откуда берётся видео</div></div>
+          </div>
+        </div>
+
+        <button class="playbtn" id="bigplay" aria-label="Смотреть">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+            <path d="M8.5 4.8v16.4L21 13 8.5 4.8Z" fill="currentColor"/></svg>
+        </button>
+        <div class="loadwrap" id="loadwrap" hidden><div class="spin"></div></div>
+        <div class="err playerr" id="w-err" role="alert"></div>
+      </div>
+
+      <div class="track" id="track">
+        <div class="buf"></div>
+        <div class="pos" id="pos"></div>
+        <div class="knob" id="knob"></div>
+      </div>
+
+      <!-- The bottom panel: only what has to do with playback.
+           Quality, dub and source used to be squeezed in here as well —
+           seven blocks in a row did not fit, the panel wrapped onto a
+           second line, and "source" together with the full-screen button
+           slid down onto a line of their own. -->
+      <div class="ctrl">
+        <button class="cbtn" id="c-play" type="button" aria-label="Пуск">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+            <path id="play-icon" d="M6 3.6v10.8L14.4 9 6 3.6Z" fill="currentColor"/></svg></button>
+        <button class="cbtn" id="c-back" type="button" aria-label="Назад на 10 секунд">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+            <path d="M9 4.5a4.5 4.5 0 1 1-4.4 5.4" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round"/><path d="M6.6 2.4 4.3 4.6l2.5 2" stroke="currentColor"
+                  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="cbtn" id="c-fwd" type="button" aria-label="Вперёд на 10 секунд">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+            <path d="M9 4.5a4.5 4.5 0 1 0 4.4 5.4" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round"/><path d="M11.4 2.4l2.3 2.2-2.5 2" stroke="currentColor"
+                  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="volbox">
+          <button class="cbtn" id="c-mute" type="button" aria-label="Звук">
+            <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M4 7v4h2.4L9.6 13.6V4.4L6.4 7H4Z" stroke="currentColor" stroke-width="1.4"
+                    stroke-linejoin="round"/><path id="vol-wave" d="M12 6.6a3.4 3.4 0 0 1 0 4.8"
+                    stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+          <input type="range" id="c-vol" min="0" max="1" step="0.01" value="1" aria-label="Громкость">
+        </div>
+
+        <span class="time"><b id="w-cur">00:00</b> / <span id="w-total">--:--</span></span>
+
+        <span class="sp"></span>
+
+        <div class="sel">
+          <button class="selbtn" data-menu="m-q">
+            <span class="cap" data-ru="Качество" data-en="Quality">Качество</span><i id="v-q">—</i>
+          </button>
+          <div class="menu" id="m-q"><div class="mh" data-ru="Качество" data-en="Quality">Качество</div></div>
+        </div>
+
+        <button class="cbtn" id="c-full" type="button" aria-label="Во весь экран">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+            <path id="full-icon" d="M6.6 2.7H2.7v3.9M11.4 2.7h3.9v3.9M11.4 15.3h3.9v-3.9M6.6 15.3H2.7v-3.9"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+
+    <!-- buttons under the player -->
+    <div class="under">
+      <a class="chipbtn primary" id="w-next" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M5.4 3.2v9.6L13 8 5.4 3.2Z" fill="currentColor"/></svg>
+        <span data-ru="Следующая серия" data-en="Next episode">Следующая серия</span>
+      </a>
+      <!-- "Mark as watched" and "+85 seconds" have been removed.
+           The first was not needed: an episode marks itself at 90%. The
+           second seeked by eye and missed more often than it hit. -->
+      <span class="tag" id="w-saved"></span>
+    </div>
+
+    <!-- the episode's description -->
+    <div class="desc">
+      <h3><span data-ru="О чём это" data-en="What it is about">О чём это</span>
+        <span class="nospoil" data-ru="без спойлеров" data-en="no spoilers">без спойлеров</span></h3>
+      <p id="w-about">—</p>
+      <p class="epnote" id="w-epnote"></p>
+      <div class="tags" id="w-tags"></div>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT COLUMN ============ -->
+  <aside class="side">
+
+    <div class="card">
+      <div class="ch"><h3 data-ru="Дальше" data-en="Up next">Дальше</h3><span id="w-autonote"></span></div>
+      <div class="cb">
+        <a class="next" id="w-nextcard" href="#"><span class="nt"><i></i></span><span class="nb"><b id="w-nexttitle">—</b><span id="w-nextsub"></span></span></a>
+        <div class="autonext" id="w-autobox">
+          <button class="sw" role="switch" aria-checked="true" aria-label="Автопереход"></button>
+          <span data-ru="Включать следующую самой" data-en="Auto-play the next one">Включать следующую самой</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><h3 id="w-side-title">—</h3><span id="w-side-count"></span></div>
+      <div class="cb" style="padding-bottom:2px">
+        <div class="prog"><i id="w-prog" style="width:0%"></i></div>
+        <div class="pnote"><span id="w-seen"></span><span id="w-left"></span></div>
+      </div>
+      <div class="eplist" id="w-eplist"></div>
+    </div>
+
+    <!-- Other parts of this same story.
+
+         The episode list above answers the question "where am I inside the
+         season". This one answers the question that comes next: "and which
+         season is this, and what else is there". There used to be no answer
+         anywhere: a title lay on the shelf as a separate record with one
+         name, and a second season with three films was something you had to
+         remember yourself.
+
+         The block appears only if there really is more than one part. -->
+    <div class="card" id="w-fr-card" hidden>
+      <div class="ch">
+        <h3 data-ru="Эта история целиком" data-en="The whole story">Эта история целиком</h3>
+        <span id="w-fr-count"></span>
+      </div>
+      <div class="parts sideparts" id="w-fr-list"></div>
+      <div class="err" id="w-fr-err" role="alert" style="margin:0 14px 14px"></div>
+    </div>
+
+    </aside>
+</div>
+
+
+<script src="/static/hls.min.js"></script>
+<script src="/static/app.js"></script>
+<script src="/static/watch.js"></script>
+</body>
+</html>

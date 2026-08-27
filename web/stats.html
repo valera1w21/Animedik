@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>анимеДик — итоги года</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<!-- The banner about demonstration mode.
+
+     Three sentences with no legal turns of phrase. A long disclaimer would
+     be worse here than a short one: it protects nothing, while proving the
+     author knew what they were doing. This simply says what is playing and
+     under what licence. -->
+    <div class="demonote" id="demonote" hidden>
+      <span class="ic" aria-hidden="true">▶</span>
+      <span class="tx"
+        data-ru="Демонстрационный режим. Вместо серий проигрываются фильмы Blender Foundation под лицензией Creative Commons — так видно, как работают поиск, плеер и отметки о просмотре."
+        data-en="Demo mode. Instead of episodes it plays Blender Foundation films licensed under Creative Commons — enough to show how search, the player and watch progress work.">
+        Демонстрационный режим. Вместо серий проигрываются фильмы Blender Foundation под лицензией Creative Commons — так видно, как работают поиск, плеер и отметки о просмотре.</span>
+    </div>
+
+
+
+<header>
+  <div class="bar">
+    <a class="back" href="/">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <path d="M9.8 3.5 5.3 8l4.5 4.5" stroke="currentColor" stroke-width="1.7"
+              stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span data-ru="На главную" data-en="Home">На главную</span>
+    </a>
+    <span class="sp"></span>
+      <!-- The language switch is in plain sight rather than in the settings.
+           A person who does not know Russian will never reach the settings:
+           to open them one must first understand what the button says. So
+           the language button is on every page and works before signing in
+           — the choice is remembered by the browser itself. -->
+      <div class="seg lang-seg" role="group" aria-label="Язык / Language">
+        <button class="lang" type="button" data-set-lang="ru">RU</button>
+        <button class="lang" type="button" data-set-lang="en">EN</button>
+      </div>
+    <button class="share" id="st-share" type="button">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M8 2.5v8M5 5.4 8 2.4l3 3" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M3.2 9.6v3.2h9.6V9.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span data-ru="Распечатать или сохранить в PDF"
+            data-en="Print or save as PDF">Распечатать или сохранить в PDF</span>
+    </button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="hero">
+    <div class="glow"></div>
+    <div class="k" data-ru="Итоги года" data-en="Year in review">Итоги года</div>
+    <h1><span data-ru="Ваш" data-en="Your">Ваш</span> <em id="st-year">—</em><br>
+      <span data-ru="в сериях" data-en="in episodes">в сериях</span></h1>
+    <p id="st-since">—</p>
+  </section>
+
+  <section class="big">
+    <div class="b mint">
+      <div class="n" id="st-hours">—</div>
+      <div class="l" data-ru="часов просмотра" data-en="hours watched">часов просмотра</div>
+      <div class="sub" id="st-hours-sub"></div>
+    </div>
+    <div class="b sky">
+      <div class="n" id="st-titles">—</div>
+      <div class="l" data-ru="тайтлов закрыто" data-en="titles finished">тайтлов закрыто</div>
+      <div class="sub" id="st-titles-sub"></div>
+    </div>
+    <div class="b lilac">
+      <div class="n" id="st-eps">—</div>
+      <!-- It used to say "серия" here — the singular under any number
+           above: "431 серия". -->
+      <div class="l" data-ru="серий просмотрено" data-en="episodes watched">серий просмотрено</div>
+      <div class="sub" id="st-eps-sub"></div>
+    </div>
+    <div class="b sand">
+      <div class="n" id="st-days">—</div>
+      <div class="l" data-ru="дней со смотром" data-en="days with anime">дней со смотром</div>
+      <div class="sub" id="st-days-sub"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 data-ru="Год по дням" data-en="The year, day by day">Год по дням</h3>
+    <div class="cap" data-ru="Чем ярче квадрат, тем больше серий в тот день"
+         data-en="The brighter the square, the more episodes that day">Чем ярче квадрат, тем больше серий в тот день</div>
+    <div class="year" id="year"></div>
+    <div class="legend">
+      <span data-ru="меньше" data-en="less">меньше</span>
+      <span class="d"></span><span class="d l1"></span><span class="d l2"></span>
+      <span class="d l3"></span><span class="d l4"></span>
+      <span data-ru="больше" data-en="more">больше</span>
+    </div>
+  </section>
+
+  <div class="two">
+    <section class="card">
+      <h3 data-ru="Что вы смотрели" data-en="What you watched">Что вы смотрели</h3>
+      <div class="cap" data-ru="Доля от всего просмотренного времени"
+           data-en="Share of your total watch time">Доля от всего просмотренного времени</div>
+      <div class="gen" id="st-genres"></div>
+    </section>
+
+    <section class="card">
+      <h3 data-ru="Рекорды" data-en="Records">Рекорды</h3>
+      <div class="cap" data-ru="Куда вас однажды занесло"
+           data-en="How far you once went">Куда вас однажды занесло</div>
+      <div id="st-records"></div>
+    </section>
+  </div>
+
+  <div class="two">
+    <section class="card">
+      <h3 data-ru="Тайтл года" data-en="Title of the year">Тайтл года</h3>
+      <div class="cap" data-ru="Больше всего часов в одном месте"
+           data-en="The most hours in one place">Больше всего часов в одном месте</div>
+      <div id="st-top"></div>
+    </section>
+
+    <section class="card">
+      <h3 data-ru="По месяцам" data-en="By month">По месяцам</h3>
+      <div class="cap" data-ru="Серий за месяц" data-en="Episodes per month">Серий за месяц</div>
+      <div class="months" id="st-months"></div>
+    </section>
+  </div>
+
+</div>
+
+<footer><div class="in">
+  <!-- The year used to be written into the markup as a number. From the
+       first of January it would have become a lie, and only someone looking
+       closely would have noticed. The script sets it. -->
+  <span id="st-foot">—</span>
+  <span>анимеДик</span>
+</div></footer>
+
+
+<script src="/static/app.js"></script>
+<script src="/static/stats.js"></script>
+</body>
+</html>
