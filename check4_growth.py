@@ -1,7 +1,8 @@
-"""Проход 4: то, что копится месяцами и однажды выстреливает.
+"""Pass 4: what piles up over months and goes off one day.
 
-Такие ошибки не видны на тестовом стенде за пять минут — они проявляются
-через полгода работы. Поэтому проверяем их отдельно и намеренно.
+Mistakes like these are invisible on a test bench in five minutes — they
+show themselves after half a year of work. So we check them separately
+and deliberately.
 """
 import io
 import os
@@ -10,9 +11,9 @@ import tempfile
 import time
 import logging
 
-# Проверки публичной версии идут в демонстрационном режиме: другого
-# здесь нет. Внешние источники видео в этот репозиторий не входят, и
-# единственный работающий источник — свободное видео (api/anime_demo.py).
+# The public version's checks run in demonstration mode: there is no
+# other here. External video sources are not part of this repository, and
+# the only working source is free video (api/anime_demo.py).
 os.environ.setdefault("MODE", "demo")
 os.environ["DB_PATH"] = os.path.join(tempfile.mkdtemp(), "p4.db")
 os.environ["COOKIE_SECURE"] = "0"
@@ -24,10 +25,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastapi.testclient import TestClient          # noqa: E402
 from api import main, security, store, anime       # noqa: E402
 
-# Вывод здесь на русском, а консоль Windows по умолчанию живёт в cp1251:
-# первая же стрелка или галочка роняла весь запуск с UnicodeEncodeError,
-# и проверки обрывались на середине, не дойдя до сути. Просим поток
-# работать в utf-8; там, где он и так utf-8, строка ничего не меняет.
+# The output here is in English, while the Windows console lives in cp1251
+# by default: the very first arrow or tick knocked the whole run over with
+# a UnicodeEncodeError, and the checks broke off halfway, never reaching
+# the point. We ask the stream to work in utf-8; where it is utf-8 anyway,
+# the line changes nothing.
 for _s in (sys.stdout, sys.stderr):
     try:
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -74,106 +76,106 @@ def run():
     uid = store.create_user("valera", "Zaliv-Pepel-2026", "admin", "valera")
 
     # ==================================================================
-    group("Счётчик попыток входа не растёт бесконечно")
+    group("The sign-in attempt counter does not grow forever")
     g = security.LoginGuard()
     for i in range(30_000):
         g.note_failure(f"login-{i}", f"10.0.{i % 255}.{i // 255 % 255}")
     fails, locks = g.size()
-    check("записей не больше потолка", fails <= g.MAX_KEYS, fails)
-    check("блокировок не больше потолка", locks <= g.MAX_KEYS, locks)
-    print(f"       после 30 000 попыток в памяти: {fails} записей, {locks} блокировок")
+    check("no more entries than the ceiling", fails <= g.MAX_KEYS, fails)
+    check("no more blocks than the ceiling", locks <= g.MAX_KEYS, locks)
+    print(f"       after 30,000 attempts in memory: {fails} entries, {locks} blocks")
 
-    # старые записи должны уходить сами
+    # old entries must leave by themselves
     g2 = security.LoginGuard()
     g2.note_failure("staryy", "1.2.3.4")
     g2._fails["l:staryy"] = [time.time() - g2.WINDOW - 100]
     g2._last_sweep = 0
     g2.locked_for("kto-to", "9.9.9.9")
-    check("просроченная запись убрана", "l:staryy" not in g2._fails, list(g2._fails))
+    check("an expired entry was removed", "l:staryy" not in g2._fails, list(g2._fails))
 
     # ==================================================================
-    group("Ограничитель частоты не растёт бесконечно")
+    group("The rate limiter does not grow forever")
     rl = security.RateLimiter(limit=5, period=60)
     for i in range(30_000):
         rl.allow(f"kluch-{i}")
-    check("ключей не больше потолка", rl.size() <= rl.MAX_KEYS, rl.size())
-    print(f"       после 30 000 разных ключей в памяти: {rl.size()}")
+    check("no more keys than the ceiling", rl.size() <= rl.MAX_KEYS, rl.size())
+    print(f"       after 30,000 different keys in memory: {rl.size()}")
 
     rl2 = security.RateLimiter(limit=5, period=1)
     rl2.allow("a")
     rl2._hits["a"] = [time.time() - 100]
     rl2._last_sweep = 0
     rl2.allow("b")
-    check("протухший ключ убран", "a" not in rl2._hits, list(rl2._hits))
+    check("a stale key was removed", "a" not in rl2._hits, list(rl2._hits))
 
     # ==================================================================
-    group("Гостевые пропуска не копятся")
+    group("Guest passes do not pile up")
     gs = main.GuestSessions()
     made = 0
-    # Каждый пропуск с отдельного адреса: теперь есть ещё и потолок
-    # на количество живых пропусков с одного адреса, поэтому «все с одного»
-    # больше не проверяет то, что задумано этой группой.
+    # Every pass from a separate address: there is now a ceiling on the
+    # number of live passes from one address as well, so "all from one" no
+    # longer checks what this group intends.
     for i in range(gs.MAX_ALIVE + 50):
         if gs.create(f"10.0.{i // 256}.{i % 256}"):
             made += 1
-    check("сверх потолка не выдаются", made == gs.MAX_ALIVE, made)
-    check("в памяти ровно потолок", gs.count() == gs.MAX_ALIVE, gs.count())
+    check("none are issued beyond the ceiling", made == gs.MAX_ALIVE, made)
+    check("exactly the ceiling in memory", gs.count() == gs.MAX_ALIVE, gs.count())
 
-    # Отдельно: один адрес не может занять все места и запереть остальных
+    # Separately: one address cannot take every place and lock the rest out
     solo = main.GuestSessions()
     alone = 0
     for _ in range(solo.MAX_PER_IP + 20):
         if solo.create("203.0.113.7"):
             alone += 1
-    check("один адрес не забирает все места", alone == solo.MAX_PER_IP, alone)
-    check("с другого адреса пропуск ещё выдаётся",
+    check("one address does not take every place", alone == solo.MAX_PER_IP, alone)
+    check("a pass is still issued from another address",
           solo.create("203.0.113.8") is not None)
-    # просроченные должны освобождать место
+    # expired ones must free their place
     for data in list(gs._items.values()):
         data["expires"] = time.time() - 1
-    check("после истечения счётчик обнулился", gs.count() == 0, gs.count())
-    check("место снова свободно", gs.create() is not None)
+    check("once it expired the counter went back to zero", gs.count() == 0, gs.count())
+    check("the place is free again", gs.create() is not None)
 
     # ==================================================================
-    group("Список тайтлов имеет потолок")
+    group("The library has a ceiling")
     saved = store.MAX_LIBRARY_PER_USER
     store.MAX_LIBRARY_PER_USER = 20
     try:
         for i in range(20):
             store.save_progress(uid, {"key": f"t{i}", "title": f"Тайтл {i}"})
-        check("до потолка записи сохраняются", store.library_count(uid) == 20,
+        check("up to the ceiling records are saved", store.library_count(uid) == 20,
               store.library_count(uid))
         try:
             store.save_progress(uid, {"key": "лишний", "title": "Лишний"})
-            check("сверх потолка отклонено", False, "запись прошла")
+            check("beyond the ceiling it is rejected", False, "the record went through")
         except store.LibraryFull:
-            check("сверх потолка отклонено", True)
-        # обновление существующей должно работать всегда
+            check("beyond the ceiling it is rejected", True)
+        # updating an existing one must always work
         store.save_progress(uid, {"key": "t5", "title": "Тайтл 5", "position": 999})
         row = [x for x in store.library(uid) if x["key"] == "t5"][0]
-        check("обновление существующей проходит", row["position"] == 999, row["position"])
-        # после удаления место освобождается
+        check("updating an existing one goes through", row["position"] == 999, row["position"])
+        # after a deletion the place is freed
         store.remove_from_library(uid, "t0")
         store.save_progress(uid, {"key": "novyy", "title": "Новый"})
-        check("после удаления место освободилось",
+        check("after a deletion the place was freed",
               any(x["key"] == "novyy" for x in store.library(uid)))
     finally:
         store.MAX_LIBRARY_PER_USER = saved
 
-    group("Ответ сервера при переполнении понятен")
+    group("The server's answer on overflow is clear")
     reset()
     c = C()
     login(c, "valera", "Zaliv-Pepel-2026")
     store.MAX_LIBRARY_PER_USER = store.library_count(uid)
     try:
         r = c.post("/api/library/progress", json={"key": "ещё-один", "title": "Ещё"})
-        check("код 409, а не 500", r.status_code == 409, r.status_code)
-        check("в тексте есть подсказка", "Удалите" in r.text, r.text[:80])
+        check("code 409, not 500", r.status_code == 409, r.status_code)
+        check("there is a hint in the text", "Удалите" in r.text, r.text[:80])
     finally:
         store.MAX_LIBRARY_PER_USER = saved
 
     # ==================================================================
-    group("Журнал просмотра обрезается")
+    group("The watch journal is trimmed")
     saved_log = store.MAX_LOG_PER_USER
     store.MAX_LOG_PER_USER = 30
     try:
@@ -182,25 +184,25 @@ def run():
         n = store.connect().execute(
             "SELECT COUNT(*) AS n FROM watch_log WHERE user_id = ?", (uid,)
         ).fetchone()["n"]
-        check("журнал обрезан до потолка", n <= store.MAX_LOG_PER_USER + 1, n)
-        # свежие записи должны остаться, старые уйти
+        check("the journal was trimmed to the ceiling", n <= store.MAX_LOG_PER_USER + 1, n)
+        # the fresh records must stay, the old ones leave
         first = store.connect().execute(
             "SELECT ep FROM watch_log WHERE user_id = ? ORDER BY id ASC LIMIT 1", (uid,)
         ).fetchone()["ep"]
-        check("остались свежие, ушли старые", first > 0, f"самая старая серия {first}")
+        check("the fresh ones stayed, the old ones went", first > 0, f"the oldest episode is {first}")
     finally:
         store.MAX_LOG_PER_USER = saved_log
 
     # ==================================================================
-    group("Кэш поиска не растёт бесконечно")
+    group("The search cache does not grow forever")
     anime._cache.clear()
     for i in range(anime.CACHE_MAX + 500):
         anime.cache_put(f"k{i}", {"a": i})
-    check("кэш в пределах потолка", len(anime._cache) <= anime.CACHE_MAX + 10,
+    check("the cache is within the ceiling", len(anime._cache) <= anime.CACHE_MAX + 10,
           len(anime._cache))
 
     # ==================================================================
-    group("Просроченные сессии убираются")
+    group("Expired sessions are removed")
     reset()
     s1 = C()
     login(s1, "valera", "Zaliv-Pepel-2026")
@@ -208,35 +210,35 @@ def run():
         cc = C()
         login(cc, "valera", "Zaliv-Pepel-2026")
     before = store.connect().execute("SELECT COUNT(*) AS n FROM sessions").fetchone()["n"]
-    check("сессий несколько", before >= 5, before)
+    check("there are several sessions", before >= 5, before)
     old = store.now() - security.SESSION_IDLE - 100
     with store.tx() as conn:
         conn.execute("UPDATE sessions SET last_seen = ?", (old,))
     dropped = store.purge_old_sessions()
     after = store.connect().execute("SELECT COUNT(*) AS n FROM sessions").fetchone()["n"]
-    check("уборка удалила все просроченные", after == 0, f"было {before}, убрано {dropped}")
+    check("the cleanup deleted every expired one", after == 0, f"there were {before}, removed {dropped}")
 
-    group("Уборка запускается сама")
+    group("The cleanup starts by itself")
     src = io.open("api/main.py", encoding="utf-8").read()
-    check("есть фоновая задача", "async def housekeeping" in src)
-    check("задача создаётся при старте", "create_task(housekeeping())" in src)
-    check("задача снимается при остановке", "task.cancel()" in src)
-    check("ошибка уборки не роняет сервер", "уборка споткнулась" in src)
+    check("there is a background task", "async def housekeeping" in src)
+    check("the task is created at start-up", "create_task(housekeeping())" in src)
+    check("the task is cancelled at shutdown", "task.cancel()" in src)
+    check("an error in the cleanup does not bring the server down", "уборка споткнулась" in src)
 
     # ==================================================================
-    group("Часовой пояс в итогах года")
+    group("The time zone in the year in review")
     reset()
     t = C()
     login(t, "valera", "Zaliv-Pepel-2026")
-    check("сдвиг принимается", t.get("/api/stats/year?tz=180").status_code == 200)
-    check("нулевой сдвиг принимается", t.get("/api/stats/year?tz=0").status_code == 200)
-    check("отрицательный принимается", t.get("/api/stats/year?tz=-300").status_code == 200)
-    check("невозможный сдвиг отклонён", t.get("/api/stats/year?tz=99999").status_code == 422)
-    check("текст вместо числа отклонён", t.get("/api/stats/year?tz=abc").status_code == 422)
+    check("a shift is accepted", t.get("/api/stats/year?tz=180").status_code == 200)
+    check("a zero shift is accepted", t.get("/api/stats/year?tz=0").status_code == 200)
+    check("a negative one is accepted", t.get("/api/stats/year?tz=-300").status_code == 200)
+    check("an impossible shift is rejected", t.get("/api/stats/year?tz=99999").status_code == 422)
+    check("text instead of a number is rejected", t.get("/api/stats/year?tz=abc").status_code == 422)
 
-    # день считается по поясу, а не по серверу
+    # the day is counted by the zone rather than by the server
     store.connect().execute("DELETE FROM watch_log WHERE user_id = ?", (uid,))
-    # запись в 23:30 UTC
+    # a record at 23:30 UTC
     mark = int(time.mktime(time.strptime("2026-06-15 23:30", "%Y-%m-%d %H:%M"))) if False else None
     import calendar as _cal
     at_utc = _cal.timegm(time.strptime("2026-06-15 23:30", "%Y-%m-%d %H:%M"))
@@ -247,12 +249,12 @@ def run():
             (uid, "tz", "Т", "Драма", 1, 600, at_utc))
     d_utc = store.year_stats(uid, 0, 0)["days"]
     d_israel = store.year_stats(uid, 0, 180)["days"]
-    check("по UTC это 15 июня", "2026-06-15" in d_utc, list(d_utc))
-    check("по израильскому — уже 16-е", "2026-06-16" in d_israel, list(d_israel))
-    print("       то есть клетки календаря больше не едут на сутки")
+    check("by UTC this is 15 June", "2026-06-15" in d_utc, list(d_utc))
+    check("by Israeli time it is already the 16th", "2026-06-16" in d_israel, list(d_israel))
+    print("       that is, the calendar cells no longer slide by a day")
 
     # ==================================================================
-    group("Соединения с базой не плодятся")
+    group("Database connections do not breed")
     import threading
     ids = set()
 
@@ -264,17 +266,17 @@ def run():
         th.start()
     for th in threads:
         th.join()
-    check("на поток по одному соединению", len(ids) <= 8, len(ids))
+    check("one connection per thread", len(ids) <= 8, len(ids))
     a, b = store.connect(), store.connect()
-    check("в одном потоке соединение переиспользуется", a is b)
+    check("within one thread the connection is reused", a is b)
 
     print("\n" + "=" * 60)
     if FAILS:
-        print(f"ПРОХОД 4 — не прошли: {len(FAILS)}")
+        print(f"PASS 4 — failed: {len(FAILS)}")
         for f in FAILS:
             print("   - " + f)
         return 1
-    print("ПРОХОД 4 — все проверки пройдены.")
+    print("PASS 4 — every check passed.")
     return 0
 
 

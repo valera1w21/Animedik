@@ -1,13 +1,14 @@
-"""Проход 8: демонстрационный режим.
+"""Pass 8: demonstration mode.
 
-Публичная версия сайта работает при MODE=demo: плеер играет фильмы
-Blender Foundation под Creative Commons, внешних источников видео нет
-вовсе. Проверяется главное — что в этом режиме сайт действительно
-никуда за чужим видео не ходит и работает без библиотек, которых в
-публичном репозитории нет.
+The public version of the site runs with MODE=demo: the player plays
+Blender Foundation films under Creative Commons, and there are no
+external video sources at all. What is checked is the main thing — that
+in this mode the site really does not go anywhere for someone else's
+video and works without libraries the public repository does not have.
 
-Запускать отдельно от остальных наборов: режим включается переменной
-окружения до импорта приложения, а поменять его на ходу нельзя.
+Run it apart from the other suites: the mode is switched on by an
+environment variable before the application is imported, and it cannot
+be changed on the fly.
 """
 import io
 import os
@@ -15,9 +16,9 @@ import sys
 import tempfile
 import logging
 
-# Проверки публичной версии идут в демонстрационном режиме: другого
-# здесь нет. Внешние источники видео в этот репозиторий не входят, и
-# единственный работающий источник — свободное видео (api/anime_demo.py).
+# The public version's checks run in demonstration mode: there is no
+# other here. External video sources are not part of this repository, and
+# the only working source is free video (api/anime_demo.py).
 os.environ.setdefault("MODE", "demo")
 os.environ["MODE"] = "demo"
 os.environ["DB_PATH"] = os.path.join(tempfile.mkdtemp(), "p8.db")
@@ -58,93 +59,94 @@ if r.status_code == 200:
     c.headers["X-CSRF-Token"] = r.json()["csrf"]
 
 # ----------------------------------------------------------------------
-group("Режим включён и виден")
-check("переменная прочитана", anime.DEMO is True, anime.MODE)
+group("Mode is on and visible")
+check("the variable was read", anime.DEMO is True, anime.MODE)
 r = c.get("/api/mode")
-check("страница может о нём спросить", r.status_code == 200 and r.json()["demo"] is True)
-check("спросить можно без входа",
+check("the page can ask about it", r.status_code == 200 and r.json()["demo"] is True)
+check("it can be asked without signing in",
       TestClient(main.app).get("/api/mode").status_code == 200)
 
 # ----------------------------------------------------------------------
-group("Внешних источников видео нет")
-check("источник ровно один", list(anime.SOURCES) == [anime_demo.NAME], list(anime.SOURCES))
-check("он же для обоих языков",
+group("There are no external video sources")
+check("exactly one source", list(anime.SOURCES) == [anime_demo.NAME], list(anime.SOURCES))
+check("the same one for both languages",
       anime.sources_for("ru") == anime.sources_for("en") == [anime_demo.NAME])
-check("и он же по умолчанию",
+check("and the same one by default",
       anime.default_source("ru") == anime.default_source("en") == anime_demo.NAME)
 
 ru = c.get("/api/sources?lang=ru").json()
 en = c.get("/api/sources?lang=en").json()
-check("наружу отдаётся только он",
+check("only it is served to the outside",
       [x["id"] for x in ru] == [x["id"] for x in en] == [anime_demo.NAME])
 
-# Наружу не должно уходить ни одного источника, кроме демонстрационного.
-# Проверяем не по списку запрещённых имён, а наоборот: всё, что сайт
-# называет источником, обязано быть демо. Так проверка переживёт любое
-# новое имя, которое кто-нибудь однажды сюда впишет.
+# Not a single source apart from the demonstration one may leave for the
+# outside. We check it not against a list of forbidden names but the
+# other way round: everything the site calls a source has to be the demo.
+# That way the check survives any new name somebody writes in here one day.
 named = ([x["id"] for x in ru] + [x["id"] for x in en]
          + list(main.fallback_for("ru")) + list(main.fallback_for("en"))
          + list(main.SUB_ORDER) + list(main.SUB_ORDER_EN)
          + list(main.FALLBACK_ORDER) + list(main.FALLBACK_ORDER_EN))
-check("кроме демонстрационного, источников нет нигде",
+check("apart from the demonstration one, there are no sources anywhere",
       set(named) == {anime_demo.NAME}, sorted(set(named)))
 
-# Списки перебора пусты не случайно: подключать нечего, и заполнить их
-# может только тот, кто добавит свой источник сам.
-check("порядки перебора пусты",
+# The fallback lists are empty for a reason: there is nothing to plug in,
+# and only whoever adds a source of their own can fill them.
+check("the fallback orders are empty",
       not (main.FALLBACK_ORDER or main.FALLBACK_ORDER_EN
            or main.SUB_ORDER or main.SUB_ORDER_EN))
 
 # ----------------------------------------------------------------------
-group("Библиотеки внешних источников не нужны")
-# Разборщик достаётся, не трогая библиотека источников и библиотека источников: в публичной
-# версии этих пакетов не будет вовсе, и обращение к ним уронило бы сайт.
+group("no external source libraries are needed")
+# The parser is obtained without touching any source library: in the
+# public version those packages will not be there at all, and reaching
+# for them would bring the site down.
 before = set(sys.modules)
 extractor = anime.get_extractor(anime_demo.NAME)
 loaded = set(sys.modules) - before
-check("разборщик демо-источника выдан", extractor is not None)
-check("сторонние библиотеки при этом не подгружались",
+check("the demo source's parser was handed over", extractor is not None)
+check("and no third-party libraries were loaded for it",
       not [m for m in loaded if m.startswith(("библиотека источников", "библиотека источников"))],
       [m for m in loaded if m.startswith(("библиотека источников", "библиотека источников"))])
 
 # ----------------------------------------------------------------------
-group("Видео — свободное и настоящее")
+group("The video is free and real")
 seen_hosts = set()
 for clip in anime_demo.CLIPS:
     for track in clip["tracks"]:
         for v in track["videos"]:
             seen_hosts.add(v["url"].split("/")[2])
-check("ссылки ведут на известные открытые площадки",
+check("the links lead to known open platforms",
       all(h.endswith(("blender.org", "w3.org", "mux.dev")) for h in seen_hosts),
       sorted(seen_hosts))
-check("у каждого ролика указана лицензия",
+check("every clip states its licence",
       all(c_["licence"].startswith("CC") for c_ in anime_demo.CLIPS))
-check("есть и поток, и обычный файл",
+check("there is both a stream and a plain file",
       {"m3u8", "mp4"} <= {v["type"] for c_ in anime_demo.CLIPS
                           for t in c_["tracks"] for v in t["videos"]})
 
-# Один и тот же запрос всегда даёт один и тот же ролик: иначе список
-# «продолжить смотреть» вёл бы каждый раз на другое видео.
-check("выбор ролика повторяем",
+# The same query always gives the same clip: otherwise the "continue
+# watching" list would lead to a different video every time.
+check("the choice of clip repeats",
       anime_demo.pick_clip("наруто")["id"] == anime_demo.pick_clip("наруто")["id"])
 
 # ----------------------------------------------------------------------
-group("Сайт при этом работает")
+group("And the site works")
 r = c.get("/api/search", params={"q": "наруто", "lang": "ru"})
-check("поиск у источника отвечает", r.status_code == 200 and r.json()["items"],
+check("search at the source answers", r.status_code == 200 and r.json()["items"],
       r.status_code)
 row = r.json()["items"][0]
-check("карточка названа тем, что искали", row["title"] == "наруто", row["title"])
+check("the card is named what was searched for", row["title"] == "наруто", row["title"])
 
 q = {"key": row["key"], "source": anime_demo.NAME, "title": row["title"]}
 r = c.get("/api/episodes", params=q)
-check("серии отдаются", r.status_code == 200 and isinstance(r.json(), list), r.status_code)
+check("episodes are served", r.status_code == 200 and isinstance(r.json(), list), r.status_code)
 
 main.source_limit.reset()
 r = c.get("/api/videos", params={**q, "ordinal": 1, "lang": "ru"})
 body = r.json() if r.status_code == 200 else {}
-check("плеер получает ссылки", r.status_code == 200 and body.get("videos"), r.status_code)
-check("дорожка названа понятно",
+check("the player gets links", r.status_code == 200 and body.get("videos"), r.status_code)
+check("the track is named clearly",
       body.get("chosen") in ("HLS-поток", "Обычный файл"), body.get("chosen"))
 
 print("\n" + "=" * 60)
@@ -153,4 +155,4 @@ if FAILS:
     for f in FAILS:
         print("   - " + f)
     sys.exit(1)
-print("ПРОХОД 8 — демонстрационный режим в порядке.")
+print("PASS 8 — demonstration mode is in order.")
