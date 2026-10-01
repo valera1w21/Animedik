@@ -145,10 +145,10 @@ password guessing, a cache nobody read, a watch bar that ran off the edge.
 
 ```bash
 python tests.py
-python check1_static.py     # and so on up to check10_demo.py
+python check1_static.py     # and so on up to check8_demo.py
 ```
 
-`check10_demo.py` separately makes sure that in demonstration mode the site
+`check8_demo.py` separately makes sure that in demonstration mode the site
 really does not go anywhere for someone else's video, and that it works
 without the libraries this repository does not have.
 
