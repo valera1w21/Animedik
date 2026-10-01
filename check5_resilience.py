@@ -1,8 +1,7 @@
-"""Pass 5: what was left unchecked.
+"""Проход 5: то, что осталось непроверенным.
 
-Resilience under failures, behaviour when the database goes away,
-permissions on files, how the front end behaves on unexpected answers
-from the server.
+Устойчивость при сбоях, поведение при потере связи с базой, права на
+файлы, поведение фронтенда при неожиданных ответах сервера.
 """
 import io
 import json
@@ -13,11 +12,11 @@ import tempfile
 import time
 import logging
 
-WORK = tempfile.mkdtemp()
-# The public version's checks run in demonstration mode: there is no
-# other here. External video sources are not part of this repository, and
-# the only working source is free video (api/anime_demo.py).
+# Проверки публичной версии идут в демонстрационном режиме: другого здесь
+# нет. Внешние источники видео не входят в этот репозиторий, и
+# единственный рабочий источник — свободное видео (api/anime_demo.py).
 os.environ.setdefault("MODE", "demo")
+WORK = tempfile.mkdtemp()
 os.environ["DB_PATH"] = os.path.join(WORK, "p5.db")
 os.environ["COOKIE_SECURE"] = "0"
 os.environ["SESSION_PEPPER"] = "pass5"
@@ -28,11 +27,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastapi.testclient import TestClient          # noqa: E402
 from api import main, security, store              # noqa: E402
 
-# The output here is in English, while the Windows console lives in cp1251
-# by default: the very first arrow or tick knocked the whole run over with
-# a UnicodeEncodeError, and the checks broke off halfway, never reaching
-# the point. We ask the stream to work in utf-8; where it is utf-8 anyway,
-# the line changes nothing.
+# Вывод здесь на русском, а консоль Windows по умолчанию живёт в cp1251:
+# первая же стрелка или галочка роняла весь запуск с UnicodeEncodeError,
+# и проверки обрывались на середине, не дойдя до сути. Просим поток
+# работать в utf-8; там, где он и так utf-8, строка ничего не меняет.
 for _s in (sys.stdout, sys.stderr):
     try:
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -78,48 +76,47 @@ def run():
     store.create_user("misha", "Tihiy-Signal-2026", "user", "misha")
 
     # ==================================================================
-    group("Permissions on the database file")
-    # 600 — only the owner may read and write.
-    # The last digit of the permissions is for "everyone else": there must
-    # be a zero there.
+    group("Права на файл базы")
+    # 600 — читать и писать может только владелец.
+    # Последняя цифра прав отвечает за «всех остальных»: там должен быть ноль.
     #
-    # The check only makes sense where permissions work that way. In
-    # Windows access is governed by ACLs, and os.chmod there can toggle
-    # little more than "read only" — the permission digits will always
-    # show 666 however hard you set 600. These four checks used simply to
-    # fail on Windows: four red lines with not one real problem behind
-    # them — and next to those it is easy to miss a real one.
+    # Проверка имеет смысл только там, где права так и устроены. В Windows
+    # доступом заведуют списки ACL, а os.chmod умеет там переключить разве
+    # что «только чтение» — цифры прав всегда покажут 666, сколько ни ставь
+    # 600. Раньше эти четыре проверки на Windows просто проваливались:
+    # четыре красных строки, за которыми нет ни одной настоящей проблемы,
+    # — и рядом с ними легко не заметить настоящую.
     if os.name != "posix":
-        print("       the system is not POSIX — ACLs are in charge, the check was skipped")
-        print("       (on the server in a container it does run and has to pass)")
+        print("       система не POSIX — правами заведуют ACL, проверка пропущена")
+        print("       (на сервере в контейнере она выполняется и обязана проходить)")
     else:
         st = os.stat(os.environ["DB_PATH"])
         mode = oct(st.st_mode)[-3:]
-        check("outsiders do not read the database file", mode[2] == "0", mode)
-        check("the group does not read it either", mode[1] == "0", mode)
-        print(f"       permissions on the file: {mode}")
+        check("посторонние не читают файл базы", mode[2] == "0", mode)
+        check("группа тоже не читает", mode[1] == "0", mode)
+        print(f"       права на файл: {mode}")
         for suffix in ("-wal", "-shm"):
             p2 = os.environ["DB_PATH"] + suffix
             if os.path.exists(p2):
                 m2 = oct(os.stat(p2).st_mode)[-3:]
-                check(f"the journal file{suffix} is closed", m2[2] == "0", m2)
+                check(f"файл журнала{suffix} закрыт", m2[2] == "0", m2)
 
     # ==================================================================
-    group("The session secret string is compulsory")
+    group("Секретная строка сессий обязательна")
     src = io.open("docker-compose.yml", encoding="utf-8").read()
-    check("with no string the container does not start", ":?" in src,
+    check("без строки контейнер не стартует", ":?" in src,
           "проверка есть" if ":?" in src else "ПРОВЕРКИ НЕТ")
-    check("there is an example in .env.example", "SESSION_PEPPER" in
+    check("пример есть в .env.example", "SESSION_PEPPER" in
           io.open(".env.example", encoding="utf-8").read())
-    # changing the string must close every session
+    # смена строки должна закрывать все сессии
     old_fp = security.token_fingerprint("токен")
     os.environ["SESSION_PEPPER"] = "другая-строка"
     new_fp = security.token_fingerprint("токен")
     os.environ["SESSION_PEPPER"] = "pass5"
-    check("changing the string makes old tokens invalid", old_fp != new_fp)
+    check("смена строки делает старые токены недействительными", old_fp != new_fp)
 
     # ==================================================================
-    group("A database error does not bring the server down")
+    group("Ошибка базы не роняет сервер")
     reset()
     c = C()
     login(c, "valera", "Zaliv-Pepel-2026")
@@ -128,15 +125,15 @@ def run():
     store.library = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("база отвалилась"))
     try:
         r = c.get("/api/library")
-        check("it answers 500 rather than falling over", r.status_code == 500, r.status_code)
-        check("the error text does not give away the internals",
+        check("отдаёт 500, а не падает", r.status_code == 500, r.status_code)
+        check("текст ошибки не выдаёт внутренности",
               "база отвалилась" not in r.text and "Traceback" not in r.text, r.text[:70])
     finally:
         store.library = real
-    check("the server is alive after the failure", C().get("/api/health").status_code == 200)
+    check("после сбоя сервер жив", C().get("/api/health").status_code == 200)
 
     # ==================================================================
-    group("A source's failure does not bring search down")
+    group("Сбой источника не роняет поиск")
     reset()
     s = C()
     login(s, "valera", "Zaliv-Pepel-2026")
@@ -148,13 +145,13 @@ def run():
     main.try_source = always_fail
     try:
         r = s.get("/api/search", params={"q": "чтонибудь"})
-        check("silence from every source — 502", r.status_code == 502, r.status_code)
-        check("the text makes sense to a person", "Попробуйте" in r.text, r.text[:80])
+        check("молчание всех источников — 502", r.status_code == 502, r.status_code)
+        check("текст понятен человеку", "Попробуйте" in r.text, r.text[:80])
     finally:
         main.try_source = real_try
 
     # ==================================================================
-    group("The walk over sources works")
+    group("Перебор источников работает")
     reset()
     calls = []
 
@@ -166,11 +163,11 @@ def run():
     main.try_source = second_works
     try:
         r = s.get("/api/search", params={"q": "тест", "source": "demo"})
-        check("it was found at the fallback", r.status_code == 200, r.status_code)
+        check("нашлось на запасном", r.status_code == 200, r.status_code)
         body = r.json()
-        check("it is said who had it", body.get("source") == "demo", body.get("source"))
-        check("the chosen one was tried first", calls and calls[0] == "demo", calls[:3])
-        check("the attempts are listed", "demo" in body.get("tried", []), body.get("tried"))
+        check("сказано, у кого нашлось", body.get("source") == "demo", body.get("source"))
+        check("первым пробовали выбранный", calls and calls[0] == "demo", calls[:3])
+        check("перечислены попытки", "demo" in body.get("tried", []), body.get("tried"))
     finally:
         main.try_source = real_try
 
@@ -180,18 +177,17 @@ def run():
     try:
         r = s.get("/api/search", params={"q": "тест2", "source": "demo",
                                          "any_source": "false"})
-        # There is one source here, and nothing to walk: the only one's
-        # refusal is the refusal of the search. We check that it reaches
-        # the outside with a clear code rather than turning into empty
-        # results.
-        check("the only source's refusal is visible", r.status_code in (200, 502),
-              r.status_code)
-        check("only the chosen one was tried", calls == ["demo"], calls)
+        # Источник здесь один, и обходить нечего: отказ единственного —
+        # это и есть отказ поиска. Проверяем, что это доходит наружу
+        # понятным кодом, а не превращается в пустой результат.
+        check("отказ единственного источника виден снаружи",
+              r.status_code in (200, 502), r.status_code)
+        check("пробовали только выбранный", calls == ["demo"], calls)
     finally:
         main.try_source = real_try
 
     # ==================================================================
-    group("The server's answers match what the front end expects")
+    group("Ответы сервера соответствуют тому, что ждёт фронтенд")
     reset()
     f = C()
     login(f, "valera", "Zaliv-Pepel-2026")
@@ -199,33 +195,33 @@ def run():
     me = f.get("/api/me").json()
     for field in ["kind", "role", "name", "display_name", "avatar_color",
                   "has_avatar", "settings", "can_edit"]:
-        check(f"/api/me has {field}", field in me, list(me))
+        check(f"в /api/me есть {field}", field in me, list(me))
 
     lib = f.get("/api/library").json()
-    check("the library has an items field", "items" in lib)
+    check("в библиотеке поле items", "items" in lib)
     f.post("/api/library/progress", json={"key": "проверка", "title": "Т",
                                           "total_eps": 12, "watched_ep": 3,
                                           "position": 100, "genres": "Драма", "year": 2024})
     item = [x for x in f.get("/api/library").json()["items"] if x["key"] == "проверка"][0]
     for field in ["key", "source", "title", "poster", "year", "genres",
                   "total_eps", "watched_ep", "position", "status", "updated_at"]:
-        check(f"the record has {field}", field in item, list(item))
+        check(f"в записи есть {field}", field in item, list(item))
 
     stats = f.get("/api/stats/year?tz=0").json()
     for field in ["episodes", "seconds", "days", "genres", "titles", "finished"]:
-        check(f"the totals have {field}", field in stats, list(stats))
+        check(f"в итогах есть {field}", field in stats, list(stats))
 
     srcs = f.get("/api/sources").json()
-    check("sources are a list", isinstance(srcs, list))
-    check("a source has an id and a caption",
+    check("источники — список", isinstance(srcs, list))
+    check("у источника есть id и подпись",
           all("id" in x and "label" in x for x in srcs))
 
     users = f.get("/api/admin/users").json()
-    check("the list of accounts has users and guests_now",
+    check("в списке аккаунтов есть users и guests_now",
           "users" in users and "guests_now" in users, list(users))
 
     # ==================================================================
-    group("The front end reads the same fields the server gives")
+    group("Фронтенд читает те же поля, что отдаёт сервер")
     js = io.open("web/index.js", encoding="utf-8").read()
     js += io.open("web/watch.js", encoding="utf-8").read()
     js += io.open("web/stats.js", encoding="utf-8").read()
@@ -245,50 +241,49 @@ def run():
                                   "duration", "currentTime", "paused", "muted", "volume",
                                   "naturalwidth", "naturalheight", "width", "height",
                                   "settings", "kind", "name",
-                                  # fields from /api/updates: what came out for a title
+                                  # поля от /api/updates: что вышло у тайтла
                                   "fresh", "now", "was", "checked", "items",
-                                  # catalogue fields (/api/about, /api/random)
+                                  # поля справочника (/api/about, /api/random)
                                   "about", "found", "episodes", "score", "genres",
-                                  # the administrator's announcement and sign-in by code
+                                  # объявление администратора и вход по коду
                                   "text", "secret", "backup", "totp_on",
                                   "mail_new_eps", "email",
-                                  # search by franchise: /api/find says
-                                  # whether the catalogue answered, and
-                                  # /api/resolve whether the name matched
-                                  # the source exactly
+                                  # поиск по франшизам: /api/find говорит,
+                                  # ответил ли справочник, а /api/resolve —
+                                  # точно ли совпало название у источника
                                   "catalog", "exact",
-                                  # dubs: the list of names, which one is open,
-                                  # and which sources have the title at all
+                                  # озвучки: список названий, какая открыта,
+                                  # и у кого из источников тайтл вообще есть
                                   "dubs", "chosen", "here",
-                                  # /api/subs: whether subtitles were found and
-                                  # which variant at the source it is
+                                  # /api/subs: нашлись ли субтитры и какой
+                                  # это вариант у источника
                                   "dub", "lang",
-                                  # the administrator's announcement: the Russian
-                                  # version and the English one beside it
+                                  # объявление администратора: русская
+                                  # версия и английская рядом с ней
                                   "text_en",
-                                  # properties of the browser, not fields from the server
+                                  # свойства браузера, а не поля с сервера
                                   "left", "right", "top", "bottom", "width", "height",
                                   "checked", "disabled", "innerText", "currentSrc"}
     unknown = sorted(x for x in used if x not in known and len(x) > 2)
-    check("the front end does not expect fields that do not exist", not unknown, unknown[:8])
+    check("фронтенд не ждёт несуществующих полей", not unknown, unknown[:8])
 
     # ==================================================================
-    group("The error codes the front end counts on")
+    group("Коды ошибок, на которые рассчитан фронтенд")
     reset()
     e = C()
-    check("without signing in — 401", e.get("/api/library").status_code == 401)
+    check("без входа — 401", e.get("/api/library").status_code == 401)
     g = C()
     g.post("/api/auth/guest")
     g.headers["X-CSRF-Token"] = "x"
-    check("a guest writing — 403",
+    check("гостю на запись — 403",
           g.post("/api/library/progress", json={"key": "x"}).status_code in (403,))
-    check("the admin page to outsiders — 404", g.get("/api/admin/users").status_code == 404)
+    check("админка посторонним — 404", g.get("/api/admin/users").status_code == 404)
     app_js = io.open("web/app.js", encoding="utf-8").read()
-    check("the front end reads the detail field from an error", "data.detail" in app_js)
-    check("the front end knows about the error code", "err.status" in app_js or ".status" in app_js)
+    check("фронтенд читает поле detail из ошибки", "data.detail" in app_js)
+    check("фронтенд знает про код ошибки", "err.status" in app_js or ".status" in app_js)
 
     # ==================================================================
-    group("A long idle does not break the session")
+    group("Долгий простой не ломает сессию")
     reset()
     d = C()
     login(d, "misha", "Tihiy-Signal-2026")
@@ -297,48 +292,48 @@ def run():
                   json={"login": "misha", "password": "Tihiy-Signal-2026"}
                   ).headers.get_list("set-cookie") if x.startswith("sid=")][0]
     fp = security.token_fingerprint(tok)
-    # almost expired, but still alive
+    # почти истёкшая, но ещё живая
     with store.tx() as conn:
         conn.execute("UPDATE sessions SET last_seen = ? WHERE fp = ?",
                      (store.now() - security.SESSION_IDLE + 600, fp))
     z = C()
     z.cookies.set("sid", tok)
-    check("one almost expired still works", z.get("/api/me").status_code == 200)
+    check("почти истёкшая ещё работает", z.get("/api/me").status_code == 200)
     row = store.connect().execute("SELECT last_seen FROM sessions WHERE fp = ?",
                                   (fp,)).fetchone()
-    check("the time of the last visit was updated",
+    check("время последнего визита обновилось",
           store.now() - row["last_seen"] < 60, store.now() - row["last_seen"])
 
     # ==================================================================
-    group("A disabled account does not come back to life")
+    group("Отключённый аккаунт не оживает")
     reset()
     k = C()
     kid = store.create_user("temp", "Vremennyy-Parol-2026", "user")
     login(k, "temp", "Vremennyy-Parol-2026")
-    check("signed in", k.get("/api/me").status_code == 200)
+    check("вошёл", k.get("/api/me").status_code == 200)
     store.set_disabled(kid, True)
-    check("thrown out at once", k.get("/api/me").status_code == 401)
+    check("сразу выкинут", k.get("/api/me").status_code == 401)
     reset()
-    check("signing in is impossible",
+    check("войти нельзя",
           C().post("/api/auth/login",
                    json={"login": "temp", "password": "Vremennyy-Parol-2026"}
                    ).status_code == 401)
     store.set_disabled(kid, False)
     reset()
-    check("after enabling it is possible again",
+    check("после включения снова можно",
           C().post("/api/auth/login",
                    json={"login": "temp", "password": "Vremennyy-Parol-2026"}
                    ).status_code == 200)
 
     # ==================================================================
-    group("Deleting an account takes all its data with it")
+    group("Удаление аккаунта уносит все его данные")
     reset()
     victim = store.create_user("udalyaemyy", "Udalyaemyy-Parol-26", "user")
     store.save_progress(victim, {"key": "его-запись", "title": "Личное"})
     store.log_watch(victim, "его-запись", "Личное", "Драма", 1, 600)
     vc = C()
     login(vc, "udalyaemyy", "Udalyaemyy-Parol-26")
-    check("the data is in place", len(store.library(victim)) == 1)
+    check("данные на месте", len(store.library(victim)) == 1)
     store.delete_user(victim)
     left_lib = store.connect().execute(
         "SELECT COUNT(*) AS n FROM library WHERE user_id = ?", (victim,)).fetchone()["n"]
@@ -346,28 +341,28 @@ def run():
         "SELECT COUNT(*) AS n FROM watch_log WHERE user_id = ?", (victim,)).fetchone()["n"]
     left_ses = store.connect().execute(
         "SELECT COUNT(*) AS n FROM sessions WHERE user_id = ?", (victim,)).fetchone()["n"]
-    check("the library was deleted", left_lib == 0, left_lib)
-    check("the journal was deleted", left_log == 0, left_log)
-    check("the sessions were deleted", left_ses == 0, left_ses)
-    check("their session no longer lets them in", vc.get("/api/me").status_code == 401)
+    check("библиотека удалена", left_lib == 0, left_lib)
+    check("журнал удалён", left_log == 0, left_log)
+    check("сессии удалены", left_ses == 0, left_ses)
+    check("его сессия больше не пускает", vc.get("/api/me").status_code == 401)
 
     # ==================================================================
-    group("The front-end files contain no secrets")
+    group("Файлы фронтенда не содержат секретов")
     for f in ["web/app.js", "web/index.js", "web/watch.js", "web/stats.js",
               "web/index.html", "web/watch.html", "web/stats.html"]:
         t = io.open(f, encoding="utf-8").read()
         for word in ["PEPPER", "pbkdf2", "password_hash", "pass_hash", "SECRET"]:
             if word in t:
-                check(f"{f} without {word}", False, word)
-    check("there are no secrets in the front end", True)
+                check(f"{f} без {word}", False, word)
+    check("во фронтенде нет секретов", True)
 
     print("\n" + "=" * 60)
     if FAILS:
-        print(f"PASS 5 — failed: {len(FAILS)}")
+        print(f"ПРОХОД 5 — не прошли: {len(FAILS)}")
         for f in FAILS:
             print("   - " + f)
         return 1
-    print("PASS 5 — every check passed.")
+    print("ПРОХОД 5 — все проверки пройдены.")
     return 0
 
 

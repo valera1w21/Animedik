@@ -1,8 +1,8 @@
-"""Talking to anime sources.
+"""Работа с источниками аниме.
 
-The code comes from the working version almost unchanged: it is tested
-and does exactly what is needed. One thing is different — this module no
-longer builds a web application, it only returns data.
+Код взят из рабочей версии почти без изменений: он проверен и делает
+ровно то, что нужно. Изменилось одно — модуль больше не создаёт
+веб-приложение, а только отдаёт данные.
 """
 
 from __future__ import annotations
@@ -19,52 +19,51 @@ from . import anime_demo
 
 log = logging.getLogger("anime.sources")
 
-# Operating mode. Private by default: the site goes out to external
-# sources.
+# Режим работы. По умолчанию — личный: сайт ходит на внешние источники.
 #
-# MODE=demo switches it to demonstration mode: instead of someone else's
-# video the player runs Blender Foundation films under Creative Commons.
-# Everything else — catalogue search, franchises, the library, watch
-# progress — works as usual, because catalogue data is free.
+# MODE=demo переключает его на демонстрационный: вместо чужого видео
+# плеер играет фильмы Blender Foundation под Creative Commons. Всё
+# остальное — поиск по справочнику, франшизы, список, отметки о
+# просмотре — работает как обычно, потому что справочные данные открыты.
 #
-# The switch lives here, in one place: the rest of the code must not
-# know where the video came from, otherwise the difference spreads
-# across the whole project and one day the wrong source leaks somewhere.
+# Переключатель именно здесь, в одном месте: остальной код не должен
+# знать, откуда взялось видео, иначе разница расползётся по всему
+# проекту и однажды где-нибудь протечёт не тот источник.
 MODE = os.getenv("MODE", "private").strip().lower()
 DEMO = MODE == "demo"
 
 
 def upstream_error(exc: Exception, what: str) -> HTTPException:
-    """Details to the log, a general phrase to the outside.
+    """Подробности в лог, наружу — общая фраза.
 
-    The exception text can contain internal addresses and fragments of
-    someone else's response. There is no reason to hand that to a browser.
+    Текст исключения может содержать внутренние адреса и куски чужого
+    ответа. В браузер это отдавать незачем.
     """
     log.warning("%s: %s: %s", what, type(exc).__name__, exc)
     return HTTPException(status_code=502, detail=what)
 
 
 SOURCES: dict[str, dict[str, Any]] = {}
-"""Where the site takes video from.
+"""Откуда сайт берёт видео.
 
-This is empty, and deliberately so. The public version has no external
-sources: the application runs in demonstration mode and plays free video
-by Blender Foundation (see `anime_demo.py`).
+Здесь пусто, и это намеренно. Публичная версия не ходит ни на какие
+внешние источники: приложение работает в демонстрационном режиме и
+крутит свободное видео Blender Foundation (см. `anime_demo.py`).
 
-If you want to plug in your own source, two things are needed.
+Чтобы подключить свой источник, нужны две вещи.
 
-1. Add an entry here:
+1. Добавить запись сюда:
 
-       SOURCES["my_source"] = {
-           "lang": "ru",              # language of the dubs: ru or en
-           "label": "My source",      # how to show it in the menu
-           "base": "https://…",       # address image paths are glued to
-           "dubs": "many",            # one or many
-           "note": "A short note",
+       SOURCES["мой_источник"] = {
+           "lang": "ru",                # язык озвучки: ru или en
+           "label": "Мой источник",     # как показать в меню
+           "base": "https://…",         # адрес, к которому клеятся пути картинок
+           "dubs": "many",              # одна озвучка или много
+           "note": "Короткая заметка",
        }
 
-2. Write a module with four objects — the same way `anime_demo.py` does
-   it, which you can take as a template:
+2. Написать модуль с четырьмя объектами — так же, как это делает
+   `anime_demo.py`, его можно взять за образец:
 
        Extractor.a_search(query)  -> [Search]
        Search.a_get_anime()       -> Anime
@@ -72,38 +71,32 @@ If you want to plug in your own source, two things are needed.
        Episode.a_get_sources()    -> [Source]
        Source.a_get_videos()      -> [Video(url, quality, type)]
 
-   and return it from `get_extractor` below.
+   и вернуть его из `get_extractor` ниже.
 
-Everything else — search, franchises, the library, watch progress, the
-player — works on top of this interface and knows nothing about the
-source itself.
+Всё остальное — поиск, франшизы, список, отметки о просмотре, плеер —
+работает поверх этого интерфейса и ничего не знает о самом источнике.
 
-Whatever you plug in, you answer for it.
+Что бы вы ни подключили, вы сами за это отвечаете.
 """
 
 
-
 if DEMO:
-    # In demonstration mode there is exactly one source, and it is the
-    # same for both languages: free video is neither "Russian" nor
-    # "English".
+    # В демонстрационном режиме источник ровно один, и он один на оба
+    # языка: свободное видео не бывает «русским» или «английским».
     SOURCES = dict(anime_demo.SOURCES)
 
 
 def sources_for(lang: str) -> list[str]:
-    """Sources that speak the same language as the site.
+    """Источники того же языка, что и сайт.
 
-    Why the split. Sources each speak their own language: the Russian
-    ones give Russian dubs, an English-language one gives English
-    subtitles and an English dub. While they sat in one heap, a person
-    who opened the site in English got "source A — one dub" in the menu
-    and, choosing it, Japanese speech under a Russian dub. The reverse
-    held too: a Russian speaker was offered an English-language source
-    where everything is in English.
+    Зачем разделение. Источники говорят каждый на своём языке: русские
+    дают русские озвучки, англоязычный — английские субтитры и английский
+    дубляж. Если их не разделять, человек, открывший сайт по-английски,
+    может получить в меню русскую озвучку, а русскоязычный — источник,
+    где всё по-английски.
 
-    Neither is the source's fault — we were showing it something it
-    never asked for. Now the site language decides what there is to
-    choose from at all.
+    Ни то, ни другое не ошибка источника — это мы показываем ему то,
+    чего он не просил. Язык сайта решает, из чего вообще есть выбор.
     """
     if DEMO:
         return list(SOURCES)
@@ -112,12 +105,12 @@ def sources_for(lang: str) -> list[str]:
 
 
 def source_lang(source: str) -> str:
-    """What language this source speaks."""
+    """На каком языке говорит этот источник."""
     return SOURCES.get(source, {}).get("lang", "ru")
 
 
-# Default source for each language. Empty: there is nothing to plug in,
-# and every request goes to demonstration mode.
+# Источник по умолчанию для каждого языка. Пусто: подключать нечего,
+# и любой запрос уходит в демонстрационный режим.
 DEFAULT_SOURCE: dict[str, str] = {}
 
 
@@ -131,16 +124,15 @@ _extractors: dict[str, Any] = {}
 
 
 def get_extractor(source: str):
-    """Fetches the source's parser. The source name must come from SOURCES.
+    """Достаёт разборщик источника. Имя источника обязано быть из SOURCES.
 
-    Loading the module is wrapped on purpose. It used not to be — and any
-    trouble with it (package not installed, an update renamed the module,
-    an error inside the module) flew up as an ImportError and was shown
-    to the person as "Internal error" on our side. Meanwhile the very
-    same trouble during search was handled properly, because there the
-    whole call is wrapped from the outside. So search honestly said "the
-    source is not responding", while the episode list of that same
-    source said "everything is broken".
+    Загрузка модуля обёрнута намеренно. Раньше не была — и любая беда с
+    ним (пакет не установлен, обновление переименовало модуль, внутри
+    модуля ошибка) прилетала наверх как ImportError и показывалась
+    человеку как «Внутренняя ошибка» нашего сервера. При этом ровно та же
+    беда в поиске обрабатывалась правильно, потому что там весь вызов
+    обёрнут снаружи. Получалось, что поиск честно говорит «источник не
+    отвечает», а список серий у того же источника — «всё сломалось».
     """
     if source not in SOURCES:
         raise HTTPException(status_code=400, detail=f"Неизвестный источник: {source}")
@@ -149,8 +141,8 @@ def get_extractor(source: str):
             if DEMO:
                 _extractors[source] = anime_demo.Extractor()
             else:
-                # Your source's parser gets returned here. Until there is
-                # one, only demonstration mode remains.
+                # Сюда попадает разборщик вашего источника. Пока его нет,
+                # остаётся только демонстрационный режим.
                 raise HTTPException(
                     status_code=501,
                     detail="Источники видео не подключены. "
@@ -163,9 +155,9 @@ def get_extractor(source: str):
     return _extractors[source]
 
 
-# ----------------------------------------------------------------- cache
+# ------------------------------------------------------------------- кэш
 _cache: dict[str, tuple[float, Any]] = {}
-CACHE_TTL = 3 * 60 * 60  # three hours
+CACHE_TTL = 3 * 60 * 60  # три часа
 CACHE_MAX = 800
 
 
@@ -188,9 +180,9 @@ def cache_get(key: str) -> Any:
     return value
 
 
-# ------------------------------------------------------------- helpers
+# -------------------------------------------------------------- помощники
 def stable_key(item: Any) -> str:
-    """The title's permanent number at the source. This is what we store."""
+    """Постоянный номер тайтла у источника. Его мы храним в базе."""
     data = getattr(item, "data", None)
     if isinstance(data, dict):
         for field in ("id", "slug_url", "alias", "code", "url"):
@@ -216,8 +208,8 @@ def first_of(data: dict, *fields) -> Any:
 
 
 def dig_genres(data: dict) -> str:
-    """Digs out the genres. Every source keeps them its own way:
-    somewhere a list of strings, somewhere a list of dicts with a name."""
+    """Вытаскивает жанры. У каждого источника они лежат по-своему:
+    где-то список строк, где-то список словарей с полем name."""
     raw = first_of(data, "genres", "genre", "categories", "tags")
     names: list[str] = []
     if isinstance(raw, str):
@@ -236,7 +228,7 @@ def dig_genres(data: dict) -> str:
 
 
 def dig_year(data: dict) -> Any:
-    """Release year. Sometimes a number, sometimes a dict with a year field."""
+    """Год выпуска. Иногда это число, иногда словарь с полем year."""
     value = first_of(data, "year", "release_year", "aired_on", "season")
     if isinstance(value, dict):
         value = value.get("year") or value.get("value")
@@ -249,11 +241,11 @@ def dig_year(data: dict) -> Any:
 
 
 def dig_poster(data: dict, fallback: str = "") -> str:
-    """Looks for the largest cover image.
+    """Ищет самую крупную обложку.
 
-    Sources keep several sizes side by side: a thumbnail and the full
-    picture. The thumbnail used to be taken, and on a card it looked
-    blurry. The field order below runs from larger to smaller.
+    Источники кладут рядом несколько размеров: миниатюру и полную картинку.
+    Раньше бралась миниатюра, и на карточке она выглядела мыльной.
+    Порядок полей ниже — от большего к меньшему.
     """
     obj = data.get("poster") or data.get("image") or data.get("cover")
     if isinstance(obj, str) and obj:
@@ -292,25 +284,23 @@ def pack(source: str, item: Any) -> dict:
 
 
 async def find_anime(source: str, key: str, title: str):
-    """Takes the Anime object from the cache, and searches again if it is gone.
+    """Достаём объект Anime из кэша, а если его там нет — ищем заново.
 
-    There was a quiet but expensive mistake here. Search put every title
-    it found under the key `raw:source:number`, while this function
-    looked under `anime:source:number`. They never matched: nobody read
-    the `raw:` entries, they only took up cache space (one search of
-    thirty results — thirty one entries against a ceiling of eight
-    hundred) and pushed everything useful out. As a result every visit to
-    an episode list went out to the external site again, although the
-    needed object was lying right there.
+    Здесь была тихая, но дорогая ошибка. Поиск складывал каждый найденный
+    тайтл под ключом `raw:источник:номер`, а эта функция искала под
+    `anime:источник:номер`. Совпадения не случалось никогда: записи `raw:`
+    не читал никто, они только занимали место в кэше (один поиск на тридцать
+    результатов — тридцать одна запись при потолке в восемьсот) и вытесняли
+    оттуда всё полезное. В итоге каждый заход в список серий заново ходил
+    на внешний сайт, хотя нужный объект лежал рядом.
 
-    Now the blank left by the search is used for what it is for.
+    Теперь заготовка из поиска используется по назначению.
     """
     cached = cache_get(f"anime:{source}:{key}")
     if cached is not None:
         return cached
 
-    # The blank left over from the search: the title is already found,
-    # there is no reason to go to the network.
+    # Заготовка, оставшаяся от поиска: тайтл уже найден, идти в сеть незачем.
     raw = cache_get(f"raw:{source}:{key}")
     if raw is not None:
         try:
@@ -340,11 +330,10 @@ async def find_anime(source: str, key: str, title: str):
             detail="Не нашёл этот тайтл у источника. Возможно, его убрали — выбери заново.",
         )
 
-    # This call goes to the network too, and it used to be the only one
-    # in the whole file left unwrapped. Any source failure here flew up
-    # as an internal server error: the person saw "Internal error" and
-    # decided the site was broken, when it was someone else's site that
-    # had not answered.
+    # Этот вызов тоже ходит в сеть, и раньше он был единственным во всём
+    # файле, не обёрнутым в обработку. Любой сбой источника здесь улетал
+    # наверх как внутренняя ошибка сервера: человек видел «Внутренняя
+    # ошибка» и решал, что сломан сайт, хотя не отвечал чужой сайт.
     try:
         anime = await match.a_get_anime()
     except Exception as exc:                       # noqa: BLE001
@@ -354,16 +343,16 @@ async def find_anime(source: str, key: str, title: str):
 
 
 async def find_poster(source: str, key: str, title: str) -> str:
-    """Looks for a title's cover image at the source.
+    """Ищет обложку тайтла у источника.
 
-    Needed when a title landed in the library without a picture: from a
-    bookmark, from someone else's link, or because an older version saved
-    it. Such a title used to keep a grey rectangle forever — nobody ever
-    asked for the cover again.
+    Нужна, когда тайтл попал в список без картинки: по закладке, по чужой
+    ссылке, или он сохранялся ещё старой версией. Раньше такой тайтл
+    оставался с серым прямоугольником навсегда — обложку никто и нигде
+    не переспрашивал.
 
-    First we look in the search cache: parsed cards are already there,
-    and no network call is needed at all. Only if nothing is found — one
-    search by name.
+    Сначала смотрим в кэше поиска: там уже лежат разобранные карточки,
+    и в сеть идти не придётся вовсе. Только если не нашлось — один поиск
+    по названию.
     """
     raw = cache_get(f"raw:{source}:{key}")
     if raw is not None:
@@ -391,8 +380,8 @@ async def find_poster(source: str, key: str, title: str) -> str:
         if stable_key(r) == key_s:
             found = pack(source, r).get("poster") or ""
             break
-    # We cache even an empty answer: otherwise the page will go to the
-    # network for the same non-existent picture every time it opens.
+    # Кладём в кэш даже пустой ответ: иначе страница будет ходить в сеть
+    # за одной и той же несуществующей картинкой при каждом открытии.
     cache_put(f"poster:{source}:{key_s}", found)
     return found
 
@@ -413,32 +402,32 @@ async def find_episodes(source: str, key: str, title: str) -> list:
     return episodes
 
 
-# --------------------------------------------------------- title matching
-# Why this is here.
+# ------------------------------------------------------- совпадение названий
+# Зачем это здесь.
 #
-# Search at a source is not search, it is "show me something similar".
-# For the query "Attack on Titan" source A and source B both answer with
-# a single line: "Don't Toy With Me, Miss Nagatoro: Second Attack". The
-# word "attack" matched, and that was enough for them. And the walk over
-# sources stopped at the first one that answered with anything at all —
-# that is, at this very Nagatoro. Further down the list sat source C,
-# which has "Attack on Titan" with every season, but its turn never came.
+# Поиск у источников — не поиск, а «покажи что-нибудь похожее». На запрос
+# «Атака титанов» источник может ответить одной строкой: «Не издевайся,
+# Нагаторо: Вторая атака». Совпало слово «атака», и этого ему хватило.
+# А перебор источников останавливался на первом, кто вообще ответил
+# хоть чем-то, — то есть на этой самой Нагаторо. Дальше по списку мог
+# лежать источник, у которого «Атака титанов» есть со всеми сезонами,
+# но до него очередь не доходила никогда.
 #
-# So a source's answer is now weighed: how close is the name to what was
-# asked for. Junk sinks, and a source with nothing similar counts as not
-# having answered.
+# Поэтому ответ источника теперь взвешивается: насколько название похоже
+# на то, что просили. Мусор уезжает вниз, а источник, у которого нет
+# ничего похожего, считается не ответившим.
 
 _TAIL_BRACKETS = re.compile(r"\[[^\]]*\]|\([^)]*\)")
 _PUNCT = re.compile(r"[^\w\s]+", re.U)
 
 
 def normalize_title(text: str) -> str:
-    """The name in a form fit for comparison.
+    """Название в виде, пригодном для сравнения.
 
-    Source E writes names like this: "Наруто / Naruto [1-220 из 220]" —
-    the Russian name, the Latin name and an episode counter on one line.
-    Comparing against that is pointless, so the tails are cut off:
-    counters in brackets, and after a slash the same title's second name.
+    Некоторые источники пишут названия так: «Наруто / Naruto [1-220 из
+    220]» — русское имя, латинское имя и счётчик серий в одной строке.
+    Сравнивать с этим бесполезно, поэтому хвосты отрезаются: в скобках
+    счётчики, после косой черты — второе имя того же тайтла.
     """
     text = (text or "").strip()
     text = _TAIL_BRACKETS.sub(" ", text)
@@ -449,12 +438,11 @@ def normalize_title(text: str) -> str:
 
 
 def relevance(query: str, title: str) -> float:
-    """How well the name answers the query: from 0 to 1.
+    """Насколько название отвечает запросу: от 0 до 1.
 
-    The numbers are picked so that "Naruto" for the query "naruto" ranks
-    above "Boruto: Naruto Next Generations", and "Don't Toy With Me,
-    Miss Nagatoro: Second Attack" for the query "attack on titan" does
-    not pass the threshold at all.
+    Числа подобраны так, чтобы «Наруто» на запрос «наруто» стояло выше
+    «Боруто: Новое поколение Наруто», а «Не издевайся, Нагаторо: Вторая
+    атака» на запрос «атака титанов» не проходило порог вовсе.
     """
     q = normalize_title(query)
     t = normalize_title(title)
@@ -463,34 +451,34 @@ def relevance(query: str, title: str) -> float:
     if q == t:
         return 1.0
     if t.startswith(q):
-        # The whole query at the start of the name: "naruto" → "naruto
-        # shippuden". We count extra words, not extra letters: one word
-        # of tail is usually a note like "(TV)", while two or three mean
-        # a different season or a different story.
+        # Запрос целиком в начале названия: «наруто» → «наруто ураганные
+        # хроники». Считаем лишние слова, а не лишние буквы: одно слово
+        # хвоста это обычно приписка вроде «(ТВ)», а два-три — уже другой
+        # сезон или другая история.
         #
-        # The measure used to be by letters, and that broke silently:
-        # "Naruto Shippuden" scored 0.855 for the query "Naruto" — above
-        # the threshold at which the walk over sources stopped. So a
-        # person picked the first season in the catalogue and the second
-        # one opened, which looked exactly like the trouble being fixed.
+        # Мера была по буквам, и на этом всё ломалось молча: «Наруто
+        # Ураганные хроники» набирало 0.855 на запрос «Наруто» — выше
+        # порога, на котором перебор источников останавливался. То есть
+        # человек выбирал в справочнике первый сезон, а открывался второй,
+        # и выглядело это ровно как та беда, которую чинили.
         extra = max(0, len(t.split()) - len(q.split()))
         return max(0.72, 0.90 - 0.06 * extra)
     if q in t:
         return 0.70
     if len(t) >= 4 and q.startswith(t + " "):
-        # The other way round: the source writes the name SHORTER than
-        # the catalogue. "Neon Genesis Evangelion" sits at all three
-        # sources simply as "Evangelion", and by words that gave 1 out of
-        # 3 — below the threshold. The title exists everywhere, and the
-        # site answered "no source has it".
+        # Наоборот: источник пишет название КОРОЧЕ, чем справочник.
+        # «Евангелион нового поколения» у всех трёх источников лежит просто
+        # как «Евангелион», и по словам это давало 1 из 3 — ниже порога.
+        # Тайтл существует у всех, а сайт отвечал «ни один источник его не
+        # выложил».
         #
-        # The score is deliberately low, and not out of caution for
-        # caution's sake. There is no way to tell "Neon Genesis
-        # Evangelion" → "Evangelion" (the same thing, just shorter) from
-        # "Naruto Shippuden" → "Naruto" (a different season) by strings
-        # alone. So such a match passes the threshold but does not count
-        # as exact: if a real match turns up nearby, it wins, and if not,
-        # the page shows what was found and asks whether that is it.
+        # Оценка нарочно низкая, и это не осторожность ради осторожности.
+        # Отличить «Евангелион нового поколения» → «Евангелион» (то же
+        # самое, просто короче) от «Наруто Ураганные хроники» → «Наруто»
+        # (другой сезон) по строкам нельзя никак. Поэтому такое совпадение
+        # проходит порог, но точным не считается: если рядом найдётся
+        # настоящее совпадение, победит оно, а если нет — страница
+        # покажет найденное название и спросит, то ли это.
         return 0.50
     q_words = q.split()
     t_words = t.split()
@@ -499,9 +487,9 @@ def relevance(query: str, title: str) -> float:
         for other in t_words:
             if other == word:
                 return True
-            # A prefix of four letters or more catches inflections:
-            # "титанов" and "титаны" are the same word, while "атака"
-            # and "академия" are different ones.
+            # Приставка длиной от четырёх букв ловит падежи: «титанов»
+            # и «титаны» — одно и то же слово, а «атака» и «академия» —
+            # разные.
             if len(word) >= 4 and len(other) >= 4:
                 if other.startswith(word) or word.startswith(other):
                     return True
@@ -511,7 +499,7 @@ def relevance(query: str, title: str) -> float:
     return 0.62 * hit / len(q_words)
 
 
-# Below this score a source's answer counts as beside the point. Half the
-# query's words give 0.31 — "Second Attack" for "Attack on Titan" is
-# filtered out. One word out of one gives 0.62 and passes.
+# Ниже этого совпадения ответ источника считается не относящимся к делу.
+# Половина слов запроса даёт 0.31 — «Вторая атака» на «Атака титанов»
+# отсеивается. Одно слово из одного даёт 0.62 и проходит.
 MIN_RELEVANCE = 0.45

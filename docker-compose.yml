@@ -2,32 +2,28 @@ services:
   app:
     build: .
     container_name: animedik
-    # The port is not exposed: it can only be reached through nginx
+    # Наружу порт не открыт: достучаться можно только через nginx
     ports:
       - "127.0.0.1:8080:8000"
     restart: unless-stopped
     environment:
-      # Operating mode.
+      # Режим работы.
       #
-      #   demo    — the public showcase: the player runs Blender Foundation
-      #             films under Creative Commons. There are no external
-      #             video sources, and nothing needs installing.
-      #   private — the personal version: video is taken from external
-      #             sources. Needs the dependencies from
-      #             requirements-private.txt.
+      #   demo    — публичная витрина: плеер играет фильмы Blender
+      #             Foundation под Creative Commons. Внешних источников
+      #             видео нет, ставить ничего не нужно.
+      #   private — личная версия: видео берётся с внешних источников.
+      #             Требует зависимостей из requirements-private.txt.
       #
-      # demo by default: if the variable is forgotten, the safe option
-      # comes up rather than the other way round.
+      # По умолчанию demo: если переменную забыли, поднимется безопасный
+      # вариант, а не наоборот.
       MODE: "${MODE:-demo}"
-      # Before the first start, set your own string — it is mixed into the
-      # session fingerprints. Change the string → every session is closed.
-      SESSION_PEPPER: "${SESSION_PEPPER:?set SESSION_PEPPER in the .env file}"
-      # 1 — the site works over https (which is how it should be through
-      # the tunnel). Set COOKIE_SECURE=0 in .env when trying the site over
-      # http://localhost: with 1 the browser keeps no session cookie, and
-      # signing in looks broken for no visible reason.
-      COOKIE_SECURE: "${COOKIE_SECURE:-1}"
-      # 1 — trust the X-Forwarded-For header from our own nginx
+      # Перед первым запуском задайте свою строку — она подмешивается
+      # к отпечаткам сессий. Сменили строку → все сессии закрылись.
+      SESSION_PEPPER: "${SESSION_PEPPER:?задайте SESSION_PEPPER в файле .env}"
+      # 1 — сайт работает по https (так и должно быть через туннель)
+      COOKIE_SECURE: "1"
+      # 1 — доверять заголовку X-Forwarded-For от нашего nginx
       TRUST_PROXY: "1"
     volumes:
       - anime-data:/data

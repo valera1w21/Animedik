@@ -1,4 +1,4 @@
-/* The year in review: everything is counted from real watch records. */
+/* Итоги года: всё считается из настоящих записей просмотра. */
 (function () {
   'use strict';
   var A = window.App;
@@ -21,8 +21,8 @@
 
   function render(d) {
     var year = new Date().getFullYear();
-    /* It always said "2026-й" here — the Russian ending showed up in the
-       English version of the page too. */
+    /* Раньше здесь всегда было «2026-й» — русское окончание вылезало
+       и в английской версии страницы. */
     $('st-year').textContent = A.t(year + '-й', String(year));
     $('st-since').textContent = A.t('С 1 января по сегодня', 'From 1 January to today');
     $('st-foot').textContent = A.t('Данные с 1 января ' + year + ' года',
@@ -51,7 +51,7 @@
     $('st-days-sub').textContent = A.t('из ' + passed + ' прошедших',
                                        'of ' + passed + ' days so far');
 
-    /* --- the year's calendar --- */
+    /* --- календарь года --- */
     var box = $('year');
     box.textContent = '';
     var max = 1;
@@ -76,7 +76,7 @@
       box.appendChild(mon);
     }
 
-    /* --- genres --- */
+    /* --- жанры --- */
     var gen = $('st-genres');
     gen.textContent = '';
     var colors = ['var(--mint)', 'var(--sky)', 'var(--lilac)', 'var(--sand)', 'var(--dimmer)', 'var(--line)'];
@@ -98,7 +98,7 @@
       gen.appendChild(g);
     });
 
-    /* --- records --- */
+    /* --- рекорды --- */
     var rec = $('st-records');
     rec.textContent = '';
     var best = 0, bestDay = '';
@@ -119,7 +119,7 @@
       rec.appendChild(row);
     });
 
-    /* --- titles of the year --- */
+    /* --- тайтлы года --- */
     var top1 = $('st-top');
     top1.textContent = '';
     if (!d.titles.length) {
@@ -141,7 +141,7 @@
       top1.appendChild(box2);
     });
 
-    /* --- by month --- */
+    /* --- по месяцам --- */
     var months = $('st-months');
     months.textContent = '';
     var perMonth = new Array(12).fill(0);
@@ -183,8 +183,8 @@
   A.boot(function (me) {
     if (!me) { location.href = '/'; return; }
     if (me.role === 'guest') { location.href = '/'; return; }
-    /* We tell the server our time zone: getTimezoneOffset returns the
-       shift with the opposite sign, hence the minus. */
+    /* Сообщаем серверу свой часовой пояс: getTimezoneOffset возвращает
+       сдвиг с обратным знаком, поэтому минус. */
     var tz = -new Date().getTimezoneOffset();
     A.api.get('/api/stats/year?tz=' + tz).then(render).catch(function (err) {
       $('st-since').textContent = err.message;

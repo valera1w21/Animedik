@@ -1,7 +1,7 @@
-"""Pass 3: we try to break it deliberately.
+"""Проход 3: пробуем сломать намеренно.
 
-Not "does it work" here but "can it be got round": substituted sessions,
-races, tricky encodings, logical holes in permissions.
+Здесь не «работает ли», а «можно ли обойти»: подмена сессий, гонки,
+хитрые кодировки, логические дыры в правах.
 """
 import io
 import json
@@ -12,10 +12,6 @@ import threading
 import time
 import logging
 
-# The public version's checks run in demonstration mode: there is no
-# other here. External video sources are not part of this repository, and
-# the only working source is free video (api/anime_demo.py).
-os.environ.setdefault("MODE", "demo")
 os.environ["DB_PATH"] = os.path.join(tempfile.mkdtemp(), "p3.db")
 os.environ["COOKIE_SECURE"] = "0"
 os.environ["SESSION_PEPPER"] = "pass3"
@@ -26,11 +22,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastapi.testclient import TestClient          # noqa: E402
 from api import main, security, store             # noqa: E402
 
-# The output here is in English, while the Windows console lives in cp1251
-# by default: the very first arrow or tick knocked the whole run over with
-# a UnicodeEncodeError, and the checks broke off halfway, never reaching
-# the point. We ask the stream to work in utf-8; where it is utf-8 anyway,
-# the line changes nothing.
+# Вывод здесь на русском, а консоль Windows по умолчанию живёт в cp1251:
+# первая же стрелка или галочка роняла весь запуск с UnicodeEncodeError,
+# и проверки обрывались на середине, не дойдя до сути. Просим поток
+# работать в utf-8; там, где он и так utf-8, строка ничего не меняет.
 for _s in (sys.stdout, sys.stderr):
     try:
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -79,32 +74,31 @@ def run():
     kid = store.create_user("kate", "Dolina-Otrazheniy-26", "user", "kate")
 
     # ==================================================================
-    group("Substituting a session before signing in")
-    # The classic attack: plant a token you know in advance on a victim,
-    # so that it becomes valid once they sign in.
+    group("Подмена сессии до входа")
+    # Классическая атака: подсунуть жертве заранее известный токен,
+    # чтобы после её входа он стал действующим.
     c = C()
     fake = security.new_token()
     c.cookies.set("sid", fake)
-    check("your own token does not work before signing in", c.get("/api/me").status_code == 401)
+    check("свой токен до входа не работает", c.get("/api/me").status_code == 401)
     r = c.post("/api/auth/login", json={"login": "valera", "password": "Zaliv-Pepel-2026"})
     issued = ""
     for raw in r.headers.get_list("set-cookie"):
         if raw.startswith("sid="):
             issued = raw.split(";", 1)[0][4:]
-    check("a new token was issued after signing in", issued and issued != fake,
+    check("после входа выдан новый токен", issued and issued != fake,
           "совпал!" if issued == fake else "")
     d = C()
     d.cookies.set("sid", fake)
-    check("the planted token never did start working", d.get("/api/me").status_code == 401)
-    # The server must issue the cookie with an explicit path, otherwise a
-    # second one with the same name and a different path can live
-    # alongside it.
+    check("подсунутый токен так и не заработал", d.get("/api/me").status_code == 401)
+    # Сервер обязан выдавать куку с явным путём, иначе рядом может
+    # ужиться вторая с тем же именем и другим путём.
     paths = [raw for raw in r.headers.get_list("set-cookie")
              if raw.startswith("sid=") and "Path=/" in raw]
-    check("the cookie is issued with an explicit path", len(paths) == 1, r.headers.get_list("set-cookie"))
+    check("кука выдаётся с явным путём", len(paths) == 1, r.headers.get_list("set-cookie"))
 
     # ==================================================================
-    group("Guest and user tokens do not mix")
+    group("Гостевой и пользовательский токены не смешиваются")
     reset()
     g = C()
     rg = g.post("/api/auth/guest")
@@ -116,17 +110,17 @@ def run():
     ut = [x.split(";", 1)[0][4:] for x in ru.headers.get_list("set-cookie")
           if x.startswith("sid=")][0]
     x = C(); x.cookies.set("sid", gt)
-    check("a guest token cannot sign you in as a user",
+    check("гостевым токеном не войти как пользователь",
           x.get("/api/library").json().get("guest") is True)
-    check("a guest token cannot open the statistics", x.get("/api/stats/year").status_code == 403)
+    check("гостевым токеном не открыть статистику", x.get("/api/stats/year").status_code == 403)
     y = C(); y.cookies.set("sid", ut)
-    check("a user token does not count as a guest one",
+    check("пользовательский токен не считается гостевым",
           y.get("/api/me").json().get("role") == "user")
-    check("the guest token is not in the database",
+    check("гостевого токена нет в базе",
           store.session_user(gt) is None)
 
     # ==================================================================
-    group("Guessing tokens")
+    group("Перебор токенов")
     reset()
     tries = 0
     for i in range(60):
@@ -134,20 +128,19 @@ def run():
         t.cookies.set("sid", security.new_token())
         if t.get("/api/me").status_code == 200:
             tries += 1
-    check("sixty random tokens did not fit", tries == 0, tries)
-    # the token's length: 32 bytes = 256 bits
-    check("the token is long enough", len(security.new_token()) >= 43, len(security.new_token()))
+    check("шестьдесят случайных токенов не подошли", tries == 0, tries)
+    # длина токена: 32 байта = 256 бит
+    check("токен достаточно длинный", len(security.new_token()) >= 43, len(security.new_token()))
 
     # ==================================================================
-    group("Tricky logins")
+    group("Хитрые логины")
     reset()
     tricky = [
         ("VALERA", "верхний регистр — тот же человек", 200),
         ("  valera  ", "пробелы по краям", 200),
         ("valera\u0000", "нулевой байт", 401),
-        # A newline at the edges is the same surplus emptiness as a space:
-        # that is removed deliberately, because it often arrives from the
-        # clipboard.
+        # Перевод строки по краям — та же лишняя пустота, что и пробел:
+        # его убирают намеренно, потому что он часто приезжает из буфера обмена.
         ("valera\n", "перевод строки по краю убирается", 200),
         ("vale\nra", "перевод строки внутри", 401),
         ("valera\u202eadmin", "переворот направления текста", 401),
@@ -158,10 +151,10 @@ def run():
     for value, why, want in tricky:
         reset()
         r = C().post("/api/auth/login", json={"login": value, "password": "Zaliv-Pepel-2026"})
-        check(f"{why}: {r.status_code}", r.status_code == want, f"expected {want}")
+        check(f"{why}: {r.status_code}", r.status_code == want, f"ждали {want}")
 
     # ==================================================================
-    group("The response time does not give away which logins exist")
+    group("Время ответа не выдаёт существующие логины")
     reset()
 
     def timed(login_name):
@@ -176,10 +169,10 @@ def run():
     t_real = timed("valera")
     t_fake = timed("nikogo-net-takogo")
     ratio = max(t_real, t_fake) / max(0.0001, min(t_real, t_fake))
-    check("the times are comparable", ratio < 3, f"{t_real:.3f}s against {t_fake:.3f}s, difference x{ratio:.1f}")
+    check("время сопоставимо", ratio < 3, f"{t_real:.3f}с против {t_fake:.3f}с, разница x{ratio:.1f}")
 
     # ==================================================================
-    group("Writing the same thing at the same time")
+    group("Одновременная запись одного и того же")
     reset()
     w = C()
     login(w, "valera", "Zaliv-Pepel-2026")
@@ -203,55 +196,54 @@ def run():
         t.start()
     for t in threads:
         t.join()
-    check("simultaneous writes do not break the database", not errors, errors[:4])
+    check("одновременные записи не ломают базу", not errors, errors[:4])
     rows = [x for x in w.get("/api/library").json()["items"] if x["key"] == "race"]
-    check("one record was left", len(rows) == 1, len(rows))
+    check("запись осталась одна", len(rows) == 1, len(rows))
 
     # ==================================================================
-    group("Permissions: demoting and deleting an administrator")
+    group("Права: понижение и удаление администратора")
     reset()
     a = C()
     login(a, "valera", "Zaliv-Pepel-2026")
-    check("you cannot delete yourself", a.request("DELETE", f"/api/admin/users/{aid}").status_code == 409)
-    check("the last administrator cannot be switched off",
+    check("нельзя удалить себя", a.request("DELETE", f"/api/admin/users/{aid}").status_code == 409)
+    check("нельзя выключить последнего администратора",
           a.post(f"/api/admin/users/{aid}/disable").status_code == 409)
     r = a.post("/api/admin/users", json={"login": "vtoroy", "password": "Vtoroy-Admin-2026",
                                          "role": "admin"})
-    check("a second administrator was created", r.status_code == 200, r.text[:70])
-    # This used to check the opposite: "now you can switch yourself off".
-    # That was not a protection but a description of a bug, fixed in place
-    # by a check. While there is one administrator, the button is held by
-    # the "last administrator" rule; create a second one — and that same
-    # button on your own row closed your own way in and cut off your own
-    # session. A separate check for yourself, as on deletion, closes that
-    # for good.
-    check("you cannot switch yourself off even when there are two",
+    check("второй администратор создан", r.status_code == 200, r.text[:70])
+    # Раньше здесь проверялось обратное: «теперь себя выключить можно».
+    # Это была не защита, а описание ошибки, закреплённое проверкой. Пока
+    # администратор один, кнопку держит правило «последний администратор»;
+    # стоило завести второго — и та же кнопка на своей же строке закрывала
+    # вход себе и обрывала собственную сессию. Отдельная проверка на себя,
+    # как на удалении, закрывает это насовсем.
+    check("себя выключить нельзя даже вдвоём",
           a.post(f"/api/admin/users/{aid}/disable").status_code == 409)
-    check("your own session is intact", a.get("/api/me").status_code == 200)
+    check("своя сессия цела", a.get("/api/me").status_code == 200)
     vtoroy = store.get_user_by_login("vtoroy")
-    check("but another administrator can be switched off",
+    check("а другого администратора выключить можно",
           a.post(f"/api/admin/users/{vtoroy['id']}/disable").status_code == 200)
     store.set_disabled(vtoroy["id"], False)
 
     # ==================================================================
-    group("An ordinary user cannot become an administrator")
+    group("Обычный не может стать администратором")
     reset()
     m = C()
     login(m, "misha", "Tihiy-Signal-2026")
-    check("you cannot make yourself an admin",
+    check("нельзя создать себе админа",
           m.post("/api/admin/users", json={"login": "hax", "password": "Hacker-Parol-2026",
                                            "role": "admin"}).status_code == 404)
-    check("you cannot switch off somebody else's account",
+    check("нельзя выключить чужой аккаунт",
           m.post(f"/api/admin/users/{kid}/disable").status_code == 404)
-    check("the role does not change through the settings",
+    check("роль через настройки не меняется",
           m.post("/api/me/settings", json={"role": "admin"}).status_code == 200)
-    check("the role stayed as it was", m.get("/api/me").json()["role"] == "user")
-    check("the role does not change through the profile",
+    check("роль осталась прежней", m.get("/api/me").json()["role"] == "user")
+    check("роль через профиль не меняется",
           m.post("/api/me/profile", json={"role": "admin", "display_name": "x"}).status_code == 200)
-    check("the role is still as it was", m.get("/api/me").json()["role"] == "user")
+    check("роль по-прежнему прежняя", m.get("/api/me").json()["role"] == "user")
 
     # ==================================================================
-    group("Other people's data is out of reach")
+    group("Чужие данные недостижимы")
     reset()
     k = C()
     login(k, "kate", "Dolina-Otrazheniy-26")
@@ -259,32 +251,32 @@ def run():
     m2 = C()
     login(m2, "misha", "Tihiy-Signal-2026")
     mine = [x["key"] for x in m2.get("/api/library").json()["items"]]
-    check("somebody else's record is not visible", "секрет-кати" not in mine)
+    check("чужой записи не видно", "секрет-кати" not in mine)
     m2.request("DELETE", "/api/library/секрет-кати")
     still = [x["key"] for x in k.get("/api/library").json()["items"]]
-    check("somebody else's record cannot be deleted", "секрет-кати" in still)
+    check("чужой записи не удалить", "секрет-кати" in still)
     a2 = C()
     login(a2, "valera", "Zaliv-Pepel-2026")
     admin_sees = [x["key"] for x in a2.get("/api/library").json()["items"]]
-    check("even an administrator does not see somebody else's shelf", "секрет-кати" not in admin_sees)
+    check("даже администратор не видит чужую полку", "секрет-кати" not in admin_sees)
 
     # ==================================================================
-    group("Signing out really does close the way in")
+    group("Выход действительно закрывает вход")
     reset()
     o = C()
     ro = o.post("/api/auth/login", json={"login": "misha", "password": "Tihiy-Signal-2026"})
     o.headers["X-CSRF-Token"] = ro.json()["csrf"]
     tok = [x.split(";", 1)[0][4:] for x in ro.headers.get_list("set-cookie")
            if x.startswith("sid=")][0]
-    check("it works before signing out", o.get("/api/me").status_code == 200)
+    check("до выхода работает", o.get("/api/me").status_code == 200)
     o.post("/api/auth/logout")
-    check("it does not work after signing out", o.get("/api/me").status_code == 401)
+    check("после выхода не работает", o.get("/api/me").status_code == 401)
     z = C(); z.cookies.set("sid", tok)
-    check("the old token is dead even in another browser", z.get("/api/me").status_code == 401)
-    check("the session is not in the database", store.session_user(tok) is None)
+    check("старый токен мёртв даже в другом браузере", z.get("/api/me").status_code == 401)
+    check("сессии нет в базе", store.session_user(tok) is None)
 
     # ==================================================================
-    group("The form marker: forgery")
+    group("Метка формы: подделка")
     reset()
     f = C()
     login(f, "misha", "Tihiy-Signal-2026")
@@ -293,40 +285,40 @@ def run():
     for v in bad_values:
         f.headers["X-CSRF-Token"] = v
         code = f.post("/api/library/progress", json={"key": "csrf"}).status_code
-        check(f"marker {v[:10] or 'empty'} rejected", code == 403, code)
+        check(f"метка {v[:10] or 'пустая'} отклонена", code == 403, code)
     f.headers["X-CSRF-Token"] = real
-    check("a real marker works",
+    check("настоящая метка работает",
           f.post("/api/library/progress", json={"key": "csrf"}).status_code == 200)
 
     # ==================================================================
-    group("One person's marker does not fit another")
+    group("Метка одного не подходит другому")
     reset()
     u1, u2 = C(), C()
     login(u1, "misha", "Tihiy-Signal-2026")
     login(u2, "kate", "Dolina-Otrazheniy-26")
     u1.headers["X-CSRF-Token"] = u2.headers["X-CSRF-Token"]
-    check("somebody else's marker is rejected",
+    check("чужая метка отклонена",
           u1.post("/api/library/progress", json={"key": "x"}).status_code == 403)
 
     # ==================================================================
-    group("Strange requests")
+    group("Странные запросы")
     reset()
     q = C()
     login(q, "valera", "Zaliv-Pepel-2026")
-    check("a very long address", q.get("/api/library?" + "a=1&" * 2000).status_code in (200, 414, 431))
-    check("HEAD does not break it", q.head("/api/health").status_code in (200, 405))
-    check("an unknown method", q.request("PATCH", "/api/library").status_code in (404, 405))
-    check("duplicate keys in json",
+    check("очень длинный адрес", q.get("/api/library?" + "a=1&" * 2000).status_code in (200, 414, 431))
+    check("HEAD не ломает", q.head("/api/health").status_code in (200, 405))
+    check("неизвестный метод", q.request("PATCH", "/api/library").status_code in (404, 405))
+    check("двойные ключи в json",
           q.post("/api/library/progress",
                  content=b'{"key":"a","key":"b"}',
                  headers={"Content-Type": "application/json"}).status_code in (200, 422))
-    check("the wrong content type",
+    check("неверный тип содержимого",
           q.post("/api/library/progress", content=b"key=a",
                  headers={"Content-Type": "text/plain"}).status_code in (400, 415, 422))
-    check("the server is alive", C().get("/api/health").status_code == 200)
+    check("сервер жив", C().get("/api/health").status_code == 200)
 
     # ==================================================================
-    group("Expired sessions are removed")
+    group("Просроченные сессии убираются")
     reset()
     e = C()
     re_ = e.post("/api/auth/login", json={"login": "kate", "password": "Dolina-Otrazheniy-26"})
@@ -336,8 +328,8 @@ def run():
     old = store.now() - security.SESSION_IDLE - 10
     with store.tx() as conn:
         conn.execute("UPDATE sessions SET last_seen = ? WHERE fp = ?", (old, fp))
-    check("a long-idle session does not let you in", e.get("/api/me").status_code == 401)
-    check("and has been deleted from the database", store.session_user(tok) is None)
+    check("давно неактивная сессия не пускает", e.get("/api/me").status_code == 401)
+    check("и удалена из базы", store.session_user(tok) is None)
 
     reset()
     e2 = C()
@@ -348,43 +340,43 @@ def run():
     with store.tx() as conn:
         conn.execute("UPDATE sessions SET created_at = ? WHERE fp = ?",
                      (store.now() - security.SESSION_MAX_LIFE - 10, fp2))
-    check("a session that is too old does not let you in", e2.get("/api/me").status_code == 401)
+    check("слишком старая сессия не пускает", e2.get("/api/me").status_code == 401)
 
     # ==================================================================
-    group("The password: changing it cuts everything off")
+    group("Пароль: смена обрывает всё")
     reset()
     d1, d2, d3 = C(), C(), C()
     for cl in (d1, d2, d3):
         login(cl, "kate", "Dolina-Otrazheniy-26")
-    check("three sign-ins are alive", all(cl.get("/api/me").status_code == 200 for cl in (d1, d2, d3)))
+    check("три входа живы", all(cl.get("/api/me").status_code == 200 for cl in (d1, d2, d3)))
     d1.post("/api/me/password", json={"current": "Dolina-Otrazheniy-26", "new": "Novaya-Dolina-2026"})
-    check("the other two were thrown out",
+    check("остальные два выкинуты",
           d2.get("/api/me").status_code == 401 and d3.get("/api/me").status_code == 401)
-    check("whoever changed it was signed out too", d1.get("/api/me").status_code == 401)
+    check("тот, кто менял, тоже вышел", d1.get("/api/me").status_code == 401)
     reset()
-    check("the new password works",
+    check("новый пароль работает",
           C().post("/api/auth/login",
                    json={"login": "kate", "password": "Novaya-Dolina-2026"}).status_code == 200)
 
     # ==================================================================
-    group("The password does not surface in the answers")
+    group("Пароль не всплывает в ответах")
     reset()
     pc = C()
     r = login(pc, "valera", "Zaliv-Pepel-2026")
-    check("there is no password in the sign-in answer", "Zaliv-Pepel-2026" not in r.text)
-    check("there is no hash in the sign-in answer", "pbkdf2" not in r.text)
-    check("there is no password in /api/me", "pbkdf2" not in pc.get("/api/me").text)
-    check("there are no hashes in the list of accounts", "pbkdf2" not in pc.get("/api/admin/users").text)
-    check("there are no session fingerprints in the list of accounts",
+    check("в ответе входа нет пароля", "Zaliv-Pepel-2026" not in r.text)
+    check("в ответе входа нет хэша", "pbkdf2" not in r.text)
+    check("в /api/me нет пароля", "pbkdf2" not in pc.get("/api/me").text)
+    check("в списке аккаунтов нет хэшей", "pbkdf2" not in pc.get("/api/admin/users").text)
+    check("в списке аккаунтов нет отпечатков сессий",
           "fp" not in json.dumps(pc.get("/api/admin/users").json()))
 
     print("\n" + "=" * 60)
     if FAILS:
-        print(f"PASS 3 — failed: {len(FAILS)}")
+        print(f"ПРОХОД 3 — не прошли: {len(FAILS)}")
         for f in FAILS:
             print("   - " + f)
         return 1
-    print("PASS 3 — every check passed.")
+    print("ПРОХОД 3 — все проверки пройдены.")
     return 0
 
 

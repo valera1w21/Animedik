@@ -1,13 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru">
+<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru" data-page="watch">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <title>анимеДик — просмотр</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
@@ -23,11 +20,11 @@
     </a>
     <div class="hcrumb"><b id="w-title">—</b> <span id="w-crumb"></span></div>
     <span class="sp"></span>
-      <!-- The language switch is in plain sight rather than in the settings.
-           A person who does not know Russian will never reach the settings:
-           to open them one must first understand what the button says. So
-           the language button is on every page and works before signing in
-           — the choice is remembered by the browser itself. -->
+      <!-- Переключатель языка стоит на виду, а не в настройках.
+           Человек, который не знает русского, до настроек не доберётся:
+           чтобы их открыть, надо сперва понять, что написано на кнопке.
+           Поэтому кнопка языка есть на каждой странице и работает до
+           входа — выбор запоминается в самом браузере. -->
       <div class="seg lang-seg" role="group" aria-label="Язык / Language">
         <button class="lang" type="button" data-set-lang="ru">RU</button>
         <button class="lang" type="button" data-set-lang="en">EN</button>
@@ -37,18 +34,18 @@
 
 <div class="page">
 
-  <!-- ============ LEFT SIDE: THE PLAYER ============ -->
+  <!-- ============ ЛЕВАЯ ЧАСТЬ: ПЛЕЕР ============ -->
   <div>
-    <!-- The banner above the player. Shown when there is nothing to watch
-         and it has to be explained why: the anime is not dubbed yet, it is
-         not at this source, or the source gave no players at all. In such
-         cases there used to be only a red line of error inside the player. -->
-    <!-- The banner about demonstration mode.
-
-         Three sentences with no legal turns of phrase. A long disclaimer
-         would be worse here than a short one: it protects nothing, while
-         proving the author knew what they were doing. This simply says what
-         is playing and under what licence. -->
+    <!-- Плашка над плеером. Показывается, когда смотреть нечего и надо
+         объяснить почему: аниме ещё не озвучено, нет на этом источнике,
+         или источник не отдал ни одного плеера. Раньше в таких случаях
+         была только красная строка ошибки внутри плеера. -->
+    <!-- Рамка про демонстрационный режим.
+    
+         Три предложения без юридических оборотов. Длинный дисклеймер тут
+         был бы хуже короткого: он ничего не защищает, зато доказывает, что
+         автор понимал, что делает. Здесь просто сказано, что играет и по
+         какой лицензии. -->
     <div class="demonote" id="demonote" hidden>
       <span class="ic" aria-hidden="true">▶</span>
       <span class="tx"
@@ -60,64 +57,62 @@
     <div class="notice" id="w-notice" hidden>
       <span class="ic" aria-hidden="true">!</span>
       <span class="tx"><b id="w-notice-t"></b><span id="w-notice-s"></span></span>
-      <!-- A button instead of the phrase "switch the source in the panel
-           under the player". Explaining where to look for the right button
-           is a sure way to have it never found: the panel is at the bottom,
-           the banner at the top, and the player is between them. -->
+      <!-- Кнопка вместо фразы «переключите источник в панели под плеером».
+           Объяснять, где искать нужную кнопку, — верный способ, чтобы её
+           не нашли: панель внизу, плашка вверху, и между ними плеер. -->
       <button class="noticego" id="w-notice-go" type="button" hidden
               data-ru="Выбрать другой источник" data-en="Pick another source">Выбрать другой источник</button>
     </div>
 
-    <!-- The player as a whole, together with the seek bar and the panel.
+    <!-- Плеер целиком, вместе с дорожкой и панелью.
 
-         It is this that goes to full screen, not the picture alone.
-         Only `#screen` used to be expanded, while the seek bar and the
-         buttons stayed outside it — that is, in full screen there was
-         neither pause, nor seeking, nor a way out. The only way out was
-         the Escape key, which not everyone knows about. -->
+         В полный экран разворачивается именно он, а не одна картинка.
+         Раньше разворачивался только `#screen`, а дорожка с кнопками
+         оставались за его пределами — то есть в полном экране не было
+         ни паузы, ни перемотки, ни выхода. Выйти можно было только
+         клавишей Escape, о которой знают не все. -->
     <div class="player" id="player">
       <div class="screen" id="screen">
-        <!-- No crossorigin: with it the browser demands a permitting header
-             from someone else's server, and most video hosts do not send it
-             — so the video simply does not start. We do not need access to
-             the frames from code. -->
+        <!-- Без crossorigin: с ним браузер требует от чужого сервера разрешающий
+     заголовок, а большинство видео-хостингов его не шлёт — и видео
+     просто не запускается. Нам доступ к кадрам из кода не нужен. -->
         <video id="video" playsinline preload="metadata"></video>
         <div class="bgart" id="bgart"></div>
         <div class="veilg" id="veilg"></div>
 
-        <!-- A transparent layer over the whole picture: clicks are caught
-             on it. As a separate element rather than on the video itself,
-             because captions and buttons lie over the video, and a click on
-             them must not count as a click on the screen. -->
+        <!-- Прозрачный слой на всю картинку: по нему ловятся нажатия.
+             Отдельным элементом, а не на самом видео, потому что поверх
+             видео лежат надписи и кнопки, и клик по ним не должен
+             считаться кликом по экрану. -->
         <div class="tapzone" id="tapzone"></div>
 
-        <!-- The sign that flashes in the middle on play and on pause.
-             Without it a click on the screen would look like "nothing
-             happened": the picture froze, and why is unclear. -->
+        <!-- Знак, который вспыхивает в середине при пуске и паузе.
+             Без него нажатие по экрану выглядело бы как «ничего не
+             произошло»: картинка замерла, а почему — непонятно. -->
         <div class="tapflash" id="tapflash" aria-hidden="true">
           <svg viewBox="0 0 26 26" fill="none"><path id="flash-icon"
             d="M8.5 4.8v16.4L21 13 8.5 4.8Z" fill="currentColor"/></svg>
         </div>
 
-        <!-- A large heading, "EPISODE 3 OF 24 / Магическая битва", used
-             to hang here over the picture. It repeated what is written
-             twice anyway: in the page header and in the strip right above
-             it. Three identical names on one screen are not a hint but
-             noise covering the frame.
+        <!-- Здесь висел крупный заголовок «СЕРИЯ 3 ИЗ 24 / Магическая
+             битва» поверх картинки. Он повторял то, что и так написано
+             дважды: в шапке страницы и в полосе прямо над ним. Три
+             одинаковых названия на одном экране — это не подсказка, а
+             шум, закрывающий кадр.
 
-             The episode number and the name are still needed by the code:
-             it writes state into them ("Loading episodes…", "Episodes did
-             not load"). So they stayed, but invisible — for screen readers
-             rather than over the frame. -->
+             Номер серии и название по-прежнему нужны коду: он пишет в
+             них состояние («Загружаем серии…», «Серии не загрузились»).
+             Поэтому они остались, но невидимыми — для программ чтения
+             с экрана, а не поверх кадра. -->
         <div class="titlemeta" id="titleover">
           <div class="ep" id="w-epno">—</div>
           <h1 id="w-name">—</h1>
         </div>
 
-        <!-- The top strip over the picture: what is open and what to watch
-             it with. The dub and the source moved here from the bottom
-             panel — there they were out of reach in full screen, and the
-             bottom panel broke into two rows because of them. -->
+        <!-- Верхняя полоса поверх картинки: что открыто и чем это
+             смотреть. Озвучка с источником переехали сюда из нижней
+             панели — там их было не достать в полном экране, а нижняя
+             панель от них ломалась на две строки. -->
         <div class="topbar" id="topbar">
           <div class="tb-name" id="tb-name"></div>
           <span class="sp"></span>
@@ -145,7 +140,9 @@
           <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
             <path d="M8.5 4.8v16.4L21 13 8.5 4.8Z" fill="currentColor"/></svg>
         </button>
-        <div class="loadwrap" id="loadwrap" hidden><div class="spin"></div></div>
+        <div class="loadwrap" id="loadwrap" hidden>
+          <div class="loader dark" aria-hidden="true"><i></i><i></i><i></i></div>
+        </div>
         <div class="err playerr" id="w-err" role="alert"></div>
       </div>
 
@@ -155,11 +152,11 @@
         <div class="knob" id="knob"></div>
       </div>
 
-      <!-- The bottom panel: only what has to do with playback.
-           Quality, dub and source used to be squeezed in here as well —
-           seven blocks in a row did not fit, the panel wrapped onto a
-           second line, and "source" together with the full-screen button
-           slid down onto a line of their own. -->
+      <!-- Нижняя панель: только то, что относится к воспроизведению.
+           Раньше сюда же были втиснуты качество, озвучка и источник —
+           семь блоков в ряд не помещались, панель переносилась на вторую
+           строку, и «источник» с кнопкой полного экрана уезжали вниз
+           отдельной строкой. -->
       <div class="ctrl">
         <button class="cbtn" id="c-play" type="button" aria-label="Пуск">
           <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
@@ -202,20 +199,20 @@
       </div>
     </div>
 
-    <!-- buttons under the player -->
+    <!-- кнопки под плеером -->
     <div class="under">
       <a class="chipbtn primary" id="w-next" href="#">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
           <path d="M5.4 3.2v9.6L13 8 5.4 3.2Z" fill="currentColor"/></svg>
         <span data-ru="Следующая серия" data-en="Next episode">Следующая серия</span>
       </a>
-      <!-- "Mark as watched" and "+85 seconds" have been removed.
-           The first was not needed: an episode marks itself at 90%. The
-           second seeked by eye and missed more often than it hit. -->
+      <!-- «Отметить просмотренной» и «+85 секунд» убраны.
+           Первая была не нужна: серия отмечается сама на 90%. Вторая
+           перематывала на глазок и чаще промахивалась, чем попадала. -->
       <span class="tag" id="w-saved"></span>
     </div>
 
-    <!-- the episode's description -->
+    <!-- описание серии -->
     <div class="desc">
       <h3><span data-ru="О чём это" data-en="What it is about">О чём это</span>
         <span class="nospoil" data-ru="без спойлеров" data-en="no spoilers">без спойлеров</span></h3>
@@ -225,10 +222,10 @@
     </div>
   </div>
 
-  <!-- ============ RIGHT COLUMN ============ -->
+  <!-- ============ ПРАВАЯ КОЛОНКА ============ -->
   <aside class="side">
 
-    <div class="card">
+    <div class="pane">
       <div class="ch"><h3 data-ru="Дальше" data-en="Up next">Дальше</h3><span id="w-autonote"></span></div>
       <div class="cb">
         <a class="next" id="w-nextcard" href="#"><span class="nt"><i></i></span><span class="nb"><b id="w-nexttitle">—</b><span id="w-nextsub"></span></span></a>
@@ -239,7 +236,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="pane">
       <div class="ch"><h3 id="w-side-title">—</h3><span id="w-side-count"></span></div>
       <div class="cb" style="padding-bottom:2px">
         <div class="prog"><i id="w-prog" style="width:0%"></i></div>
@@ -248,17 +245,16 @@
       <div class="eplist" id="w-eplist"></div>
     </div>
 
-    <!-- Other parts of this same story.
+    <!-- Другие части этой же истории.
 
-         The episode list above answers the question "where am I inside the
-         season". This one answers the question that comes next: "and which
-         season is this, and what else is there". There used to be no answer
-         anywhere: a title lay on the shelf as a separate record with one
-         name, and a second season with three films was something you had to
-         remember yourself.
+         Список серий выше отвечает на вопрос «где я внутри сезона».
+         Этот — на вопрос, который возникает следом: «а какой это сезон
+         и что ещё есть». Раньше ответа не было нигде: тайтл лежал в
+         полке отдельной записью с одним названием, и про второй сезон
+         с тремя фильмами надо было вспомнить самому.
 
-         The block appears only if there really is more than one part. -->
-    <div class="card" id="w-fr-card" hidden>
+         Блок появляется, только если частей и правда больше одной. -->
+    <div class="pane" id="w-fr-card" hidden>
       <div class="ch">
         <h3 data-ru="Эта история целиком" data-en="The whole story">Эта история целиком</h3>
         <span id="w-fr-count"></span>

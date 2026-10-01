@@ -1,10 +1,12 @@
-# Dependencies of a personal version — what the public one does not have.
+# Зависимости личной версии — то, чего нет в публичной.
 #
-# They are installed on top of requirements.txt and are needed only with
-# MODE=private, when the site takes video from external sources:
+# Ставятся поверх requirements.txt и нужны только при MODE=private,
+# когда сайт берёт видео с внешних источников:
 #
 #     pip install -r api/requirements.txt -r api/requirements-private.txt
 #
-# In the public repository this file is empty by content — everyone
-# installs the libraries themselves, if they understand what they are
-# doing.
+# В публичном репозитории этот файл лежит пустым по содержанию — сами
+# библиотеки каждый ставит себе сам, если понимает, что делает.
+
+# anicli-api==0.11.0
+# anipy-api==3.10.0

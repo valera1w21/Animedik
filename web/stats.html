@@ -1,22 +1,19 @@
 <!DOCTYPE html>
-<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru">
+<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru" data-page="stats">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <title>анимеДик — итоги года</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
-<!-- The banner about demonstration mode.
-
-     Three sentences with no legal turns of phrase. A long disclaimer would
-     be worse here than a short one: it protects nothing, while proving the
-     author knew what they were doing. This simply says what is playing and
-     under what licence. -->
+<!-- Рамка про демонстрационный режим.
+    
+         Три предложения без юридических оборотов. Длинный дисклеймер тут
+         был бы хуже короткого: он ничего не защищает, зато доказывает, что
+         автор понимал, что делает. Здесь просто сказано, что играет и по
+         какой лицензии. -->
     <div class="demonote" id="demonote" hidden>
       <span class="ic" aria-hidden="true">▶</span>
       <span class="tx"
@@ -36,11 +33,11 @@
       <span data-ru="На главную" data-en="Home">На главную</span>
     </a>
     <span class="sp"></span>
-      <!-- The language switch is in plain sight rather than in the settings.
-           A person who does not know Russian will never reach the settings:
-           to open them one must first understand what the button says. So
-           the language button is on every page and works before signing in
-           — the choice is remembered by the browser itself. -->
+      <!-- Переключатель языка стоит на виду, а не в настройках.
+           Человек, который не знает русского, до настроек не доберётся:
+           чтобы их открыть, надо сперва понять, что написано на кнопке.
+           Поэтому кнопка языка есть на каждой странице и работает до
+           входа — выбор запоминается в самом браузере. -->
       <div class="seg lang-seg" role="group" aria-label="Язык / Language">
         <button class="lang" type="button" data-set-lang="ru">RU</button>
         <button class="lang" type="button" data-set-lang="en">EN</button>
@@ -79,8 +76,8 @@
     </div>
     <div class="b lilac">
       <div class="n" id="st-eps">—</div>
-      <!-- It used to say "серия" here — the singular under any number
-           above: "431 серия". -->
+      <!-- Раньше здесь стояло «серия» — единственное число под любым
+           числом сверху: «431 серия». -->
       <div class="l" data-ru="серий просмотрено" data-en="episodes watched">серий просмотрено</div>
       <div class="sub" id="st-eps-sub"></div>
     </div>
@@ -91,7 +88,7 @@
     </div>
   </section>
 
-  <section class="card">
+  <section class="block">
     <h3 data-ru="Год по дням" data-en="The year, day by day">Год по дням</h3>
     <div class="cap" data-ru="Чем ярче квадрат, тем больше серий в тот день"
          data-en="The brighter the square, the more episodes that day">Чем ярче квадрат, тем больше серий в тот день</div>
@@ -105,14 +102,14 @@
   </section>
 
   <div class="two">
-    <section class="card">
+    <section class="block">
       <h3 data-ru="Что вы смотрели" data-en="What you watched">Что вы смотрели</h3>
       <div class="cap" data-ru="Доля от всего просмотренного времени"
            data-en="Share of your total watch time">Доля от всего просмотренного времени</div>
       <div class="gen" id="st-genres"></div>
     </section>
 
-    <section class="card">
+    <section class="block">
       <h3 data-ru="Рекорды" data-en="Records">Рекорды</h3>
       <div class="cap" data-ru="Куда вас однажды занесло"
            data-en="How far you once went">Куда вас однажды занесло</div>
@@ -121,14 +118,14 @@
   </div>
 
   <div class="two">
-    <section class="card">
+    <section class="block">
       <h3 data-ru="Тайтл года" data-en="Title of the year">Тайтл года</h3>
       <div class="cap" data-ru="Больше всего часов в одном месте"
            data-en="The most hours in one place">Больше всего часов в одном месте</div>
       <div id="st-top"></div>
     </section>
 
-    <section class="card">
+    <section class="block">
       <h3 data-ru="По месяцам" data-en="By month">По месяцам</h3>
       <div class="cap" data-ru="Серий за месяц" data-en="Episodes per month">Серий за месяц</div>
       <div class="months" id="st-months"></div>
@@ -138,9 +135,8 @@
 </div>
 
 <footer><div class="in">
-  <!-- The year used to be written into the markup as a number. From the
-       first of January it would have become a lie, and only someone looking
-       closely would have noticed. The script sets it. -->
+  <!-- Год раньше был вписан в разметку числом. С первого января он стал бы
+       враньём, и заметил бы это только тот, кто присмотрится. Ставит скрипт. -->
   <span id="st-foot">—</span>
   <span>анимеДик</span>
 </div></footer>
