@@ -321,10 +321,17 @@ def run():
     reset()
     s = C()
     login(s, "valera", "Zaliv-Pepel-2026")
-    check("источник-модуль отклонён",
-          s.get("/api/search", params={"q": "test", "source": "os"}).status_code == 400)
-    check("обход каталога в источнике отклонён",
-          s.get("/api/search", params={"q": "test", "source": "../../os"}).status_code == 400)
+    # В демонстрационном режиме любое имя источника из запроса подменяется
+    # единственным демонстрационным (см. api_search в main.py). Чужое имя
+    # не отклоняется, а не используется: модуль с таким именем не грузится.
+    def foreign_source_ignored(name):
+        r = s.get("/api/search", params={"q": "test", "source": name})
+        if r.status_code == 400:
+            return True
+        return r.status_code == 200 and r.json().get("source") == "demo"
+    check("источник-модуль не используется", foreign_source_ignored("os"))
+    check("обход каталога в источнике не используется",
+          foreign_source_ignored("../../os"))
     check("пустой запрос отклонён",
           s.get("/api/search", params={"q": ""}).status_code == 422)
     check("серия отрицательная отклонена",
