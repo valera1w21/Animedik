@@ -335,10 +335,19 @@ def run():
           v.get("/api/search", params={"q": "a" * 300}).status_code == 422)
     check("слишком короткий поиск отклонён",
           v.get("/api/search", params={"q": "a"}).status_code == 422)
-    check("неизвестный источник отклонён",
-          v.get("/api/search", params={"q": "test", "source": "../../os"}).status_code == 400)
-    check("подстановка модуля отклонена",
-          v.get("/api/search", params={"q": "test", "source": "subprocess"}).status_code == 400)
+    # В демонстрационном режиме источник один, и любое имя из запроса
+    # подменяется им (см. api_search в main.py). Значит, чужое имя здесь
+    # не отклоняется, а молча не используется: важно, что до загрузки
+    # модуля с таким именем дело не доходит.
+    def foreign_source_ignored(name):
+        r = v.get("/api/search", params={"q": "test", "source": name})
+        if r.status_code == 400:
+            return True
+        return r.status_code == 200 and r.json().get("source") == "demo"
+    check("неизвестный источник не используется",
+          foreign_source_ignored("../../os"))
+    check("подстановка модуля не срабатывает",
+          foreign_source_ignored("subprocess"))
 
     # ------------------------------------------------------------- аватар
     group("Аватар")
@@ -832,17 +841,18 @@ def run_fixes():
     login(e, *ADMIN)
     real_cache = dict(main.anime._extractors)
     main.anime._extractors.clear()
-    real_import = main.anime.import_module
+    # В публичной версии разборщик один — демонстрационный, его и ломаем.
+    real_extractor = main.anime.anime_demo.Extractor
 
-    def broken(name):
-        raise ImportError("модуль " + name + " не загрузился")
+    def broken():
+        raise ImportError("модуль demo не загрузился")
 
-    main.anime.import_module = broken
+    main.anime.anime_demo.Extractor = broken
     try:
         r = e.get("/api/episodes", params={"key": "k", "source": "demo",
                                            "title": "Т"})
     finally:
-        main.anime.import_module = real_import
+        main.anime.anime_demo.Extractor = real_extractor
         main.anime._extractors.update(real_cache)
     check("беда с модулем источника — это 502, а не 500",
           r.status_code == 502, r.status_code)
