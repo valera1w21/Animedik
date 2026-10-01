@@ -1,16 +1,14 @@
-"""анимеДик — the web application.
+"""анимеДик — веб-приложение.
 
-How access works, in a nutshell:
+Устройство доступа в двух словах:
 
-  * There is no sign-up. None at all. An endpoint that creates an account
-    on request from a browser does not exist in this file — there is
-    nothing to look for. Accounts are created by the owner: with a
-    console command or from their own account page.
-  * An ordinary user signs in with login and password, gets a session,
-    and their data lives in the database on the server.
-  * A guest gets a temporary pass for an hour. Their session lives only
-    in the process's memory and writes nothing to the database. Once
-    they leave, everything is gone.
+  * Регистрации нет. Совсем. Ручки, которая создаёт аккаунт по запросу
+    из браузера, в этом файле не существует — искать нечего.
+    Аккаунты заводит владелец: командой в консоли или из своего кабинета.
+  * Обычный пользователь входит логином и паролем, получает сессию,
+    его данные лежат в базе на сервере.
+  * Гость получает временный пропуск на час. Его сессия живёт только
+    в памяти процесса и ничего не пишет в базу. Ушёл — всё исчезло.
 """
 
 from __future__ import annotations
@@ -39,26 +37,24 @@ log = logging.getLogger("anime")
 WEB_DIR = os.getenv("WEB_DIR", os.path.join(os.path.dirname(__file__), "..", "web"))
 WEB_DIR = os.path.abspath(WEB_DIR)
 
-# Cookies are marked Secure if the site is open over https. In local
-# testing over http that is switched off by a variable, otherwise the
-# browser will not keep the cookie.
+# Куки помечаются Secure, если сайт открыт по https. На локальной проверке
+# по http это выключается переменной, иначе браузер куку не сохранит.
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "1") == "1"
 SESSION_COOKIE = "sid"
 CSRF_COOKIE = "csrf"
 
-# The API schema is not served: there is no reason to publish a list of endpoints.
+# Схема API наружу не отдаётся: незачем публиковать список ручек.
 SHOW_DOCS = os.getenv("SHOW_DOCS") == "1"
 
 @contextlib.asynccontextmanager
 async def lifespan(application: FastAPI):
-    """What we do at start-up and at shutdown.
+    """Что делаем при запуске и при остановке.
 
-    This used to hold the deprecated startup and shutdown handlers via
-    the FastAPI event decorator. They are declared deprecated and in
-    coming FastAPI versions will simply stop being called — meaning that
-    one day after an upgrade the database would silently fail to be
-    created and the cleanup would not start. Lifespan does the same thing
-    and is not going anywhere.
+    Раньше здесь стояли устаревшие обработчики startup и shutdown
+    через декоратор событий FastAPI. Они объявлены
+    устаревшими и в следующих версиях FastAPI просто перестанут вызываться —
+    то есть однажды после обновления база молча не создалась бы, а уборка
+    не запустилась. Lifespan делает то же самое и никуда не денется.
     """
     store.init()
     dropped = store.purge_old_sessions()
@@ -99,31 +95,29 @@ api_limit = security.RateLimiter(limit=120, period=60)      # общий пот�
 search_limit = security.RateLimiter(limit=20, period=60)    # обращения к источникам
 guest_limit = security.RateLimiter(limit=6, period=3600)    # выдача гостевых пропусков
 write_limit = security.RateLimiter(limit=90, period=60)     # запись прогресса
-# Episodes and players go out to other people's sites too, only with a
-# cache. The shared limit of 120 requests a minute is too loose here: a
-# hundred cache misses means a hundred calls to the outside from our
-# address, and the source bans exactly us for it.
+# Серии и плееры тоже ходят на чужие сайты, просто с кэшем. Общего лимита
+# в 120 запросов в минуту тут мало: сотня промахов мимо кэша — это сотня
+# обращений наружу с нашего адреса, за что источник банит именно нас.
 source_limit = security.RateLimiter(limit=40, period=60)
-# Checking a password takes 600,000 rounds — about half a second of
-# processor time per call. With no separate limit, a password change can
-# be called 120 times a minute and occupy the server with that arithmetic
-# alone, while holding just one working sign-in.
+# Проверка пароля считается 600 000 раундов — это примерно полсекунды
+# процессорного времени на один вызов. Без отдельного ограничения смену
+# пароля можно звать 120 раз в минуту и занимать сервер одной этой
+# арифметикой, имея всего один действующий вход.
 pass_limit = security.RateLimiter(limit=8, period=300)
-# Parsing a picture is an expensive operation too, and in terms of memory
-# the most expensive of them all put together.
+# Разбор картинки — тоже дорогая операция, и по памяти дороже всего
+# остального вместе взятого.
 avatar_limit = security.RateLimiter(limit=10, period=300)
 
 
 # --------------------------------------------------------------------------
-# Heavy arithmetic goes to a separate thread
+# Тяжёлая арифметика — в отдельный поток
 # --------------------------------------------------------------------------
-# PBKDF2 is deliberately slow: that is how it was designed, to make
-# guessing unprofitable. But called right here, it stops the WHOLE server
-# for as long as it computes — asyncio runs handlers in a single thread.
-# One sign-in froze the page for everyone else, and a dozen wrong
-# passwords in a row laid the site out completely, paying no heed to any
-# rate limit. Now the computation goes to a separate thread, and the
-# event loop stays free.
+# PBKDF2 намеренно медленный: так его и задумывали, чтобы перебор был
+# невыгоден. Но вызванный прямо здесь, он останавливает ВЕСЬ сервер на
+# время подсчёта — asyncio выполняет обработчики в одном потоке. Один вход
+# замораживал страницу у всех остальных, а десяток неверных паролей подряд
+# укладывал сайт целиком, не считаясь ни с какими ограничениями частоты.
+# Теперь подсчёт уходит в отдельный поток, а цикл событий остаётся свободным.
 async def verify_password(password: str, stored: str) -> bool:
     return await asyncio.to_thread(security.verify_password, password, stored)
 
@@ -137,14 +131,14 @@ async def waste_time_like_a_real_check() -> None:
 
 
 # ==========================================================================
-# Guest sessions — in memory only
+# Гостевые сессии — только в памяти
 # ==========================================================================
 class GuestSessions:
-    """An hour-long pass. Deliberately not in the database.
+    """Пропуска на час. Сознательно не в базе.
 
-    A guest saves nothing: restart the server and there are no guests.
-    It also means a guest physically cannot write a single row into
-    anyone else's data, even if they find a hole in the checks.
+    Гость ничего не сохраняет: перезапустили сервер — гостей нет.
+    Заодно это значит, что гость физически не может записать ни строки
+    в чужие данные, даже если найдёт дыру в проверках.
     """
 
     MAX_ALIVE = 200      # больше двухсот гостей разом не пускаем
@@ -163,10 +157,9 @@ class GuestSessions:
         self._sweep()
         if len(self._items) >= self.MAX_ALIVE:
             return None
-        # A second line of defence after the rate limit: even if someone
-        # manages to ask for passes faster than allowed, all two hundred
-        # places will not go to one address and ordinary guests will not
-        # find themselves locked out.
+        # Второй рубеж после ограничения частоты: даже если кто-то сумеет
+        # запрашивать пропуска быстрее положенного, все двести мест одному
+        # адресу не достанутся и обычные гости не окажутся заперты снаружи.
         if sum(1 for v in self._items.values() if v.get("ip") == ip) >= self.MAX_PER_IP:
             return None
         token = security.new_token()
@@ -198,10 +191,10 @@ guests = GuestSessions()
 
 
 # ==========================================================================
-# Who came in
+# Кто пришёл
 # ==========================================================================
 class Caller:
-    """A wrapper over "who is it that sent this request"."""
+    """Обёртка над «кем является тот, кто прислал запрос»."""
 
     def __init__(self, kind: str, user: Any = None, guest: dict | None = None,
                  token: str = "") -> None:
@@ -233,34 +226,32 @@ TRUST_PROXY = os.getenv("TRUST_PROXY") == "1"
 
 
 def client_ip(request: Request) -> str:
-    """The visitor's address.
+    """Адрес посетителя.
 
-    Behind a reverse proxy the real address arrives in X-Forwarded-For.
-    The FIRST element of the chain used to be taken from here — and that
-    was a hole. nginx does not replace the header, it appends its own
-    address at the end: if a visitor sent `X-Forwarded-For: 1.2.3.4`,
-    what reached us was `1.2.3.4, the-real-address`. The first element is
-    exactly what the visitor made up. By substituting a new value every
-    time, they looked like a new person and completely bypassed both the
-    sign-in attempt limit and the guest pass limit.
+    За обратным прокси настоящий адрес приходит в X-Forwarded-For. Раньше
+    отсюда брался ПЕРВЫЙ элемент цепочки — и это была дыра. nginx не заменяет
+    заголовок, а дописывает свой адрес в конец: если посетитель прислал
+    `X-Forwarded-For: 1.2.3.4`, до нас доходило `1.2.3.4, настоящий-адрес`.
+    Первый элемент — ровно то, что придумал сам посетитель. Подставляя каждый
+    раз новое значение, он выглядел как новый человек и полностью обходил
+    и ограничение попыток входа, и лимит гостевых пропусков.
 
-    We take the last element — our own nginx appends it, and it cannot be
-    forged. We also check that it is an address at all rather than an
-    arbitrary string.
+    Берём последний элемент — его дописывает наш nginx, подделать его нельзя.
+    Заодно проверяем, что это вообще адрес, а не произвольная строка.
     """
     if TRUST_PROXY:
-        # X-Real-IP is REPLACED by nginx in full on every request
-        # (proxy_params puts $remote_addr there). Nothing of one's own can
-        # be appended to it — so we ask for it first rather than for
-        # X-Forwarded-For. It is also insurance: even if someone later
-        # rolls the nginx setting back, the hole will not open by itself.
+        # X-Real-IP nginx ЗАМЕНЯЕТ целиком на каждом запросе (proxy_params
+        # ставит туда $remote_addr). Дописать в него своё значение нельзя —
+        # поэтому спрашиваем в первую очередь его, а не X-Forwarded-For.
+        # Это ещё и страховка: даже если кто-то потом откатит настройку
+        # nginx, дыра сама собой не откроется.
         real = security.valid_ip(request.headers.get("x-real-ip", ""))
         if real:
             return real
         fwd = request.headers.get("x-forwarded-for", "")
         if fwd:
-            # We take the last value: the proxy appended it. The first
-            # is what the visitor made up.
+            # Берём последнее значение: его дописал прокси. Первое —
+            # то, что придумал сам посетитель.
             for candidate in reversed(fwd.split(",")):
                 ip = security.valid_ip(candidate)
                 if ip:
@@ -289,7 +280,7 @@ async def whoami(request: Request) -> Caller | None:
 
 
 async def need_any(request: Request) -> Caller:
-    """We let in both a user and a guest. For reading the catalogue."""
+    """Пускаем и пользователя, и гостя. Для чтения каталога."""
     who = await whoami(request)
     if who is None:
         raise HTTPException(status_code=401, detail="Нужно войти")
@@ -299,7 +290,7 @@ async def need_any(request: Request) -> Caller:
 
 
 async def need_user(request: Request) -> Caller:
-    """Registered only. A guest does not get here."""
+    """Только зарегистрированный. Гость сюда не попадёт."""
     who = await need_any(request)
     if who.is_guest:
         raise HTTPException(
@@ -310,13 +301,12 @@ async def need_user(request: Request) -> Caller:
 
 
 async def need_admin(request: Request) -> Caller:
-    """Administrator only. For everyone else the endpoint does not exist.
+    """Только администратор. Всем остальным ручка не существует.
 
-    We answer 404 rather than 403: differing response codes give away by
-    themselves that there is something at this address. A guest would get
-    a 403 from the "not a guest" check and would already know the admin
-    page exists — so the role check is done here rather than on top of
-    need_user.
+    Отвечаем именно 404, а не 403: разные коды ответа сами по себе выдают,
+    что по этому адресу что-то есть. Гость получал бы 403 от проверки
+    «не гость» и уже знал бы о существовании админки — поэтому проверку
+    роли делаем здесь, а не поверх need_user.
     """
     who = await whoami(request)
     if who is None or who.is_guest or not who.is_admin:
@@ -327,7 +317,7 @@ async def need_admin(request: Request) -> Caller:
 
 
 def guard_csrf(request: Request) -> None:
-    """For everything that changes data we require the cookie and the header to agree."""
+    """Для всего, что меняет данные, требуем совпадения куки и заголовка."""
     if csrf_exempt(request):
         return
     cookie = request.cookies.get(CSRF_COOKIE)
@@ -342,14 +332,14 @@ def csrf_exempt(request: Request) -> bool:
 
 
 # ==========================================================================
-# Common security headers
+# Общие заголовки безопасности
 # ==========================================================================
 CSP = (
     "default-src 'self'; "
     "img-src 'self' data: https: http:; "     # обложки приходят с чужих доменов
     "media-src 'self' https: http: blob:; "   # видео тоже, плюс blob для потоков
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-    "font-src 'self' https://fonts.gstatic.com; "
+    "style-src 'self' 'unsafe-inline'; "
+    "font-src 'self'; "                      # шрифт лежит у нас
     "script-src 'self'; "                     # только наши файлы, никаких вставок
     "worker-src 'self' blob:; "               # он же работает в отдельном потоке
     "connect-src 'self' https: http:; "       # куски видео качаются с чужих доменов
@@ -363,14 +353,14 @@ async def secure_headers(request: Request, call_next):
     try:
         response = await call_next(request)
     except HTTPException as exc:
-        # Normally it does not get here: FastAPI turns routing errors
-        # into a response earlier. But if it ever does, we return a proper
-        # response rather than letting the exception through — otherwise
-        # it would carry none of the protective headers set below.
+        # Обычно сюда не доходит: ошибки маршрутов FastAPI превращает
+        # в ответ раньше. Но если такое всё же случится, отдаём нормальный
+        # ответ, а не пробрасываем исключение дальше — иначе на нём не
+        # окажется ни одного защитного заголовка, выставленного ниже.
         response = JSONResponse({"detail": exc.detail}, status_code=exc.status_code,
                                 headers=getattr(exc, "headers", None))
     except Exception as exc:                       # noqa: BLE001
-        # No internal error may fly to the browser as a traceback
+        # Ни одна внутренняя ошибка не должна улететь в браузер трейсбеком
         log.exception("необработанная ошибка: %s", exc)
         response = JSONResponse({"detail": "Внутренняя ошибка"}, status_code=500)
 
@@ -383,38 +373,36 @@ async def secure_headers(request: Request, call_next):
     response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
     if COOKIE_SECURE:
         response.headers["Strict-Transport-Security"] = "max-age=15552000; includeSubDomains"
-    # we do not cache application pages: otherwise they are visible via the "back" button after signing out
+    # страницы приложения не кэшируем: иначе после выхода их видно кнопкой «назад»
     path = request.url.path
     if path.startswith("/api/") or path.endswith(".html") or path in ("/", "/watch", "/stats"):
         response.headers["Cache-Control"] = "no-store"
     elif path.startswith("/static/"):
-        # Scripts and styles need a cache, but always with a re-ask.
+        # Скриптам и стилям кэш нужен, но обязательно с переспросом.
         #
-        # There used to be nothing here, and the browser decided for
-        # itself: with no explicit instruction it picks a lifetime "by
-        # eye", from the file's last modification time. The markup
-        # meanwhile arrives with no-store, that is, always fresh. The
-        # worst combination came out: after a site upgrade a new page ran
-        # with old code until the person forced a reload. Errors of that
-        # kind can be neither reproduced nor explained — "it does not work
-        # for me but it works for you".
+        # Раньше здесь не стояло ничего, и браузер решал сам: без явного
+        # указания он берёт срок «на глазок», от времени последней правки
+        # файла. Разметка при этом приходит с no-store, то есть всегда
+        # свежая. Получалось худшее сочетание: после обновления сайта
+        # новая страница работала со старым кодом, пока человек не сделает
+        # жёсткое обновление. Ошибки в таком виде невозможно ни повторить,
+        # ни объяснить — «у меня не работает, а у тебя работает».
         #
-        # no-cache does not forbid caching: it requires asking each time
-        # whether the file has changed. If it has not, a short 304 answer
-        # comes back and the file is taken from the cache. That adds
-        # almost no traffic.
+        # no-cache не запрещает кэш: он требует каждый раз переспросить,
+        # не изменился ли файл. Не изменился — придёт короткий ответ 304,
+        # и файл возьмётся из кэша. Трафика это почти не добавляет.
         response.headers["Cache-Control"] = "no-cache"
     return response
 
 
-# How many titles we check for the sake of letters in one cleanup pass.
-# The limit is not about us, it is about the sources: a hundred requests
-# in a row from one address is a sure way to earn an IP ban.
+# Сколько тайтлов проверяем ради писем за один заход уборки. Ограничение
+# не про нас, а про источники: сотня запросов подряд с одного адреса —
+# верный способ получить бан по IP.
 MAIL_MAX_TITLES = 40
 
 
 async def last_episode_number(source: str, key: str, title: str) -> int:
-    """The number of the latest episode at the source. Zero means we did not find out."""
+    """Номер последней серии у источника. Ноль — значит не узнали."""
     try:
         episodes = await anime.find_episodes(source, key, title)
     except Exception:                              # noqa: BLE001
@@ -429,16 +417,16 @@ async def last_episode_number(source: str, key: str, title: str) -> int:
 
 
 async def mail_new_episodes() -> int:
-    """Sends out letters about episodes that came out.
+    """Рассылает письма о вышедших сериях.
 
-    It lives in the cleanup rather than in the /api/updates endpoint for
-    exactly one reason: a letter should arrive when the person is NOT on
-    the site. Otherwise it would report news to someone who has just seen
-    it anyway.
+    Живёт в уборке, а не в ручке /api/updates, ровно по одной причине:
+    письмо должно приходить, когда человека на сайте НЕТ. Иначе оно
+    сообщало бы новость тому, кто и так только что её увидел.
 
-    The mark that a letter went out is stored separately from the one the
-    bell goes out by. One field for both would mean either repeat letters
-    every hour or a bell that stays silent because "we already wrote".
+    Отметка о том, что письмо ушло, хранится отдельно от той, по которой
+    гаснет колокольчик. Одно поле на двоих означало бы либо повторные
+    письма каждый час, либо колокольчик, который молчит, потому что
+    «уже написали».
     """
     if not mail.enabled():
         return 0
@@ -453,10 +441,9 @@ async def mail_new_episodes() -> int:
             if not last:
                 continue
             known = int(row["mailed_ep"] or 0)
-            # Zero means "we have not counted yet", not "there were no
-            # episodes". Without that fork, the very first time letters
-            # were switched on would send a letter about every title in
-            # the library at once.
+            # Ноль означает «мы ещё не считали», а не «серий не было».
+            # Без этой развилки первое же включение писем присылало бы
+            # письмо про каждый тайтл в списке разом.
             if known <= 0:
                 store.set_mailed_ep(user["id"], row["key"], last)
                 continue
@@ -480,9 +467,8 @@ async def mail_new_episodes() -> int:
                 about=about, poster=row["poster"] or "",
                 watch_url=(mail.SITE_URL + "/watch?key=" + row["key"]) if mail.SITE_URL else "",
             )
-            # We mark it only on success: if the mail fell away, the
-            # letter should go out on the next pass rather than vanish
-            # for good.
+            # Отмечаем только при успехе: если почта отвалилась, письмо
+            # должно уйти в следующий заход, а не пропасть насовсем.
             if ok:
                 store.set_mailed_ep(user["id"], row["key"], last)
                 sent += 1
@@ -490,11 +476,12 @@ async def mail_new_episodes() -> int:
 
 
 async def housekeeping() -> None:
-    """Cleanup once an hour.
+    """Уборка раз в час.
 
-    Expired sessions used to be removed only at start-up. A server that
-    runs for months would pile up dead records and never get rid of them.
-    A trifle that in six months becomes a noticeable database file.
+    Раньше просроченные сессии убирались только при запуске. Сервер,
+    который работает месяцами, накапливал бы мёртвые записи и никогда
+    от них не избавлялся. Мелочь, которая через полгода становится
+    заметным файлом базы.
     """
     while True:
         try:
@@ -503,10 +490,10 @@ async def housekeeping() -> None:
             if dropped:
                 log.info("уборка: удалено просроченных сессий %d", dropped)
 
-            # Unfinished set-ups of sign-in by code. A person could tick
-            # the box, see the QR and change their mind — the draft stays
-            # in memory forever. Each is small, but they accumulate from
-            # visitors, that is, without a ceiling.
+            # Незавершённые настройки входа по коду. Человек мог поставить
+            # галочку, увидеть QR и передумать — черновик остаётся в памяти
+            # навсегда. Каждый мелкий, но копятся они от посетителей,
+            # то есть без потолка.
             edge = time.time() - 900
             stale = [uid for uid, (_, born) in pending_2fa.items() if born < edge]
             for uid in stale:
@@ -524,19 +511,18 @@ async def housekeeping() -> None:
         except asyncio.CancelledError:
             raise
         except Exception as exc:                   # noqa: BLE001
-            # the cleanup must not bring the server down under any circumstances
+            # Уборка не должна ронять сервер ни при каких обстоятельствах
             log.warning("уборка споткнулась: %s: %s", type(exc).__name__, exc)
 
 
 # ==========================================================================
-# Request models
+# Модели запросов
 # ==========================================================================
 class LoginIn(BaseModel):
     login: str = Field(min_length=1, max_length=64)
     password: str = Field(min_length=1, max_length=200)
-    # The code from the authenticator app. Asked only of those who
-    # switched such a sign-in on; everyone else neither needs the field
-    # nor sees it.
+    # Код из приложения-аутентификатора. Спрашивается только у тех, кто
+    # включил такой вход; всем остальным поле не нужно и не показывается.
     code: str = Field(default="", max_length=32)
 
 
@@ -549,10 +535,9 @@ class PasswordCheckIn(BaseModel):
     password: str = Field(min_length=1, max_length=200)
 
 
-# An unfinished set-up of sign-in by code: the secret is created, but the
-# person has not yet proved the app accepted it. Putting that in the
-# database is not allowed — it is not an account setting, it is a draft.
-# It lives in memory and goes stale.
+# Незавершённая настройка входа по коду: секрет создан, но человек ещё не
+# доказал, что приложение его приняло. В базу такое класть нельзя — это
+# не настройка аккаунта, а черновик. Живёт в памяти и протухает.
 pending_2fa: dict[int, tuple[str, float]] = {}
 
 
@@ -562,22 +547,28 @@ class ProfileIn(BaseModel):
 
 
 class SettingsIn(BaseModel):
-    """What can be configured at all.
+    """Что вообще можно настроить.
 
-    Cover size, sorting and "show finished" have been taken out of the
-    account page: the library is now one list with no tabs, and nobody
-    will reconfigure picture size a second time. The fields are deleted
-    here too — otherwise they would quietly pile up in the database while
-    affecting nothing.
+    Из кабинета убраны размер обложек, сортировка и «показывать
+    законченные»: список теперь один и без вкладок, а перенастраивать
+    размер картинок никто не станет второй раз. Поля удалены и здесь —
+    иначе они молча копились бы в базе, ни на что не влияя.
 
-    autonext stayed: the switch lives right on the watch page, under the
-    "next episode" button, which is where it is needed. The automatic
-    mark at 90% now simply always works — a separate setting for it was
-    redundant.
+    autonext остался: переключатель живёт прямо на странице просмотра,
+    под кнопкой «следующая серия», где он и нужен.
+    Автоотметка на 90% теперь просто работает всегда — отдельная
+    настройка на неё была лишней.
     """
     lang: str | None = Field(default=None, max_length=5)
     depth: str | None = Field(default=None, max_length=10)
     accent: str | None = Field(default=None, max_length=10)
+    # Тема и праздник — из списка, а не любая строка. Значение уходит в
+    # атрибут страницы, по которому выбирается набор цветов; принимать
+    # сюда что попало незачем.
+    theme: str | None = Field(default=None, max_length=16,
+                              pattern=r"^(kak-seychas|noch|ugol|bumaga)$")
+    holiday: str | None = Field(default=None, max_length=16,
+                                pattern=r"^(|off|newyear|halloween|sakura)$")
     logo: int | None = Field(default=None, ge=1, le=3)
     autonext: bool | None = None
 
@@ -586,8 +577,8 @@ class ProgressIn(BaseModel):
     key: str = Field(min_length=1, max_length=200)
     source: str = Field(default="", max_length=40)
     title: str = Field(default="", max_length=300)
-    # The title's Latin name: the library shows names in the site's
-    # language, while the sources know them in Russian only.
+    # Латинское имя тайтла: список показывает названия на языке сайта,
+    # а источники знают их только по-русски.
     title_en: str = Field(default="", max_length=300)
     poster: str = Field(default="", max_length=600)
     year: int | None = Field(default=None, ge=1900, le=2200)
@@ -606,18 +597,18 @@ class NewUserIn(BaseModel):
 
 
 # ==========================================================================
-# Sign in, sign out, "who am I"
+# Вход, выход, «кто я»
 # ==========================================================================
 def set_session_cookies(response: Response, token: str, max_age: int) -> str:
-    # The form marker is computed from the token itself: planting your
-    # own value in the cookie and passing the check is no longer possible.
+    # Метка формы считается из самого токена: подставить в куку своё значение
+    # и пройти проверку больше нельзя.
     csrf = security.csrf_for(token)
     response.set_cookie(
         SESSION_COOKIE, token,
         max_age=max_age, httponly=True, secure=COOKIE_SECURE,
         samesite="lax", path="/",
     )
-    # this cookie the script must read — it is half of the protection against forged requests
+    # эту куку скрипт читать обязан — она половина защиты от подделки запросов
     response.set_cookie(
         CSRF_COOKIE, csrf,
         max_age=max_age, httponly=False, secure=COOKIE_SECURE,
@@ -635,15 +626,14 @@ def clear_session_cookies(response: Response) -> None:
 async def auth_login(body: LoginIn, request: Request, response: Response):
     ip = client_ip(request)
     login = security.normalize_login(body.login)
-    # The same key in every branch. The first branch used to count
-    # attempts by one value and the rest by another, and the counters
-    # lived apart.
+    # Один и тот же ключ во всех ветках. Раньше первая ветка считала попытки
+    # по одному значению, а остальные — по другому, и счётчики жили порознь.
     key = security.safe_for_log(login)
 
-    # We check the block FIRST. The login-shape check used to stand
-    # ahead of it and honestly spent half a second on a dummy hash for
-    # every obviously junk login — that is, guessing that was already
-    # blocked still occupied the server with work.
+    # Блокировку проверяем ПЕРВОЙ. Раньше проверка вида логина стояла раньше
+    # неё и на каждый заведомо мусорный логин честно тратила полсекунды
+    # на подсчёт хэша-пустышки — то есть уже заблокированный перебор всё
+    # равно занимал сервер работой.
     wait = login_guard.locked_for(key, ip)
     if wait:
         raise HTTPException(
@@ -652,9 +642,9 @@ async def auth_login(body: LoginIn, request: Request, response: Response):
             headers={"Retry-After": str(wait)},
         )
 
-    # A login of the wrong shape goes no further. We answer with the same
-    # phrase as for a wrong password: an outsider must not be able to tell
-    # from the text of the answer where exactly they went wrong.
+    # Логин неправильного вида дальше не пускаем. Отвечаем той же фразой,
+    # что и при неверном пароле: посторонний не должен по тексту ответа
+    # понимать, где именно он ошибся.
     if security.login_problem(login) is not None:
         await waste_time_like_a_real_check()
         login_guard.note_failure(key, ip)
@@ -662,8 +652,8 @@ async def auth_login(body: LoginIn, request: Request, response: Response):
 
     user = store.get_user_by_login(login)
     if user is None or user["disabled"]:
-        # we spend as much time as a real check would take,
-        # otherwise the response speed shows which logins exist
+        # тратим столько же времени, сколько на настоящую проверку,
+        # иначе по скорости ответа видно, какие логины существуют
         await waste_time_like_a_real_check()
         login_guard.note_failure(key, ip)
         raise HTTPException(status_code=401, detail="Неверный логин или пароль")
@@ -672,13 +662,12 @@ async def auth_login(body: LoginIn, request: Request, response: Response):
         login_guard.note_failure(key, ip)
         raise HTTPException(status_code=401, detail="Неверный логин или пароль")
 
-    # The password is right. If sign-in by code is on — we do not issue a session yet.
+    # Пароль верный. Если включён вход по коду — сессию пока не выдаём.
     if user["totp_on"] and user["totp_secret"]:
         if not body.code:
-            # A separate response code so the page understands: the
-            # password is accepted, only the code is needed. There is no
-            # session yet — without the code the account cannot be entered
-            # even with the right password.
+            # Отдельный код ответа, чтобы страница поняла: пароль принят,
+            # нужен только код. Сессии при этом нет — до кода в аккаунт
+            # не попасть даже с верным паролем.
             raise HTTPException(
                 status_code=401,
                 detail="Введите код из приложения",
@@ -686,7 +675,7 @@ async def auth_login(body: LoginIn, request: Request, response: Response):
             )
         ok = twofa.verify(user["totp_secret"], body.code)
         if not ok:
-            # It may also be a backup code — one of those issued when it was switched on.
+            # Может быть и запасной код — тот, что выдали при включении.
             ok = store.use_backup_code(user["id"], twofa.hash_backup(body.code))
         if not ok:
             login_guard.note_failure(key, ip)
@@ -717,16 +706,15 @@ async def auth_guest(request: Request, response: Response):
 
 @app.post("/api/auth/logout")
 async def auth_logout(request: Request, response: Response):
-    """Signing out. We ask for the form marker only from someone who has a session.
+    """Выход. Метку формы спрашиваем только у того, у кого есть сессия.
 
-    There used to be no check here at all, and the cookies were erased on
-    any call — even if no session came with the request. Another site
-    could not read the data, but it could send a request here with a form
-    and throw the person out of their account for no reason. A trifle,
-    but one fixed by a single line.
+    Раньше проверки здесь не было совсем, и куки стирались при любом
+    обращении — даже если сессии в запросе не пришло. Чужой сайт не мог
+    прочитать данные, но мог формой отправить сюда запрос и выкинуть
+    человека из аккаунта на ровном месте. Мелочь, но чинится одной строкой.
 
-    If there is no session — we quietly answer "done" and erase nothing:
-    otherwise signing out after an expired cookie would run into a 403.
+    Если сессии нет — молча отвечаем «готово» и ничего не стираем:
+    иначе выход после протухшей куки упирался бы в 403.
     """
     token = request.cookies.get(SESSION_COOKIE, "")
     if not token:
@@ -766,8 +754,8 @@ def me_payload(who: Caller) -> dict:
         "settings": store.get_settings(u["id"]),
         "can_edit": True,
         "sessions": store.count_sessions(u["id"]),
-        # Sign-in by code, and letters. The secret itself never leaves
-        # for the outside — only "on or off".
+        # Вход по коду и письма. Сам секрет наружу не уходит никогда —
+        # только «включено или нет».
         "totp_on": bool(u["totp_on"]),
         "email": u["email"] or "",
         "mail_new_eps": bool(u["mail_new_eps"]),
@@ -780,9 +768,8 @@ async def api_me(request: Request):
     who = await whoami(request)
     if who is None:
         return JSONResponse({"kind": "anon"}, status_code=401)
-    # Every call reaches into the database for the session. With no
-    # limit, that can be used to load the disk in a loop while holding
-    # just one working sign-in.
+    # Каждый вызов лезет в базу за сессией. Без ограничения этим можно
+    # нагружать диск в цикле, имея всего один действующий вход.
     if not api_limit.allow(f"{who.kind}:{who.token[:16]}"):
         raise HTTPException(status_code=429, detail="Слишком много запросов")
     return me_payload(who)
@@ -808,20 +795,17 @@ async def api_profile(body: ProfileIn, request: Request,
 async def api_password(body: PasswordIn, request: Request, response: Response,
                        who: Caller = Depends(need_user)):
     guard_csrf(request)
-    # Its own limit on top of the common one: every call is two or three
-    # tenths of a second of pure computation, and guessing the current
-    # password through this endpoint must be exactly as unprofitable as
-    # through the sign-in page.
+    # Своё ограничение поверх общего: каждый вызов — две-три десятых секунды
+    # чистого счёта, и подбирать текущий пароль через эту ручку должно быть
+    # так же невыгодно, как через страницу входа.
     if not pass_limit.allow(f"p:{who.user_id}"):
         raise HTTPException(status_code=429,
                             detail="Слишком часто. Попробуйте через несколько минут.")
-    # We check the requirements for the new password BEFORE verifying the
-    # current one: that is pure arithmetic over the string sent in, it is
-    # free and gives nothing away.
+    # Требования к новому паролю проверяем ДО сверки текущего: это чистая
+    # арифметика над присланной строкой, она бесплатна и не выдаёт ничего.
     if body.new == body.current:
-        # Otherwise a password change "succeeds", cuts off every session
-        # and changes nothing: the person is signed out everywhere and
-        # cannot tell what for.
+        # Иначе смена пароля «проходит», рвёт все сессии и не меняет ничего:
+        # человек выходит отовсюду и не понимает, за что.
         raise HTTPException(status_code=400, detail="Новый пароль совпадает с текущим")
     problem = security.password_problem(body.new)
     if problem:
@@ -840,10 +824,10 @@ async def api_settings(body: SettingsIn, request: Request,
     guard_csrf(request)
     data = store.get_settings(who.user_id)
     incoming = {k: v for k, v in body.model_dump().items() if v is not None}
-    # allow-lists: what is not listed never reaches the database
-    # Allow-lists: we accept exactly those values that have buttons in
-    # the interface. Otherwise the database ends up with a value no button
-    # corresponds to, and the account page stops saving.
+    # белые списки: что не перечислено, до базы не доходит
+    # Белые списки: принимаем ровно те значения, для которых есть кнопки
+    # в интерфейсе. Иначе в базе оказывается значение, которому не
+    # соответствует ни одна кнопка, и кабинет перестаёт сохраняться.
     allowed = {
         "lang": {"ru", "en"},
         "depth": {"deep", "mid"},
@@ -853,10 +837,20 @@ async def api_settings(body: SettingsIn, request: Request,
     for key, values in allowed.items():
         if key in incoming and incoming[key] not in values:
             raise HTTPException(status_code=400, detail=f"Недопустимое значение: {key}")
+
+    # Праздник назначает администратор. Остальным доступны два положения:
+    # «по календарю» (пустая строка) и «выключить».
+    #
+    # Проверка именно здесь, а не только в разметке: спрятанная кнопка —
+    # это просьба не нажимать, а не запрет. Разметку видно всегда, и
+    # отправить такой запрос руками может кто угодно.
+    if incoming.get("holiday") not in (None, "", "off") and not who.is_admin:
+        raise HTTPException(status_code=403,
+                            detail="Праздничное оформление выбирает администратор")
     data.update(incoming)
-    # We keep in the database only the keys the application knows today:
-    # otherwise junk from old versions piles up in the record and one day
-    # stops fitting into the space allotted.
+    # Оставляем в базе только те ключи, которые сегодня знает приложение:
+    # иначе мусор из старых версий копится в записи и однажды перестаёт
+    # влезать в отведённое место.
     data = {k: v for k, v in data.items() if k in SettingsIn.model_fields}
     try:
         store.set_settings(who.user_id, data)
@@ -866,17 +860,16 @@ async def api_settings(body: SettingsIn, request: Request,
 
 
 # --------------------------------------------------------------------------
-# Avatar
+# Аватар
 # --------------------------------------------------------------------------
 AVATAR_MAX_BYTES = 300 * 1024      # присланное изображение
 AVATAR_SIDE = 128
-# A ceiling on the canvas size. It is not about the file's weight: a
-# compressed 300-kilobyte picture unfolds in memory into anything at all.
-# The previous fifty million pixels is 150 megabytes for one picture plus
-# as much again for the conversion to RGB. A dozen such requests in a row
-# and the process has nothing left to breathe with. For a 128×128 circle
-# a quarter of that is plenty: 4096×4096 is already more than any phone
-# camera gives.
+# Потолок на размер холста. Дело не в весе файла: сжатая картинка на
+# 300 килобайт разворачивается в памяти во что угодно. Прежние пятьдесят
+# миллионов точек — это 150 мегабайт на одну картинку плюс столько же на
+# перевод в RGB. Десяток таких запросов подряд — и процессу нечем дышать.
+# Для кружка 128×128 хватает и вчетверо меньшего: 4096×4096 — это уже
+# больше, чем даёт любая камера в телефоне.
 AVATAR_MAX_PIXELS = 4096 * 4096
 
 
@@ -887,15 +880,15 @@ async def api_avatar(request: Request, who: Caller = Depends(need_user)):
         raise HTTPException(status_code=429,
                             detail="Слишком часто. Попробуйте через несколько минут.")
 
-    # First we look at the declared size and only then read.
-    # Otherwise a huge file lands whole in the server's memory first, and
-    # only afterwards do we say "too big".
+    # Сначала смотрим заявленный размер и только потом читаем.
+    # Иначе огромный файл сперва целиком окажется в памяти сервера,
+    # и лишь затем мы скажем «слишком большой».
     declared = request.headers.get("content-length")
     if declared and declared.isdigit() and int(declared) > AVATAR_MAX_BYTES:
         raise HTTPException(status_code=413, detail="Файл слишком большой")
 
-    # We read in chunks and break off as soon as the limit is passed:
-    # the header cannot be trusted, it may be absent or it may lie.
+    # Читаем по кускам и обрываем, как только вышли за предел:
+    # заголовку доверять нельзя, его может не быть или он может врать.
     chunks, total = [], 0
     async for chunk in request.stream():
         total += len(chunk)
@@ -907,21 +900,20 @@ async def api_avatar(request: Request, who: Caller = Depends(need_user)):
         store.set_avatar(who.user_id, None)
         return {"ok": True, "removed": True}
 
-    # Parsing and re-encoding is tens of milliseconds and tens of
-    # megabytes of work. Into a separate thread for the same reason as
-    # computing the hash: otherwise the whole server stands still for it.
+    # Разбор и пересжатие — работа на десятки миллисекунд и десятки мегабайт.
+    # В отдельный поток по той же причине, что и подсчёт хэша: иначе на это
+    # время встаёт весь сервер.
     data = await asyncio.to_thread(_decode_image, raw)
     store.set_avatar(who.user_id, data)
     return {"ok": True}
 
 
 def _decode_image(raw: bytes) -> bytes:
-    """We rebuild the picture from scratch.
+    """Пересобираем картинку заново.
 
-    Somebody else's file is never handed on as it is: anything at all can
-    be hidden inside it. We open it, crop it to a square and save it with
-    our own encoder — what comes out is a knowingly clean JPEG of the
-    right size.
+    Чужой файл никогда не отдаём как есть: в него можно спрятать что угодно.
+    Открываем, обрезаем до квадрата и сохраняем своим кодировщиком — на выходе
+    заведомо чистый JPEG нужного размера.
     """
     try:
         from PIL import Image
@@ -934,11 +926,10 @@ def _decode_image(raw: bytes) -> bytes:
         img = Image.open(io.BytesIO(raw))  # verify() «закрывает» файл, открываем снова
         if img.format not in ("JPEG", "PNG", "WEBP"):
             raise ValueError("формат " + str(img.format))
-        # Protection against a "bomb": a giant canvas in a tiny file. We
-        # ask for the size BEFORE the conversion to RGB — up to this line
-        # the picture is not yet unfolded in memory, while afterwards it
-        # would already be unfolded in full, and the check would be late
-        # by exactly the expense it saves us from.
+        # Защита от «бомбы»: гигантский холст при крошечном файле. Размер
+        # спрашиваем ДО перевода в RGB — до этой строки картинка ещё не
+        # развёрнута в память, а после была бы уже развёрнута целиком,
+        # и проверка опаздывала бы ровно на тот расход, от которого спасает.
         if img.width * img.height > AVATAR_MAX_PIXELS:
             raise ValueError("слишком большой холст")
         img = img.convert("RGB")
@@ -976,12 +967,12 @@ async def api_avatar_get(who: Caller = Depends(need_any)):
 
 
 # ==========================================================================
-# The library and progress
+# Библиотека и прогресс
 # ==========================================================================
 @app.get("/api/library")
 async def api_library(who: Caller = Depends(need_any)):
     if who.is_guest:
-        # we show a guest an empty shelf — they never see anyone else's data
+        # гостю показываем пустую полку — чужих данных он не видит никогда
         return {"items": [], "guest": True}
     return {"items": store.library(who.user_id), "guest": False}
 
@@ -1007,9 +998,9 @@ async def api_watched(body: ProgressIn, request: Request,
     guard_csrf(request)
     if not write_limit.allow(f"w:{who.user_id}"):
         raise HTTPException(status_code=429, detail="Слишком часто")
-    # The same check as in /progress. It used not to be here: an unknown
-    # status quietly turned into "watching", and an error in the client
-    # went unnoticed for months.
+    # Та же проверка, что и в /progress. Раньше её тут не было: неизвестный
+    # статус молча превращался в «смотрю», и ошибка в клиенте оставалась
+    # незамеченной месяцами.
     if body.status not in store.ALLOWED_STATUS:
         raise HTTPException(status_code=400, detail="Неизвестный статус")
     try:
@@ -1030,12 +1021,12 @@ class PosterIn(BaseModel):
 @app.post("/api/library/poster")
 async def api_poster(body: PosterIn, request: Request,
                      who: Caller = Depends(need_user)):
-    """Fills in a missing cover for a title in the library.
+    """Дописывает пропавшую обложку тайтлу из списка.
 
-    The picture arrives in the application together with the card from
-    the search. But a title can land in the library another way — from a
-    link, from a bookmark, or saved by an older version — and then it
-    never had a cover: there was nowhere to ask for it again.
+    Картинка приезжает в приложение вместе с карточкой из поиска. Но
+    попасть в список тайтл может и иначе — по ссылке, по закладке, или он
+    сохранён старой версией, — и тогда обложки у него не было никогда:
+    переспросить её было негде.
     """
     guard_csrf(request)
     if body.source not in anime.SOURCES:
@@ -1048,27 +1039,26 @@ async def api_poster(body: PosterIn, request: Request,
     return {"ok": True, "poster": poster}
 
 
-# How many titles we check in one pass and how many network calls we make
-# at once. The limit is not about us, it is about the sources: a hundred
-# requests in a row from one address is a sure way for us specifically to
-# earn an IP ban.
+# Сколько тайтлов проверяем за один заход и сколько ходов в сеть делаем
+# разом. Ограничение не про нас, а про источники: сто запросов подряд
+# с одного адреса — верный способ получить бан по IP именно нам.
 UPDATES_MAX_TITLES = 24
 UPDATES_PARALLEL = 4
 
 
 @app.get("/api/updates")
 async def api_updates(who: Caller = Depends(need_user)):
-    """What in the library has managed to gain a new episode.
+    """Что из списка успело обзавестись новой серией.
 
-    The point is exactly one: to show the bell only when there is
-    something to show. It used to list everything you are watching — that
-    is, it rang always and about nothing. A notification that arrives
-    constantly stops being noticed within a week.
+    Смысл ровно один: показывать колокольчик только тогда, когда есть что
+    показать. Раньше он перечислял всё, что вы смотрите, — то есть звенел
+    всегда и ни о чём. Уведомление, которое приходит постоянно, перестают
+    замечать за неделю.
 
-    We compare the number of the latest episode at the source with what
-    we remembered last time. More means a new one is out. The episode
-    list is taken from the same cache as the watch page uses, so repeat
-    visits are almost free.
+    Сравниваем номер последней серии у источника с тем, что запомнили в
+    прошлый раз. Больше — значит вышла новая. Список серий берётся из
+    того же кэша, что и на странице просмотра, поэтому повторные заходы
+    почти бесплатны.
     """
     if not source_limit.allow(f"u:{who.kind}:{who.token[:16]}"):
         raise HTTPException(status_code=429, detail="Слишком часто, подождите минуту")
@@ -1084,7 +1074,7 @@ async def api_updates(who: Caller = Depends(need_user)):
             try:
                 episodes = await anime.find_episodes(row["source"], row["key"], row["title"])
             except Exception:                      # noqa: BLE001
-                # The source is silent — that is not news about an episode, it is just silence.
+                # Источник молчит — это не новость о серии, а просто тишина.
                 return None
         last = 0
         for ep in episodes:
@@ -1094,21 +1084,19 @@ async def api_updates(who: Caller = Depends(need_user)):
                 continue
         known = int(row["total_eps"] or 0)
 
-        # Zero means "we have never counted yet", not "there were no
-        # episodes". Without that fork any freshly added title was
-        # immediately declared new: "there were 0, now there are 26". The
-        # bell rang exactly when the person had just seen everything
-        # anyway. We simply remember the number and stay silent — we will
-        # compare next time.
+        # Ноль означает «мы ещё ни разу не считали», а не «серий не было».
+        # Без этой развилки любой только что добавленный тайтл немедленно
+        # объявлялся новинкой: «было 0, стало 26». Колокольчик звенел
+        # ровно тогда, когда человек и так только что всё видел.
+        # Просто запоминаем число и молчим — сравнивать будем в следующий раз.
         if known <= 0:
             if last:
                 store.set_known_eps(who.user_id, row["key"], last)
             return None
 
         if last <= known:
-            # We remember a decrease too: a source may have re-posted
-            # the title in pieces, and without this it would ring about a
-            # new episode forever.
+            # Запоминаем и уменьшение тоже: источник мог перевыложить тайтл
+            # кусками, и без этого он звенел бы новой серией вечно.
             if last and last != known:
                 store.set_known_eps(who.user_id, row["key"], last)
             return None
@@ -1126,10 +1114,10 @@ async def api_updates(who: Caller = Depends(need_user)):
 @app.post("/api/updates/seen")
 async def api_updates_seen(body: PosterIn, request: Request,
                            who: Caller = Depends(need_user)):
-    """"I have seen that a new episode is out" — puts out the notification for a title.
+    """«Я видел, что вышла новая серия» — гасит уведомление по тайтлу.
 
-    Without it the bell would stay lit until the person watched up to the
-    very latest episode — that is, for weeks.
+    Без этого колокольчик горел бы до тех пор, пока человек не досмотрит
+    до самой свежей серии, — то есть неделями.
     """
     guard_csrf(request)
     if body.source not in anime.SOURCES:
@@ -1162,9 +1150,8 @@ async def api_stats(
     tz: int = Query(0, ge=-840, le=840, description="сдвиг пояса в минутах"),
     who: Caller = Depends(need_user),
 ):
-    # The start of the year is by the visitor's zone too, otherwise the
-    # first hours of the first of January fall into last year for some
-    # people and not for others.
+    # Начало года — тоже по поясу посетителя, иначе первые часы первого
+    # января у одних попадут в прошлый год, у других нет.
     shift = tz * 60
     year = time.strftime("%Y", time.gmtime(time.time() + shift))
     start = calendar.timegm(time.strptime(year + "-01-01", "%Y-%m-%d")) - shift
@@ -1172,7 +1159,7 @@ async def api_stats(
 
 
 # ==========================================================================
-# Administrator
+# Администратор
 # ==========================================================================
 @app.get("/api/admin/users")
 async def admin_users(who: Caller = Depends(need_admin)):
@@ -1192,16 +1179,15 @@ async def admin_create(body: NewUserIn, request: Request,
     guard_csrf(request)
     if body.role not in ("user", "admin"):
         raise HTTPException(status_code=400, detail="Роль бывает user или admin")
-    # The name is cleaned the same way as on the account page. It used to
-    # go into the database as it was: an administrator could accidentally
-    # paste a newline or an invisible character into it, and afterwards
-    # that name behaved strangely in the log and in the header.
+    # Имя чистим так же, как в кабинете. Раньше здесь оно уходило в базу как
+    # есть: администратор мог случайно вставить в него перевод строки или
+    # невидимый символ, и потом это имя странно вело себя в журнале и в шапке.
     display_name = _clean_text(body.display_name, 40)
     try:
         login = store.check_new_user(body.login, body.password, body.role)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-    # The hash is computed outside the event loop — see verify_password above.
+    # Хэш считаем вне цикла событий — см. verify_password выше.
     pass_hash = await hash_password(body.password)
     try:
         uid = store.create_user_prehashed(login, pass_hash, body.role, display_name)
@@ -1222,10 +1208,10 @@ async def admin_disable(user_id: int, request: Request,
     target = store.get_user(user_id)
     if target is None:
         raise HTTPException(status_code=404, detail="Нет такого пользователя")
-    # Switching yourself off is not allowed, for exactly the reason
-    # deleting yourself is not. The check used to be on deletion only:
-    # while there are two administrators, the "switch off" button on your
-    # own row quietly closed your own way in and cut off your own session.
+    # Себя выключать нельзя — ровно по той же причине, по которой нельзя
+    # себя удалить. Раньше проверка стояла только на удалении: пока
+    # администраторов двое, кнопка «выключить» на своей же строке молча
+    # закрывала вход самому себе и обрывала собственную сессию.
     if int(user_id) == who.user_id:
         raise HTTPException(status_code=409, detail="Себя выключить нельзя")
     if target["role"] == "admin" and store.count_admins() <= 1:
@@ -1260,51 +1246,51 @@ async def admin_delete(user_id: int, request: Request,
 
 
 # ==========================================================================
-# The anime catalogue
+# Каталог аниме
 # ==========================================================================
 @app.get("/api/sources")
 async def api_sources(
     lang: str = Query("ru", max_length=2, description="язык, на котором открыт сайт"),
     who: Caller = Depends(need_any),
 ):
-    """Sources that speak the same language as the site.
+    """Источники того же языка, что и сайт.
 
-    All nine used to be served in a jumble, and an English-speaking
-    visitor had eight Russian sites in their menu. Choosing one means
-    getting a Russian dub nobody asked for.
+    Если их не разделять, у англоязычного посетителя в меню оказываются
+    и русские источники тоже. Выбрать такой — значит получить озвучку,
+    о которой не просили.
     """
     allowed = set(anime.sources_for(lang))
     return [{"id": sid, **meta} for sid, meta in anime.SOURCES.items()
             if sid in allowed]
 
 
-# The order to walk if the chosen source is silent. Sites go down from
-# time to time — then we try the next one rather than showing the person
-# an error.
+# Порядок перебора, если выбранный источник молчит. Сайты периодически
+# ложатся или меняют адреса — тогда пробуем следующий, а не показываем
+# человеку ошибку.
 #
-# In the public version the list is empty: there are no external sources.
-# If you plug in your own (see api/anime.py), list them here — first the
-# one you trust most.
+# В публичной версии список пуст: внешних источников нет. Если подключите
+# свои (см. api/anime.py) — перечислите их здесь, сначала тот, которому
+# доверяете больше.
 FALLBACK_ORDER: list[str] = []
 
-# The same walk for the English site language.
+# Тот же перебор, но для английского сайта.
 FALLBACK_ORDER_EN: list[str] = []
 
 
 def fallback_for(lang: str) -> list[str]:
-    """The walk order for the language the site is open in."""
+    """Порядок перебора для языка, на котором открыт сайт."""
     if anime.DEMO:
-        # There is nothing to walk: one source, and it serves both languages.
+        # Перебирать нечего: источник один, и он для обоих языков.
         return list(anime.SOURCES)
     return FALLBACK_ORDER_EN if lang == "en" else FALLBACK_ORDER
 
 
 async def try_source(source: str, q: str) -> list | None:
-    """Searches at one source. A source's silence is not an error, it is None.
+    """Ищет у одного источника. Молчание источника — не ошибка, а None.
 
-    The titles returned are sorted by how well they answer the query: at
-    sources this is "show me something similar", and the order in which
-    they hand back what they found has nothing to do with the query.
+    Возвращённые тайтлы отсортированы по тому, насколько они отвечают
+    запросу: у источников это «покажи что-нибудь похожее», и порядок,
+    в котором они отдают найденное, к запросу отношения не имеет.
     """
     key = f"search:{source}:{q.strip().lower()}"
     cached = anime.cache_get(key)
@@ -1316,18 +1302,17 @@ async def try_source(source: str, q: str) -> list | None:
     except Exception as exc:                       # noqa: BLE001
         log.info("источник %s не ответил: %s: %s", source, type(exc).__name__, str(exc)[:120])
         return None
-    # A title with no identifying number cannot be opened anyway: the
-    # watch page quietly throws you back to the main page on an empty
-    # key. Such cards used to reach the results and looked broken.
+    # Тайтл без опознавательного номера открыть всё равно нельзя: страница
+    # просмотра по пустому ключу молча выкидывает обратно на главную.
+    # Раньше такие карточки попадали в выдачу и выглядели сломанными.
     packed = [p for p in (anime.pack(source, r) for r in results) if p["key"]]
     for p in packed:
         p["match"] = round(anime.relevance(q, p["title"]), 3)
     packed.sort(key=lambda p: -p["match"])
     for r in results:
-        # An empty number means the source gave nothing by which the
-        # title could be recognised again. Such a record must not be put
-        # in the cache: every title like it would stick together under
-        # one key and substitute for one another.
+        # Пустой номер означает, что источник не дал ничего, по чему тайтл
+        # можно узнать снова. Такую запись класть в кэш нельзя: все подобные
+        # тайтлы слиплись бы в один ключ и подменяли друг друга.
         rk = anime.stable_key(r)
         if rk:
             anime.cache_put(f"raw:{source}:{rk}", r)
@@ -1346,10 +1331,13 @@ async def api_search(
 ):
     if not search_limit.allow(f"s:{who.kind}:{who.token[:16]}"):
         raise HTTPException(status_code=429, detail="Слишком частый поиск, подождите минуту")
-    # The source must speak the site's language. If empty — we take the
-    # one that is the main one for this language: that way a link with no
-    # source works in both languages and never leads to a foreign dub.
-    if not source:
+    # Источник обязан говорить на языке сайта. Пустой — берём тот, что
+    # для этого языка основной: так ссылка без источника работает на
+    # обоих языках и никогда не приводит к чужой озвучке.
+    # В демо-режиме источник один, а браузер подставляет имя по умолчанию
+    # для личной версии. Без «or anime.DEMO» запасной поиск (когда
+    # справочник не ответил) получал «Неизвестный источник».
+    if not source or anime.DEMO:
         source = anime.default_source(lang)
     if source not in anime.SOURCES:
         raise HTTPException(status_code=400, detail="Неизвестный источник")
@@ -1362,9 +1350,9 @@ async def api_search(
 
     tried: list[str] = []
     answered = False          # хоть кто-то вообще ответил
-    # The best of the unalike: if nobody found anything proper, we will
-    # show at least this rather than emptiness. An empty screen for a
-    # query that found something somewhere looks like a breakdown.
+    # Лучшее из непохожего: если ни у кого не нашлось толком, покажем хотя
+    # бы это, а не пустоту. Пустой экран на запрос, который где-то что-то
+    # нашёл, выглядит как поломка.
     weak: tuple[str, list] | None = None
 
     for name in order:
@@ -1376,11 +1364,10 @@ async def api_search(
         if not rows:
             continue
 
-        # The walk used to end here, at the very first non-empty answer.
-        # Because of that "Атака титанов" ran forever into source A's
-        # single junk answer, although the next source in the list knew
-        # the right title. Now an unalike answer does not count as an
-        # answer.
+        # Раньше перебор заканчивался здесь, на первом же непустом ответе.
+        # Из-за этого запрос навсегда упирался в единственный мусорный
+        # ответ первого источника, хотя следующий в списке знал правильный
+        # тайтл. Теперь непохожий ответ не считается ответом.
         good = [r for r in rows if r.get("match", 1) >= anime.MIN_RELEVANCE]
         if good:
             return {"source": name, "tried": tried, "items": good}
@@ -1391,11 +1378,10 @@ async def api_search(
         name, rows = weak
         return {"source": name, "tried": tried, "items": rows, "weak": True}
 
-    # This fork used to be missing: an empty answer from every source
-    # ended in the same 502 as a complete network failure. A person
-    # searched for a name that does not exist and got "no source is
-    # responding" — a message that lies and makes people fix what is not
-    # broken.
+    # Раньше эта развилка отсутствовала: пустой ответ всех источников
+    # заканчивался тем же 502, что и полный отказ сети. Человек искал
+    # несуществующее название и получал «ни один источник не отвечает» —
+    # сообщение, которое врёт и заставляет чинить то, что не сломано.
     if answered:
         return {"source": source, "tried": tried, "items": []}
 
@@ -1430,68 +1416,63 @@ async def api_episodes(
 
 
 # --------------------------------------------------------------------------
-# Dubs
+# Озвучки
 # --------------------------------------------------------------------------
-# What a source tells about a dub, and why none of it was visible.
+# Что источник рассказывает про озвучку и почему этого не было видно.
 #
-# A player object has a `title` field, and it holds exactly what is
-# needed: "Озвучка источник A", "Озвучка JAM", "Озвучка студия озвучки",
-# "Субтитры крупный сервис". But the code read `name` — it has no field
-# by that name at all, getattr returned an empty string, and in the "Dub"
-# menu every line said the word "плеер". A choice between eight identical
-# "players" is not a choice, it is a lottery.
+# У объекта плеера есть поле `title`, и в нём написано ровно то, что нужно:
+# «Озвучка студии N», «Субтитры студии M». А код читал `name` — поля с
+# таким именем у него нет вовсе, getattr возвращал пустую строку, и в
+# меню «Озвучка» у каждой строки стояло слово «плеер». Выбор из
+# нескольких одинаковых «плееров» — это не выбор, а лотерея.
 #
-# Second: the same dub arrives several times over. At source C one
-# episode of "Магическая битва" comes with fifty-four players — that is
-# thirty-seven dubs spread across different video hosts.
+# Второе: одна и та же озвучка приезжает по нескольку раз. У некоторых
+# источников на одну серию приходят десятки плееров — это несколько
+# озвучек, разложенных по разным видеохостингам.
 #
-# Third, and the most expensive: links can only be learned by asking the
-# host, and each such question is about seven seconds. Asking all
-# fifty-four means making a person wait a minute in front of an empty
-# player. Even ten in parallel is ten seconds.
+# Третье, и самое дорогое: узнать ссылки можно только спросив хостинг, а
+# каждый такой вопрос — несколько секунд. Спросить их все значит
+# заставить человека ждать минуту, глядя на пустой плеер. Даже если
+# спрашивать параллельно — всё равно заметная задержка.
 #
-# So we ask about exactly one dub: the one the person is going to watch.
-# The names of the rest are known at once and for free — they arrived
-# with the list of players — and the "Dub" menu is complete. We go for
-# links for another dub only when it has been chosen.
+# Поэтому спрашиваем ровно одну озвучку: ту, которую человек будет
+# смотреть. Названия остальных известны сразу и бесплатно — они пришли
+# вместе со списком плееров, — и в меню «Озвучка» список полный. За
+# ссылками для другой озвучки идём, только когда её выбрали.
 
-# How many dubs we walk through if the first ones do not answer.
+# Сколько озвучек перебираем, если первые не отвечают.
 DUB_PROBES = 4
-# How many hosts we try within one dub. Usually the first one answers.
+# Сколько хостингов пробуем внутри одной озвучки. Обычно отвечает первый.
 HOSTS_PER_DUB = 2
 
 _DUB_PREFIX = re.compile(r"^\s*(?:озвучка|дубляж|voice|dub)\s*[:\-–—]?\s*", re.I)
 _SUB_PREFIX = re.compile(r"^\s*(?:субтитры|сабы|sub(?:title)?s?)\s*[:\-–—]?\s*", re.I)
 
-# "Оригинал (+субтитры)" is the Japanese track with text over it.
+# «Оригинал (+субтитры)» — японская дорожка с текстом поверх.
 #
-# That is what source D calls it, and until now we did not see it: the
-# rule above looks for the word "субтитры" at the START of the string,
-# while here it is in brackets at the end. Yet it is exactly what people
-# look for when they ask for "the original with text": "Атака титанов",
-# "Наруто", "Магическая битва" and "Ван-Пис" all have that option at
-# source D, while Russian anime sites have only a foreign dub over the
-# Japanese.
+# У некоторых источников это называется именно так, а правило выше ищет
+# слово «субтитры» в НАЧАЛЕ строки, тогда как здесь оно в скобках на
+# конце. Между тем это ровно то, что ищут, когда просят «оригинал и
+# текст»: у части источников такой вариант есть, а у других — только
+# чужая озвучка поверх японской.
 _ORIG_SUB = re.compile(r"(?:ориг|origin|japan|яп\.)", re.I)
 _HAS_SUB = re.compile(r"(?:субтитр|саб[ыов]|\bsubs?\b|subtitle)", re.I)
 
 
-# These words in the name show that the text is English. The list is
-# short and will most likely never fire: a live check of four titles at
-# three sources found not one English variant — every subtitle track is
-# Russian, the work of Russian fan-subtitle teams and Russian tracks from
-# a large service. But if an English variant ever appears, it will be
-# recognised rather than passed off as Russian.
+# По этим словам в названии видно, что текст английский. Список короткий
+# и, скорее всего, почти никогда не сработает: живая проверка не нашла
+# ни одного английского варианта у источников, с которыми тестировалось —
+# все субтитры были русские. Но если английский вариант когда-нибудь
+# появится, он будет опознан, а не выдан за русский.
 _EN_SUB = re.compile(r"\b(?:eng|english|en[-_ ]?sub)\b", re.I)
 
 
 def is_sub_track(name: str) -> bool:
-    """Is this a variant with text over the original track?
+    """Это вариант с текстом поверх оригинальной дорожки?
 
-    Two kinds: "Субтитры крупный сервис" — that is how anime sites write
-    it — and "Оригинал (+субтитры)", which is how source D writes it.
-    Only the first used to be seen, because we looked for the word at the
-    start of the string.
+    Два вида: «Субтитры студии N» — так пишут одни источники, и
+    «Оригинал (+субтитры)» — так пишут другие. Раньше видели только
+    первый, потому что искали слово в начале строки.
     """
     text = (name or "").strip()
     if not text:
@@ -1502,36 +1483,34 @@ def is_sub_track(name: str) -> bool:
 
 
 def sub_lang(name: str) -> str:
-    """What language this text is in. Empty if it is not subtitles at all."""
+    """На каком языке этот текст. Пусто — если это вообще не субтитры."""
     if not is_sub_track(name):
         return ""
     return "en" if _EN_SUB.search(name or "") else "ru"
 
 
 def dub_name(src: Any, source: str) -> tuple[str, bool]:
-    """Whose dub this is, and whether it is a dub at all.
+    """Чья это озвучка и озвучка ли вообще.
 
-    The word "Озвучка" at the start of every line is noise: the list is
-    called "Озвучка" anyway, and there is no reason to repeat it ten
-    times. "Субтитры", though, must not be removed: that is not
-    decoration but the difference between listening and reading, and a
-    person must see it before clicking, not after.
+    Слово «Озвучка» в начале каждой строки — шум: список и так называется
+    «Озвучка», и повторять его десять раз незачем. А вот «Субтитры»
+    убирать нельзя: это не оформление, а разница между «слушать» и
+    «читать», и человек должен видеть её до нажатия, а не после.
     """
     raw = str(getattr(src, "title", "") or getattr(src, "name", "") or "").strip()
     if not raw:
-        # Sources with a single dub of their own give it no name — it is
-        # known anyway, it is them.
+        # Источники с одной своей озвучкой названия ей не дают — оно и
+        # так известно, это они сами.
         return (anime.SOURCES[source]["label"], False)
     if is_sub_track(raw):
-        # "Оригинал (+субтитры)" we leave as it is: every word in that
-        # name matters — both that the track is Japanese and that there is
-        # text over it.
+        # «Оригинал (+субтитры)» оставляем как есть: в этом названии
+        # важно каждое слово — и что дорожка японская, и что текст поверх.
         return (raw, True)
     return (_DUB_PREFIX.sub("", raw).strip() or raw, False)
 
 
 def pack_links(videos: Any) -> list[dict]:
-    """One player's links: only the working ones, best quality first."""
+    """Ссылки одного плеера: только рабочие, лучшее качество первым."""
     links = []
     for v in videos or []:
         url = getattr(v, "url", "")
@@ -1583,7 +1562,7 @@ async def api_videos(
     except Exception as exc:                       # noqa: BLE001
         raise anime.upstream_error(exc, "Не удалось получить плееры")
 
-    # We sort them into dubs, keeping the source's order.
+    # Раскладываем по озвучкам, сохраняя порядок источника.
     order: list[str] = []
     by_dub: dict[str, dict] = {}
     for player in players:
@@ -1595,43 +1574,40 @@ async def api_videos(
     if not order:
         raise HTTPException(status_code=502, detail="Ни один плеер не отдал видео")
 
-    # Dubs first, subtitles after: people want to listen more often than
-    # to read.
+    # Озвучки вперёд, субтитры следом: слушать хотят чаще, чем читать.
     #
-    # In English it is the other way round. An English dub exists, but
-    # people come for it less often than for the original Japanese track
-    # with text: that is what the English-language source was added here
-    # for. Opening the dub first means substituting for the original,
-    # which nobody asked for.
+    # По-английски — наоборот. Английский дубляж существует, но за ним
+    # приходят реже, чем за оригинальной японской дорожкой с текстом:
+    # ради неё англоязычный источник сюда и добавлен. Открывать дубляж
+    # первым значит подменять оригинал, о чём никто не просил.
     #
-    # The original places are remembered in advance: sort rearranges the
-    # very list one would have to search for a position in, and by the
-    # second comparison index() fails with "not in list".
+    # Исходные места запоминаем заранее: sort перекладывает тот же список,
+    # по которому пришлось бы искать позицию, и уже на втором сравнении
+    # index() падает с «нет в списке».
     subs_first = lang == "en"
     place = {name: i for i, name in enumerate(order)}
     order.sort(key=lambda n: (by_dub[n]["sub"] != subs_first, place[n]))
 
     async def links_of(name: str) -> list[dict]:
-        """One dub's links: the first host that answers."""
+        """Ссылки одной озвучки: первый хостинг, который ответит."""
         for host in by_dub[name]["hosts"][:HOSTS_PER_DUB]:
             try:
                 links = pack_links(await host.a_get_videos())
             except Exception as exc:               # noqa: BLE001
                 log.info("плеер не отдал видео: %s", type(exc).__name__)
                 continue
-            # A player with not a single link is not a player. Source B
-            # hands them over faithfully — two of them for "Наруто 1:
-            # Книга искусств ниндзя" — and there is not one video inside:
-            # its players work only from CIS addresses. Such an empty
-            # player used to reach the page, which showed a dash instead
-            # of a quality and said nothing. Silence where nothing is
-            # going to work reads as "the site is broken".
+            # Плеер без единой ссылки не плеер. У некоторых источников он
+            # отдаётся исправно, а видео внутри нет ни одного: их плееры
+            # работают только с определённых адресов. Такой пустой плеер
+            # доезжал до страницы, и она показывала прочерк вместо
+            # качества и молчала. Молчание там, где ничего не заработает,
+            # читается как «сайт сломался».
             if links:
                 return links
         return []
 
-    # If a particular one was asked for — we give only it. If not — we
-    # take the first that responds.
+    # Просили определённую — отдаём только её. Не просили — берём первую,
+    # которая отзовётся.
     wanted = [dub] if dub and dub in by_dub else order[:DUB_PROBES]
     chosen, videos = "", []
     for name in wanted:
@@ -1644,10 +1620,10 @@ async def api_videos(
         raise HTTPException(status_code=502, detail="Ни один плеер не отдал видео")
 
     return {
-        # The full list is known at once and for free: the names arrived
-        # together with the list of players, there is nobody to ask for
-        # them. lang says what language the text is in: the page uses it
-        # to label honestly what the person is going to get.
+        # Полный список известен сразу и бесплатно: названия приехали
+        # вместе со списком плееров, спрашивать за них никого не нужно.
+        # lang говорит, на каком языке текст: страница по нему честно
+        # подписывает, что человек получит.
         "dubs": [{"name": n, "sub": by_dub[n]["sub"], "lang": sub_lang(n)}
                  for n in order],
         "chosen": chosen,
@@ -1656,11 +1632,11 @@ async def api_videos(
 
 
 # ==========================================================================
-# The catalogue: description and a random anime
+# Справочник: описание и случайное аниме
 # ==========================================================================
-# A separate, stricter counter: behind these endpoints stands somebody
-# else's open catalogue. Exceed its limits and the server's address gets
-# banned, and the catalogue falls away for everyone at once.
+# Отдельный, более строгий счётчик: за этими ручками стоит чужой открытый
+# каталог. Превысим его лимиты — забанят адрес сервера, и справочник
+# отвалится сразу у всех.
 catalog_limit = security.RateLimiter(limit=20, period=60)
 
 
@@ -1670,11 +1646,11 @@ async def api_about(
     lang: str = Query("ru", max_length=2, description="язык, на котором показываем"),
     who: Caller = Depends(need_any),
 ):
-    """A short description of the title with no spoilers.
+    """Короткое описание тайтла без спойлеров.
 
-    The sources the video comes from give no descriptions at all — which
-    is why a stub saying "we do not show a description" used to stand
-    under the player. Now it is taken from an open catalogue.
+    Источники, с которых берётся видео, описаний не дают вовсе — поэтому
+    раньше под плеером стояла заглушка «описание не показываем». Теперь
+    оно берётся из открытого каталога.
     """
     if not catalog_limit.allow(f"c:{who.kind}:{who.token[:16]}"):
         raise HTTPException(status_code=429, detail="Слишком часто, подождите минуту")
@@ -1686,7 +1662,7 @@ async def api_about(
 
 @app.get("/api/random")
 async def api_random(who: Caller = Depends(need_any)):
-    """A random anime from the catalogue — not from your library."""
+    """Случайное аниме из каталога — не из вашего списка."""
     if not catalog_limit.allow(f"r:{who.kind}:{who.token[:16]}"):
         raise HTTPException(status_code=429, detail="Слишком часто, подождите минуту")
     for _ in range(3):          # пустая страница попадается редко, но бывает
@@ -1698,27 +1674,26 @@ async def api_random(who: Caller = Depends(need_any)):
 
 
 # ==========================================================================
-# Searching by franchise
+# Поиск по франшизам
 # ==========================================================================
-# What happens here and why search is arranged in two steps.
+# Что тут происходит и почему поиск устроен в два шага.
 #
-# The search box used to hit the video site directly, and "наруто"
-# brought back what that site considers similar: at source A — "Наруто
-# Ураганные хроники" and "Боруто", without "Наруто" itself; at source B —
-# twenty-one lines in a jumble, where the second season stands after the
-# film about Boruto. There is no telling from such a list what to watch
-# first.
+# Раньше строка поиска била прямо в источник видео, и на «наруто»
+# приходило то, что этот источник считает похожим: где-то «Наруто
+# Ураганные хроники» и «Боруто» без самого «Наруто», где-то десятки
+# строк вперемешку, где второй сезон стоит после фильма про Боруто.
+# Понять по такому списку, что смотреть первым, нельзя.
 #
-# Now the first step goes to the catalogue and answers the question "what
-# anime is this": one "Наруто" card instead of twenty-one lines. The
-# second step — on a click — shows all the franchise's parts by year. And
-# only the third, once a part is chosen, goes to the video sources for a
-# concrete link (/api/resolve).
+# Теперь первый шаг идёт в справочник и отвечает на вопрос «что это за
+# аниме»: одна карточка «Наруто» вместо двадцати одной строки. Второй
+# шаг — по нажатию — показывает все части франшизы по годам. И только
+# третий, когда часть выбрана, идёт к источникам видео за конкретной
+# ссылкой (/api/resolve).
 #
-# The split matters for this: the catalogue knows what a franchise is but
-# not where the video lies. The sources know where the video is but not
-# that "Наруто" and "Ураганные хроники" are one story. We used to ask the
-# second for what only the first knows.
+# Разделение важно вот чем: справочник знает, что такое франшиза, но не
+# знает, где лежит видео. Источники знают, где видео, но не знают, что
+# «Наруто» и «Ураганные хроники» — одна история. Раньше у второго
+# спрашивали то, что знает только первый.
 
 
 @app.get("/api/find")
@@ -1727,21 +1702,20 @@ async def api_find(
     lang: str = Query("ru", max_length=2, description="язык, на котором открыт сайт"),
     who: Caller = Depends(need_any),
 ):
-    """Search through the catalogue: one card per franchise.
+    """Поиск по справочнику: одна карточка на франшизу.
 
-    Language affects nothing here: the catalogue gives both names at
-    once, and which to show is the page's decision. The parameter is
-    accepted so as not to refuse an honest request — the other search
-    endpoints do expect a language, and sending it to all of them is
-    easier than remembering the exception.
+    Язык здесь ни на что не влияет: справочник отдаёт оба названия сразу,
+    и какое показать, решает страница. Параметр принимается, чтобы не
+    отвечать отказом на честный запрос — остальные ручки поиска язык
+    ждут, и слать его во все разом проще, чем помнить исключение.
     """
     if not catalog_limit.allow(f"f:{who.kind}:{who.token[:16]}"):
         raise HTTPException(status_code=429, detail="Слишком частый поиск, подождите минуту")
     cards = await catalog.search_franchises(q)
     if cards is None:
-        # The catalogue is silent. Not an error: the site can search
-        # without it, straight at the video sources — worse, but it
-        # works. The page makes that fork, so we tell it what happened.
+        # Справочник молчит. Не ошибка: сайт умеет искать и без него,
+        # прямо у источников видео — хуже, но работает. Развилку делает
+        # страница, ей и говорим, что случилось.
         return {"items": [], "catalog": False}
     return {"items": cards, "catalog": True}
 
@@ -1751,7 +1725,7 @@ async def api_franchise(
     id: str = Query(..., min_length=1, max_length=120),
     who: Caller = Depends(need_any),
 ):
-    """Every part of a franchise in order of release."""
+    """Все части франшизы по порядку выхода."""
     if not catalog_limit.allow(f"p:{who.kind}:{who.token[:16]}"):
         raise HTTPException(status_code=429, detail="Слишком часто, подождите минуту")
     parts = await catalog.franchise_parts(id)
@@ -1765,76 +1739,68 @@ async def api_related(
     title: str = Query(..., min_length=2, max_length=200),
     who: Caller = Depends(need_any),
 ):
-    """Parts of the same story as the title that is open.
+    """Части той же истории, что и открытый тайтл.
 
-    Needed by the watch page. Search answers the question "what to
-    watch", while this one answers what arises once you are in the
-    player: which season this is, what came before it and what comes
-    after.
+    Нужна странице просмотра. Поиск отвечает на вопрос «что посмотреть»,
+    а этот — на тот, который возникает уже в плеере: какой это сезон, что
+    было до него и что после.
 
-    There used to be no answer anywhere. A title landed on the shelf as a
-    separate record with one name, and the only way to learn it had a
-    second season and three films was to remember it yourself and search
-    by hand.
+    Раньше ответа не было нигде. Тайтл попадал в полку отдельной записью
+    с одним названием, и узнать, что у него есть второй сезон и три
+    фильма, можно было только вспомнив об этом самому и поискав руками.
     """
     if not catalog_limit.allow(f"rel:{who.kind}:{who.token[:16]}"):
         raise HTTPException(status_code=429, detail="Слишком часто, подождите минуту")
     parts = await catalog.related_parts(title)
     if parts is None:
-        # The catalogue is silent. For the watch page that is a trifle:
-        # the block simply will not appear, and the player works as it
-        # worked. Bringing down the whole page over it would be out of
-        # proportion.
+        # Справочник молчит. Для страницы просмотра это мелочь: блок
+        # просто не появится, а плеер работает как работал. Ронять из-за
+        # него всю страницу было бы несоразмерно.
         return {"items": [], "catalog": False}
     return {"items": parts, "catalog": True}
 
 
-# How closely the name at the source must match for the walk to stop and
-# go no further.
+# Насколько близко название у источника должно совпасть, чтобы перебор
+# остановился и дальше никуда не ходил.
 #
-# The bar stands where only an exact match clears it. The temptation to
-# lower it for the sake of speed is there — but that is exactly how it
-# came about that for "Наруто" the walk stopped at the first source
-# holding "Наруто: Ураганные хроники", and the second season opened
-# instead of the first. An extra second of waiting is cheaper than the
-# wrong title.
+# Планка стоит там, где её проходит только точное совпадение. Соблазн
+# опустить её ради скорости есть — но именно так и получалось, что на
+# «Наруто» перебор останавливался на первом же источнике, у которого
+# лежат «Наруто: Ураганные хроники», и открывался второй сезон вместо
+# первого. Лишняя секунда ожидания дешевле, чем не тот тайтл.
 GOOD_ENOUGH = 0.9
 
-# How many times during one resolve we are allowed to go to a source for
-# an episode list.
+# Сколько раз за один резолв разрешено сходить к источнику за списком серий.
 #
-# The check is needed because of this. An exact name match does not yet
-# mean the title opens. At source C "Наруто: Ураганные хроники" sits
-# under exactly the same name as in the catalogue — a match of one — and
-# the episode list is not given out at all: the parser trips over the
-# double episode "57-58" and falls over. Resolve happily returned that
-# title, the person clicked the second part of "Наруто" and landed in a
-# player saying "episodes did not load". Meanwhile those very
-# "Ураганные хроники" come through perfectly at source A and source B —
-# nobody was asking them.
+# Проверка нужна вот из-за чего. Точное совпадение названия ещё не значит,
+# что тайтл открывается. У одного источника «Наруто: Ураганные хроники»
+# лежат под ровно тем же названием, что в справочнике, — совпадение
+# единица, — а список серий не отдаётся вовсе: разборщик спотыкается на
+# сдвоенной серии «57-58» и падает. Резолв радостно возвращал этот
+# тайтл, человек нажимал вторую часть «Наруто» и попадал в плеер с
+# надписью «серии не загрузились». При этом ровно те же «Ураганные
+# хроники» прекрасно отдаются у других источников — их просто никто не
+# спрашивал.
 #
-# The request can hardly be called redundant: the watch page asks for
-# episodes as its very first act, and the answer is already in the cache.
-# A ceiling of three attempts keeps the worst case — when it opens
-# nowhere — within reason.
+# Лишним запрос не назвать: страница просмотра просит серии первым же
+# делом, и ответ уже лежит в кэше. Потолок в три попытки держит худший
+# случай — когда не открывается ни у кого — в разумных пределах.
 PROBE_LIMIT = 3
 
-# What share of the episodes the catalogue promises a source must have
-# posted to count as suitable.
+# Какую долю обещанных справочником серий источник должен выложить,
+# чтобы считаться подходящим.
 #
-# Without this check "Ван-Пис" opened at source A, which has seven
-# episodes out of one thousand one hundred and seventy-four posted.
-# Formally everything is right: the name matched exactly, the episodes
-# came through, there is no error. And the person got "episode 1 of 7" of
-# a series that has been running for twenty-six years. At sources C and B
-# it lies in full — they simply were not asked, because the walk stopped
-# at the first one that worked.
+# Без этой проверки «Ван-Пис» открывался у источника, где выложено семь
+# серий из тысячи ста семидесяти четырёх. Формально всё правильно:
+# название совпало точно, серии отдались, ошибки нет. А человек получал
+# «серия 1 из 7» у сериала, который идёт двадцать шестой год. У других
+# источников он лежит целиком — их просто не спрашивали, потому что
+# перебор останавливался на первом же работающем.
 #
-# The bar is deliberately low. Sources lag behind the catalogue by an
-# episode or two constantly, for "Блич" the difference is fourteen
-# episodes out of three hundred and sixty-six, and there is nothing to
-# find fault with there. What has to be filtered out is not a lag but a
-# stub.
+# Планка низкая намеренно. Источники отстают от справочника на серию-две
+# постоянно, у «Блича» разница в четырнадцать серий из трёхсот
+# шестидесяти шести, и придираться к этому не за что. Отсеять нужно не
+# отставание, а огрызок.
 ENOUGH_SHARE = 0.6
 
 
@@ -1848,25 +1814,26 @@ async def api_resolve(
     lang: str = Query("ru", max_length=2, description="язык, на котором открыт сайт"),
     who: Caller = Depends(need_any),
 ):
-    """Looks for the chosen part at the video sources.
+    """Ищет выбранную часть у источников видео.
 
-    The catalogue gives a name but no links to episodes — only the
-    sources know those. Here the name turns into a pair, "source + the
-    title's number", with which the watch page opens.
+    Справочник даёт название, но не даёт ссылки на серии — их знают
+    только источники. Здесь название превращается в пару «источник +
+    номер тайтла», с которой открывается страница просмотра.
 
-    The order of the walk: first the Russian name at every source, then
-    the Latin one. Russian first is no accident — the sources are
-    Russian-language, and that is the form the name lies in there. The
-    Latin one saves the day where the translation diverged:
-    "Судьба/Ночь схватки" against "Fate/stay night".
+    Порядок перебора: сначала русское название у всех источников, потом
+    латинское. Русское первым не случайно — источники русскоязычные, и
+    у них название лежит именно в этом виде. Латинское спасает там, где
+    перевод разошёлся: «Судьба/Ночь схватки» против «Fate/stay night».
     """
-    if not source:
+    # В демо-режиме источник один, а браузер подставляет имя по умолчанию
+    # для личной версии. Без «or anime.DEMO» запасной поиск (когда
+    # справочник не ответил) получал «Неизвестный источник».
+    if not source or anime.DEMO:
         source = anime.default_source(lang)
     if source not in anime.SOURCES:
         raise HTTPException(status_code=400, detail="Неизвестный источник")
-    # Opening a Russian dub for someone watching the site in English is
-    # not a "fallback", it is a substitution. We go to a source in their
-    # language.
+    # Открывать русскую озвучку тому, кто смотрит сайт по-английски, —
+    # это не «запасной вариант», а подмена. Уходим к источнику его языка.
     if anime.source_lang(source) != ("en" if lang == "en" else "ru"):
         source = anime.default_source(lang)
     if not search_limit.allow(f"rs:{who.kind}:{who.token[:16]}"):
@@ -1874,11 +1841,10 @@ async def api_resolve(
 
     order = [source] + [s for s in fallback_for(lang) if s != source]
     names = [t for t in (title.strip(), title_en.strip()) if t]
-    # The length is checked by the request parsing itself, but two spaces
-    # pass it, and after trimming nothing is left. Further down the code
-    # an empty list of names would knock over max() on an empty sequence
-    # — that is, an internal server error in answer to a malformed
-    # request.
+    # Длину проверяет сам разбор запроса, но два пробела её проходят, а
+    # после обрезки не остаётся ничего. Дальше по коду пустой список
+    # названий уронил бы max() на пустой последовательности — то есть
+    # внутренней ошибкой сервера в ответ на кривой запрос.
     if not names:
         raise HTTPException(status_code=400, detail="Пустое название")
 
@@ -1887,11 +1853,11 @@ async def api_resolve(
     seen: set[tuple[str, str]] = set()
     probes = [0]                                   # сколько раз ходили за сериями
     answered = False
-    # The best of those that actually opened: (match, source, title, episodes).
+    # Лучший из тех, кто реально открылся: (совпадение, источник, тайтл, серий).
     live: tuple[float, str, dict, int] | None = None
 
     def enough(found) -> bool:
-        """Whether we can stop at this and go nowhere else."""
+        """Можно ли на этом остановиться и никуда больше не ходить."""
         if not found:
             return False
         if probes[0] >= PROBE_LIMIT:
@@ -1901,7 +1867,7 @@ async def api_resolve(
         return found[3] >= episodes * ENOUGH_SHARE
 
     async def probe(pool: list) -> None:
-        """Checks the selected ones one at a time until it finds one complete enough."""
+        """Проверяет отобранных по одному, пока не найдёт достаточно полного."""
         nonlocal live
         pool.sort(key=lambda c: -c[0])
         while pool and probes[0] < PROBE_LIMIT:
@@ -1937,9 +1903,8 @@ async def api_resolve(
                     strong.append((score, name, row))
                 elif score >= anime.MIN_RELEVANCE:
                     weak.append((score, name, row))
-            # An exact match has turned up — we check it at once, and if
-            # it is alive and complete we walk no further over other
-            # people's sites.
+            # Появилось точное совпадение — проверяем его сразу, и если
+            # оно живое и полное, дальше по чужим сайтам не ходим.
             if strong:
                 await probe(strong)
                 if enough(live):
@@ -1947,8 +1912,8 @@ async def api_resolve(
         if enough(live):
             break
 
-    # No exact ones were found, all of them turned out empty or too
-    # scanty — we look at the similar ones.
+    # Точных не нашлось, все оказались пустыми или слишком куцыми —
+    # смотрим похожие.
     if not enough(live):
         await probe(weak)
 
@@ -1972,55 +1937,49 @@ async def api_resolve(
         "poster": row.get("poster") or "",
         "year": row.get("year"),
         "genres": row.get("genres") or "",
-        # The number from the episode list, not from the search card: the
-        # card often has none at all, while here the list is already in
-        # hand.
+        # Число из списка серий, а не из карточки поиска: в карточке его
+        # часто нет вовсе, а здесь список уже на руках.
         "episodes_total": count or row.get("episodes_total") or 0,
         "match": round(score, 3),
-        # The match is inexact: something similar was found, but not the
-        # same thing. The page needs this in order to warn rather than
-        # quietly open the wrong title.
+        # Совпадение неточное: нашлось похожее, но не то же самое.
+        # Странице это нужно, чтобы предупредить, а не молча открыть
+        # не тот тайтл.
         "exact": score >= GOOD_ENOUGH,
     }
 
 
 # --------------------------------------------------------------------------
-# Subtitles
+# Субтитры
 # --------------------------------------------------------------------------
-# For whom and what for.
+# Кому и зачем.
 #
-# A dub is not the only way to watch. Many prefer the original Japanese
-# track with text over it to any dubbing, and until now the site could
-# not do that at all: the default source, source A, gives exactly one dub
-# of its own and never gives subtitles. So a person opening any title
-# never saw subtitles in principle — although next door, at source C,
-# they lie for almost everything.
+# Озвучка — не единственный способ смотреть. Оригинальную японскую дорожку
+# с текстом поверх многие предпочитают любому дубляжу, а источник по
+# умолчанию может вообще не давать субтитров — отдаёт одну свою озвучку,
+# и всё. То есть человек, открывший любой тайтл, субтитров не видел в
+# принципе — хотя у другого источника они лежат почти у всего.
 #
-# A live check across eight titles:
-#
-#   source A      at none of them          (one dub of its own, and that is all)
-#   source C      at seven out of eight    several subtitle teams
-#   source B      at two out of eight
-#
-# Hence the rule: subtitles are looked for not at the current source but
-# at every one in turn. That is expensive — each source costs a search,
-# an episode list and a player list — so it runs only on a click and only
-# once: the sources' answers are cached.
+# Поэтому правило: субтитры ищутся не у текущего источника, а у всех по
+# очереди. Это дорого — на каждый источник уходит поиск, список серий и
+# список плееров, — поэтому идёт только по нажатию и только один раз:
+# ответы источников кэшируются.
 
-# How many sources we walk in search of subtitles.
+# Сколько источников обходим в поисках субтитров.
 SUB_PROBES = 3
 
-# Where to look for a subtitle track and in what order. In the public
-# version the list is empty — it is filled in along with plugging in
-# sources.
+# Где искать оригинальную дорожку с текстом, и в каком порядке.
+#
+# В публичной версии список пуст: внешних источников нет. Если подключите
+# свои — перечислите здесь сначала те, у которых чаще встречается вариант
+# «Оригинал (+субтитры)».
 SUB_ORDER: list[str] = []
 
-# The same for the English site language.
+# То же самое, но когда сайт открыт по-английски.
 SUB_ORDER_EN: list[str] = []
 
 
 def is_subs(name: str) -> bool:
-    """These are subtitles, not a dub."""
+    """Это субтитры, а не озвучка."""
     return is_sub_track(name)
 
 
@@ -2033,15 +1992,13 @@ async def api_subs(
     lang: str = Query("ru", max_length=2, description="язык, на котором смотрят"),
     who: Caller = Depends(need_any),
 ):
-    """Looks for a variant with subtitles at any source.
+    """Ищет вариант с субтитрами у любого источника.
 
-    It answers "where exactly": the source, the title's number there and
-    the name of the variant. Opening it afterwards is something the
-    ordinary watch page can do.
+    Отвечает «где именно»: источник, номер тайтла у него и название
+    варианта. Открыть его дальше умеет обычная страница просмотра.
 
-    found=false is not an error. There may be no subtitles for this
-    episode anywhere, and saying so outright is more honest than showing
-    emptiness.
+    found=false — это не ошибка. Субтитров к этой серии может не быть ни
+    у кого, и сказать об этом прямо честнее, чем показать пустоту.
     """
     if not search_limit.allow(f"sub:{who.kind}:{who.token[:16]}"):
         raise HTTPException(status_code=429, detail="Слишком часто, подождите минуту")
@@ -2050,7 +2007,7 @@ async def api_subs(
     if not names:
         raise HTTPException(status_code=400, detail="Пустое название")
 
-    # The source that certainly has no subtitles we do not look at twice.
+    # Тот источник, у которого субтитров точно нет, второй раз не смотрим.
     wanted = list(anime.SOURCES) if anime.DEMO else (
         SUB_ORDER_EN if lang == "en" else SUB_ORDER)
     order = [s for s in wanted if s != skip]
@@ -2058,8 +2015,13 @@ async def api_subs(
 
     for source in order[:SUB_PROBES]:
         tried.append(source)
-        # 1. Does this source have the title.
-        ask = names
+        # 1. Есть ли тайтл у этого источника.
+        #
+        # У англоязычного источника названия латинские: искать
+        # «Магическую битву» там бесполезно, нужно «Jujutsu Kaisen».
+        # Поэтому для него порядок названий переворачиваем — сначала
+        # латинское.
+        ask = list(reversed(names)) if anime.source_lang(source) == "en" else names
         best = None
         for q in ask:
             rows = await try_source(source, q)
@@ -2075,7 +2037,7 @@ async def api_subs(
             continue
 
         row = best[1]
-        # 2. Does it have this episode.
+        # 2. Есть ли у него эта серия.
         try:
             episodes = await anime.find_episodes(source, row["key"], row["title"])
         except HTTPException:
@@ -2096,7 +2058,7 @@ async def api_subs(
         if episode is None:
             continue
 
-        # 3. Are there subtitles among the variants.
+        # 3. Есть ли среди вариантов субтитры.
         try:
             players = await episode.a_get_sources()
         except Exception as exc:                   # noqa: BLE001
@@ -2131,22 +2093,21 @@ async def api_where(
     lang: str = Query("ru", max_length=2, description="язык, на котором открыт сайт"),
     who: Caller = Depends(need_any),
 ):
-    """Which of the sources actually has this title.
+    """У кого из источников этот тайтл есть на самом деле.
 
-    The "Where the video comes from" menu listed all eight sources in a
-    row. Half of them do not know this title at all: you switch — and get
-    a banner saying "this anime is not at this source". A list where half
-    the lines lead to a dead end forces people to go through them by hand
-    to find out what the site could have found out itself.
+    Меню «Откуда берётся видео» перечисляло все источники подряд. Часть
+    из них этого тайтла может не знать вовсе: переключаешься — и получаешь
+    плашку «этого аниме нет на источнике». Список, где часть строк ведёт
+    в тупик, заставляет перебирать их вручную, чтобы выяснить то, что
+    сайт мог выяснить сам.
 
-    The sources that take part in the walk are checked. The rest stay in
-    the list unchecked: narrow sources answer rarely and slowly, and
-    there is no reason to hold a person for extra seconds because of
-    them. The page will honestly split the list into "it is here" and
-    "not checked".
+    Проверяются те источники, что участвуют в переборе. Узкие или
+    медленные источники остаются в списке непроверенными — держать из-за
+    них человека лишние секунды незачем. Страница честно разделит список
+    на «здесь есть» и «не проверяли».
 
-    Requests to sources are cached, so opening the menu again costs
-    nothing.
+    Запросы к источникам кэшируются, поэтому повторное открытие меню
+    ничего не стоит.
     """
     if not search_limit.allow(f"w:{who.kind}:{who.token[:16]}"):
         raise HTTPException(status_code=429, detail="Слишком часто, подождите минуту")
@@ -2172,29 +2133,28 @@ async def api_where(
     return {
         "here": here,
         "checked": checked,
-        # Everything we did not get to: the page knows the list, but let
-        # the server decide — the sources live here.
-        # Only our own: another language in this list is an invitation to
-        # choose something the person will not understand.
+        # Всё, до чего не дошли: список известен странице, но пусть
+        # решает сервер — источники живут здесь.
+        # Только свои: чужой язык в этом списке — приглашение выбрать
+        # то, чего человек не поймёт.
         "unknown": [s for s in anime.sources_for(lang) if s not in checked],
     }
 
 
 # ==========================================================================
-# The administrator's announcement
+# Объявление администратора
 # ==========================================================================
 class NewsIn(BaseModel):
     text: str = Field(default="", max_length=store.NEWS_MAX)
-    # The English version of the same announcement. There is nothing to
-    # translate it by machine with, and no reason to: an announcement is
-    # written by a person, and sending it to someone else's translator
-    # means handing outside a text that never asked to go there.
+    # Английская версия того же объявления. Переводить машиной нечем и
+    # незачем: объявление пишет человек, и отправлять его в чужой
+    # переводчик — значит отдать наружу текст, который туда не просился.
     text_en: str = Field(default="", max_length=store.NEWS_MAX)
 
 
 @app.get("/api/news")
 async def api_news(who: Caller = Depends(need_any)):
-    """What to show everyone at the top of the page. Empty means nothing."""
+    """Что показать всем вверху страницы. Пусто — значит ничего."""
     return store.get_news()
 
 
@@ -2219,7 +2179,7 @@ async def admin_news_clear(request: Request, who: Caller = Depends(need_admin)):
 
 
 # ==========================================================================
-# Signing in with a code from an app
+# Вход по коду из приложения
 # ==========================================================================
 class CodeIn(BaseModel):
     code: str = Field(min_length=1, max_length=32)
@@ -2227,37 +2187,31 @@ class CodeIn(BaseModel):
 
 @app.post("/api/me/2fa/start")
 async def twofa_start(request: Request, who: Caller = Depends(need_user)):
-    """Prepares the secret and the picture with the code. Until confirmed, not switched on.
+    """Готовит секрет и картинку с кодом. Пока не подтверждён — не включён.
 
-    The secret is created anew on every tick of the box: if a person
-    started the set-up, changed their mind and started again, the old
-    secret must not stay usable.
+    Секрет создаётся заново на каждое нажатие галочки: если человек начал
+    настройку, передумал и начал снова, старый секрет не должен остаться
+    рабочим.
     """
     guard_csrf(request)
     if not pass_limit.allow(f"t:{who.user_id}"):
         raise HTTPException(status_code=429, detail="Слишком часто. Попробуйте позже.")
     secret = twofa.new_secret()
-    # We put it in temporary storage in memory rather than in the
-    # database: until the code is confirmed this is not an account
-    # setting yet, it is a draft.
+    # Кладём во временное хранилище в памяти, а не в базу: пока код не
+    # подтверждён, это ещё не настройка аккаунта, а черновик.
     pending_2fa[who.user_id] = (secret, time.time())
     uri = twofa.otpauth_uri(secret, who.user["login"])
-    try:
-        png = await asyncio.to_thread(twofa.qr_png, uri)
-    except ImportError:
-        raise HTTPException(status_code=500,
-                            detail="На сервере не установлен генератор QR-кодов")
-    import base64 as _b64
-    return {
-        "secret": secret,
-        "qr": "data:image/png;base64," + _b64.b64encode(png).decode("ascii"),
-    }
+    # Картинка необязательна: ключ можно ввести в приложение руками.
+    # Раньше здесь была ошибка 500 — из-за отсутствующей библиотеки
+    # рисования переставала работать вся защита входа.
+    qr = await asyncio.to_thread(twofa.qr_data_uri, uri)
+    return {"secret": secret, "qr": qr}
 
 
 @app.post("/api/me/2fa/enable")
 async def twofa_enable(body: CodeIn, request: Request,
                        who: Caller = Depends(need_user)):
-    """Switches sign-in by code on — only if the code really does agree."""
+    """Включает вход по коду — только если код действительно сходится."""
     guard_csrf(request)
     if not pass_limit.allow(f"t:{who.user_id}"):
         raise HTTPException(status_code=429, detail="Слишком часто. Попробуйте позже.")
@@ -2274,19 +2228,18 @@ async def twofa_enable(body: CodeIn, request: Request,
                    ",".join(twofa.hash_backup(c) for c in codes))
     pending_2fa.pop(who.user_id, None)
     log.info("вход по коду включён: %s", security.safe_for_log(who.user["login"]))
-    # The backup codes are shown exactly once: only their fingerprints
-    # lie in the database, and there is nowhere to recover the list from
-    # afterwards.
+    # Запасные коды показываем ровно один раз: в базе лежат только их
+    # отпечатки, и восстановить список потом неоткуда.
     return {"ok": True, "backup": codes}
 
 
 @app.post("/api/me/2fa/disable")
 async def twofa_disable(body: PasswordCheckIn, request: Request,
                         who: Caller = Depends(need_user)):
-    """Switches sign-in by code off. We ask for the password.
+    """Выключает вход по коду. Спрашиваем пароль.
 
-    Otherwise anyone who sits down at an unlocked laptop removes the
-    protection with one click — and it was put up against exactly that.
+    Иначе любой, кто подсел за незапертый ноутбук, снимает защиту одним
+    нажатием — а она ставилась ровно от такого.
     """
     guard_csrf(request)
     if not pass_limit.allow(f"t:{who.user_id}"):
@@ -2306,7 +2259,7 @@ class MailIn(BaseModel):
 @app.post("/api/me/mail")
 async def api_mail_prefs(body: MailIn, request: Request,
                          who: Caller = Depends(need_user)):
-    """Letters about new episodes: the address and the consent."""
+    """Письма о новых сериях: адрес и согласие."""
     guard_csrf(request)
     email = body.email.strip()[:120]
     if body.want:
@@ -2319,11 +2272,11 @@ async def api_mail_prefs(body: MailIn, request: Request,
 
 @app.get("/api/mode")
 async def api_mode():
-    """Which mode the site is running in.
+    """В каком режиме работает сайт.
 
-    Deliberately open, with no sign-in: the page must show the banner
-    about demonstration mode before the person signs in anywhere. Nothing
-    beyond a single word can be learned from here.
+    Открыта намеренно, без входа: страница должна показать плашку про
+    демонстрационный режим ещё до того, как человек куда-то войдёт.
+    Ничего, кроме одного слова, отсюда не узнать.
     """
     return {"demo": anime.DEMO}
 
@@ -2334,7 +2287,7 @@ async def health():
 
 
 # ==========================================================================
-# Serving the pages
+# Отдача страниц
 # ==========================================================================
 def _is_hex_color(value: str) -> bool:
     if not isinstance(value, str) or len(value) not in (4, 7):
@@ -2345,22 +2298,21 @@ def _is_hex_color(value: str) -> bool:
 
 
 def _clean_text(value: str, limit: int) -> str:
-    """We remove control characters and trim the length."""
+    """Убираем управляющие символы и обрезаем длину."""
     value = "".join(ch for ch in (value or "") if ch.isprintable())
     return value.strip()[:limit]
 
 
 def _clean_lines(value: str, limit: int) -> str:
-    """The same, but keeping the newlines.
+    """То же, но с сохранением переводов строки.
 
-    The announcement needs them: an administrator writes it in
-    paragraphs, and the banner can show them. Without this a "line\nbreak"
-    stuck together into "linebreak" — the control character was thrown
-    out along with the break.
+    Для объявления они нужны: администратор пишет его абзацами, а плашка
+    умеет их показывать. Без этого «перевод\\nстроки» слипался в
+    «переводстроки» — управляющий символ выбрасывался вместе с разрывом.
 
-    There is no danger in a newline here: the text is shown through
-    textContent, that is, as text and not as markup. We remove only the
-    other control characters and extra blank lines in a row.
+    Опасности в переводе строки здесь нет: текст показывается через
+    textContent, то есть как текст, а не как разметка. Убираем только
+    остальные управляющие символы и лишние пустые строки подряд.
     """
     lines = [
         "".join(ch for ch in line if ch.isprintable()).rstrip()
@@ -2368,22 +2320,23 @@ def _clean_lines(value: str, limit: int) -> str:
     ]
     out: list[str] = []
     for line in lines:
-        # we leave no more than one blank line in a row
+        # больше одной пустой строки подряд не оставляем
         if not line and (not out or not out[-1]):
             continue
         out.append(line)
     return "\n".join(out).strip()[:limit]
 
 
-PAGES = {"/": "index.html", "/watch": "watch.html", "/stats": "stats.html"}
+PAGES = {"/": "index.html", "/watch": "watch.html", "/stats": "stats.html",
+         "/pravila": "pravila.html"}
 
 
 @app.get("/{page}")
 async def page(page: str):
-    """We serve only the pages listed in advance.
+    """Отдаём только заранее перечисленные страницы.
 
-    That rules out directory traversal: the file name is not assembled
-    from what the visitor sent.
+    Так исключён обход каталога: имя файла не собирается из того,
+    что прислал посетитель.
     """
     name = PAGES.get("/" + page)
     if name is None:
@@ -2396,5 +2349,5 @@ async def root():
     return FileResponse(os.path.join(WEB_DIR, "index.html"))
 
 
-# Static files: this folder only, StaticFiles itself does not let anything out of it
+# Статика: только эта папка, StaticFiles сам не выпускает за её пределы
 app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")

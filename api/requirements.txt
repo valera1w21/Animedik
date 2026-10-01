@@ -2,13 +2,12 @@ fastapi==0.115.6
 uvicorn[standard]==0.34.0
 httpx==0.28.1
 pillow==11.1.0
-qrcode==8.0
 
-# There are deliberately no external video sources here.
+# Внешних источников видео здесь нет намеренно.
 #
-# The public version runs in demonstration mode (MODE=demo) and plays
-# Blender Foundation films under Creative Commons — nothing needs
-# installing for that, the links are direct.
+# Публичная версия работает в демонстрационном режиме (MODE=demo) и
+# играет фильмы Blender Foundation под Creative Commons — для этого
+# ничего ставить не нужно, ссылки прямые.
 #
-# A personal version installs them separately, from
-# requirements-private.txt, which does not go into the repository.
+# Личная версия ставит их отдельно, из requirements-private.txt, и в
+# репозиторий не попадает.

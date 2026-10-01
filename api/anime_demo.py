@@ -1,24 +1,24 @@
-"""The demonstration source: free video instead of someone else's.
+"""Демонстрационный источник: свободное видео вместо чужого.
 
-Why it exists.
+Зачем он есть.
 
-The site can search for titles, unfold a franchise into its parts,
-remember the second you stopped at and play a stream. There are two ways
-to show that: give access to someone else's video — or take video you
-are allowed to take.
+Сайт умеет искать тайтлы, раскрывать франшизы по частям, помнить, на
+какой секунде вы остановились, и проигрывать поток. Показать это можно
+двумя способами: дать доступ к чужому видео — или взять видео, которое
+разрешено брать.
 
-The public version takes the second. In demonstration mode the player
-runs Blender Foundation films: they are released under Creative Commons
-and may be shown, embedded and shared. The player is the real one — with
-HLS, seeking, quality and track selection — because it plays real video
-rather than a placeholder.
+Публичная версия берёт второе. В демонстрационном режиме плеер играет
+фильмы Blender Foundation: они выпущены под Creative Commons, их можно
+показывать, встраивать и раздавать. Плеер при этом настоящий — с HLS,
+перемоткой, выбором качества и дорожек, — потому что играет настоящее
+видео, а не заглушку.
 
-The catalogue (descriptions, years, posters, links between seasons)
-stays fully working: that is open data, and taking it is allowed.
+Справочник (описания, годы, постеры, связи между сезонами) остаётся
+рабочим: это открытые данные, и брать их можно.
 
-How to turn it on: the MODE=demo environment variable. Then `anime.py`
-puts this module in place of the work with external sites, and the rest
-of the code notices no difference — the shape of the answers is the same.
+Как включается: переменная окружения MODE=demo. Тогда `anime.py`
+подставляет этот модуль вместо работы с внешними сайтами, и остальной
+код разницы не замечает — формат ответов тот же.
 """
 
 from __future__ import annotations
@@ -41,12 +41,12 @@ SOURCES: dict[str, dict[str, Any]] = {
 }
 
 
-# Tracks the site will show in the "Dub" list.
+# Дорожки, которые сайт покажет в списке «Озвучка».
 #
-# There are two of them, and not for show: one demonstrates that HLS
-# works — a stream assembled from chunks that can change quality on the
-# fly — and the other that a plain file works. Those are two different
-# branches of code in the player, and both are worth showing alive.
+# Их две не для вида: на одной видно, что работает HLS — поток, который
+# собирается из кусков и умеет менять качество на ходу, — а на второй,
+# что работает обычный файл. Это две разные ветки кода в плеере, и обе
+# стоит показать живыми.
 CLIPS = [
     {
         "id": "bunny",
@@ -122,12 +122,12 @@ _BY_ID = {c["id"]: c for c in CLIPS}
 
 
 def pick_clip(query: str) -> dict:
-    """Which clip to hand out for this query.
+    """Какой ролик отдать на этот запрос.
 
-    The clip is chosen from the query itself rather than at random: the
-    same name always gets the same one. Otherwise the "Continue
-    watching" list would lead to a different video every time, and it
-    would be unclear whether that was intended or broken.
+    Ролик выбирается по самому запросу, а не наугад: одному и тому же
+    названию всегда достаётся один и тот же. Иначе список «Продолжить
+    смотреть» вёл бы каждый раз на другое видео, и было бы непонятно,
+    это задумано или сломалось.
     """
     text = (query or "").strip().lower()
     if not text:
@@ -143,7 +143,7 @@ class Video:
 
 
 class Source:
-    """A single track: an HLS stream or a plain file."""
+    """Одна дорожка: HLS-поток или обычный файл."""
 
     def __init__(self, track: dict) -> None:
         self.title = track["name"]
@@ -171,20 +171,19 @@ class Anime:
         self.data = {"id": clip["id"]}
 
     async def a_get_episodes(self) -> list[Episode]:
-        # Several "episodes" for one clip — so that the episode list,
-        # moving to the next one and the watch mark are all visible in
-        # action. The same video plays behind them: there would be
-        # nowhere to invent different ones from.
+        # Несколько «серий» у одного ролика — чтобы было видно, как
+        # работает список серий, переход к следующей и отметка о
+        # просмотре. Играет при этом одно и то же видео: выдумывать
+        # разные было бы неоткуда.
         return [Episode(self._clip, n) for n in range(1, self._clip["episodes"] + 1)]
 
 
 class Search:
     def __init__(self, clip: dict, asked: str = "") -> None:
         self._clip = clip
-        # We show the name that was searched for: a card in the search
-        # results has to answer the query, otherwise the results look
-        # broken. What the video actually turns out to be is written
-        # honestly in the player.
+        # Название показываем то, которое искали: карточка в поиске
+        # должна отвечать запросу, иначе выдача выглядит сломанной.
+        # Чем на самом деле окажется видео, честно написано в плеере.
         self.title = asked or clip["title"]
         self.url = clip["id"]
         self.thumbnail = ""
@@ -199,12 +198,12 @@ class Search:
 
 
 class Extractor:
-    """The same shape as the real sources: one search method."""
+    """Тот же вид, что у настоящих источников: один метод поиска."""
 
     async def a_search(self, query: str) -> list[Search]:
         return [Search(pick_clip(query), query)]
 
 
 def clip_by_key(key: str) -> dict:
-    """A clip by stored key — for links from the library and bookmarks."""
+    """Ролик по сохранённому ключу — для ссылок из списка и закладок."""
     return _BY_ID.get(str(key), CLIPS[0])

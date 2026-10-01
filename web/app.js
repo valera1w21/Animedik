@@ -1,23 +1,22 @@
-/* The part shared by every page: talking to the server, language, sign-in, settings.
+/* Общая часть всех страниц: обращение к серверу, язык, вход, настройки.
  *
- * The rule kept everywhere here: nothing foreign is inserted into the page
- * as HTML. Names, titles and addresses arrive from source sites, so text is
- * set through textContent and addresses only after a check.
+ * Правило, которое здесь соблюдается везде: ничего чужого не вставляется
+ * в страницу как HTML. Названия, имена и адреса приходят с сайтов-источников,
+ * поэтому текст ставим через textContent, адреса — только после проверки.
  */
 (function (global) {
   'use strict';
 
   /* ------------------------------------------------------------------ */
-  /* Addresses                                                          */
+  /* Адреса                                                             */
   /* ------------------------------------------------------------------ */
-  /* The esc() function is no longer here. It escaped text for building
-     markup out of strings — while all the code has long been assembling
-     the page out of nodes through textContent, where escaping is not
-     needed at all. Kept "just in case", it was an invitation to glue
-     markup by hand one day and decide it was safe. There must be no such
-     loophole in this project. */
+  /* Функции esc() здесь больше нет. Она экранировала текст для сборки
+     разметки строками — а весь код давно собирает страницу из узлов через
+     textContent, где экранирование не нужно вовсе. Оставленная «на всякий
+     случай», она была приглашением однажды склеить разметку вручную
+     и решить, что это безопасно. Такой лазейки в проекте быть не должно. */
 
-  /* Only http and https are let through. Cuts off javascript:, data:, blob: */
+  /* Пропускаем только http и https. Отсекает javascript:, data:, blob: */
   function safeUrl(u) {
     if (u == null || u === '') return '';
     try {
@@ -26,7 +25,7 @@
     } catch (e) { return ''; }
   }
 
-  /* A ready node with text — safer than any string assembly */
+  /* Готовый узел с текстом — безопаснее любой сборки строк */
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -35,18 +34,17 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Talking to the server                                              */
+  /* Обращения к серверу                                                */
   /* ------------------------------------------------------------------ */
   function csrfToken() {
     var m = document.cookie.match(/(?:^|;\s*)csrf=([^;]+)/);
     return m ? decodeURIComponent(m[1]) : '';
   }
 
-  /* How long we wait for an answer. Calls to sources travel through other
-     people's sites and can be slow, so the limit is generous — but it
-     exists. Without it a hung request would hang forever: the "searching…"
-     strip would never change, and on the watch page the spinner would turn
-     until a reload. */
+  /* Сколько ждём ответа. Обращения к источникам идут через чужие сайты и
+     бывают долгими, поэтому срок щедрый — но он есть. Без него зависший
+     запрос висел бы вечно: полоска «ищем…» не сменилась бы никогда,
+     а на странице просмотра колесо крутилось бы до перезагрузки. */
   var TIMEOUT_MS = 45000;
 
   function request(method, path, body, opts) {
@@ -54,11 +52,10 @@
     var headers = { 'Accept': 'application/json' };
     if (method !== 'GET') headers['X-CSRF-Token'] = csrfToken();
     var init = { method: method, headers: headers, credentials: 'same-origin' };
-    /* keepalive asks the browser to carry the request through even if the
-       tab is already closing. Without it, saving at the moment of leaving
-       the page almost always broke off, and the last minute of watching was
-       lost. Such a request must not and need not be cut off by a timer:
-       the page is gone already. */
+    /* keepalive просит браузер довести запрос до конца, даже если вкладку
+       уже закрывают. Без него сохранение в момент ухода со страницы почти
+       всегда обрывалось, и последняя минута просмотра пропадала.
+       Обрывать такой запрос по таймеру нельзя и незачем: страницы уже нет. */
     if (opts.keepalive) init.keepalive = true;
     if (body !== undefined && body !== null) {
       if (body instanceof ArrayBuffer || body instanceof Blob) {
@@ -89,17 +86,17 @@
           if (typeof msg !== 'string') msg = 'Ошибка ' + r.status;
           var err = new Error(msg);
           err.status = r.status;
-          /* A separate sign for "password accepted, the code from the app
-             is needed". An ordinary 401 does not tell that apart from a
-             wrong password, and the behaviour has to differ. */
+          /* Отдельный признак «пароль принят, нужен код из приложения».
+             Обычным 401 это не отличить от неверного пароля, а вести
+             себя надо по-разному. */
           err.needCode = r.headers.get('X-Need-Code') === '1';
           throw err;
         }
         return data;
       }, function (e) {
-        /* An answer came, but unfolding it failed — truncated json, an
-           error page from a proxy. The message must still be a human one
-           rather than "Unexpected end of JSON input". */
+        /* Ответ пришёл, но развернуть его не удалось — обрезанный json,
+           страница ошибки от прокси. Сообщение всё равно должно быть
+           человеческим, а не «Unexpected end of JSON input». */
         done();
         var err = new Error(r.ok ? 'Сервер ответил непонятно' : ('Ошибка ' + r.status));
         err.status = r.status;
@@ -123,18 +120,18 @@
   };
 
   /* ------------------------------------------------------------------ */
-  /* Language                                                           */
+  /* Язык                                                               */
   /* ------------------------------------------------------------------ */
   var lang = 'ru';
   var LANG_KEY = 'animedik.lang';
 
-  /* The chosen language is remembered by the browser itself.
+  /* Выбранный язык помнит сам браузер.
 
-     It used to live only in the account settings — that is, a person who
-     does not read Russian had first to sign in, then find the account
-     page, then find the right line in it. All of that in Russian. Now the
-     language switches on any page and before any sign-in, and the choice
-     survives a reload. */
+     Раньше он жил только в настройках аккаунта — то есть человек,
+     который не читает по-русски, должен был сперва войти, потом найти
+     кабинет, потом найти в нём нужную строку. Всё это по-русски. Теперь
+     язык переключается на любой странице и до всякого входа, а выбор
+     переживает перезагрузку. */
   function savedLang() {
     try { return localStorage.getItem(LANG_KEY) || ''; } catch (e) { return ''; }
   }
@@ -160,10 +157,10 @@
     document.dispatchEvent(new CustomEvent('langchange', { detail: lang }));
   }
 
-  /* One handler for every language button, on every page. It used to live
-     in the main page's code, and on the watch page the button would not
-     have worked at all. Through delegation — because there are buttons in
-     markup that appears later, too. */
+  /* Один обработчик на все кнопки языка, на всех страницах. Раньше он
+     жил в коде главной, и на странице просмотра кнопка не работала бы
+     вовсе. Через делегирование — потому что кнопки есть и в разметке,
+     которая появляется позже. */
   document.addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('.lang[data-set-lang]') : null;
     if (!b) return;
@@ -173,15 +170,14 @@
 
   function t(ru, en) { return lang === 'en' ? en : ru; }
 
-  /* The anime's name in the site's language.
+  /* Название аниме на языке сайта.
 
-     The catalogue gives both: the Russian and the Latin one. While the
-     site was Russian only, the Latin one went nowhere — and to a person
-     who switched the language "Магическая битва" says nothing, they need
-     "Jujutsu Kaisen".
+     Справочник отдаёт оба: русское и латинское. Пока сайт был только
+     русским, латинское никуда не шло — а человеку, переключившему язык,
+     «Магическая битва» не говорит ничего, ему нужно «Jujutsu Kaisen».
 
-     If there is no Latin one, the Russian stays: showing at least
-     something beats an empty line. */
+     Если латинского нет, остаётся русское: показать хоть что-то лучше,
+     чем пустую строку. */
   function animeName(row) {
     if (!row) return '';
     if (lang === 'en' && row.title_en) return row.title_en;
@@ -190,20 +186,20 @@
 
   function langCode() { return lang; }
 
-  /* The default video source for the site's language.
+  /* Источник видео по умолчанию для языка сайта.
 
-     Sources each speak their own: the Russian ones give Russian dubs, an
-     English-language one gives English subtitles and dub. They must not be
-     mixed, otherwise a person who opened the site in English gets a
-     Russian dub they never asked for. */
+     Источники говорят каждый на своём: русские дают русские озвучки,
+     англоязычный — английские субтитры и дубляж. Смешивать их нельзя,
+     иначе человек, открывший сайт по-английски, получает русскую
+     озвучку, о которой не просил. */
   function defaultSource() { return lang === 'en' ? 'source-en' : 'source-a'; }
 
-  /* The kind of title in the site's language: series, film, OVA.
+  /* Вид тайтла на языке сайта: сериал, фильм, OVA.
 
-     The server gives both the raw label (`kind`) and the Russian caption
-     (`kind_ru`). While the site was Russian the second was enough — while
-     in English "сериал" stayed next to "Jujutsu Kaisen". We translate here,
-     from the raw label: there is one of those for both languages. */
+     Сервер отдаёт и сырую метку (`kind`), и русскую подпись (`kind_ru`).
+     Пока сайт был русским, хватало второй — а на английском рядом с
+     «Jujutsu Kaisen» оставалось «сериал». Переводим здесь, из сырой
+     метки: она одна на оба языка. */
   var KINDS = {
     tv: ['сериал', 'TV series'], movie: ['фильм', 'movie'],
     ova: ['OVA', 'OVA'], ona: ['ONA', 'ONA'],
@@ -216,23 +212,23 @@
     if (!row) return '';
     var pair = KINDS[row.kind];
     if (pair) return lang === 'en' ? pair[1] : pair[0];
-    /* An unfamiliar label — we show what the server sent. */
+    /* Метка незнакомая — показываем то, что прислал сервер. */
     return row.kind_ru || row.kind || '';
   }
 
   /* =====================================================================
-     Our own dialogs instead of the system confirm / prompt / alert.
+     Свои окна вместо системных confirm / prompt / alert.
 
-     The browser is entitled not to show system dialogs — and does not:
-     after several in a row Chrome offers to "block dialogs from this
-     page", and in embedded windows and webviews they are muted at once.
-     Because of that "Delete" on a card, "Delete" on an announcement and
-     switching off sign-in by code simply did nothing: the code reached
-     confirm(), got false and quietly left. The button presses, nothing
-     happens, and there is nothing to explain it with.
+     Системные окна браузер вправе не показывать — и не показывает:
+     после нескольких подряд Chrome предлагает «блокировать диалоги
+     этой страницы», а во встроенных окнах и вебвью их глушат сразу.
+     Из-за этого «Удалить» на карточке, «Удалить» у объявления и
+     выключение входа по коду просто ничего не делали: код доходил до
+     confirm(), получал false и молча выходил. Кнопка нажимается,
+     ничего не происходит, объяснить нечем.
 
-     Our own dialogs are always shown, look like the rest of the site and
-     close on Esc.
+     Свои окна показываются всегда, выглядят как остальной сайт и
+     закрываются по Esc.
      ===================================================================== */
   var dialogBox = null;
 
@@ -307,7 +303,7 @@
     });
   }
 
-  /* Just a message with one button — a replacement for alert. */
+  /* Просто сообщение с одной кнопкой — замена alert. */
   function tell(title, text) {
     return new Promise(function (resolve) {
       closeDialog(null, null);
@@ -339,15 +335,15 @@
     });
   }
 
-  /* Agreement of numerals.
+  /* Склонение числительных.
 
-     Captions used to be glued to the number directly — "1 тайтлов",
-     "502 серий", "1 незакрытых". A trifle, but it gives away at once that
-     the text was assembled in a hurry, and it catches the eye constantly:
-     these counters hang on the main page all the time.
+     Раньше подписи склеивались с числом напрямую — «1 тайтлов»,
+     «502 серий», «1 незакрытых». Мелочь, но она сразу выдаёт, что текст
+     собирали наспех, и попадается на глаза постоянно: эти счётчики
+     висят на главной всё время.
 
-     ru — three forms: 1 тайтл, 2 тайтла, 5 тайтлов.
-     en — two: 1 title, 2 titles. */
+     ru — три формы: 1 тайтл, 2 тайтла, 5 тайтлов.
+     en — две: 1 title, 2 titles. */
   function plural(n, ru, en) {
     if (lang === 'en') return en[Math.abs(n) === 1 ? 0 : 1];
     var a = Math.abs(n) % 100, b = a % 10;
@@ -357,29 +353,364 @@
     return ru[2];
   }
 
-  /* The number together with the right form of the word */
+  /* Число вместе с правильной формой слова */
   function count(n, ru, en) { return n + ' ' + plural(n, ru, en); }
 
-  /* Ready-made sets: let the words live in one place rather than ten
-     times over in different files, where they easily drift apart. */
+  /* Готовые наборы: пусть слова живут в одном месте, а не по десять раз
+     в разных файлах, где их легко разойтись между собой. */
   var WORDS = {
     title: [['тайтл', 'тайтла', 'тайтлов'], ['title', 'titles']],
     episode: [['серия', 'серии', 'серий'], ['episode', 'episodes']],
     unfinished: [['незакрытый', 'незакрытых', 'незакрытых'],
                  ['unfinished', 'unfinished']],
-    /* A part of a franchise: a season, a film, an OVA or a special. The
-       word is needed where calling them "titles" would be wrong — "Наруто"
-       is one title and twenty-nine parts. */
+    /* Часть франшизы: сезон, фильм, OVA или спешл. Слово нужно там, где
+       считать «тайтлами» неверно — «Наруто» это один тайтл и двадцать
+       девять частей. */
     part: [['часть', 'части', 'частей'], ['part', 'parts']]
   };
 
   function say(n, kind) { return count(n, WORDS[kind][0], WORDS[kind][1]); }
 
   /* ------------------------------------------------------------------ */
-  /* Appearance                                                         */
+  /* Оформление                                                         */
   /* ------------------------------------------------------------------ */
+
+  /* ==================================================================
+     Тема и праздничное оформление
+
+     Тема — это цвета: фон, поверхности, линии, текст. Праздник — слой
+     поверх: заливка и мелкие летающие штуки. Одно другого не отменяет,
+     поэтому во время праздника темы переключаются как обычно, а
+     праздник при переключении темы остаётся на месте.
+
+     Всё считается здесь, по часам устройства. Сервер про праздники не
+     знает ничего и знать не должен.
+     ================================================================== */
+  var ТЕМЫ = ['kak-seychas', 'noch', 'ugol', 'bumaga'];
+  var ПРАЗДНИКИ = ['newyear', 'halloween', 'sakura'];
+
+  function applyTheme(имя) {
+    if (ТЕМЫ.indexOf(имя) < 0) имя = 'kak-seychas';
+    document.documentElement.setAttribute('data-theme', имя);
+  }
+
+  /* Какой сейчас праздник по календарю.
+
+     Окна намеренно широкие и без географии. Новый год — 1 января почти
+     везде, где живут по обычному календарю; разъезжается Рождество:
+     25 декабря у одних, 7 января у других, плюс старый Новый год 14-го.
+     Одно окно с 18 декабря по 15 января накрывает всё это разом, и
+     определять страну не нужно вовсе.
+
+     Хэллоуин привязан к 31 октября, сакура — к цветению, конец марта и
+     первая половина апреля. */
+  function holidayOn(дата) {
+    var d = дата || new Date();
+    var м = d.getMonth() + 1, ч = d.getDate();
+    if ((м === 12 && ч >= 18) || (м === 1 && ч <= 15)) return 'newyear';
+    if ((м === 10 && ч >= 24) || (м === 11 && ч <= 2)) return 'halloween';
+    if ((м === 3 && ч >= 25) || (м === 4 && ч <= 15)) return 'sakura';
+    return '';
+  }
+
+  /* Сколько украшений рисовать. Меньше на телефоне: там и экран
+     меньше, и батарею жалко. */
+  function skolko(base) {
+    var узко = Math.min(innerWidth, innerHeight) < 620;
+    return узко ? Math.round(base * 0.5) : base;
+  }
+
+  /* Значки праздника рядом с логотипом.
+
+     Собираются узлами, а не строкой в innerHTML. Строки тут постоянные,
+     и соблазн написать одну строчку велик — но именно так однажды и
+     появляется innerHTML со значением, пришедшим снаружи. Проще не
+     заводить эту привычку вовсе. */
+  function узел(тег, свойства, дети) {
+    var э = document.createElementNS('http://www.w3.org/2000/svg', тег);
+    for (var к in свойства) {
+      if (Object.prototype.hasOwnProperty.call(свойства, к)) э.setAttribute(к, свойства[к]);
+    }
+    (дети || []).forEach(function (д) { э.appendChild(д); });
+    return э;
+  }
+
+  function картинка(размер, дети) {
+    return узел('svg', {
+      width: размер, height: размер, viewBox: '0 0 20 20',
+      fill: 'none', 'aria-hidden': 'true'
+    }, дети);
+  }
+
+  var ЗНАЧКИ = {
+    newyear: function () {
+      return картинка(19, [
+        узел('path', { d: 'M10 2.2 13.4 7H6.6L10 2.2Z', fill: '#8FC7EA' }),
+        узел('path', { d: 'M10 6.4 14.4 12H5.6L10 6.4Z', fill: '#A8D6F2' }),
+        узел('path', { d: 'M10 10.6 15.4 17H4.6L10 10.6Z', fill: '#C6E5F8' }),
+        узел('rect', { x: 9, y: 16.4, width: 2, height: 2.4, rx: 0.6, fill: '#8A6B4F' })
+      ]);
+    },
+    halloween: function () {
+      return картинка(19, [
+        узел('path', {
+          d: 'M10 5.2c3.4 0 5.6 2.4 5.6 5.6S13.4 17 10 17s-5.6-3-5.6-6.2S6.6 5.2 10 5.2Z',
+          fill: '#E68A3C'
+        }),
+        узел('path', {
+          d: 'M9.4 5.3c0-1.3.5-2.2 1.6-2.7', stroke: '#6C8A46',
+          'stroke-width': 1.4, 'stroke-linecap': 'round'
+        }),
+        узел('path', { d: 'M7.6 9.6 9 11H6.2l1.4-1.4ZM12.4 9.6 13.8 11H11l1.4-1.4Z', fill: '#3A2416' }),
+        узел('path', {
+          d: 'M7.4 13.4h5.2', stroke: '#3A2416',
+          'stroke-width': 1.3, 'stroke-linecap': 'round'
+        })
+      ]);
+    },
+    sakura: function () {
+      var лепестки = [[10, 5.4, 0], [14.4, 8.6, 72], [12.7, 13.8, 144],
+                      [7.3, 13.8, 216], [5.6, 8.6, 288]].map(function (л) {
+        return узел('ellipse', {
+          cx: л[0], cy: л[1], rx: 2.5, ry: 3.3,
+          transform: 'rotate(' + л[2] + ' ' + л[0] + ' ' + л[1] + ')'
+        });
+      });
+      return картинка(19, [
+        узел('g', { fill: '#F3AFC5' }, лепестки),
+        узел('circle', { cx: 10, cy: 10, r: 1.7, fill: '#FFF0B8' })
+      ]);
+    }
+  };
+
+  /* Кладбищенский задник для Хэллоуина.
+
+     Тянется во всю ширину у нижнего края. Собран из простых фигур, а
+     не из одного огромного пути: так его видно в коде и можно
+     поправить, не расшифровывая полсотни чисел подряд. */
+  function kladbische() {
+    var g = [];
+
+    function надгробие(x, w, h, крест) {
+      var верх = 160 - h;
+      g.push(узел('path', {
+        d: 'M' + x + ' 160 v-' + (h - w / 2) +
+           ' a' + (w / 2) + ' ' + (w / 2) + ' 0 0 1 ' + w + ' 0' +
+           ' v' + (h - w / 2) + ' z'
+      }));
+      if (крест) {
+        g.push(узел('rect', { x: x + w / 2 - 3, y: верх + 12, width: 6, height: 26, rx: 1.5,
+                              fill: 'var(--hall-kamen)' }));
+        g.push(узел('rect', { x: x + w / 2 - 11, y: верх + 19, width: 22, height: 6, rx: 1.5,
+                              fill: 'var(--hall-kamen)' }));
+      }
+    }
+
+    function tykva(x, r) {
+      g.push(узел('ellipse', { cx: x, cy: 160 - r * 0.72, rx: r, ry: r * 0.78 }));
+      g.push(узел('rect', { x: x - 2.5, y: 160 - r * 1.6, width: 5, height: r * 0.4, rx: 1.5 }));
+      // прорези глаз и рта — цветом свечения, чтобы тыква «горела»
+      g.push(узел('path', {
+        d: 'M' + (x - r * 0.42) + ' ' + (160 - r * 0.95) + ' l' + (r * 0.3) + ' ' + (r * 0.34) +
+           ' h-' + (r * 0.6) + ' z', fill: 'var(--hall-ogon)'
+      }));
+      g.push(узел('path', {
+        d: 'M' + (x + r * 0.12) + ' ' + (160 - r * 0.95) + ' l' + (r * 0.3) + ' ' + (r * 0.34) +
+           ' h-' + (r * 0.6) + ' z', fill: 'var(--hall-ogon)'
+      }));
+      g.push(узел('rect', { x: x - r * 0.45, y: 160 - r * 0.5, width: r * 0.9, height: r * 0.16,
+                            rx: r * 0.08, fill: 'var(--hall-ogon)' }));
+    }
+
+    function cherep(x) {
+      g.push(узел('path', {
+        d: 'M' + x + ' 160 v-14 a13 13 0 0 1 26 0 v14 z', fill: 'var(--hall-kost)'
+      }));
+      g.push(узел('circle', { cx: x + 8, cy: 150, r: 3.4, fill: 'var(--hall-temno)' }));
+      g.push(узел('circle', { cx: x + 18, cy: 150, r: 3.4, fill: 'var(--hall-temno)' }));
+      g.push(узел('rect', { x: x + 11, y: 155, width: 4, height: 5, rx: 1,
+                            fill: 'var(--hall-temno)' }));
+    }
+
+    function derevo(x, k) {
+      var ветки = 'M' + x + ' 160 v-58 ' +
+                  'M' + x + ' 128 l-22 -20 m22 4 l-16 -22 ' +
+                  'M' + x + ' 118 l20 -18 m-20 2 l15 -24 ' +
+                  'M' + x + ' 102 l-12 -20 M' + x + ' 102 l11 -17';
+      g.push(узел('path', {
+        d: ветки, stroke: 'var(--hall-temno)', 'stroke-width': k,
+        'stroke-linecap': 'round', fill: 'none'
+      }));
+    }
+
+    function zabor(x, ширина) {
+      for (var i = 0; i < ширина; i += 22) {
+        g.push(узел('path', {
+          d: 'M' + (x + i) + ' 160 v-30 l5 -7 l5 7 v30 z'
+        }));
+      }
+      g.push(узел('rect', { x: x, y: 138, width: ширина, height: 5 }));
+      g.push(узел('rect', { x: x, y: 152, width: ширина, height: 5 }));
+    }
+
+    // земля
+    g.push(узел('path', {
+      d: 'M0 160 v-16 q90 -12 190 -4 t210 2 t180 -8 t200 6 t220 -4 t200 8 v16 z'
+    }));
+    derevo(88, 7);
+    надгробие(190, 46, 74, true);
+    cherep(258);
+    zabor(300, 154);
+    надгробие(492, 40, 58, false);
+    tykva(576, 26);
+    надгробие(660, 52, 86, true);
+    derevo(792, 6);
+    tykva(880, 20);
+    надгробие(950, 44, 66, false);
+    zabor(1030, 132);
+
+    /* Без preserveAspectRatio:none. С ним рисунок натягивался на любую
+       ширину окна: круглые тыквы становились овальными, а на узком
+       экране всё сплющивалось. Пусть лучше высота считается от ширины —
+       фигуры останутся фигурами. */
+    return узел('svg', {
+      class: 'kladbische', viewBox: '0 0 1200 160',
+      fill: 'var(--hall-temno)', 'aria-hidden': 'true'
+    }, g);
+  }
+
+  /* Луна: круг со свечением вокруг. */
+  function luna() {
+    return узел('svg', { class: 'luna', viewBox: '0 0 120 120',
+                         fill: 'none', 'aria-hidden': 'true' }, [
+      узел('circle', { cx: 60, cy: 60, r: 46, fill: 'var(--hall-luna-svet)' }),
+      узел('circle', { cx: 60, cy: 60, r: 30, fill: 'var(--hall-luna)' }),
+      узел('circle', { cx: 50, cy: 52, r: 5.5, fill: 'var(--hall-krater)' }),
+      узел('circle', { cx: 68, cy: 66, r: 7.5, fill: 'var(--hall-krater)' }),
+      узел('circle', { cx: 66, cy: 45, r: 3.5, fill: 'var(--hall-krater)' })
+    ]);
+  }
+
+  /* Летучая мышь для Хэллоуина — тем же способом. */
+  function мышь(размер) {
+    return узел('svg', {
+      width: размер, height: Math.round(размер * 0.5), viewBox: '0 0 32 16',
+      fill: 'currentColor', 'aria-hidden': 'true'
+    }, [узел('path', {
+      d: 'M16 4.6c1-1.7 2.4-2.3 3.6-1.4.9.7 1 1.9.6 3 1.6-1.6 3.4-2.6 5.4-2.9-1.2 1.2-1.8 '
+         + '2.6-1.9 4.2 1.4-.7 2.8-.9 4.3-.7-2 .9-3.4 2.3-4.2 4.2-1.4-.9-2.8-1-4.2-.3-1.2.6-2.1 '
+         + '1.6-2.6 2.9-.5-1.3-1.4-2.3-2.6-2.9-1.4-.7-2.8-.6-4.2.3-.8-1.9-2.2-3.3-4.2-4.2 1.5-.2 '
+         + '2.9 0 4.3.7-.1-1.6-.7-3-1.9-4.2 2 .3 3.8 1.3 5.4 2.9-.4-1.1-.3-2.3.6-3 1.2-.9 2.6-.3 3.6 1.4Z'
+    })]);
+  }
+
+  function applyHoliday(режим) {
+    /* Режим: '' — по календарю, 'off' — выключено, иначе название. */
+    var сейчас = режим === 'off' ? ''
+               : (режим && ПРАЗДНИКИ.indexOf(режим) >= 0 ? режим : holidayOn());
+
+    var корень = document.documentElement;
+    if (сейчас) корень.setAttribute('data-holiday', сейчас);
+    else корень.removeAttribute('data-holiday');
+
+    document.querySelectorAll('.prazdnik').forEach(function (с) { с.remove(); });
+    document.querySelectorAll('.prazdznak').forEach(function (з) { з.remove(); });
+    if (!сейчас) return;
+
+    /* Нижний слой — только заливка. */
+    var низ = document.createElement('div');
+    низ.className = 'prazdnik';
+    низ.setAttribute('aria-hidden', 'true');
+    var заливка = document.createElement('div');
+    заливка.className = 'zaliv';
+    низ.appendChild(заливка);
+    if (сейчас === 'halloween') {
+      низ.appendChild(luna());
+      низ.appendChild(kladbische());
+    }
+    document.body.appendChild(низ);
+
+    /* Верхний — летающее, над карточками. */
+    var слой = document.createElement('div');
+    слой.className = 'prazdnik verh';
+    слой.setAttribute('aria-hidden', 'true');
+
+    /* Настройку «меньше движения» соблюдает CSS: летающее там просто
+       скрыто. Дублировать проверку здесь я пробовал — и получил две
+       правды об одном и том же: правило в стилях говорило одно, условие
+       в скрипте другое, а при переключении настройки в системе нужна
+       была перезагрузка. Решает одно место. */
+    {
+      if (сейчас === 'newyear') сыпать(слой, 'snezh', skolko(26), function (э, r) {
+        var d = 4 + r() * 7;
+        э.style.setProperty('--razmer', d.toFixed(1) + 'px');
+        var видно = 0.32 + r() * 0.4;
+        э.style.setProperty('--vidno', видно.toFixed(2));
+        /* Для светлой темы своя прозрачность: на белом фоне те же
+           значения читаются заметно слабее. */
+        э.style.setProperty('--vidno-svet', Math.min(1, видно + 0.42).toFixed(2));
+        э.style.setProperty('--snos', Math.round(-40 + r() * 80) + 'px');
+        э.style.animationDuration = (9 + r() * 11).toFixed(1) + 's';
+      });
+      if (сейчас === 'sakura') сыпать(слой, 'lepestok', skolko(20), function (э, r) {
+        var w = 8 + r() * 6;
+        э.style.width = w + 'px'; э.style.height = (w * 0.72).toFixed(1) + 'px';
+        э.style.setProperty('--vidno', (0.34 + r() * 0.36).toFixed(2));
+        э.style.setProperty('--snos', Math.round(20 + r() * 120) + 'px');
+        э.style.animationDuration = (10 + r() * 10).toFixed(1) + 's';
+      });
+      if (сейчас === 'halloween') летучки(слой, skolko(5));
+    }
+
+    document.body.appendChild(слой);
+
+    var где = document.querySelector('.brand') || document.querySelector('.back');
+    if (где && ЗНАЧКИ[сейчас]) {
+      var знак = document.createElement('span');
+      знак.className = 'prazdznak';
+      знак.setAttribute('aria-hidden', 'true');
+      знак.appendChild(ЗНАЧКИ[сейчас]());
+      где.appendChild(знак);
+    }
+  }
+
+  function сыпать(слой, класс, сколько, настроить) {
+    var r = Math.random;
+    for (var i = 0; i < сколько; i++) {
+      var э = document.createElement('span');
+      э.className = класс;
+      э.style.left = (r() * 100).toFixed(2) + '%';
+      /* Куда встать, если движение выключено в системе. Считаем всегда:
+         одно свойство дешевле, чем вторая ветка кода, которая рано или
+         поздно разойдётся с первой. */
+      э.style.setProperty('--stoyat', (r() * 96).toFixed(1) + '%');
+      /* Отрицательная задержка: снег идёт уже при открытии страницы, а
+         не выпадает одной строчкой через десять секунд. */
+      э.style.animationDelay = '-' + (r() * 18).toFixed(1) + 's';
+      настроить(э, r);
+      слой.appendChild(э);
+    }
+  }
+
+  function летучки(слой, сколько) {
+    var r = Math.random;
+    for (var i = 0; i < сколько; i++) {
+      var э = document.createElement('span');
+      э.className = 'letuchka';
+      э.style.top = (6 + r() * 46).toFixed(1) + '%';
+      э.style.setProperty('--stoyat', (6 + r() * 46).toFixed(1) + '%');
+      э.style.setProperty('--stoyat-x', (8 + r() * 78).toFixed(1) + '%');
+      э.style.animationDelay = '-' + (r() * 26).toFixed(1) + 's';
+      э.style.animationDuration = (22 + r() * 18).toFixed(1) + 's';
+      э.appendChild(мышь(Math.round(12 + r() * 12)));
+      слой.appendChild(э);
+    }
+  }
+
   function applyLook(s) {
     s = s || {};
+    applyTheme(s.theme || 'kak-seychas');
+    applyHoliday(s.holiday || '');
     if (s.depth) document.documentElement.setAttribute('data-depth', s.depth);
     if (s.accent) document.documentElement.setAttribute('data-accent', s.accent);
     if (s.card_size) document.documentElement.style.setProperty('--card-min', s.card_size + 'px');
@@ -392,26 +723,25 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Who am I                                                           */
+  /* Кто я                                                              */
   /* ------------------------------------------------------------------ */
   var me = null;
   var guestTimer = null;
 
-  /* Remembers who we are. Sign-in and the guest pass answer with exactly
-     the same set of fields as /api/me — it is one and the same me_payload
-     on the server — so an extra request after signing in is not needed.
+  /* Запоминает, кто мы. Вход и гостевой пропуск отвечают ровно тем же
+     набором полей, что и /api/me — это один и тот же me_payload на
+     сервере, — поэтому лишний запрос после входа не нужен.
 
-     There used to be no such possibility, and index.js called
-     showApp(r.me) directly after signing in. The page drew correctly, but
-     App.me stayed empty until the first reload. The consequences were
-     quiet and varied:
-       * in the account list an admin saw "Switch off" and "Delete"
-         on their own row — the "this is me" check compares against App.me;
-       * the library sorting and "show finished" rolled back to the
-         defaults, whatever stood in the account page;
-       * the name field on the account page lost its fallback value.
-     All of it was cured by reloading the page, which is why it went
-     unnoticed. */
+     Раньше такой возможности не было, и index.js после входа звал
+     showApp(r.me) напрямую. Страница рисовалась верно, но App.me
+     оставался пустым до первой перезагрузки. Последствия были тихие
+     и разные:
+       * в списке аккаунтов админ видел «Выключить» и «Удалить»
+         на своей же строке — проверка «это я» сравнивает с App.me;
+       * сортировка списка и «показывать законченные» откатывались
+         к умолчанию, что бы ни стояло в кабинете;
+       * поле имени в кабинете теряло запасное значение.
+     Всё это чинилось перезагрузкой страницы, поэтому и не замечалось. */
   function setMe(data) {
     me = data || null;
     if (me) applyLook(me.settings);
@@ -442,7 +772,7 @@
     }
   }
 
-  /* The guest countdown. The server knows the end time, here it is only shown. */
+  /* Обратный отсчёт гостя. Время конца знает сервер, здесь только показ. */
   function startGuestClock(seconds, nodes) {
     var left = Math.max(0, seconds | 0);
     var total = left || 1;
@@ -475,7 +805,7 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Small helpers                                                      */
+  /* Мелкие помощники                                                   */
   /* ------------------------------------------------------------------ */
   function mmss(sec) {
     sec = Math.max(0, sec | 0);
@@ -493,12 +823,11 @@
     if (node) node.classList.toggle('busy', !!on);
   }
 
-  /* Demonstration mode is visible at once, before any sign-in.
+  /* Демонстрационный режим виден сразу, до всякого входа.
 
-     We ask separately from "who am I": the banner has to be shown to
-     someone who has not signed in yet too — otherwise a person presses
-     "watch" and cannot tell why a cartoon about a rabbit plays instead of
-     an episode. */
+     Спрашиваем отдельно от «кто я»: плашку надо показать и тому, кто
+     ещё не вошёл, — иначе человек нажмёт «смотреть» и не поймёт, почему
+     вместо серии играет мультфильм про кролика. */
   function showMode() {
     var box = document.getElementById('demonote');
     if (!box) return;
@@ -507,13 +836,12 @@
     }).catch(function () { /* не ответил — молчим, плашка не появится */ });
   }
 
-  /* We pull the language from the settings before drawing, so it does not flicker */
+  /* Подтягиваем язык из настроек до отрисовки, чтобы не мигало */
   function boot(after) {
     showMode();
     loadMe().then(function () {
-      /* The account setting matters more — the person chose it
-         deliberately. But if there is none, we take what they chose in
-         this browser. */
+      /* Настройка аккаунта важнее — человек выбрал её осознанно. Но
+         если её нет, берём то, что он выбрал в этом браузере. */
       applyLang((me && me.settings && me.settings.lang) || savedLang() || 'ru');
       if (after) after(me);
     }).catch(function () {
@@ -528,6 +856,7 @@
     applyLang: applyLang, applyLook: applyLook, t: t,
     animeName: animeName, kindName: kindName, langCode: langCode,
     defaultSource: defaultSource,
+    applyTheme: applyTheme, applyHoliday: applyHoliday, holidayOn: holidayOn,
     plural: plural, count: count, say: say,
     ask: ask, tell: tell,
     loadMe: loadMe, setMe: setMe, boot: boot, logout: logout,

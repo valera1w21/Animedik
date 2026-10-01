@@ -1,14 +1,13 @@
-"""Letters about new episodes.
+"""Письма о новых сериях.
 
-The template is laid out with tables and inline styles. It looks like
-markup from the 2000s, and it is: in twenty years mail clients have not
-learned to show modern CSS properly. Gmail strips <style> out of <head>,
-Outlook draws with the Word engine and knows neither flex nor grid.
-Tables with attributes are the only thing that looks the same everywhere.
+Шаблон свёрстан таблицами и с inline-стилями. Это выглядит как вёрстка
+из двухтысячных, и так и есть: почтовые клиенты за двадцать лет не
+научились нормально показывать современный CSS. Gmail вырезает <style>
+из <head>, Outlook рисует движком Word и не умеет flex и grid. Таблицы
+с атрибутами — единственное, что показывается одинаково везде.
 
-Sending is switched on by the SMTP_* environment variables. If they are
-not set, letters simply do not go out, and that is not an error: the
-site works without mail.
+Отправка включается переменными SMTP_* в окружении. Не заданы — письма
+просто не уходят, и это не ошибка: сайт работает и без почты.
 """
 
 from __future__ import annotations
@@ -37,10 +36,10 @@ def enabled() -> bool:
 
 
 # --------------------------------------------------------------------------
-# Template
+# Шаблон
 # --------------------------------------------------------------------------
-# The colours are the site's own: a letter should look like its
-# continuation, not like a message from an unrelated service.
+# Цвета те же, что на сайте: письмо должно выглядеть его продолжением,
+# а не сообщением от постороннего сервиса.
 BG = "#12141A"
 CARD = "#191C24"
 LINE = "#262A34"
@@ -57,7 +56,7 @@ def _esc(value) -> str:
 def episode_html(*, display_name: str, title: str, episode: int,
                  season: str = "", released: str = "", about: str = "",
                  poster: str = "", watch_url: str = "") -> str:
-    """The "a new episode is out" letter."""
+    """Письмо «вышла новая серия»."""
     name = _esc(display_name or "")
     title_e = _esc(title)
     about_e = _esc(about)
@@ -183,10 +182,10 @@ def episode_html(*, display_name: str, title: str, episode: int,
 
 def episode_text(*, title: str, episode: int, season: str = "",
                  released: str = "", about: str = "", watch_url: str = "") -> str:
-    """The same thing as plain text.
+    """То же самое обычным текстом.
 
-    Some people read mail without pictures and markup, and spam filters
-    treat a letter with no text part as suspicious. We write both.
+    Часть людей читает почту без картинок и разметки, а спам-фильтры
+    считают письмо без текстовой части подозрительным. Пишем обе.
     """
     lines = [f"{SITE_NAME} — новая серия", "", title, f"Серия: {episode}"]
     if season:
@@ -202,7 +201,7 @@ def episode_text(*, title: str, episode: int, season: str = "",
 
 
 def send_episode(to: str, **kw) -> bool:
-    """Sends the letter. With no SMTP settings it simply does nothing."""
+    """Отправляет письмо. Без настроек SMTP просто ничего не делает."""
     if not enabled() or not to:
         return False
     msg = EmailMessage()

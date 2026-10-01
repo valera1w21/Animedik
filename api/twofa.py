@@ -1,14 +1,13 @@
-"""Signing in with a code from an authenticator app (TOTP).
+"""Вход по коду из приложения-аутентификатора (TOTP).
 
-RFC 6238, the very standard Google Authenticator, Aegis, 1Password and
-the rest work by. It is implemented here in full — thirty lines of
-arithmetic, and there is no reason to drag in a dependency for them that
-would then have to be updated and watched.
+Стандарт RFC 6238, тот самый, по которому работают Google Authenticator,
+Aegis, 1Password и прочие. Реализован здесь целиком — это тридцать строк
+арифметики, и ради них незачем тянуть зависимость, которую потом надо
+обновлять и за которой надо следить.
 
-Why a code from an app rather than a letter to an email address: a
-letter travels through someone else's server, lands in spam and locks
-you out exactly when getting in matters most. An app works without a
-network and depends on nobody.
+Почему код из приложения, а не письмо на почту: письмо идёт через чужой
+сервер, попадает в спам и запирает снаружи ровно тогда, когда войти
+нужнее всего. Приложение работает без сети и ни от кого не зависит.
 """
 
 from __future__ import annotations
@@ -22,9 +21,11 @@ import struct
 import time
 from urllib.parse import quote
 
-# Time step and tolerance. One step either way is ±30 seconds: enough
-# for a person to type the digits over, and small enough that a code
-# someone glanced at goes stale quickly.
+from . import qr
+
+# Шаг времени и допуск. Один шаг в обе стороны — это ±30 секунд:
+# столько нужно, чтобы человек успел переписать цифры, и достаточно
+# мало, чтобы подсмотренный код быстро протухал.
 STEP = 30
 WINDOW = 1
 
@@ -33,7 +34,7 @@ ISSUER = "anime Dick"
 
 
 def new_secret() -> str:
-    """The secret as base32 — apps accept nothing else."""
+    """Секрет в виде base32 — приложения принимают только его."""
     return base64.b32encode(secrets.token_bytes(SECRET_BYTES)).decode("ascii").rstrip("=")
 
 
@@ -46,11 +47,11 @@ def _code_at(secret: str, counter: int) -> str:
 
 
 def verify(secret: str, code: str, at: float | None = None) -> bool:
-    """Checks the six-digit code.
+    """Проверяет шестизначный код.
 
-    Compared through compare_digest: an ordinary string comparison
-    leaves the loop at the first character that differs, and from the
-    response time the code can be guessed one digit at a time.
+    Сравнение через compare_digest: обычное сравнение строк выходит из
+    цикла на первом несовпавшем символе, и по времени ответа код можно
+    подбирать по одной цифре.
     """
     if not secret or not code:
         return False
@@ -68,47 +69,54 @@ def verify(secret: str, code: str, at: float | None = None) -> bool:
 
 
 def otpauth_uri(secret: str, login: str) -> str:
-    """The string the app reads out of the QR code."""
+    """Строка, которую приложение читает из QR-кода."""
     label = quote(f"{ISSUER}:{login}", safe="")
     return (f"otpauth://totp/{label}?secret={secret}"
             f"&issuer={quote(ISSUER, safe='')}&algorithm=SHA1&digits=6&period={STEP}")
 
 
-def qr_png(data: str) -> bytes:
-    """The QR code as a picture.
+def qr_data_uri(data: str) -> str | None:
+    """QR-код картинкой, готовой для <img src>.
 
-    Drawn here rather than through someone else's service like
-    api.qrserver.com: sending them the link means sending them the
-    secret to someone's account. Doing that for convenience is not
-    acceptable under any circumstances.
+    Рисуем у себя, а не через чужой сервис вроде api.qrserver.com:
+    отправить туда ссылку — значит отправить туда секрет от чужого
+    аккаунта. Ради удобства так делать нельзя ни при каких условиях.
+
+    Рисует свой модуль `api/qr.py`, без единой зависимости. Раньше здесь
+    была библиотека `qrcode`, а за ней Pillow, и отсутствие любой из них
+    роняло настройку защиты целиком — из-за необязательной картинки.
+
+    Если что-то всё-таки пойдёт не так, возвращаем None: ключ в
+    приложение всегда можно ввести руками, и терять из-за картинки
+    возможность защитить вход куда хуже.
     """
-    import qrcode
-    from qrcode.image.pil import PilImage
-    import io
+    import base64
 
-    img = qrcode.make(data, box_size=6, border=2, image_factory=PilImage)
-    out = io.BytesIO()
-    img.save(out, format="PNG")
-    return out.getvalue()
+    try:
+        картинка = qr.svg(data, box=8, border=2)
+    except Exception:                                # noqa: BLE001
+        return None
+    return ("data:image/svg+xml;base64,"
+            + base64.b64encode(картинка.encode("utf-8")).decode("ascii"))
 
 
 # --------------------------------------------------------------------------
-# One-time codes in case the phone is lost
+# Одноразовые коды на случай потери телефона
 # --------------------------------------------------------------------------
 BACKUP_COUNT = 8
 
 
 def new_backup_codes() -> list[str]:
-    """Backup codes: each usable once.
+    """Запасные коды: по одному разу каждый.
 
-    Without them losing a phone means losing the account — and sorting
-    it out would take a console on the server.
+    Без них потеря телефона означает потерю аккаунта — и разбираться
+    придётся через консоль сервера.
     """
     return ["-".join((secrets.token_hex(2), secrets.token_hex(2)))
             for _ in range(BACKUP_COUNT)]
 
 
 def hash_backup(code: str) -> str:
-    """Backup codes are not stored in the open either."""
+    """Запасные коды в базе тоже не лежат открытыми."""
     pepper = os.getenv("SESSION_PEPPER", "")
     return hashlib.sha256((pepper + "backup|" + code.strip().lower()).encode()).hexdigest()

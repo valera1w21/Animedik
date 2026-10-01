@@ -1,6 +1,6 @@
-"""Checking what really works and what really is closed.
+"""Проверка того, что действительно работает и что действительно закрыто.
 
-To run:  python tests.py
+Запуск:  python tests.py
 """
 import asyncio
 import io
@@ -9,13 +9,14 @@ import sys
 import tempfile
 import time
 
-# The public version's checks run in demonstration mode: there is no
-# other here. External video sources are not part of this repository, and
-# the only working source is free video (api/anime_demo.py).
-os.environ.setdefault("MODE", "demo")
 os.environ["DB_PATH"] = os.path.join(tempfile.mkdtemp(), "test.db")
 os.environ["COOKIE_SECURE"] = "0"
 os.environ["SESSION_PEPPER"] = "test-pepper"
+
+# Проверки публичной версии идут в демонстрационном режиме: другого здесь
+# нет. Внешние источники видео не входят в этот репозиторий, и
+# единственный рабочий источник — свободное видео (api/anime_demo.py).
+os.environ.setdefault("MODE", "demo")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -27,11 +28,10 @@ from fastapi import HTTPException                  # noqa: E402
 from fastapi.testclient import TestClient          # noqa: E402
 from api import main, security, store             # noqa: E402
 
-# The output here is in English, while the Windows console lives in cp1251
-# by default: the very first arrow or tick knocked the whole run over with
-# a UnicodeEncodeError, and the checks broke off halfway, never reaching
-# the point. We ask the stream to work in utf-8; where it is utf-8 anyway,
-# the line changes nothing.
+# Вывод здесь на русском, а консоль Windows по умолчанию живёт в cp1251:
+# первая же стрелка или галочка роняла весь запуск с UnicodeEncodeError,
+# и проверки обрывались на середине, не дойдя до сути. Просим поток
+# работать в utf-8; там, где он и так utf-8, строка ничего не меняет.
 for _s in (sys.stdout, sys.stderr):
     try:
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -81,409 +81,409 @@ def run():
     main.guest_limit.reset()
     main.write_limit.reset()
 
-    # -------------------------------------------------------------- passwords
-    group("Passwords")
+    # ---------------------------------------------------------------- пароли
+    group("Пароли")
     h = security.hash_password("правильный-пароль-1")
-    check("the right password is accepted", security.verify_password("правильный-пароль-1", h))
-    check("a wrong one is rejected", not security.verify_password("другой-пароль-999", h))
-    check("the hash does not contain the password", "правильный-пароль-1" not in h)
-    check("two hashes of one password differ",
+    check("верный пароль принимается", security.verify_password("правильный-пароль-1", h))
+    check("неверный отклоняется", not security.verify_password("другой-пароль-999", h))
+    check("хэш не содержит пароля", "правильный-пароль-1" not in h)
+    check("два хэша одного пароля различаются",
           security.hash_password("одинаковый-пароль") != security.hash_password("одинаковый-пароль"))
-    check("a broken hash does not knock the check over", not security.verify_password("x", "мусор"))
-    check("an empty hash does not pass", not security.verify_password("x", ""))
-    check("a short password is rejected", security.password_problem("abc123") is not None)
-    check("a common password is rejected", security.password_problem("password1") is not None)
-    check("a monotonous one is rejected", security.password_problem("aaaaaaaaaaaa") is not None)
-    check("a normal one is accepted", security.password_problem("Zaliv-Pepel-2026") is None)
+    check("битый хэш не роняет проверку", not security.verify_password("x", "мусор"))
+    check("пустой хэш не проходит", not security.verify_password("x", ""))
+    check("короткий пароль отклонён", security.password_problem("abc123") is not None)
+    check("частый пароль отклонён", security.password_problem("password1") is not None)
+    check("однообразный отклонён", security.password_problem("aaaaaaaaaaaa") is not None)
+    check("нормальный принят", security.password_problem("Zaliv-Pepel-2026") is None)
 
-    group("Logins")
-    check("SQL in a login does not pass validation",
+    group("Логины")
+    check("SQL в логине не проходит валидацию",
           security.login_problem("admin'--") is not None)
-    check("spaces do not pass", security.login_problem("va lera") is not None)
-    check("Cyrillic does not pass", security.login_problem("валера") is not None)
+    check("пробелы не проходят", security.login_problem("va lera") is not None)
+    check("кириллица не проходит", security.login_problem("валера") is not None)
     check("Valera == valera", security.normalize_login("  VaLeRa ") == "valera")
-    check("a normal login is accepted", security.login_problem("valera") is None)
+    check("нормальный логин принят", security.login_problem("valera") is None)
 
-    # -------------------------------------------------------------- accounts
-    group("Creating accounts")
+    # ---------------------------------------------------------------- аккаунты
+    group("Создание аккаунтов")
     admin_id = store.create_user("valera", "Zaliv-Pepel-2026", "admin", "valera")
     user_id = store.create_user("misha", "Tihiy-Signal-2026", "user", "misha")
-    check("the admin was created", admin_id > 0)
-    check("the user was created", user_id > 0)
+    check("админ создан", admin_id > 0)
+    check("пользователь создан", user_id > 0)
     try:
         store.create_user("valera", "Drugoy-Parol-2026")
-        check("a repeated login is rejected", False)
+        check("повтор логина отклонён", False)
     except Exception:
-        check("a repeated login is rejected", True)
+        check("повтор логина отклонён", True)
     try:
         store.create_user("noob", "123")
-        check("a weak password is rejected", False)
+        check("слабый пароль отклонён", False)
     except ValueError:
-        check("a weak password is rejected", True)
+        check("слабый пароль отклонён", True)
 
-    # -------------------------------------------------------------- signing in
-    group("Signing in")
+    # ---------------------------------------------------------------- вход
+    group("Вход")
     c = fresh_client()
-    check("without signing in /api/me gives 401", c.get("/api/me").status_code == 401)
-    check("without signing in the library is closed", c.get("/api/library").status_code == 401)
+    check("без входа /api/me даёт 401", c.get("/api/me").status_code == 401)
+    check("без входа библиотека закрыта", c.get("/api/library").status_code == 401)
 
     r = login(c, "valera", "неверный-пароль")
-    check("a wrong password -> 401", r.status_code == 401, r.status_code)
-    check("the error text does not give away that the login exists",
+    check("неверный пароль → 401", r.status_code == 401, r.status_code)
+    check("текст ошибки не выдаёт, что логин есть",
           "не найден" not in r.text.lower() and "нет такого" not in r.text.lower())
 
     main.login_guard.reset()
     c = fresh_client()
     r = login(c, "valera", "Zaliv-Pepel-2026")
-    check("the right password -> 200", r.status_code == 200, r.status_code)
-    check("a session cookie was issued", "sid" in c.cookies)
-    check("a form marker was issued", bool(r.json().get("csrf")))
-    check("the admin role was recognised", r.json()["me"]["role"] == "admin")
-    check("/api/me works", c.get("/api/me").status_code == 200)
+    check("верный пароль → 200", r.status_code == 200, r.status_code)
+    check("выдана кука сессии", "sid" in c.cookies)
+    check("выдана метка формы", bool(r.json().get("csrf")))
+    check("роль admin определилась", r.json()["me"]["role"] == "admin")
+    check("/api/me работает", c.get("/api/me").status_code == 200)
 
-    group("The session cookie")
+    group("Кука сессии")
     raw = c.cookies.get("sid")
-    check("the token is long", len(raw) >= 40, len(raw))
+    check("токен длинный", len(raw) >= 40, len(raw))
     row = store.connect().execute("SELECT fp FROM sessions").fetchone()
-    check("the database stores something other than the token itself", row["fp"] != raw)
-    check("the fingerprint matches", row["fp"] == security.token_fingerprint(raw))
+    check("в базе хранится не сам токен", row["fp"] != raw)
+    check("отпечаток совпадает", row["fp"] == security.token_fingerprint(raw))
 
-    group("Sign-up is closed")
+    group("Регистрация закрыта")
     for path in ("/api/auth/register", "/api/register", "/api/signup",
                  "/api/users", "/api/auth/signup"):
         code = c.post(path, json={"login": "hacker", "password": "Hacker-Parol-2026"}).status_code
-        check(f"{path} is absent", code in (404, 405), code)
+        check(f"{path} отсутствует", code in (404, 405), code)
 
-    # -------------------------------------------------------------- guest
-    group("Guest")
+    # ---------------------------------------------------------------- гость
+    group("Гость")
     g = fresh_client()
     r = as_guest(g)
-    check("a guest pass was issued", r.status_code == 200, r.status_code)
-    check("the role is guest", r.json()["me"]["role"] == "guest")
-    check("the time left is stated", r.json()["me"]["expires_in"] > 0)
-    check("a guest sees the catalogue", g.get("/api/sources").status_code == 200)
-    check("a guest's library is empty", g.get("/api/library").json()["items"] == [])
+    check("гостевой пропуск выдан", r.status_code == 200, r.status_code)
+    check("роль guest", r.json()["me"]["role"] == "guest")
+    check("указано время до конца", r.json()["me"]["expires_in"] > 0)
+    check("гость видит каталог", g.get("/api/sources").status_code == 200)
+    check("библиотека гостя пуста", g.get("/api/library").json()["items"] == [])
 
     code = g.post("/api/library/progress", json={"key": "x", "title": "t"}).status_code
-    check("a guest cannot write progress", code == 403, code)
-    check("a guest does not change the profile",
+    check("гость не может писать прогресс", code == 403, code)
+    check("гость не меняет профиль",
           g.post("/api/me/profile", json={"display_name": "hacker"}).status_code == 403)
-    check("a guest does not change the settings",
+    check("гость не меняет настройки",
           g.post("/api/me/settings", json={"accent": "sky"}).status_code == 403)
-    check("a guest does not change the password",
+    check("гость не меняет пароль",
           g.post("/api/me/password", json={"current": "a", "new": "Novyy-Parol-2026"}).status_code == 403)
-    check("a guest does not see the list of accounts", g.get("/api/admin/users").status_code == 404)
-    check("a guest does not create accounts",
+    check("гость не видит список аккаунтов", g.get("/api/admin/users").status_code == 404)
+    check("гость не создаёт аккаунты",
           g.post("/api/admin/users", json={"login": "hax", "password": "Hacker-Parol-2026"}).status_code == 404)
-    check("a guest does not see the statistics", g.get("/api/stats/year").status_code == 403)
+    check("гость не видит статистику", g.get("/api/stats/year").status_code == 403)
 
     before = store.connect().execute("SELECT COUNT(*) n FROM library").fetchone()["n"]
     g.post("/api/library/progress", json={"key": "y", "title": "t"})
     after = store.connect().execute("SELECT COUNT(*) n FROM library").fetchone()["n"]
-    check("the guest left no traces in the database", before == after, f"{before} → {after}")
-    check("there are no guest sessions in the database",
+    check("гость не оставил следов в базе", before == after, f"{before} → {after}")
+    check("гостевых сессий в базе нет",
           store.connect().execute("SELECT COUNT(*) n FROM sessions").fetchone()["n"] == 1)
 
     g.post("/api/auth/logout")
-    check("after signing out a guest does not get through", g.get("/api/me").status_code == 401)
+    check("после выхода гость не пройдёт", g.get("/api/me").status_code == 401)
 
-    group("A guest pass expires")
+    group("Гостевой пропуск истекает")
     g2 = fresh_client()
     as_guest(g2)
     tok = g2.cookies.get("sid")
     fp = security.token_fingerprint(tok)
     main.guests._items[fp]["expires"] = time.time() - 1
-    check("an expired pass does not work", g2.get("/api/me").status_code == 401)
+    check("просроченный пропуск не работает", g2.get("/api/me").status_code == 401)
 
-    # ------------------------------------------- an ordinary user's rights
-    group("An ordinary user")
+    # ------------------------------------------------------- права обычного
+    group("Обычный пользователь")
     u = fresh_client()
     main.login_guard.reset()
     login(u, "misha", "Tihiy-Signal-2026")
-    check("signed in", u.get("/api/me").status_code == 200)
-    check("the role is user", u.get("/api/me").json()["role"] == "user")
-    check("does not see the admin endpoint", u.get("/api/admin/users").status_code == 404)
-    check("does not create accounts",
+    check("вход выполнен", u.get("/api/me").status_code == 200)
+    check("роль user", u.get("/api/me").json()["role"] == "user")
+    check("не видит админскую ручку", u.get("/api/admin/users").status_code == 404)
+    check("не создаёт аккаунты",
           u.post("/api/admin/users",
                  json={"login": "hax", "password": "Hacker-Parol-2026"}).status_code == 404)
-    check("does not delete other people's accounts",
+    check("не удаляет чужие аккаунты",
           u.request("DELETE", f"/api/admin/users/{admin_id}").status_code == 404)
 
     r = u.post("/api/library/progress", json={
         "key": "source-a:1", "title": "Пепел над заливом", "source": "demo",
         "watched_ep": 12, "position": 862, "total_eps": 24, "status": "watching"})
-    check("their own progress is saved", r.status_code == 200, r.status_code)
+    check("свой прогресс сохраняется", r.status_code == 200, r.status_code)
     items = u.get("/api/library").json()["items"]
-    check("the progress reads back", len(items) == 1 and items[0]["position"] == 862,
+    check("прогресс читается обратно", len(items) == 1 and items[0]["position"] == 862,
           items[0]["position"] if items else "пусто")
 
-    group("Data does not leak between people")
+    group("Данные не протекают между людьми")
     a = fresh_client()
     main.login_guard.reset()
     login(a, "valera", "Zaliv-Pepel-2026")
-    check("the admin has their own empty shelf", a.get("/api/library").json()["items"] == [])
+    check("у админа своя пустая полка", a.get("/api/library").json()["items"] == [])
     a.post("/api/library/progress", json={"key": "source-a:9", "title": "Своё"})
-    check("the user still has one record",
+    check("у пользователя по-прежнему одна запись",
           len(u.get("/api/library").json()["items"]) == 1)
-    check("the admin has one of their own",
+    check("у админа одна своя",
           len(a.get("/api/library").json()["items"]) == 1)
 
     # ---------------------------------------------------------------- CSRF
-    group("A forged request from another site")
+    group("Подделка запроса с чужого сайта")
     n = fresh_client()
     main.login_guard.reset()
     login(n, "misha", "Tihiy-Signal-2026")
     saved = n.headers.pop("X-CSRF-Token")
     code = n.post("/api/library/progress", json={"key": "z", "title": "t"}).status_code
-    check("without a form marker the request is rejected", code == 403, code)
+    check("без метки формы запрос отклонён", code == 403, code)
     n.headers["X-CSRF-Token"] = "poddelannaya-metka-xxxx"
     code = n.post("/api/library/progress", json={"key": "z", "title": "t"}).status_code
-    check("with somebody else's marker it is rejected", code == 403, code)
+    check("с чужой меткой отклонён", code == 403, code)
     n.headers["X-CSRF-Token"] = saved
-    check("with your own marker it goes through",
+    check("со своей меткой проходит",
           n.post("/api/library/progress", json={"key": "z", "title": "t"}).status_code == 200)
-    check("a marker is not needed for reading", n.get("/api/library").status_code == 200)
+    check("на чтение метка не нужна", n.get("/api/library").status_code == 200)
 
-    # ------------------------------------------- guessing the password
-    group("Guessing the password")
+    # ------------------------------------------------------- перебор пароля
+    group("Перебор пароля")
     main.login_guard.reset()
     b = fresh_client()
     codes = [b.post("/api/auth/login",
                     json={"login": "misha", "password": f"попытка-{i}"}).status_code
              for i in range(12)]
-    check("after several attempts a block comes on", 429 in codes,
+    check("после нескольких попыток включается блокировка", 429 in codes,
           f"401: {codes.count(401)}, 429: {codes.count(429)}")
-    check("the block arrives by the eighth attempt at the latest",
+    check("блокировка наступает не позже восьмой попытки",
           codes.index(429) <= 8 if 429 in codes else False, codes.index(429) if 429 in codes else "-")
     r = b.post("/api/auth/login", json={"login": "misha", "password": "Tihiy-Signal-2026"})
-    check("the right password does not let you in during a block either", r.status_code == 429, r.status_code)
+    check("верный пароль во время блокировки тоже не пускает", r.status_code == 429, r.status_code)
 
-    # ---------------------------------------------------------- injections
-    group("SQL injection")
+    # ------------------------------------------------------------ инъекции
+    group("Внедрение SQL")
     main.login_guard.reset()
     payloads = ["' OR '1'='1", "admin'--", "'; DROP TABLE users;--",
                 "' UNION SELECT 1,2,3,4,5,6,7,8,9,10,11 --", "\\'; DELETE FROM users; --"]
     for p in payloads:
         c2 = fresh_client()
         code = c2.post("/api/auth/login", json={"login": p, "password": p}).status_code
-        check(f"does not let through: {p[:26]}", code in (401, 429), code)
+        check(f"не пускает: {p[:26]}", code in (401, 429), code)
     alive = store.connect().execute("SELECT COUNT(*) n FROM users").fetchone()["n"]
-    check("the users table is in place", alive == 2, alive)
+    check("таблица users на месте", alive == 2, alive)
 
-    group("Directory traversal")
+    group("Обход каталога")
     for probe in ["/static/../api/main.py", "/static/..%2f..%2fetc%2fpasswd",
                   "/static/%2e%2e/%2e%2e/etc/passwd", "/../api/store.py",
                   "/etc/passwd", "/api/main.py"]:
         r = fresh_client().get(probe)
         leaked = r.status_code == 200 and ("pbkdf2" in r.text or "root:" in r.text
                                            or "SESSION_COOKIE" in r.text)
-        check(f"does not serve {probe[:36]}", not leaked, r.status_code)
+        check(f"не отдаёт {probe[:36]}", not leaked, r.status_code)
 
-    group("The API schema is hidden")
+    group("Схема API скрыта")
     for p in ("/docs", "/openapi.json", "/redoc"):
-        check(f"{p} is closed", fresh_client().get(p).status_code == 404)
+        check(f"{p} закрыт", fresh_client().get(p).status_code == 404)
 
-    group("Security headers")
+    group("Заголовки безопасности")
     h = fresh_client().get("/api/health").headers
-    check("a content policy is set", "content-security-policy" in h)
-    check("scripts from our own domain only", "script-src 'self'" in h.get("content-security-policy", ""))
-    check("embedding in a foreign frame is forbidden in the policy", "frame-ancestors 'none'" in h.get("content-security-policy", ""))
-    check("embedding in a foreign frame is forbidden", h.get("x-frame-options") == "DENY")
-    check("guessing the file type is forbidden", h.get("x-content-type-options") == "nosniff")
-    check("the page's address does not leak", h.get("referrer-policy") == "no-referrer")
-    check("API pages are not cached", "no-store" in h.get("cache-control", ""))
+    check("политика содержимого выставлена", "content-security-policy" in h)
+    check("скрипты только со своего домена", "script-src 'self'" in h.get("content-security-policy", ""))
+    check("вставка в чужой фрейм запрещена в политике", "frame-ancestors 'none'" in h.get("content-security-policy", ""))
+    check("вставка в чужой фрейм запрещена", h.get("x-frame-options") == "DENY")
+    check("угадывание типа файла запрещено", h.get("x-content-type-options") == "nosniff")
+    check("адрес страницы не утекает", h.get("referrer-policy") == "no-referrer")
+    check("страницы API не кэшируются", "no-store" in h.get("cache-control", ""))
 
-    group("Cookies")
+    group("Куки")
     c3 = fresh_client()
     main.login_guard.reset()
     r = login(c3, "valera", "Zaliv-Pepel-2026")
     raw = "; ".join(r.headers.get_list("set-cookie"))
-    check("the session cookie is out of reach for scripts", "HttpOnly" in raw)
-    check("the cookie does not go to other sites", "samesite=lax" in raw.lower(), raw[:70])
-    check("the form marker is read by the script", raw.count("HttpOnly") == 1, raw.count("HttpOnly"))
+    check("кука сессии недоступна скриптам", "HttpOnly" in raw)
+    check("кука не уходит на чужие сайты", "samesite=lax" in raw.lower(), raw[:70])
+    check("метка формы читается скриптом", raw.count("HttpOnly") == 1, raw.count("HttpOnly"))
 
-    # ---------------------------------------------------------- forgery
-    group("Forging a session")
+    # ------------------------------------------------------------ подделка
+    group("Подделка сессии")
     for fake in ["a" * 43, security.new_token(), "", "null", "admin"]:
         c4 = fresh_client()
         c4.cookies.set("sid", fake)
-        check(f"somebody else's token does not let you in ({fake[:12] or 'empty'})",
+        check(f"чужой токен не пускает ({fake[:12] or 'пусто'})",
               c4.get("/api/me").status_code == 401)
 
-    group("Checking the input values")
+    group("Проверка входных значений")
     main.login_guard.reset()
     v = fresh_client()
     login(v, "misha", "Tihiy-Signal-2026")
-    check("an enormous key is rejected",
+    check("огромный ключ отклонён",
           v.post("/api/library/progress", json={"key": "x" * 5000}).status_code == 422)
-    check("a negative episode is rejected",
+    check("отрицательная серия отклонена",
           v.post("/api/library/progress", json={"key": "a", "watched_ep": -5}).status_code == 422)
-    check("an unknown status is rejected",
+    check("неизвестный статус отклонён",
           v.post("/api/library/progress",
                  json={"key": "a", "status": "хакер"}).status_code == 400)
-    check("a long string instead of a colour is rejected",
+    check("длинная строка вместо цвета отклонена",
           v.post("/api/me/profile", json={"avatar_color": "javascript:alert(1)"}).status_code == 422)
-    check("a non-colour of the right length is rejected",
+    check("не-цвет нужной длины отклонён",
           v.post("/api/me/profile", json={"avatar_color": "#ZZZZZZ"}).status_code == 400)
-    check("a normal colour is accepted",
+    check("нормальный цвет принят",
           v.post("/api/me/profile", json={"avatar_color": "#8DB5DF"}).status_code == 200)
-    check("an alien accent is rejected",
+    check("чужой акцент отклонён",
           v.post("/api/me/settings", json={"accent": "'; DROP--"}).status_code == 400)
-    check("a normal accent is accepted",
+    check("нормальный акцент принят",
           v.post("/api/me/settings", json={"accent": "sky"}).status_code == 200)
-    check("too long a search is rejected",
+    check("слишком длинный поиск отклонён",
           v.get("/api/search", params={"q": "a" * 300}).status_code == 422)
-    check("too short a search is rejected",
+    check("слишком короткий поиск отклонён",
           v.get("/api/search", params={"q": "a"}).status_code == 422)
-    check("an unknown source is rejected",
+    check("неизвестный источник отклонён",
           v.get("/api/search", params={"q": "test", "source": "../../os"}).status_code == 400)
-    check("substituting a module is rejected",
+    check("подстановка модуля отклонена",
           v.get("/api/search", params={"q": "test", "source": "subprocess"}).status_code == 400)
 
-    # ----------------------------------------------------------- avatar
-    group("Avatar")
+    # ------------------------------------------------------------- аватар
+    group("Аватар")
     from PIL import Image
     buf = io.BytesIO()
     Image.new("RGB", (900, 700), (60, 90, 110)).save(buf, format="PNG")
     r = v.post("/api/me/avatar", content=buf.getvalue())
-    check("the picture was accepted", r.status_code == 200, r.status_code)
+    check("картинка принята", r.status_code == 200, r.status_code)
     got = v.get("/api/me/avatar")
-    check("the avatar is served", got.status_code == 200)
-    check("it is served as jpeg", got.headers["content-type"] == "image/jpeg")
-    check("guessing the type is forbidden", got.headers.get("x-content-type-options") == "nosniff")
+    check("аватар отдаётся", got.status_code == 200)
+    check("отдаётся как jpeg", got.headers["content-type"] == "image/jpeg")
+    check("угадывание типа запрещено", got.headers.get("x-content-type-options") == "nosniff")
     img = Image.open(io.BytesIO(got.content))
-    check("it was brought to 128x128", img.size == (128, 128), img.size)
-    check("the avatar does not weigh much", len(got.content) < 30000, len(got.content))
+    check("приведён к 128×128", img.size == (128, 128), img.size)
+    check("аватар весит немного", len(got.content) < 30000, len(got.content))
 
-    check("html instead of a picture is rejected",
+    check("html вместо картинки отклонён",
           v.post("/api/me/avatar", content=b"<script>alert(1)</script>").status_code == 400)
-    check("php instead of a picture is rejected",
+    check("php вместо картинки отклонён",
           v.post("/api/me/avatar", content=b"<?php system($_GET[0]); ?>").status_code == 400)
     poly = b"GIF89a<script>alert(1)</script>"
-    check("a forged header is rejected",
+    check("подделанный заголовок отклонён",
           v.post("/api/me/avatar", content=poly).status_code == 400)
-    check("too large a file is rejected",
+    check("слишком большой файл отклонён",
           v.post("/api/me/avatar", content=b"\x00" * (400 * 1024)).status_code == 413)
 
-    group("Changing the password")
+    group("Смена пароля")
     p = fresh_client()
     main.login_guard.reset()
     login(p, "misha", "Tihiy-Signal-2026")
-    check("it does not change without the current password",
+    check("без текущего пароля не меняет",
           p.post("/api/me/password",
                  json={"current": "не-тот", "new": "Novyy-Parol-2026"}).status_code == 403)
-    check("a weak new one is rejected",
+    check("слабый новый отклонён",
           p.post("/api/me/password",
                  json={"current": "Tihiy-Signal-2026", "new": "123"}).status_code == 400)
     r = p.post("/api/me/password",
                json={"current": "Tihiy-Signal-2026", "new": "Sovsem-Novyy-2026"})
-    check("the password changed", r.status_code == 200, r.status_code)
-    check("the old session is closed", u.get("/api/me").status_code == 401)
+    check("пароль сменился", r.status_code == 200, r.status_code)
+    check("старая сессия закрыта", u.get("/api/me").status_code == 401)
     main.login_guard.reset()
-    check("the old password no longer fits",
+    check("старый пароль больше не подходит",
           fresh_client().post("/api/auth/login",
                               json={"login": "misha", "password": "Tihiy-Signal-2026"}).status_code == 401)
     main.login_guard.reset()
-    check("the new password works",
+    check("новый пароль работает",
           fresh_client().post("/api/auth/login",
                               json={"login": "misha", "password": "Sovsem-Novyy-2026"}).status_code == 200)
 
-    group("Administrator")
+    group("Администратор")
     main.login_guard.reset()
     ad = fresh_client()
     login(ad, "valera", "Zaliv-Pepel-2026")
-    check("sees the list of accounts", ad.get("/api/admin/users").status_code == 200)
+    check("видит список аккаунтов", ad.get("/api/admin/users").status_code == 200)
     r = ad.post("/api/admin/users",
                 json={"login": "kate", "password": "Dolina-Otrazheniy-26", "role": "user"})
-    check("creates an account", r.status_code == 200, r.text[:80])
-    check("a repeated login is rejected",
+    check("создаёт аккаунт", r.status_code == 200, r.text[:80])
+    check("повтор логина отклонён",
           ad.post("/api/admin/users",
                   json={"login": "kate", "password": "Drugoy-Parol-2026"}).status_code == 409)
-    check("a weak password is rejected",
+    check("слабый пароль отклонён",
           ad.post("/api/admin/users",
                   json={"login": "bob", "password": "123"}).status_code == 400)
-    check("does not delete themselves",
+    check("не удаляет сам себя",
           ad.request("DELETE", f"/api/admin/users/{admin_id}").status_code == 409)
     main.login_guard.reset()
-    check("the new account works",
+    check("новый аккаунт работает",
           fresh_client().post("/api/auth/login",
                               json={"login": "kate", "password": "Dolina-Otrazheniy-26"}).status_code == 200)
 
-    group("Disabling an account")
+    group("Отключение аккаунта")
     kate = store.get_user_by_login("kate")
     k = fresh_client()
     main.login_guard.reset()
     login(k, "kate", "Dolina-Otrazheniy-26")
-    check("she signed in", k.get("/api/me").status_code == 200)
+    check("вошла", k.get("/api/me").status_code == 200)
     ad.post(f"/api/admin/users/{kate['id']}/disable")
-    check("the session was cut off at once", k.get("/api/me").status_code == 401)
+    check("сессия оборвана сразу", k.get("/api/me").status_code == 401)
     main.login_guard.reset()
-    check("signing in is no longer possible",
+    check("войти больше нельзя",
           fresh_client().post("/api/auth/login",
                               json={"login": "kate", "password": "Dolina-Otrazheniy-26"}).status_code == 401)
 
-    group("Signing out on every device")
+    group("Выход со всех устройств")
     main.login_guard.reset()
     d1, d2 = fresh_client(), fresh_client()
     login(d1, "valera", "Zaliv-Pepel-2026")
     login(d2, "valera", "Zaliv-Pepel-2026")
-    check("both sign-ins are alive",
+    check("оба входа живы",
           d1.get("/api/me").status_code == 200 and d2.get("/api/me").status_code == 200)
     d1.post("/api/auth/logout-all")
-    check("the second device was thrown out", d2.get("/api/me").status_code == 401)
+    check("второе устройство выкинуто", d2.get("/api/me").status_code == 401)
 
-    group("Rate limiting")
+    group("Ограничение частоты")
     main.guest_limit.reset()
     codes = [fresh_client().post("/api/auth/guest").status_code for _ in range(10)]
-    check("issuing guest passes is limited", 429 in codes,
+    check("выдача гостевых пропусков ограничена", 429 in codes,
           f"200: {codes.count(200)}, 429: {codes.count(429)}")
 
-    group("Pages")
-    check("the main page is served", fresh_client().get("/").status_code in (200, 404))
-    check("a page that does not exist -> 404", fresh_client().get("/hacker").status_code == 404)
+    group("Страницы")
+    check("главная отдаётся", fresh_client().get("/").status_code in (200, 404))
+    check("несуществующая страница → 404", fresh_client().get("/hacker").status_code == 404)
 
     # ------------------------------------------------------------------
     print("\n" + "=" * 56)
     if FAILS:
-        print(f"FAILED: {len(FAILS)}")
+        print(f"НЕ ПРОШЛИ: {len(FAILS)}")
         for f in FAILS:
             print("   - " + f)
         return 1
-    print("Every check passed.")
+    print("Все проверки пройдены.")
     return 0
 
 
 
 
 def run_extra():
-    """The third pass: what is easy to miss."""
+    """Третий заход: то, что легко упустить."""
     global FAILS
     FAILS = []
     main.login_guard.reset(); main.api_limit.reset(); main.guest_limit.reset()
     main.write_limit.reset(); main.search_limit.reset()
 
-    group("A guest and other people's sessions")
+    group("Гость и чужие сессии")
     g = fresh_client()
     as_guest(g)
     gt = g.cookies.get("sid")
-    # a guest plants their token as a user's and the other way round
+    # гость подставляет свой токен как пользовательский и наоборот
     u = fresh_client()
     login(u, "valera", "Zaliv-Pepel-2026")
     ut = u.cookies.get("sid")
     x = fresh_client(); x.cookies.set("sid", gt)
-    check("a guest token does not give a user's permissions",
+    check("гостевой токен не даёт прав пользователя",
           x.get("/api/stats/year").status_code == 403)
     y = fresh_client(); y.cookies.set("sid", ut[:-3] + "aaa")
-    check("a tampered token does not work", y.get("/api/me").status_code == 401)
+    check("подпорченный токен не работает", y.get("/api/me").status_code == 401)
 
-    group("The token's fingerprint and its salting")
+    group("Отпечаток токена и подсоленность")
     t1 = security.token_fingerprint("одинаковый")
     t2 = security.token_fingerprint("одинаковый")
-    check("the fingerprint is stable", t1 == t2)
-    check("the fingerprint is 64 long", len(t1) == 64)
-    check("the fingerprint is not equal to the original", t1 != "одинаковый")
+    check("отпечаток устойчив", t1 == t2)
+    check("отпечаток длиной 64", len(t1) == 64)
+    check("отпечаток не равен исходнику", t1 != "одинаковый")
 
-    group("Different users, different avatars")
+    group("Разные пользователи — разные аватары")
     a = fresh_client(); main.login_guard.reset()
     login(a, "valera", "Zaliv-Pepel-2026")
     from PIL import Image
@@ -495,23 +495,23 @@ def run_extra():
     b2 = io.BytesIO(); Image.new("RGB", (300, 300), (30, 30, 200)).save(b2, "PNG")
     m.post("/api/me/avatar", content=b2.getvalue())
     got_m = m.get("/api/me/avatar").content
-    check("the avatars were not mixed up", got_a != got_m)
+    check("аватары не перепутаны", got_a != got_m)
 
-    group("Progress is not overwritten by somebody else's")
+    group("Прогресс не переписывается чужим")
     a.post("/api/library/progress", json={"key": "shared-key", "title": "Моё", "position": 100})
     m.post("/api/library/progress", json={"key": "shared-key", "title": "Чужое", "position": 900})
     ia = [i for i in a.get("/api/library").json()["items"] if i["key"] == "shared-key"][0]
     im = [i for i in m.get("/api/library").json()["items"] if i["key"] == "shared-key"][0]
-    check("each has their own record under one key",
+    check("у каждого своя запись под одним ключом",
           ia["position"] == 100 and im["position"] == 900, f"{ia['position']} / {im['position']}")
 
-    group("Deleting your own record")
-    check("your own record is deleted",
+    group("Удаление своей записи")
+    check("своя запись удаляется",
           a.request("DELETE", "/api/library/shared-key").status_code == 200)
-    check("somebody else's stayed intact",
+    check("чужая осталась цела",
           len([i for i in m.get("/api/library").json()["items"] if i["key"] == "shared-key"]) == 1)
 
-    group("The statistics are counted")
+    group("Статистика считается")
     a.post("/api/library/watched", json={
         "key": "st1", "title": "Тайтл", "genres": "Драма,Детектив",
         "watched_ep": 1, "position": 1380, "total_eps": 12})
@@ -519,20 +519,20 @@ def run_extra():
         "key": "st1", "title": "Тайтл", "genres": "Драма,Детектив",
         "watched_ep": 2, "position": 1400, "total_eps": 12})
     s = a.get("/api/stats/year").json()
-    check("the episodes were counted", s["episodes"] == 2, s["episodes"])
-    check("the time was counted", s["seconds"] == 2780, s["seconds"])
-    check("the genres were sorted out", len(s["genres"]) == 2, s["genres"])
-    check("a guest does not see the statistics",
+    check("серии посчитаны", s["episodes"] == 2, s["episodes"])
+    check("время посчитано", s["seconds"] == 2780, s["seconds"])
+    check("жанры разложены", len(s["genres"]) == 2, s["genres"])
+    check("гость статистику не видит",
           fresh_client().get("/api/stats/year").status_code == 401)
 
-    group("The account page without signing in")
+    group("Кабинет без входа")
     n = fresh_client()
     for path in ["/api/me/settings", "/api/me/profile", "/api/me/avatar",
                  "/api/library/progress", "/api/auth/logout-all"]:
-        check(f"{path} is closed without signing in", n.post(path, json={}).status_code == 401)
-    check("/api/admin/users is closed without signing in", n.get("/api/admin/users").status_code == 404)
+        check(f"{path} закрыт без входа", n.post(path, json={}).status_code == 401)
+    check("/api/admin/users закрыт без входа", n.get("/api/admin/users").status_code == 404)
 
-    group("The X-Forwarded-For header does not fool it")
+    group("Заголовок X-Forwarded-For не обманывает")
     main.login_guard.reset()
     os.environ["TRUST_PROXY"] = "0"
     b = fresh_client()
@@ -541,52 +541,51 @@ def run_extra():
         codes.append(b.post("/api/auth/login",
                             json={"login": "misha", "password": f"x{i}"},
                             headers={"X-Forwarded-For": f"1.2.3.{i}"}).status_code)
-    check("a substituted address does not get round the block", 429 in codes,
+    check("подмена адреса не обходит блокировку", 429 in codes,
           f"401: {codes.count(401)}, 429: {codes.count(429)}")
 
-    group("An enormous request body")
+    group("Огромное тело запроса")
     main.login_guard.reset()
     c = fresh_client()
     login(c, "valera", "Zaliv-Pepel-2026")
     big = {"key": "a", "title": "т" * 100000}
-    check("a gigantic field is rejected",
+    check("гигантское поле отклонено",
           c.post("/api/library/progress", json=big).status_code == 422)
 
-    group("Parsing broken data")
+    group("Разбор битых данных")
     main.login_guard.reset()
     c2 = fresh_client()
     r = c2.post("/api/auth/login", content="не json".encode("utf-8"),
                 headers={"Content-Type": "application/json"})
-    check("non-json does not knock the server over", r.status_code in (400, 422), r.status_code)
-    check("the server is alive after it", fresh_client().get("/api/health").status_code == 200)
+    check("не-json не роняет сервер", r.status_code in (400, 422), r.status_code)
+    check("сервер жив после этого", fresh_client().get("/api/health").status_code == 200)
 
-    group("Empty and strange values")
-    check("an empty login is rejected",
+    group("Пустые и странные значения")
+    check("пустой логин отклонён",
           fresh_client().post("/api/auth/login",
                               json={"login": "", "password": "x"}).status_code == 422)
-    check("null instead of a password is rejected",
+    check("null вместо пароля отклонён",
           fresh_client().post("/api/auth/login",
                               json={"login": "a", "password": None}).status_code == 422)
-    check("an array instead of an object is rejected",
+    check("массив вместо объекта отклонён",
           fresh_client().post("/api/auth/login", json=[1, 2, 3]).status_code == 422)
 
     print("\n" + "=" * 56)
     if FAILS:
-        print(f"FAILED: {len(FAILS)}")
+        print(f"НЕ ПРОШЛИ: {len(FAILS)}")
         for f in FAILS:
             print("   - " + f)
         return 1
-    print("The additional checks passed.")
+    print("Дополнительные проверки пройдены.")
     return 0
 
 
 def run_fixes():
-    """The fourth pass: what was fixed last.
+    """Четвёртый заход: то, что чинили последним.
 
-    Every check below failed on the previous version. The point of keeping
-    them in a bundle of their own is that at the next edit it is
-    immediately visible whether exactly the mistake already removed once
-    has come back.
+    Каждая проверка ниже на прежней версии проваливалась. Смысл держать их
+    отдельной пачкой в том, что при следующей правке сразу видно, не
+    вернулась ли обратно ровно та ошибка, которую уже один раз убрали.
     """
     global FAILS
     FAILS = []
@@ -597,19 +596,18 @@ def run_fixes():
     ADMIN = ("valera", "Zaliv-Pepel-2026")
 
     # ------------------------------------------------------------------
-    group("Signing in does not stop the whole server")
-    # Computing the password takes 600,000 rounds — about half a second of
-    # pure arithmetic. While it was computed right in the event loop, the
-    # server handled sign-ins strictly in turn and froze entirely for all
-    # that time: not one page opened for anybody else.
+    group("Вход не останавливает весь сервер")
+    # Подсчёт пароля идёт 600 000 раундов — примерно полсекунды чистой
+    # арифметики. Пока он считался прямо в цикле событий, сервер выполнял
+    # входы строго по очереди и на всё это время замирал целиком:
+    # у остальных не открывалась ни одна страница.
     #
-    # Measuring with a single sign-in is pointless: while the measurer
-    # waits, the computation manages to finish and no difference is
-    # visible — that is what the first version of this check was fooled
-    # by. So we start several sign-ins at once and compare with a single
-    # one. If it computes in threads, four sign-ins take almost as long as
-    # one. If it computes in the event loop, four times as long, because
-    # they queue up.
+    # Замерять одним входом бессмысленно: пока замеряющий ждёт, подсчёт
+    # успевает закончиться, и разницы не видно — на этом первая версия
+    # проверки и обманулась. Поэтому запускаем несколько входов разом и
+    # сравниваем с одиночным. Считает потоками — четыре входа занимают
+    # почти столько же, сколько один. Считает в цикле событий — вчетверо
+    # больше, потому что они выстраиваются в очередь.
     import httpx
 
     N = 4
@@ -628,16 +626,15 @@ def run_fixes():
     one = asyncio.run(timed(1))
     many = asyncio.run(timed(N))
     ratio = many / max(one, 0.0001)
-    check(f"{N} sign-ins at once do not queue up", ratio < 2.5,
-          f"one {one:.2f}s, {N} at once {many:.2f}s — that is x{ratio:.1f}, "
-          f"in the event loop it would be ~x{N}")
+    check(f"{N} входов разом не выстраиваются в очередь", ratio < 2.5,
+          f"один {one:.2f}с, {N} разом {many:.2f}с — это x{ratio:.1f}, "
+          f"в цикле событий было бы ~x{N}")
 
-    # There is deliberately no separate measurement of "how long a page
-    # takes to answer during sign-ins" here. There was one — and it passed
-    # identically whatever the code: the answer came in 0.01 s both before
-    # the fix and after. A check that cannot fail is worse than none: it
-    # creates confidence out of nothing. Everything it supposedly showed
-    # is shown by the ratio above.
+    # Отдельного замера «за сколько ответит страница во время входов» здесь
+    # намеренно нет. Он был — и проходил одинаково при любом коде: ответ
+    # приходил за 0.01 с и до правки, и после. Проверка, которая не умеет
+    # провалиться, хуже отсутствующей: она создаёт уверенность на пустом
+    # месте. Всё, что она якобы показывала, показывает отношение выше.
     async def still_alive():
         main.login_guard.reset()
         transport = httpx.ASGITransport(app=main.app)
@@ -648,29 +645,29 @@ def run_fixes():
             out = await asyncio.gather(*jobs, ac.get("/api/health"))
             return out[-1].status_code
 
-    check("the server is alive under several sign-ins at once",
+    check("сервер жив под несколькими входами разом",
           asyncio.run(still_alive()) == 200)
 
     # ------------------------------------------------------------------
-    group("Signing out cannot be called from another site")
+    group("Выход нельзя вызвать с чужого сайта")
     main.login_guard.reset()
     c = fresh_client()
     login(c, *ADMIN)
     saved = c.headers.pop("X-CSRF-Token")
     r = c.post("/api/auth/logout")
-    check("without a form marker signing out is rejected", r.status_code == 403, r.status_code)
-    check("and the session is intact", c.get("/api/me").status_code == 200)
+    check("без метки формы выход отклонён", r.status_code == 403, r.status_code)
+    check("сессия при этом цела", c.get("/api/me").status_code == 200)
     c.headers["X-CSRF-Token"] = saved
-    check("with your own marker signing out goes through",
+    check("со своей меткой выход проходит",
           c.post("/api/auth/logout").status_code == 200)
-    check("after signing out there is no session", c.get("/api/me").status_code == 401)
-    # With no session, signing out must answer calmly rather than 403:
-    # otherwise signing out after an expired cookie would be impossible.
-    check("signing out with no session does not complain",
+    check("после выхода сессии нет", c.get("/api/me").status_code == 401)
+    # Без сессии выход обязан отвечать спокойно, а не 403: иначе выйти
+    # после протухшей куки было бы невозможно.
+    check("выход без сессии не ругается",
           fresh_client().post("/api/auth/logout").status_code == 200)
 
     # ------------------------------------------------------------------
-    group("Changing the password is rate limited")
+    group("Смена пароля ограничена по частоте")
     main.login_guard.reset()
     main.pass_limit.reset()
     p = fresh_client()
@@ -678,123 +675,120 @@ def run_fixes():
     codes = [p.post("/api/me/password",
                     json={"current": "ne-tot-parol", "new": f"Novyy-Parol-{i}-26"}).status_code
              for i in range(12)]
-    check("guessing the current password runs into the limit", 429 in codes,
+    check("перебор текущего пароля упирается в ограничение", 429 in codes,
           f"403: {codes.count(403)}, 429: {codes.count(429)}")
-    check("the limit arrives by the ninth attempt at the latest",
+    check("ограничение наступает не позже девятой попытки",
           codes.index(429) <= 8, codes.index(429) if 429 in codes else "-")
     main.pass_limit.reset()
-    # The requirements for the new password are checked before the current
-    # one is verified: that is pure arithmetic, it costs nothing and gives
-    # nothing away.
-    check("a weak new one is rejected at once",
+    # Требования к новому паролю проверяются раньше сверки текущего:
+    # это чистая арифметика, она не стоит ничего и ничего не выдаёт.
+    check("слабый новый отклонён сразу",
           p.post("/api/me/password",
                  json={"current": "tozhe-ne-tot", "new": "123"}).status_code == 400)
 
     # ------------------------------------------------------------------
-    group("Avatar: a bomb and the rate")
+    group("Аватар: бомба и частота")
     main.login_guard.reset()
     main.avatar_limit.reset()
     a = fresh_client()
     login(a, *ADMIN)
     from PIL import Image
-    # A plain 5000x5000 picture weighs pennies as a file and a hundred and
-    # fifty megabytes in memory. Anything up to 50 million pixels used to
-    # pass.
+    # Однотонная картинка 5000×5000 весит копейки в файле и полтораста
+    # мегабайт в памяти. Раньше проходило всё до 50 миллионов точек.
     big = io.BytesIO()
     Image.new("RGB", (5000, 5000), (10, 20, 30)).save(big, format="PNG")
     raw = big.getvalue()
-    check("the bomb fits within the weight limit", len(raw) < main.AVATAR_MAX_BYTES,
-          f"{len(raw)} bytes")
-    check("but is rejected by the size of the canvas",
+    check("бомба помещается в предел по весу", len(raw) < main.AVATAR_MAX_BYTES,
+          f"{len(raw)} байт")
+    check("но по размеру холста отклонена",
           a.post("/api/me/avatar", content=raw).status_code == 400)
     small = io.BytesIO()
     Image.new("RGB", (400, 300), (90, 120, 140)).save(small, format="PNG")
     main.avatar_limit.reset()
     codes = [a.post("/api/me/avatar", content=small.getvalue()).status_code
              for _ in range(14)]
-    check("uploading avatars often is limited", 429 in codes,
+    check("частая загрузка аватара ограничена", 429 in codes,
           f"200: {codes.count(200)}, 429: {codes.count(429)}")
 
     # ------------------------------------------------------------------
-    group("Nothing surplus leaves for the outside")
+    group("Наружу не уходит лишнего")
     main.login_guard.reset()
     main.avatar_limit.reset()
     L = fresh_client()
     login(L, *ADMIN)
     L.post("/api/library/progress", json={"key": "utech", "title": "Т", "position": 5})
     items = L.get("/api/library").json()["items"]
-    check("there are records on the shelf", len(items) >= 1, len(items))
-    check("the user's internal number is not in the answer",
+    check("в полке есть записи", len(items) >= 1, len(items))
+    check("внутреннего номера пользователя в ответе нет",
           all("user_id" not in it for it in items), list(items[0]))
-    check("the shelf's fields are exactly those listed",
+    check("поля полки — ровно те, что перечислены",
           set(items[0]) == set(store.LIBRARY_FIELDS), sorted(items[0]))
 
     # ------------------------------------------------------------------
-    group("The sign-in counter counts only the live ones")
+    group("Счётчик входов считает только живые")
     uid = store.get_user_by_login(ADMIN[0])["id"]
     store.drop_all_sessions(uid)
     live = security.new_token()
     store.create_session(uid, live, "ua")
     dead = security.new_token()
     store.create_session(uid, dead, "ua")
-    # We age the second session by hand so that it can no longer be used to sign in
+    # Руками состариваем вторую сессию так, чтобы по ней уже нельзя было войти
     with store.tx() as conn:
         conn.execute("UPDATE sessions SET last_seen = ?, created_at = ? WHERE fp = ?",
                      (store.now() - security.SESSION_IDLE - 10,
                       store.now() - security.SESSION_IDLE - 10,
                       security.token_fingerprint(dead)))
-    check("an expired session does not let you in", store.session_user(dead) is None)
-    check("a live one does", store.session_user(live) is not None)
-    check("only the live one is in the counter", store.count_sessions(uid) == 1,
+    check("просроченная сессия не пускает", store.session_user(dead) is None)
+    check("живая пускает", store.session_user(live) is not None)
+    check("в счётчике только живая", store.count_sessions(uid) == 1,
           store.count_sessions(uid))
 
-    group("The cleanup carries out sessions that are too old as well")
+    group("Уборка выносит и слишком старые сессии")
     old = security.new_token()
     store.create_session(uid, old, "ua")
     with store.tx() as conn:
-        # fresh by its last visit, but created too long ago
+        # свежая по последнему визиту, но заведена слишком давно
         conn.execute("UPDATE sessions SET created_at = ? WHERE fp = ?",
                      (store.now() - security.SESSION_MAX_LIFE - 10,
                       security.token_fingerprint(old)))
-    check("such a session does not let you in", store.session_user(old) is None)
+    check("такая сессия не пускает", store.session_user(old) is None)
     store.create_session(uid, old, "ua")
     with store.tx() as conn:
         conn.execute("UPDATE sessions SET created_at = ? WHERE fp = ?",
                      (store.now() - security.SESSION_MAX_LIFE - 10,
                       security.token_fingerprint(old)))
     dropped = store.purge_old_sessions()
-    check("and the cleanup really does delete it", dropped >= 1, dropped)
-    check("a live session survived the cleanup", store.session_user(live) is not None)
+    check("и уборка её действительно удаляет", dropped >= 1, dropped)
+    check("живая сессия уборку пережила", store.session_user(live) is not None)
 
     # ------------------------------------------------------------------
-    group("An administrator does not switch themselves off")
+    group("Администратор не выключает сам себя")
     main.login_guard.reset()
     ad = fresh_client()
     login(ad, *ADMIN)
     me_id = store.get_user_by_login(ADMIN[0])["id"]
     r = ad.post("/api/admin/users", json={"login": "zapasnoy", "password": "Zapasnoy-Admin-26",
                                           "role": "admin"})
-    check("a second administrator was created", r.status_code in (200, 409), r.text[:70])
-    check("you cannot switch yourself off",
+    check("второй администратор заведён", r.status_code in (200, 409), r.text[:70])
+    check("себя выключить нельзя",
           ad.post(f"/api/admin/users/{me_id}/disable").status_code == 409)
-    check("your own session is intact", ad.get("/api/me").status_code == 200)
+    check("своя сессия цела", ad.get("/api/me").status_code == 200)
 
-    group("A name from the admin page is cleaned")
+    group("Имя из админки чистится")
     r = ad.post("/api/admin/users", json={
         "login": "chistyy", "password": "Chistoe-Imya-2026",
-        # The name deliberately gathers everything that has no business
-        # being there: a text-direction reversal, a newline and a null
-        # byte. We assemble it through chr so that the check file itself
-        # stays ordinary text.
+        # В имени намеренно собрано всё, чему там не место: переворот
+        # направления текста, перевод строки и нулевой байт. Собираем
+        # через chr, чтобы сам файл проверок оставался обычным текстом.
         "display_name": ("Zhenya" + chr(0x202E) + chr(10) + chr(0) + "Sorok")})
-    check("the account was created", r.status_code == 200, r.text[:80])
+    check("аккаунт создан", r.status_code == 200, r.text[:80])
     made = store.get_user_by_login("chistyy")
-    check("no control characters are left in the name",
+    check("управляющих символов в имени не осталось",
           made is not None and all(ch.isprintable() for ch in made["display_name"]),
           repr(made["display_name"]) if made else "нет")
 
     # ------------------------------------------------------------------
-    group("The endpoints to the sources are limited separately")
+    group("Ручки к источникам ограничены отдельно")
     main.login_guard.reset()
     main.source_limit.reset()
     s = fresh_client()
@@ -813,55 +807,52 @@ def run_fixes():
                  for _ in range(50)]
     finally:
         main.anime.find_episodes = real
-    check("a stream of requests to a source runs into the limit", 429 in codes,
+    check("поток запросов к источнику упирается в предел", 429 in codes,
           f"200: {codes.count(200)}, 429: {codes.count(429)}")
 
     # ------------------------------------------------------------------
-    group("Caching of pages and files")
+    group("Кэширование страниц и файлов")
     n = fresh_client()
-    # The watch and totals pages used not to be marked at all: only "/"
-    # and everything ending in .html fell under the condition. The browser
-    # decided for itself, and after signing out those pages stayed
-    # reachable with the "back" button.
+    # Страницы просмотра и итогов раньше не помечались никак: под условие
+    # попадали только «/» и всё, что кончается на .html. Браузер решал сам,
+    # и после выхода эти страницы оставались доступны кнопкой «назад».
     for path in ("/", "/watch", "/stats"):
         h = n.get(path).headers.get("cache-control", "")
-        check(f"{path} is not put in the cache", "no-store" in h, h or "no header")
+        check(f"{path} не кладётся в кэш", "no-store" in h, h or "заголовка нет")
     h = n.get("/static/app.js").headers.get("cache-control", "")
-    # Files need a cache, but with a compulsory re-ask: otherwise after a
-    # site upgrade fresh markup runs with old code.
-    check("scripts are cached with a re-ask", h == "no-cache", h or "заголовка нет")
+    # Файлам кэш нужен, но с обязательным переспросом: иначе после
+    # обновления сайта свежая разметка работает со старым кодом.
+    check("скрипты кэшируются с переспросом", h == "no-cache", h or "заголовка нет")
 
     # ------------------------------------------------------------------
-    group("A source's failure does not look like the site being broken")
+    group("Сбой источника не выглядит как поломка сайта")
     main.login_guard.reset()
     main.source_limit.reset()
     e = fresh_client()
     login(e, *ADMIN)
     real_cache = dict(main.anime._extractors)
     main.anime._extractors.clear()
-    real_extractor = main.anime.anime_demo.Extractor
+    real_import = main.anime.import_module
 
-    def broken():
-        raise ImportError("модуль источника не загрузился")
+    def broken(name):
+        raise ImportError("модуль " + name + " не загрузился")
 
-    # We break the building of the parser — exactly what happens when a
-    # plugged-in source has renamed its module or is not installed.
-    main.anime.anime_demo.Extractor = broken
+    main.anime.import_module = broken
     try:
         r = e.get("/api/episodes", params={"key": "k", "source": "demo",
                                            "title": "Т"})
     finally:
-        main.anime.anime_demo.Extractor = real_extractor
+        main.anime.import_module = real_import
         main.anime._extractors.update(real_cache)
-    check("trouble with a source's module is a 502, not a 500",
+    check("беда с модулем источника — это 502, а не 500",
           r.status_code == 502, r.status_code)
-    check("and the text speaks of the source rather than of us",
+    check("и текст говорит про источник, а не про нас",
           "источник" in r.text.lower(), r.text[:80])
-    check("the internals did not ride out",
+    check("внутренности наружу не поехали",
           "ImportError" not in r.text and "Traceback" not in r.text, r.text[:80])
 
     # ------------------------------------------------------------------
-    group("Notifications about new episodes only")
+    group("Уведомления только о новых сериях")
     main.login_guard.reset()
     main.source_limit.reset()
     u = fresh_client()
@@ -880,50 +871,50 @@ def run_fixes():
 
     main.anime.find_episodes = twelve
     try:
-        # The title has just been added: we have not yet counted how many episodes it has.
+        # Тайтл добавлен только что: сколько у него серий, мы ещё не считали.
         store.save_progress(uid, {"key": "novyy", "source": "demo",
                                   "title": "Новый", "total_eps": 0,
                                   "watched_ep": 1, "status": "watching"})
         r = u.get("/api/updates").json()
-        check("one just added does not count as new",
+        check("только что добавленный не считается новинкой",
               not any(x["key"] == "novyy" for x in r["items"]), r["items"])
-        # The first pass remembered 12 episodes — the second must stay silent too.
+        # Первый заход запомнил 12 серий — второй тоже должен молчать.
         main.source_limit.reset()
         r = u.get("/api/updates").json()
-        check("and stays silent the second time",
+        check("и во второй раз молчит",
               not any(x["key"] == "novyy" for x in r["items"]), r["items"])
 
-        # We pretend that last time we saw ten episodes.
+        # Делаем вид, что в прошлый раз видели десять серий.
         store.set_known_eps(uid, "novyy", 10)
         main.source_limit.reset()
         r = u.get("/api/updates").json()
         hit = [x for x in r["items"] if x["key"] == "novyy"]
-        check("new ones came out — we said so", len(hit) == 1, r["items"])
+        check("вышли новые — сказали об этом", len(hit) == 1, r["items"])
         if hit:
-            check("we counted how many exactly came out",
+            check("посчитали, сколько именно вышло",
                   hit[0]["was"] == 10 and hit[0]["now"] == 12 and hit[0]["fresh"] == 2, hit[0])
 
-        # "I have seen it" puts the notification out.
+        # «Я видел» гасит уведомление.
         u.post("/api/updates/seen", json={"key": "novyy", "source": "demo",
                                           "title": "Новый"})
         main.source_limit.reset()
         r = u.get("/api/updates").json()
-        check("after watching, the notification goes out",
+        check("после просмотра уведомление гаснет",
               not any(x["key"] == "novyy" for x in r["items"]), r["items"])
 
-        # A finished one does not ring: we watch only what is being watched.
+        # Досмотренное не звенит: следим только за тем, что смотрим.
         store.save_progress(uid, {"key": "novyy", "source": "demo",
                                   "title": "Новый", "total_eps": 5,
                                   "watched_ep": 5, "status": "done"})
         main.source_limit.reset()
         r = u.get("/api/updates").json()
-        check("a finished one does not bother you",
+        check("законченное не беспокоит",
               not any(x["key"] == "novyy" for x in r["items"]), r["items"])
     finally:
         main.anime.find_episodes = real_eps
 
     # ------------------------------------------------------------------
-    group("The cover fills itself in")
+    group("Обложка дописывается сама")
     main.login_guard.reset()
     main.source_limit.reset()
     pc = fresh_client()
@@ -933,7 +924,7 @@ def run_fixes():
                               "title": "Без обложки", "poster": "",
                               "watched_ep": 1, "status": "watching"})
     before = [x for x in store.library(uid) if x["key"] == "bezfoto"][0]
-    check("it was saved with no cover", not before["poster"])
+    check("сохранился без обложки", not before["poster"])
 
     real_poster = main.anime.find_poster
 
@@ -945,50 +936,50 @@ def run_fixes():
         r = pc.post("/api/library/poster", json={"key": "bezfoto",
                                                  "source": "demo",
                                                  "title": "Без обложки"})
-        check("the endpoint answered", r.status_code == 200, r.status_code)
+        check("ручка ответила", r.status_code == 200, r.status_code)
     finally:
         main.anime.find_poster = real_poster
     after = [x for x in store.library(uid) if x["key"] == "bezfoto"][0]
-    check("the cover appeared", after["poster"] == "https://example.org/oblozhka.jpg",
+    check("обложка появилась", after["poster"] == "https://example.org/oblozhka.jpg",
           after["poster"])
-    check("the edit time did not move", after["updated_at"] == before["updated_at"],
+    check("время правки не сдвинулось", after["updated_at"] == before["updated_at"],
           f"{before['updated_at']} -> {after['updated_at']}")
 
     # ------------------------------------------------------------------
-    group("The administrator's announcement")
+    group("Объявление администратора")
     main.login_guard.reset()
     ad = fresh_client()
     login(ad, *ADMIN)
     usr = fresh_client()
     login(usr, "misha", "Sovsem-Novyy-2026")
 
-    check("at first there is no announcement", ad.get("/api/news").json()["text"] == "")
+    check("сначала объявления нет", ad.get("/api/news").json()["text"] == "")
     r = ad.post("/api/admin/news", json={"text": "Сервер перезапустится в 23:00"})
-    check("the admin saved one", r.status_code == 200, r.status_code)
-    check("an ordinary person sees it",
+    check("админ сохранил", r.status_code == 200, r.status_code)
+    check("его видит обычный человек",
           usr.get("/api/news").json()["text"] == "Сервер перезапустится в 23:00")
-    check("an ordinary person cannot write one",
+    check("обычный человек не может писать",
           usr.post("/api/admin/news", json={"text": "я тут главный"}).status_code == 404)
-    check("and cannot delete one",
+    check("и не может удалять",
           usr.request("DELETE", "/api/admin/news").status_code == 404)
-    check("an empty announcement is rejected",
+    check("пустое объявление отклонено",
           ad.post("/api/admin/news", json={"text": "   "}).status_code == 400)
     ad.request("DELETE", "/api/admin/news")
-    check("after deletion it is empty", usr.get("/api/news").json()["text"] == "")
+    check("после удаления пусто", usr.get("/api/news").json()["text"] == "")
 
     # ------------------------------------------------------------------
-    group("Signing in with a code from an app")
+    group("Вход по коду из приложения")
     from api import twofa
 
     secret = twofa.new_secret()
-    check("the secret is fit for an app", len(secret) >= 26, len(secret))
+    check("секрет пригоден для приложения", len(secret) >= 26, len(secret))
     now_code = twofa._code_at(secret, int(time.time() // twofa.STEP))
-    check("your own code is accepted", twofa.verify(secret, now_code))
-    check("somebody else's code is not accepted", not twofa.verify(secret, "000000"))
-    check("a code from two steps back no longer does",
+    check("свой код принимается", twofa.verify(secret, now_code))
+    check("чужой код не принимается", not twofa.verify(secret, "000000"))
+    check("код на два шага назад уже не годится",
           not twofa.verify(secret, twofa._code_at(secret, int(time.time() // twofa.STEP) - 3)))
-    check("rubbish instead of a code does not knock it over", not twofa.verify(secret, "не-цифры"))
-    check("the link for the app has the secret and the issuer",
+    check("мусор вместо кода не роняет", not twofa.verify(secret, "не-цифры"))
+    check("в ссылке для приложения есть секрет и издатель",
           "secret=" + secret in twofa.otpauth_uri(secret, "valera")
           and "issuer=" in twofa.otpauth_uri(secret, "valera"))
 
@@ -998,90 +989,98 @@ def run_fixes():
     uid = store.get_user_by_login("misha")["id"]
 
     r = t.post("/api/me/2fa/start")
-    check("the set-up began", r.status_code == 200, r.status_code)
+    check("настройка началась", r.status_code == 200, r.status_code)
     body = r.json()
-    check("the picture with the code arrived", body["qr"].startswith("data:image/png;base64,"))
-    check("the code is drawn here rather than on somebody else's site",
-          "http" not in body["qr"][:40])
+    # Ключ обязателен всегда: его можно ввести в приложение руками.
+    # Картинка — удобство, и её отсутствие не должно ронять настройку.
+    check("ключ пришёл", isinstance(body.get("secret"), str) and len(body["secret"]) == 32)
+    qr = body.get("qr")
+    check("настройка не падает без рисовалки", "qr" in body)
+    if qr is None:
+        check("без картинки настройка всё равно возможна", True, "qr=null, ключ есть")
+    else:
+        check("картинка с кодом пришла",
+              qr.startswith("data:image/svg+xml;base64,")
+              or qr.startswith("data:image/png;base64,"), qr[:32])
+        check("код рисуется у нас, а не на чужом сайте", "http" not in qr[:40])
 
-    check("with somebody else's code it does not switch on",
+    check("с чужим кодом не включается",
           t.post("/api/me/2fa/enable", json={"code": "000000"}).status_code == 400)
     good = twofa._code_at(body["secret"], int(time.time() // twofa.STEP))
     r = t.post("/api/me/2fa/enable", json={"code": good})
-    check("with your own code it does switch on", r.status_code == 200, r.status_code)
+    check("со своим кодом включается", r.status_code == 200, r.status_code)
     codes = r.json().get("backup") or []
-    check("backup codes were issued", len(codes) >= 4, len(codes))
+    check("выданы запасные коды", len(codes) >= 4, len(codes))
 
     me = t.get("/api/me").json()
-    check("the answer shows that it is on", me["totp_on"] is True)
-    check("the secret is not served to the outside", "totp_secret" not in me)
+    check("в ответе видно, что включено", me["totp_on"] is True)
+    check("секрет наружу не отдаётся", "totp_secret" not in me)
 
     main.login_guard.reset()
     n = fresh_client()
     r = n.post("/api/auth/login", json={"login": "misha", "password": "Sovsem-Novyy-2026"})
-    check("the right password with no code does not let you in", r.status_code == 401, r.status_code)
-    check("but it is said that a code is what is needed", r.headers.get("X-Need-Code") == "1")
-    check("and there is no session", n.get("/api/me").status_code == 401)
+    check("верный пароль без кода не пускает", r.status_code == 401, r.status_code)
+    check("но сказано, что нужен именно код", r.headers.get("X-Need-Code") == "1")
+    check("сессии при этом нет", n.get("/api/me").status_code == 401)
 
     main.login_guard.reset()
     n = fresh_client()
     r = n.post("/api/auth/login", json={"login": "misha", "password": "Sovsem-Novyy-2026",
                                         "code": "111111"})
-    check("with a wrong code it does not let you in", r.status_code == 401, r.status_code)
+    check("с неверным кодом не пускает", r.status_code == 401, r.status_code)
 
     main.login_guard.reset()
     n = fresh_client()
     fresh = twofa._code_at(body["secret"], int(time.time() // twofa.STEP))
     r = n.post("/api/auth/login", json={"login": "misha", "password": "Sovsem-Novyy-2026",
                                         "code": fresh})
-    check("with the right code it does", r.status_code == 200, r.status_code)
+    check("с верным кодом пускает", r.status_code == 200, r.status_code)
 
-    # A backup code works once.
+    # Запасной код работает один раз.
     main.login_guard.reset()
     n2 = fresh_client()
     r = n2.post("/api/auth/login", json={"login": "misha", "password": "Sovsem-Novyy-2026",
                                          "code": codes[0]})
-    check("a backup code lets you in", r.status_code == 200, r.status_code)
+    check("запасной код пускает", r.status_code == 200, r.status_code)
     main.login_guard.reset()
     n3 = fresh_client()
     r = n3.post("/api/auth/login", json={"login": "misha", "password": "Sovsem-Novyy-2026",
                                          "code": codes[0]})
-    check("and the same one no longer works a second time", r.status_code == 401, r.status_code)
+    check("и второй раз тот же уже не работает", r.status_code == 401, r.status_code)
 
     main.pass_limit.reset()
-    check("switching off without the password does not go through",
+    check("выключение без пароля не проходит",
           t.post("/api/me/2fa/disable", json={"password": "ne-tot"}).status_code == 403)
     main.pass_limit.reset()
-    check("with the password it switches off",
+    check("с паролем выключается",
           t.post("/api/me/2fa/disable",
                  json={"password": "Sovsem-Novyy-2026"}).status_code == 200)
-    check("the secret was erased from the database",
+    check("секрет из базы стёрт",
           not store.get_user(uid)["totp_secret"])
 
     # ------------------------------------------------------------------
-    group("The catalogue: description and the random pick")
+    group("Справочник: описание и случайное")
     from api import catalog
 
-    # The setup must stay, the plot twist must go. The beginning is
-    # deliberately long: a description must not be trimmed to a couple of
-    # words, so there is a threshold in the code, and a short text is cut
-    # by length only.
+    # Завязка должна остаться, поворот сюжета — уйти. Начало намеренно
+    # длинное: обрезать описание до пары слов нельзя, поэтому в коде стоит
+    # порог, и короткий текст режется только по длине.
     dirty = ("A boy sells charcoal to feed his family in Taisho-era Japan.<br>"
              "<i>One winter day</i> he comes home to find them gone, and his "
              "sister changed into something else entirely. "
              "However, it turns out his brother is the villain and dies at the end.")
     clean = catalog.clean_description(dirty)
-    check("the markup was cut out", "<" not in clean and ">" not in clean, clean[:60])
-    check("the setup stayed", "charcoal" in clean, clean[:60])
-    check("the spoiler was cut off", "villain" not in clean and "dies" not in clean, clean[-60:])
+    check("разметка вырезана", "<" not in clean and ">" not in clean, clean[:60])
+    check("завязка осталась", "charcoal" in clean, clean[:60])
+    check("спойлер отрезан", "villain" not in clean and "dies" not in clean, clean[-60:])
 
     long_text = "Первое предложение. " * 60
     cut = catalog.clean_description(long_text)
-    check("a long description was trimmed", len(cut) <= catalog.DESC_MAX + 2, len(cut))
+    check("длинное описание обрезано", len(cut) <= catalog.DESC_MAX + 2, len(cut))
 
-    check("we do not show adult material",
+    check("взрослое не показываем",
           catalog.pack_anilist({"isAdult": True, "title": {"romaji": "X"}}) is None)
-    check("we do not show anything with no name",
+    check("без названия не показываем",
           catalog.pack_anilist({"isAdult": False, "title": {}}) is None)
 
     main.catalog_limit.reset()
@@ -1095,8 +1094,8 @@ def run_fixes():
     catalog.about = fake_about
     try:
         r = t.get("/api/about", params={"title": "Тест"})
-        check("the description is served", r.status_code == 200 and r.json()["found"], r.status_code)
-        check("there is text in it", r.json()["about"].startswith("Описание"))
+        check("описание отдаётся", r.status_code == 200 and r.json()["found"], r.status_code)
+        check("в нём есть текст", r.json()["about"].startswith("Описание"))
     finally:
         catalog.about = real_about
 
@@ -1111,51 +1110,50 @@ def run_fixes():
     catalog.random_anime = fake_random
     try:
         r = t.get("/api/random")
-        check("the random pick is served", r.status_code == 200 and r.json()["found"], r.status_code)
+        check("случайное отдаётся", r.status_code == 200 and r.json()["found"], r.status_code)
     finally:
         catalog.random_anime = real_random
 
     main.catalog_limit.reset()
-    check("the catalogue is available to a guest too", True)
+    check("гостю справочник тоже доступен", True)
     codes_seen = [t.get("/api/about", params={"title": "Тест"}).status_code
                   for _ in range(26)]
-    check("the catalogue is rate limited", 429 in codes_seen,
+    check("справочник ограничен по частоте", 429 in codes_seen,
           f"200: {codes_seen.count(200)}, 429: {codes_seen.count(429)}")
 
     # ------------------------------------------------------------------
-    group("Name matching: rubbish from the results does not pass")
+    group("Совпадение названий: мусор из выдачи не проходит")
     from api import anime as an
 
-    # This is not an invented example. For "Атака титанов" both source A
-    # and source B answer with exactly this line — the word "атака"
-    # matched. The walk over sources stopped at the first one that
-    # answered with anything at all, and nobody looked at the right answer
-    # at the next source.
+    # Это не выдуманный пример. На «Атака титанов» источники отвечают
+    # ровно этой строкой — совпало слово «атака». Перебор источников
+    # останавливался на первом, кто ответил хоть чем-то, и правильный
+    # ответ у следующего источника не смотрел никто.
     junk = an.relevance("Атака титанов", "Не издевайся, Нагаторо: Вторая атака")
-    check("something similar by one word does not pass the threshold",
+    check("похожее по одному слову не проходит порог",
           junk < an.MIN_RELEVANCE, round(junk, 3))
-    check("an exact name is a one",
+    check("точное название — единица",
           an.relevance("Атака титанов", "Атака титанов") == 1.0)
 
     exact = an.relevance("Наруто", "Наруто")
     seq = an.relevance("Наруто", "Наруто Ураганные хроники")
-    check("the first season ranks above the sequel", exact > seq, f"{exact} > {round(seq, 3)}")
-    # It is for this that the threshold for stopping the walk was raised:
-    # 0.855 for a sequel passed the old bar of 0.85, and instead of
-    # "Наруто" it was "Ураганные хроники" that opened.
-    check("a sequel does not count as exact enough",
+    check("первый сезон выше продолжения", exact > seq, f"{exact} > {round(seq, 3)}")
+    # Ради этого порог остановки перебора и поднят: 0.855 у продолжения
+    # проходило старую планку в 0.85, и вместо «Наруто» открывались
+    # «Ураганные хроники».
+    check("продолжение не считается достаточно точным",
           seq < main.GOOD_ENOUGH, round(seq, 3))
 
-    # Source E writes names on one line with Latin letters and a counter.
-    check("the source's tails are cut off",
+    # Некоторые источники пишут названия одной строкой с латиницей и счётчиком.
+    check("хвосты источника отрезаются",
           an.relevance("Наруто", "Наруто / Naruto [1-220 из 220]") == 1.0)
-    check("a note in brackets does not get in the way",
+    check("приписка в скобках не мешает",
           an.relevance("Наруто", "Наруто (ТВ)") == 1.0)
-    check("the letter yo does not diverge from ye",
+    check("буква ё не расходится с е",
           an.relevance("Тетрадь смерти", "Тетрадь смёрти") == 1.0)
 
     # ------------------------------------------------------------------
-    group("Search by franchise")
+    group("Поиск по франшизам")
     from api import catalog as cat
 
     naruto = [
@@ -1173,27 +1171,26 @@ def run_fixes():
          "airedOn": {"year": 2010}, "poster": {}},
     ]
     packed = [cat.pack_part(n) for n in naruto]
-    check("a trailer is filtered out by its label",
+    check("трейлер отсеивается по метке",
           packed[2]["kind"] in cat.JUNK_KINDS, packed[2]["kind"])
-    check("the score is brought to a hundred", packed[1]["score"] == 80, packed[1]["score"])
+    check("оценка приводится к сотне", packed[1]["score"] == 80, packed[1]["score"])
 
     live = [p for p in packed if p["kind"] not in cat.JUNK_KINDS]
     order, grouped = cat.group_found(live)
-    check("the seasons of one story gathered into one card",
+    check("сезоны одной истории собрались в одну карточку",
           len(grouped["naruto"]) == 2, len(grouped["naruto"]))
-    check("somebody else's title did not get into it", len(order) == 2, order)
-    check("a title with no franchise got a label from its name",
+    check("чужой тайтл в неё не попал", len(order) == 2, order)
+    check("тайтл без франшизы получил метку по названию",
           order[1].startswith("title:"), order[1])
 
     card = cat.franchise_card("naruto", grouped["naruto"])
-    # This is what it was all done for: one "Наруто" card instead of
-    # twenty-one lines with seasons, films and specials jumbled together.
-    check("the card is named after the first season", card["title"] == "Наруто", card["title"])
-    check("and its year comes from the first season", card["year"] == 2002, card["year"])
+    # Ради этого всё и делалось: одна карточка «Наруто» вместо двадцати
+    # одной строки, где вперемешку лежат сезоны, фильмы и спешлы.
+    check("карточка названа по первому сезону", card["title"] == "Наруто", card["title"])
+    check("и год у неё от первого сезона", card["year"] == 2002, card["year"])
 
-    # The order and the "start" mark are different things. For "Ван-Пис"
-    # an unrelated OVA came out before the series, and by year it stands
-    # as the first row.
+    # Порядок и метка «начало» — разные вещи. У «Ван-Пис» раньше сериала
+    # вышла посторонняя OVA, и по годам она встаёт первой строкой.
     op = [
         {"id": "a", "title": "Ван-Пис: Победить пирата Ганзака!", "kind": "ova",
          "year": 1998, "episodes": 1},
@@ -1204,44 +1201,43 @@ def run_fixes():
          "episodes": None},
     ]
     ordered = cat.mark_main(cat.sort_parts(op))
-    check("the parts go by year",
+    check("части идут по годам",
           [p["id"] for p in ordered][:3] == ["a", "b", "c"],
           [p["id"] for p in ordered])
-    check("what is not out yet goes to the end", ordered[-1]["id"] == "d", ordered[-1]["id"])
-    # For "Ван-Пис" the earliest is an unrelated OVA from 1998, shot
-    # before the series. The mark is on it anyway: the list goes by year,
-    # and "start" must coincide with the first row, otherwise there is
-    # nothing to explain it with.
-    check("the start is the earliest by year",
+    check("невышедшее уезжает в конец", ordered[-1]["id"] == "d", ordered[-1]["id"])
+    # У «Ван-Пис» самое раннее — посторонняя OVA 1998 года, снятая до
+    # сериала. Отметка всё равно на ней: список идёт по годам, и «начало»
+    # обязано совпадать с первой строкой, иначе объяснить его нечем.
+    check("«начало» — самое раннее по году",
           ordered[0]["main"] and not ordered[1]["main"],
           [p["id"] for p in ordered if p["main"]])
 
-    # A recap of the first season comes out in the same year as it and is
-    # marked tv_special. While series were picked together with it, the
-    # franchise was called "Атака титанов: Рекап".
+    # Пересказ первого сезона выходит с ним в один год и помечен как
+    # tv_special. Пока сериалы отбирались вместе с ним, франшиза
+    # называлась «Атака титанов: Рекап».
     aot = [
         {"id": "r", "title": "Атака титанов: Рекап", "kind": "tv_special",
          "year": 2013, "episodes": 1},
         {"id": "s", "title": "Атака титанов", "kind": "tv", "year": 2013,
          "episodes": 25},
     ]
-    check("a recap does not become the face of the franchise",
+    check("пересказ не становится лицом франшизы",
           cat.main_part(aot)["id"] == "s", cat.main_part(aot)["id"])
-    # The "start" mark goes by position, and within one year a series
-    # stands above a recap — so it goes to the series.
-    check("within one year the mark goes to the series rather than the cut",
+    # Отметка «начало» идёт по порядку, а внутри одного года сериал стоит
+    # выше пересказа — значит и она достаётся сериалу.
+    check("в один год отметка достаётся сериалу, а не нарезке",
           cat.mark_main(cat.sort_parts([dict(p) for p in aot]))[0]["id"] == "s")
 
-    check("the film label is translated", cat.KIND_RU["tv_special"] == "спецвыпуск")
+    check("метка кино переведена", cat.KIND_RU["tv_special"] == "спецвыпуск")
     ongoing = cat.pack_part({"id": "1", "russian": "Идёт", "name": "Ongoing",
                              "kind": "tv", "episodes": 0, "episodesAired": 1174,
                              "status": "ongoing", "airedOn": {"year": 1999},
                              "poster": {}})
-    check("for one still airing we count the episodes that are out",
+    check("у выходящего сейчас считаем вышедшие серии",
           ongoing["episodes"] == 1174 and ongoing["ongoing"], ongoing["episodes"])
 
     # ------------------------------------------------------------------
-    group("The endpoints of search by franchise")
+    group("Ручки поиска по франшизам")
     main.catalog_limit.reset()
     main.search_limit.reset()
     real_search = cat.search_franchises
@@ -1258,20 +1254,19 @@ def run_fixes():
     try:
         r = t.get("/api/find", params={"q": "наруто"})
         body = r.json()
-        check("search serves franchise cards",
+        check("поиск отдаёт карточки франшиз",
               r.status_code == 200 and len(body["items"]) == 1, r.status_code)
-        check("and says that the catalogue answered", body["catalog"] is True)
+        check("и говорит, что справочник ответил", body["catalog"] is True)
 
         r = t.get("/api/franchise", params={"id": "naruto"})
-        check("the franchise's parts are served",
+        check("части франшизы отдаются",
               r.status_code == 200 and len(r.json()["items"]) == 2, r.status_code)
     finally:
         cat.search_franchises = real_search
         cat.franchise_parts = real_parts
 
-    # The catalogue may be down. That is not "nothing found": on such an
-    # answer the page goes off to search the old way, straight at the
-    # sources.
+    # Справочник может лежать. Это не «ничего не нашлось»: страница по
+    # такому ответу уходит искать старым способом, прямо у источников.
     main.catalog_limit.reset()
 
     async def dead_search(q):
@@ -1280,7 +1275,7 @@ def run_fixes():
     cat.search_franchises = dead_search
     try:
         r = t.get("/api/find", params={"q": "наруто"})
-        check("the catalogue's silence is not an error but an answer of its own",
+        check("молчание справочника — не ошибка, а отдельный ответ",
               r.status_code == 200 and r.json()["catalog"] is False, r.status_code)
     finally:
         cat.search_franchises = real_search
@@ -1293,19 +1288,19 @@ def run_fixes():
     cat.franchise_parts = dead_parts
     try:
         r = t.get("/api/franchise", params={"id": "naruto"})
-        check("while an empty list of parts is a 502", r.status_code == 502, r.status_code)
+        check("а вот пустой список частей — это 502", r.status_code == 502, r.status_code)
     finally:
         cat.franchise_parts = real_parts
 
     # ------------------------------------------------------------------
-    group("A part of the catalogue is found at a source")
+    group("Часть каталога находится у источника")
     main.search_limit.reset()
     real_try = main.try_source
     real_eps = main.anime.find_episodes
 
-    # Resolve no longer takes a name at its word, it checks that the
-    # title's episodes really are served. The network is unavailable in
-    # the checks, so we fake the episode list: by default everyone has one.
+    # Резолв теперь не верит названию на слово, а проверяет, что серии
+    # у тайтла и правда отдаются. В проверках сеть недоступна, поэтому
+    # список серий подделываем: по умолчанию у всех он есть.
     EPS = {}
 
     async def fake_episodes(source, key, title):
@@ -1316,10 +1311,10 @@ def run_fixes():
 
     main.anime.find_episodes = fake_episodes
 
-    # The source answers with two rows: junk first, then the right title.
-    # Exactly this case used to end with a person opening "Нагаторо"
-    # instead of "Атака титанов": the first thing that came was taken
-    # rather than the thing that matched.
+    # Источник отвечает двумя строками: сначала мусор, потом правильный
+    # тайтл. Ровно этот случай раньше заканчивался тем, что человек
+    # открывал «Нагаторо» вместо «Атаки титанов»: бралось первое, что
+    # пришло, а не то, что совпало.
     async def junk_then_right(source, q):
         return [
             {"key": "junk", "title": "Не издевайся, Нагаторо: Вторая атака",
@@ -1335,9 +1330,9 @@ def run_fixes():
         r = t.get("/api/resolve", params={"title": "Атака титанов",
                                           "title_en": "Shingeki no Kyojin"})
         body = r.json()
-        check("an unalike answer is not taken for the right one",
+        check("перебор не останавливается на непохожем ответе",
               r.status_code == 200 and body["key"] == "aot-1", body)
-        check("and the one that matched exactly is taken",
+        check("и берёт того, у кого совпало точно",
               body["source"] == "demo" and body["exact"], body.get("source"))
     finally:
         main.try_source = real_try
@@ -1351,9 +1346,9 @@ def run_fixes():
     main.try_source = only_junk
     try:
         r = t.get("/api/resolve", params={"title": "Атака титанов"})
-        check("if there is nothing similar at all — a 404, not somebody else's title",
+        check("если похожего нет вовсе — 404, а не чужой тайтл",
               r.status_code == 404, r.status_code)
-        check("and the text explains what to do",
+        check("и текст объясняет, что делать",
               "источник" in r.text.lower(), r.text[:90])
     finally:
         main.try_source = real_try
@@ -1366,12 +1361,12 @@ def run_fixes():
     main.try_source = all_silent
     try:
         r = t.get("/api/resolve", params={"title": "Атака титанов"})
-        check("complete silence from the sources — 502", r.status_code == 502, r.status_code)
+        check("полное молчание источников — 502", r.status_code == 502, r.status_code)
     finally:
         main.try_source = real_try
 
-    # An inexact match is served, but marked: on that mark the page asks
-    # rather than opening silently.
+    # Неточное совпадение отдаётся, но помечено: страница по этой метке
+    # спрашивает, а не открывает молча.
     main.search_limit.reset()
 
     async def close_enough(source, q):
@@ -1382,18 +1377,18 @@ def run_fixes():
     try:
         r = t.get("/api/resolve", params={"title": "Атака титанов"})
         body = r.json()
-        check("something similar is served marked as inexact",
+        check("похожее отдаётся с пометкой «неточно»",
               r.status_code == 200 and body["exact"] is False, body.get("exact"))
     finally:
         main.try_source = real_try
 
     # ------------------------------------------------------------------
-    # An exact name match does not yet mean the title opens. It happens
-    # that under exactly the same name as in the catalogue sits a title
-    # whose episode list is not served at all: the parser trips over the
-    # double episode "57-58". Resolve returned that title, and the person
-    # landed in a player saying "episodes did not load", although an
-    # identical but working one lay beside it.
+    # Точное совпадение названия ещё не значит, что тайтл открывается.
+    # Под ровно тем же названием, что в справочнике, может лежать тайтл,
+    # у которого список серий не отдаётся вовсе: разборщик спотыкается на
+    # сдвоенной серии «57-58». Резолв возвращал этот тайтл, и человек
+    # попадал в плеер с «серии не загрузились», хотя рядом лежал
+    # идентичный, но рабочий.
     main.search_limit.reset()
 
     async def one_broken(source, q):
@@ -1413,9 +1408,9 @@ def run_fixes():
         r = t.get("/api/resolve", params={"title": "Наруто: Ураганные хроники",
                                           "source": "demo"})
         body = r.json()
-        check("a title with no episodes is not palmed off, even though the name matched exactly",
+        check("тайтл без серий не подсовывается, хотя название совпало точно",
               r.status_code == 200 and body["key"] == "works", body)
-        check("and the episode count is taken from the real list",
+        check("и число серий берётся из настоящего списка",
               body.get("episodes_total") == 131, body.get("episodes_total"))
     finally:
         main.try_source = real_try
@@ -1430,17 +1425,16 @@ def run_fixes():
     main.try_source = all_broken
     try:
         r = t.get("/api/resolve", params={"title": "Наруто: Ураганные хроники"})
-        check("if nobody has episodes — a 404 rather than a dead player",
+        check("если серий нет ни у кого — 404, а не мёртвый плеер",
               r.status_code == 404, r.status_code)
     finally:
         main.try_source = real_try
 
     # ------------------------------------------------------------------
-    # A stub instead of a series. It happens that under the name "Ван-Пис"
-    # seven episodes are posted out of one thousand one hundred and
-    # seventy-four — the name matched, the episodes are there, there is no
-    # error. And the person got "episode 1 of 7" of a series that has been
-    # running for twenty-six years.
+    # Огрызок вместо сериала. У «Ван-Пис» один источник выложил семь
+    # серий из тысячи ста семидесяти четырёх — название совпало, серии
+    # есть, ошибки нет. А человек получал «серия 1 из 7» у сериала,
+    # который идёт двадцать шестой год.
     main.search_limit.reset()
 
     async def stub_and_full(source, q):
@@ -1457,23 +1451,22 @@ def run_fixes():
     try:
         r = t.get("/api/resolve", params={"title": "Ван-Пис", "episodes": 1174})
         body = r.json()
-        check("a stub loses to a source with the full list",
+        check("огрызок уступает источнику с полным списком",
               r.status_code == 200 and body["key"] == "full",
               str(body.get("key")) + " / " + str(body.get("episodes_total")))
 
         main.search_limit.reset()
-        # With no hint from the catalogue there is nothing to compare
-        # against — we take the first working one and do not spend time
-        # walking the rest.
+        # Без подсказки справочника сравнивать не с чем — берём первого
+        # рабочего и не тратим время на обход остальных.
         r = t.get("/api/resolve", params={"title": "Ван-Пис"})
-        check("with no hint about the episode count, the first working one is taken",
+        check("без подсказки о числе серий берётся первый рабочий",
               r.json()["key"] == "stub", r.json().get("key"))
     finally:
         main.try_source = real_try
 
-    # A source lagging by a dozen episodes is no reason to search
-    # further. For "Блич" the difference is fourteen episodes out of three
-    # hundred and sixty-six, and there is nothing to find fault with.
+    # Отставание источника на десяток серий — не повод искать дальше.
+    # У «Блича» разница в четырнадцать серий из трёхсот шестидесяти
+    # шести, и придираться к ней не за что.
     main.search_limit.reset()
 
     async def slightly_behind(source, q):
@@ -1489,14 +1482,14 @@ def run_fixes():
     main.try_source = slightly_behind
     try:
         r = t.get("/api/resolve", params={"title": "Блич", "episodes": 366})
-        check("a source's small lag does not drive the walk further",
+        check("небольшое отставание источника не гонит перебор дальше",
               r.json()["key"] == "behind", r.json().get("key"))
     finally:
         main.try_source = real_try
         main.anime.find_episodes = real_eps
 
     # ------------------------------------------------------------------
-    group("A player with not a single link is not a player")
+    group("Плеер без единой ссылки — не плеер")
     main.source_limit.reset()
     real_eps2 = main.anime.find_episodes
 
@@ -1515,9 +1508,9 @@ def run_fixes():
         ordinal = 1
 
         async def a_get_sources(self):
-            # Exactly what source B serves for "Наруто 1: Книга искусств
-            # ниндзя": two players, and not one link inside — its players
-            # work only from CIS addresses.
+            # Ровно то, что отдаёт источник B на «Наруто 1: Книга
+            # искусств ниндзя»: два плеера, и ни одной ссылки внутри —
+            # его плееры работают только с определённых адресов.
             return [FakePlayer("пустой", []), FakePlayer("тоже пустой", [])]
 
     async def fake_find(source, key, title):
@@ -1526,20 +1519,20 @@ def run_fixes():
     main.anime.find_episodes = fake_find
     try:
         r = t.get("/api/videos", params={"key": "k", "ordinal": 1, "source": "demo"})
-        check("players with no links do not leave for the outside", r.status_code == 502, r.status_code)
-        check("and the person is told what exactly is wrong",
+        check("плееры без ссылок наружу не уходят", r.status_code == 502, r.status_code)
+        check("и человеку сказано, что именно не так",
               "плеер" in r.text.lower(), r.text[:80])
     finally:
         main.anime.find_episodes = real_eps2
 
     # ------------------------------------------------------------------
-    group("This story in full: the parts next to the player")
+    group("Эта история целиком: части рядом с плеером")
 
-    # The catalogue joins into one franchise things a person does not
-    # count as one: "Врата Штейна" lies together with "Вершина хаоса"
-    # under the shared label science_adventure, and the first series there
-    # is "Вершина хаоса" from 2008. So one thing was written on the card
-    # while the "start" mark stood on a different anime.
+    # Справочник объединяет в одну франшизу вещи, которые человеком за
+    # одно не считаются: «Врата Штейна» лежат вместе с «Вершиной хаоса»
+    # под общей меткой science_adventure, и первый сериал там — «Вершина
+    # хаоса» 2008 года. Получалось, что на карточке написано одно, а
+    # отметка «начало» стоит на другом аниме.
     sciadv = [
         {"id": "1", "title": "Вершина хаоса", "kind": "tv", "year": 2008,
          "episodes": 12},
@@ -1549,36 +1542,36 @@ def run_fixes():
          "year": 2013, "episodes": 1},
     ]
     plain = cat.mark_main(cat.sort_parts([dict(p) for p in sciadv]))
-    check("the start stands on the earliest part",
+    check("«начало» стоит на самой ранней части",
           next(p["id"] for p in plain if p["main"]) == "1",
           next(p["title"] for p in plain if p["main"]))
-    check("and that is exactly the list's first row", plain[0]["main"] is True)
-    check("exactly one part is marked",
+    check("и это ровно первая строка списка", plain[0]["main"] is True)
+    check("помечена ровно одна часть",
           sum(1 for p in plain if p["main"]) == 1)
 
-    # The marks live in copies. The cache is shared by everyone: if they
-    # were written straight into it, neighbouring requests would overwrite
-    # each other's marks.
+    # Пометки живут в копиях. Кэш общий на всех: если бы они писались
+    # прямо в него, соседние запросы переписывали бы друг другу отметки.
     cat._cache_put("fr:testfr", cat.sort_parts([dict(p) for p in sciadv]))
     got = asyncio.run(cat.franchise_parts("testfr"))
-    check("the parts come from the cache already marked",
+    check("из кэша части приходят помеченными",
           got[0]["main"] and not got[1]["main"])
-    check("and no marks appeared in the cache itself",
+    check("в самом кэше пометок не появилось",
           all("main" not in p for p in cat._cache_get("fr:testfr")))
 
-    # A source may write a name SHORTER than the catalogue: "Евангелион
-    # нового поколения" sits at all three sources simply as "Евангелион".
-    # By words that gave 1 out of 3 — below the threshold, and the site
-    # answered "no source has posted it" about a title everyone has.
+    # Источник может писать название КОРОЧЕ справочника: «Евангелион
+    # нового поколения» у всех трёх источников лежит просто как
+    # «Евангелион». По словам это давало 1 из 3 — ниже порога, и сайт
+    # отвечал «ни один источник его не выложил» про тайтл, который есть
+    # у всех.
     short = an.relevance("Евангелион нового поколения", "Евангелион")
-    check("the source's short name passes the threshold",
+    check("короткое название источника проходит порог",
           short >= an.MIN_RELEVANCE, round(short, 2))
-    check("but does not count as an exact match",
+    check("но точным совпадением не считается",
           short < main.GOOD_ENOUGH, round(short, 2))
-    # By the same rule "Наруто" fits "Наруто: Ураганные хроники". There
-    # is no telling one from the other by strings — so such a match always
-    # loses to a real one.
-    check("a real match is stronger anyway",
+    # Тем же правилом «Наруто» подходит под «Наруто: Ураганные хроники».
+    # Отличить одно от другого по строкам нельзя — поэтому такое
+    # совпадение всегда проигрывает настоящему.
+    check("настоящее совпадение всё равно сильнее",
           an.relevance("Наруто: Ураганные хроники", "Наруто Ураганные хроники") > short)
 
     main.catalog_limit.reset()
@@ -1594,9 +1587,9 @@ def run_fixes():
     try:
         r = t.get("/api/related", params={"title": "Врата Штейна"})
         body = r.json()
-        check("the story's parts are served to the watch page",
+        check("части истории отдаются странице просмотра",
               r.status_code == 200 and len(body["items"]) == 3, r.status_code)
-        check("and what is open right now is marked in them",
+        check("и в них помечено, что открыто сейчас",
               [p["title"] for p in body["items"] if p["current"]] == ["Врата Штейна"])
     finally:
         cat.related_parts = real_related
@@ -1609,16 +1602,15 @@ def run_fixes():
     cat.related_parts = dead_related
     try:
         r = t.get("/api/related", params={"title": "Врата Штейна"})
-        # For the watch page the catalogue's silence is a trifle: the
-        # block simply will not appear. Bringing the player down over it
-        # would be out of proportion.
-        check("the catalogue's silence does not break the watch page",
+        # Для страницы просмотра молчание справочника — мелочь: блок
+        # просто не появится. Ронять из-за него плеер несоразмерно.
+        check("молчание справочника не ломает страницу просмотра",
               r.status_code == 200 and r.json()["catalog"] is False, r.status_code)
     finally:
         cat.related_parts = real_related
 
     # ------------------------------------------------------------------
-    group("The dub: whose exactly")
+    group("Озвучка: чья именно")
 
     class Src:
         def __init__(self, title, urls):
@@ -1631,31 +1623,30 @@ def run_fixes():
         def __init__(self, url, q):
             self.url, self.quality, self.type = url, q, "m3u8"
 
-    # The dub's name sits in the title field, while the code read name —
-    # the source has no field by that name at all. Every line in the menu
-    # said "плеер".
-    check("the dub's name is taken from title",
+    # Название озвучки лежит в поле title, а код читал name — поля с таким
+    # именем у источника нет вовсе. В меню у всех строк стояло «плеер».
+    check("название озвучки берётся из title",
           main.dub_name(Src("Озвучка источник A", []), "demo")[0] == "источник A",
           main.dub_name(Src("Озвучка источник A", []), "demo")[0])
-    check("the word Озвучка is removed from the line",
+    check("слово «Озвучка» из строки убирается",
           main.dub_name(Src("Озвучка студия озвучки", []), "demo")[0] == "студия озвучки")
-    # "Субтитры", though, must not be removed: that is the difference
-    # between listening and reading, and it has to be seen before the click.
+    # А вот «Субтитры» убирать нельзя: это разница между «слушать» и
+    # «читать», и видеть её надо до нажатия.
     name, is_sub = main.dub_name(Src("Субтитры крупный сервис", []), "demo")
-    check("subtitles stay labelled as subtitles",
+    check("субтитры остаются подписанными субтитрами",
           name == "Субтитры крупный сервис" and is_sub, name)
-    check("with no name the source itself is put in",
+    check("без названия подставляется сам источник",
           main.dub_name(Src("", []), "demo")[0] == main.anime.SOURCES["demo"]["label"],
           main.dub_name(Src("", []), "demo")[0])
 
     links = main.pack_links([FakeVideo2("a", 480), FakeVideo2("b", 1080),
                              FakeVideo2("b", 1080), FakeVideo2("", 720)])
-    check("the qualities run from best to worst",
+    check("качества идут от лучшего к худшему",
           [x["quality"] for x in links] == [1080, 480], [x["quality"] for x in links])
-    check("duplicates and empty links were thrown out", len(links) == 2, len(links))
+    check("повторы и пустые ссылки выброшены", len(links) == 2, len(links))
 
     # ------------------------------------------------------------------
-    group("Dubs: we ask about one, we show them all")
+    group("Озвучки: спрашиваем одну, показываем все")
     main.source_limit.reset()
     real_eps3 = main.anime.find_episodes
     asked = []
@@ -1672,7 +1663,7 @@ def run_fixes():
         ordinal = 1
 
         async def a_get_sources(self):
-            # This is how it arrives: one dub through several hosts.
+            # Так это и приходит: одна озвучка несколькими хостингами.
             return [DubSrc("Озвучка источник A", ["al-1"]),
                     DubSrc("Озвучка источник A", ["al-2"]),
                     DubSrc("Озвучка JAM", ["jam-1"]),
@@ -1687,17 +1678,16 @@ def run_fixes():
         r = t.get("/api/videos", params={"key": "k", "ordinal": 1,
                                           "source": "demo"})
         body = r.json()
-        check("the list of dubs is complete", r.status_code == 200
+        check("список озвучек полный", r.status_code == 200
               and [d["name"] for d in body["dubs"]]
               == ["источник A", "JAM", "студия озвучки", "Субтитры крупный сервис"],
               [d["name"] for d in body["dubs"]])
-        # Asking everyone for links is seconds apiece: "Магическая битва"
-        # has thirty-seven of them, that is, a minute in front of an empty
-        # player.
-        check("while links were asked for from one only", len(asked) == 1, asked)
-        check("the first in order opened", body["chosen"] == "источник A",
+        # Спросить ссылки у всех — это секунды на каждую: у «Магической
+        # битвы» их тридцать семь, то есть минута перед пустым плеером.
+        check("а ссылки спрошены только у одной", len(asked) == 1, asked)
+        check("открылась первая по порядку", body["chosen"] == "источник A",
               body["chosen"])
-        check("subtitles went to the end of the list",
+        check("субтитры уехали в конец списка",
               body["dubs"][-1]["sub"] is True)
 
         main.source_limit.reset()
@@ -1705,14 +1695,14 @@ def run_fixes():
         r = t.get("/api/videos", params={"key": "k", "ordinal": 1,
                                           "source": "demo",
                                           "dub": "студия озвучки"})
-        check("the chosen dub opens by itself",
+        check("выбранная озвучка открывается ею одной",
               r.json()["chosen"] == "студия озвучки" and len(asked) == 1,
               r.json()["chosen"] + " / " + str(asked))
     finally:
         main.anime.find_episodes = real_eps3
 
     # ------------------------------------------------------------------
-    group("Sources: we do not offer those that do not have the title")
+    group("Источники: не предлагаем те, где тайтла нет")
     main.search_limit.reset()
     real_try2 = main.try_source
 
@@ -1725,63 +1715,61 @@ def run_fixes():
     try:
         r = t.get("/api/where", params={"title": "Магическая битва"})
         body = r.json()
-        check("it is said who has the title", body["here"] == ["demo"], body["here"])
-        # There is one source, and it is the whole walk: everything there
-        # is has been checked, and there is nothing left to be "not
-        # checked".
-        check("and who was checked at all",
+        check("сказано, у кого тайтл есть", body["here"] == ["demo"], body["here"])
+        # Источник один, и это весь перебор: проверено всё, что есть, и
+        # «непроверенных» не остаётся.
+        check("и кого вообще проверяли",
               body["checked"] == list(main.anime.SOURCES), body["checked"])
-        check("no unchecked ones are left", body["unknown"] == [], body["unknown"])
+        check("непроверенных не осталось", body["unknown"] == [], body["unknown"])
     finally:
         main.try_source = real_try2
 
     # ------------------------------------------------------------------
-    group("Subtitles: we look at everyone, not only at the current one")
+    group("Субтитры: ищем у всех, а не только у текущего")
     main.search_limit.reset()
     real_try3 = main.try_source
     real_eps4 = main.anime.find_episodes
 
-    check("«Субтитры крупный сервис» is recognised as subtitles",
+    check("«Субтитры крупный сервис» опознаются как субтитры",
           main.is_subs("Субтитры крупный сервис"))
-    check("«Озвучка студия озвучки» is not subtitles", not main.is_subs("Озвучка студия озвучки"))
-    # That is what source D calls it: the Japanese track with text over
-    # it. The rule looked for the word "субтитры" only at the start of the
-    # line, while here it is in brackets at the end — and the variant was
-    # not seen at all, although "Атака титанов", "Наруто" and "Ван-Пис"
-    # all have it.
-    check("«Оригинал (+субтитры)» is subtitles too",
+    check("«Озвучка студия озвучки» — не субтитры", not main.is_subs("Озвучка студия озвучки"))
+    # Так это называется у одного из источников: японская дорожка, поверх
+    # которой идёт текст. Правило искало слово «субтитры» только в начале
+    # строки, а здесь оно в скобках на конце — и вариант не видели вовсе,
+    # хотя он есть у «Атаки титанов», «Наруто» и «Ван-Пис».
+    check("«Оригинал (+субтитры)» — тоже субтитры",
           main.is_subs("Оригинал (+субтитры)"))
-    check("plain «Оригинал» with no text does not count as subtitles",
+    check("просто «Оригинал» без текста субтитрами не считается",
           not main.is_subs("Оригинал"))
-    # The orders for looking for subtitles are empty in the public
-    # version: there are no external sources. An empty list is not a
-    # breakdown but a state: for text the site goes to the one source
-    # there is.
-    check("the order for looking for subtitles is empty", main.SUB_ORDER == [], main.SUB_ORDER)
-    check("in English the order is empty too",
+    # В публичной версии списки перебора для субтитров пусты: внешних
+    # источников нет. Пустой список — не поломка, а состояние: за текстом
+    # сайт идёт к единственному источнику, который есть.
+    check("список перебора для субтитров пуст",
+          main.SUB_ORDER == [], main.SUB_ORDER)
+    check("и по-английски тоже пуст",
           main.SUB_ORDER_EN == [], main.SUB_ORDER_EN)
-    check("«Subtitles (English)» is recognised both as text and as English",
+    check("«Subtitles (English)» опознаются и как текст, и как английский",
           main.is_subs("Subtitles (English)")
           and main.sub_lang("Subtitles (English)") == "en",
           main.sub_lang("Subtitles (English)"))
-    check("«English dub» does not count as subtitles", not main.is_subs("English dub"))
+    check("«English dub» субтитрами не считается",
+          not main.is_subs("English dub"))
 
-    # The language of the text. Every subtitle track the sources give is
-    # Russian — a live check over four titles found not one English one.
-    # But English still has to be recognised: passing it off as Russian
-    # would be worse than not finding it at all.
-    check("Russian subtitles are marked as Russian",
+    # Язык текста. Все субтитры, что дают источники, русские — живая
+    # проверка по четырём тайтлам не нашла ни одного английского. Но
+    # опознавать английский всё равно надо: выдать его за русский было бы
+    # хуже, чем не найти вовсе.
+    check("русские субтитры помечены русскими",
           main.sub_lang("Субтитры команда субтитров") == "ru")
-    check("English ones are recognised if they turn up",
+    check("английские опознаются, если появятся",
           main.sub_lang("Субтитры ENG") == "en", main.sub_lang("Субтитры ENG"))
-    check("a dub has no text language at all",
+    check("у озвучки языка текста нет вовсе",
           main.sub_lang("Озвучка студия озвучки") == "")
-    # The regular expression for this check once arrived with a backspace
-    # character inside: through the shell a backslash turned into a real
-    # control character and settled in the source invisibly. There were
-    # never any matches, and it looked like "English subtitles do not
-    # exist".
-    check("there are no control characters in the source",
+    # Регулярка для этой проверки однажды приехала с символом забоя
+    # внутри: через оболочку обратная косая превратилась в настоящий
+    # управляющий символ и осела в исходнике невидимкой. Совпадений не
+    # было никогда, и выглядело это как «английских субтитров не бывает».
+    check("в исходнике нет управляющих символов",
           not [c for c in io.open("api/main.py", encoding="utf-8").read()
                if ord(c) < 9 or (13 < ord(c) < 32)])
 
@@ -1799,9 +1787,9 @@ def run_fixes():
         async def a_get_sources(self):
             return [SubSrc(x) for x in self._titles]
 
-    # The layout answers the question "what tracks does the episode have":
-    # a dub and text. The site has to find the subtitles itself — a person
-    # must not go through the tracks by hand to learn whether they exist.
+    # Раскладка отвечает на вопрос «какие дорожки есть у серии»: озвучка
+    # и текст. Сайт должен находить субтитры сам — человеку не нужно
+    # вручную перебирать дорожки, чтобы узнать, есть ли они.
     LAYOUT = {
         "demo": ["Озвучка студия озвучки", "Субтитры крупный сервис"],
     }
@@ -1823,30 +1811,30 @@ def run_fixes():
         r = t.get("/api/subs", params={"title": "Магическая битва",
                                         "ordinal": 1})
         body = r.json()
-        check("the subtitles were found", r.status_code == 200 and body["found"]
+        check("субтитры найдены",
+              r.status_code == 200 and body["found"]
               and body["source"] == "demo", body)
-        check("and named by their own name",
+        check("и названы своим именем",
               body["dub"] == "Субтитры крупный сервис", body.get("dub"))
-        check("together with the key to open them by",
+        check("вместе с ключом, по которому их открыть",
               body["key"] == "demo-key", body.get("key"))
 
-        # The source the person is already sitting at we do not look at twice.
+        # Источник, где человек уже сидит, второй раз не смотрим.
         main.search_limit.reset()
         r = t.get("/api/subs", params={"title": "Магическая битва",
                                         "ordinal": 1, "skip": "demo"})
-        check("the source where we already watched is skipped",
+        check("источник, где уже смотрели, пропускается",
               "demo" not in r.json()["tried"], r.json()["tried"])
-        # We skipped the only source — there is nowhere left to look.
-        # This is an honest "not found", not an error and not an empty
-        # player.
-        check("and there is nowhere left to look — an honest not found",
+        # Пропущен единственный источник — искать больше негде.
+        # Это честное «не нашлось», а не ошибка и не пустой плеер.
+        check("искать больше негде — честное «не нашлось»",
               r.json()["found"] is False, r.json())
     finally:
         main.try_source = real_try3
         main.anime.find_episodes = real_eps4
 
-    # There may be no subtitles anywhere. That is not an error and not an
-    # empty answer — it has to be said outright.
+    # Субтитров может не быть ни у кого. Это не ошибка и не пустой ответ —
+    # об этом надо сказать прямо.
     main.search_limit.reset()
 
     async def no_subs_anywhere(source, q):
@@ -1855,55 +1843,55 @@ def run_fixes():
     main.try_source = no_subs_anywhere
     try:
         r = t.get("/api/subs", params={"title": "Стальной алхимик"})
-        check("if there are no subtitles anywhere — that is what is said, not a 502",
+        check("если субтитров нет нигде — так и сказано, а не 502",
               r.status_code == 200 and r.json()["found"] is False, r.status_code)
     finally:
         main.try_source = real_try3
 
     # ------------------------------------------------------------------
-    group("Letters: the address and the template")
+    group("Письма: адрес и шаблон")
     from api import mail
 
-    check("a good address was accepted", security.looks_like_email("valera@example.com"))
+    check("хороший адрес принят", security.looks_like_email("valera@example.com"))
     for bad_addr in ["без-собаки", "два@@собаки.ru", "с пробелом@x.ru",
                      "конец@точка.", "@нет-имени.ru", "перенос@стро\nки.ru"]:
-        check(f"a bad address was rejected: {bad_addr[:18]}",
+        check(f"плохой адрес отклонён: {bad_addr[:18]}",
               not security.looks_like_email(bad_addr))
 
     main.pass_limit.reset()
-    check("letters cannot be switched on with no address",
+    check("включить письма без адреса нельзя",
           t.post("/api/me/mail", json={"email": "", "want": True}).status_code == 400)
-    check("with an address they can",
+    check("с адресом можно",
           t.post("/api/me/mail",
                  json={"email": "valera@example.com", "want": True}).status_code == 200)
     me = t.get("/api/me").json()
-    check("the address was saved", me["email"] == "valera@example.com", me["email"])
-    check("the consent was saved", me["mail_new_eps"] is True)
+    check("адрес сохранён", me["email"] == "valera@example.com", me["email"])
+    check("согласие сохранено", me["mail_new_eps"] is True)
 
     letter = mail.episode_html(display_name="Валера", title="Тайтл <script>",
                                episode=7, season="Сезон 2", released="1 мая",
                                about="Описание", poster="", watch_url="http://x/y")
-    check("the letter has the site's name", "анимеДик" in letter)
-    check("there is an episode number", ">7<" in letter)
-    check("there is a season and a date", "Сезон 2" in letter and "1 мая" in letter)
-    check("there is a description", "Описание" in letter)
-    check("there is a button", "Смотреть" in letter)
-    # The name arrives from somebody else's site — in a letter it must be escaped.
-    check("markup from the name was made harmless",
+    check("в письме есть название сайта", "анимеДик" in letter)
+    check("есть номер серии", ">7<" in letter)
+    check("есть сезон и дата", "Сезон 2" in letter and "1 мая" in letter)
+    check("есть описание", "Описание" in letter)
+    check("есть кнопка", "Смотреть" in letter)
+    # Название приходит с чужого сайта — в письме оно обязано быть экранировано.
+    check("разметка из названия обезврежена",
           "<script>" not in letter and "&lt;script&gt;" in letter)
-    check("laid out with tables, as mail clients require",
+    check("вёрстка таблицами, как требуют почтовые клиенты",
           letter.count("<table") >= 4)
-    check("with no mail settings the letters simply do not go out",
+    check("без настроек почты письма просто не уходят",
           mail.send_episode("valera@example.com", title="Т", episode=1) is False
           or mail.enabled())
 
     print("\n" + "=" * 56)
     if FAILS:
-        print(f"FAILED: {len(FAILS)}")
+        print(f"НЕ ПРОШЛИ: {len(FAILS)}")
         for f in FAILS:
             print("   - " + f)
         return 1
-    print("The checks of the fixes passed.")
+    print("Проверки исправлений пройдены.")
     return 0
 
 

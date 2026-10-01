@@ -1,18 +1,15 @@
 <!DOCTYPE html>
-<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru">
+<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru" data-page="index">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <title>анимеДик</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<!-- ==================== SIGN IN ==================== -->
+<!-- ==================== ВХОД ==================== -->
 <div class="gate" id="gate" hidden>
   <div class="aura"></div><div class="aura2"></div>
   <div class="box">
@@ -34,7 +31,7 @@
         </linearGradient></defs>
       </svg>
       <svg class="logo-v mark" data-v="3" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-        <circle cx="17" cy="17" r="16" fill="#171A21" stroke="url(#gC)" stroke-width="2"/>
+        <circle cx="17" cy="17" r="16" fill="var(--bg)" stroke="url(#gC)" stroke-width="2"/>
         <ellipse cx="17" cy="17" rx="15.4" ry="6.2" stroke="url(#gC)" stroke-width="1.5" opacity=".55" transform="rotate(-28 17 17)"/>
         <path d="M14.4 12.6v8.8l7.2-4.4-7.2-4.4Z" fill="url(#gC)"/>
         <defs><linearGradient id="gC" x1="1" y1="1" x2="33" y2="33">
@@ -59,9 +56,8 @@
         <input id="lg-pass" name="password" type="password" autocomplete="current-password" maxlength="200"
                data-ru-ph="Ваш пароль" data-en-ph="Your password" placeholder="Ваш пароль">
       </div>
-      <!-- The field for the code. It appears only if the account has
-           sign-in by code switched on — there is no reason to ask everyone
-           for it. -->
+      <!-- Поле для кода. Появляется только если у аккаунта включён вход
+           по коду — спрашивать его у всех подряд незачем. -->
       <div class="field" id="lg-code-box" hidden style="margin-bottom:18px">
         <label for="lg-code" data-ru="Код из приложения" data-en="Code from your app">Код из приложения</label>
         <input id="lg-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"
@@ -96,7 +92,7 @@
   </div>
 </div>
 
-<!-- ==================== THE APPLICATION ==================== -->
+<!-- ==================== ПРИЛОЖЕНИЕ ==================== -->
 <div id="app" hidden>
 
 <div class="stickytop">
@@ -134,7 +130,7 @@
           </linearGradient></defs>
         </svg>
         <svg class="logo-v mark" data-v="3" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-          <circle cx="17" cy="17" r="16" fill="#171A21" stroke="url(#hC)" stroke-width="2"/>
+          <circle cx="17" cy="17" r="16" fill="var(--bg)" stroke="url(#hC)" stroke-width="2"/>
           <ellipse cx="17" cy="17" rx="15.4" ry="6.2" stroke="url(#hC)" stroke-width="1.5" opacity=".55" transform="rotate(-28 17 17)"/>
           <path d="M14.4 12.6v8.8l7.2-4.4-7.2-4.4Z" fill="url(#hC)"/>
           <defs><linearGradient id="hC" x1="1" y1="1" x2="33" y2="33">
@@ -149,12 +145,23 @@
                placeholder="Что посмотрим?" aria-label="Поиск">
       </div>
 
-      <!-- There used to be a "Filters" button here. Filters are gone: they
-           picked only among what is already in your library, while there is
-           nothing to search for new anime by genre with — all eight sources
-           can do nothing but text search. The button promised what it did
-           not do. In its place is the roulette, which used to hide inside
-           those very filters. -->
+      <!-- Здесь была кнопка «Фильтры». Фильтры убраны: они отбирали только
+           среди того, что уже лежит в вашем списке, а искать новое аниме
+           по жанрам нечем — все восемь источников умеют лишь текстовый
+           поиск. Кнопка обещала не то, что делала. На её месте — рулетка,
+           которая раньше пряталась внутри тех самых фильтров. -->
+      <!-- Кнопка-бургер. Видна только на узком экране: там кнопки не
+           помещаются в строку, и прятать их за одну — единственный
+           способ не превращать шапку в четыре этажа. -->
+      <button class="iconbtn burger" id="btn-burger" type="button"
+              aria-expanded="false" aria-controls="acts" aria-label="Меню">
+        <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.7"
+                stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <div class="acts" id="acts">
       <button class="filtbtn" id="btn-roul" type="button">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <rect x="2.2" y="2.2" width="11.6" height="11.6" rx="3" stroke="currentColor" stroke-width="1.5"/>
@@ -166,9 +173,8 @@
         <span data-ru="Реши за меня" data-en="Pick for me">Реши за меня</span>
       </button>
 
-      <!-- The "Watching / Later / All" tabs are gone: the library is one
-           list anyway, and what is not wanted is removed with the cross on
-           the card itself. -->
+      <!-- Вкладки «Смотрю / Позже / Всё» убраны: список и так один, а
+           ненужное убирается крестиком прямо на карточке. -->
 
       <div class="bellwrap">
         <button class="iconbtn" id="btn-bell" type="button" aria-label="Расписание">
@@ -178,6 +184,7 @@
             <path d="M7.3 14.1a1.8 1.8 0 0 0 3.4 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
           </svg>
           <span class="dotcount" id="bell-count" hidden>0</span>
+          <span class="lbl" data-ru="Новые серии" data-en="New episodes">Новые серии</span>
         </button>
         <div class="drop" id="bell-drop">
           <div class="dh">
@@ -190,9 +197,8 @@
         </div>
       </div>
 
-      <!-- Site news. The button is visible only to an administrator: an
-           ordinary person has nothing to edit an announcement with, while
-           it would take up room in the header. -->
+      <!-- Новости сайта. Кнопка видна только администратору: обычному
+           человеку править объявление нечем, а место в шапке она заняла бы. -->
       <button class="iconbtn" id="btn-news" type="button" aria-label="Новости"
               title="Новости" hidden>
         <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -203,6 +209,7 @@
           <path d="M5.6 7.2h4.4M5.6 9.8h4.4" stroke="currentColor" stroke-width="1.4"
                 stroke-linecap="round"/>
         </svg>
+        <span class="lbl" data-ru="Объявление" data-en="Announcement">Объявление</span>
       </button>
 
       <a class="iconbtn" id="btn-stats" href="/stats" aria-label="Итоги года" title="Итоги года">
@@ -210,6 +217,7 @@
           <path d="M3.4 14.6V9.8M7.6 14.6V4.2M11.8 14.6v-7M16 14.6V6.6" stroke="currentColor"
                 stroke-width="1.7" stroke-linecap="round"/>
         </svg>
+        <span class="lbl" data-ru="Итоги года" data-en="Year in review">Итоги года</span>
       </a>
 
       <button class="iconbtn accent" id="btn-about" type="button" aria-label="Про сайт">
@@ -217,13 +225,28 @@
           <circle cx="9" cy="9" r="7.1" stroke="currentColor" stroke-width="1.4"/>
           <path d="M9 8.1v4.2M9 5.6v.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
+        <span class="lbl" data-ru="Про сайт" data-en="About">Про сайт</span>
       </button>
 
-      <!-- The language switch is in plain sight rather than in the settings.
-           A person who does not know Russian will never reach the settings:
-           to open them one must first understand what the button says. So
-           the language button is on every page and works before signing in
-           — the choice is remembered by the browser itself. -->
+      <a class="iconbtn" id="btn-rules" href="/pravila" target="_blank" rel="noopener"
+         aria-label="Правила" title="Правила">
+        <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M4.2 3.2h6.4l3.2 3.2v8.4H4.2z" stroke="currentColor" stroke-width="1.4"
+                stroke-linejoin="round"/>
+          <path d="M10.4 3.2v3.4h3.4" stroke="currentColor" stroke-width="1.4"
+                stroke-linejoin="round"/>
+          <path d="M6.6 9.2h4.8M6.6 11.6h4.8" stroke="currentColor" stroke-width="1.4"
+                stroke-linecap="round"/>
+        </svg>
+        <span class="lbl" data-ru="Правила" data-en="Rules">Правила</span>
+      </a>
+      </div><!-- /acts -->
+
+      <!-- Переключатель языка стоит на виду, а не в настройках.
+           Человек, который не знает русского, до настроек не доберётся:
+           чтобы их открыть, надо сперва понять, что написано на кнопке.
+           Поэтому кнопка языка есть на каждой странице и работает до
+           входа — выбор запоминается в самом браузере. -->
       <div class="seg lang-seg" role="group" aria-label="Язык / Language">
         <button class="lang" type="button" data-set-lang="ru">RU</button>
         <button class="lang" type="button" data-set-lang="en">EN</button>
@@ -239,13 +262,13 @@
 
 <main>
 
-  <!-- The administrator's announcement. Everyone sees it until it is taken down. -->
-  <!-- The banner about demonstration mode.
-
-       Three sentences with no legal turns of phrase. A long disclaimer
-       would be worse here than a short one: it protects nothing, while
-       proving the author knew what they were doing. This simply says what
-       is playing and under what licence. -->
+  <!-- Объявление от администратора. Видно всем, пока он его не уберёт. -->
+  <!-- Рамка про демонстрационный режим.
+  
+       Три предложения без юридических оборотов. Длинный дисклеймер тут
+       был бы хуже короткого: он ничего не защищает, зато доказывает, что
+       автор понимал, что делает. Здесь просто сказано, что играет и по
+       какой лицензии. -->
   <div class="demonote" id="demonote" hidden>
     <span class="ic" aria-hidden="true">▶</span>
     <span class="tx"
@@ -259,7 +282,7 @@
     <span class="tx" id="sitenews-text"></span>
   </div>
 
-  <!-- search results -->
+  <!-- результаты поиска -->
   <section id="search-wrap" hidden>
     <div class="sec">
       <h2 data-ru="Найдено" data-en="Found">Найдено</h2>
@@ -270,9 +293,9 @@
     <div class="grid" id="search-grid"></div>
   </section>
 
-  <!-- The "Continue" section is gone entirely: it repeated the same cards
-       as the list below, only in a different shape. What is unfinished is
-       visible from the "Not finished" tab. -->
+  <!-- Секция «Продолжить» убрана целиком: она повторяла те же карточки,
+       что и список ниже, только в другом виде. Что не досмотрено — видно
+       по вкладке «Не закончил». -->
 
   <div class="sec">
     <h2 id="list-title" data-ru="Мой список" data-en="My list">Мой список</h2>
@@ -301,11 +324,15 @@
     data-ru="Личный кинозал для аниме: список, отметки о просмотре и уведомления о новых сериях в одном месте. Версия пробная — что-то ещё может работать не так."
     data-en="A personal home for your anime: your list, watch progress and new-episode alerts in one place. This is an early version — some things may still misbehave.">
     Личный кинозал для аниме: список, отметки о просмотре и уведомления о новых сериях в одном месте. Версия пробная — что-то ещё может работать не так.</span>
-  <a href="#" id="foot-about" data-ru="О проекте" data-en="About">О проекте</a>
+  <span class="footlinks">
+    <a href="/pravila" target="_blank" rel="noopener"
+       data-ru="Правила" data-en="Rules">Правила</a>
+    <a href="#" id="foot-about" data-ru="О проекте" data-en="About">О проекте</a>
+  </span>
 </div></footer>
 </div><!-- /app -->
 
-<!-- ==================== ACCOUNT PAGE ==================== -->
+<!-- ==================== КАБИНЕТ ==================== -->
 <div class="veil" id="veil-set">
   <div class="panel" role="dialog" aria-modal="true" aria-label="Настройки">
     <button class="close" id="set-close" type="button" aria-label="Закрыть"
@@ -409,8 +436,64 @@
             <button class="sc" type="button" data-a="sand" style="background:#D9A97F" aria-label="песочный"></button>
           </div>
         </div>
-        <!-- "Cover size" is gone: a setting people set once and never
-             touch again, while it drags a lot of code behind it. -->
+        <!-- «Размер обложек» убран: настройка, которую выставляют один раз
+             и больше не трогают, а кода за собой тянет много. -->
+        <div class="opt col">
+          <span class="lb"><b data-ru="Тема" data-en="Theme">Тема</b></span>
+          <div class="themes" id="s-theme" role="group" aria-label="Тема">
+            <button class="theme" type="button" data-th="kak-seychas"
+                    aria-pressed="false" aria-label="Как сейчас">
+              <span class="thpv" style="background:#191C24">
+                <span class="thbar" style="background:#22262F"></span>
+                <span class="thdot" style="background:#84CBB6"></span>
+              </span>
+              <span class="thnm" data-ru="Как сейчас" data-en="As it is">Как сейчас</span>
+            </button>
+            <button class="theme" type="button" data-th="noch"
+                    aria-pressed="false" aria-label="Ночь">
+              <span class="thpv" style="background:#0F1219">
+                <span class="thbar" style="background:#171B24"></span>
+                <span class="thdot" style="background:#8DB5DF"></span>
+              </span>
+              <span class="thnm" data-ru="Ночь" data-en="Night">Ночь</span>
+            </button>
+            <button class="theme" type="button" data-th="ugol"
+                    aria-pressed="false" aria-label="Уголь">
+              <span class="thpv" style="background:#0A0B0E">
+                <span class="thbar" style="background:#15171C"></span>
+                <span class="thdot" style="background:#AEA1D8"></span>
+              </span>
+              <span class="thnm" data-ru="Уголь" data-en="Charcoal">Уголь</span>
+            </button>
+            <button class="theme" type="button" data-th="bumaga"
+                    aria-pressed="false" aria-label="Бумага">
+              <span class="thpv" style="background:#F4F1EA">
+                <span class="thbar" style="background:#FFFFFF"></span>
+                <span class="thdot" style="background:#C9855A"></span>
+              </span>
+              <span class="thnm" data-ru="Бумага" data-en="Paper">Бумага</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="opt col">
+          <span class="lb"><b data-ru="Праздничное оформление" data-en="Holiday decoration">Праздничное оформление</b></span>
+          <div class="seg wrap" id="s-holiday" role="group" aria-label="Праздник">
+            <button class="on" type="button" data-h="" data-ru="По календарю" data-en="By calendar">По календарю</button>
+            <button type="button" class="adm-only" data-h="newyear" data-ru="Новый год" data-en="New Year">Новый год</button>
+            <button type="button" class="adm-only" data-h="halloween" data-ru="Хэллоуин" data-en="Halloween">Хэллоуин</button>
+            <button type="button" class="adm-only" data-h="sakura" data-ru="Сакура" data-en="Sakura">Сакура</button>
+            <button type="button" data-h="off" data-ru="Выключить" data-en="Off">Выключить</button>
+          </div>
+          <span class="optnote"
+                data-ru="Сайт сам наряжается к празднику: под Новый год идёт снег, к Хэллоуину появляются тыквы и летучие мыши, весной летят лепестки сакуры. Не нужно — нажмите «Выключить», и украшений не будет никогда."
+                data-en="The site decorates itself for the occasion: snow at New Year, pumpkins and bats at Halloween, sakura petals in spring. Not your thing — press “Off” and there will be no decoration at all.">
+            Сайт сам наряжается к празднику: под Новый год идёт снег, к Хэллоуину появляются тыквы и летучие мыши, весной летят лепестки сакуры. Не нужно — нажмите «Выключить», и украшений не будет никогда.</span>
+          <span class="optnote" id="hol-motion" hidden
+                data-ru="Сейчас снежинки и лепестки не падают, а лежат на месте: в вашей Windows выключены эффекты анимации, и сайт это уважает. Чтобы всё задвигалось: Параметры → Специальные возможности → Визуальные эффекты → Эффекты анимации."
+                data-en="Right now the snow and petals sit still instead of falling: animation effects are turned off in your system and the site respects that. To make things move: Settings → Accessibility → Visual effects → Animation effects.">
+            Сейчас снежинки и лепестки не падают, а лежат на месте: в вашей Windows выключены эффекты анимации, и сайт это уважает. Чтобы всё задвигалось: Параметры → Специальные возможности → Визуальные эффекты → Эффекты анимации.</span>
+        </div>
         <div class="opt">
           <span class="lb"><b data-ru="Логотип" data-en="Logo">Логотип</b></span>
           <div class="logos" id="s-logo">
@@ -419,18 +502,18 @@
             <button class="logopick" type="button" data-l="2" aria-label="Вариант 2">
               <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="11" fill="#8DB5DF"/><path d="M8.6 12.4a3.4 3.4 0 0 1 3.4-3.4h10a3.4 3.4 0 0 1 3.4 3.4v6.1a3.4 3.4 0 0 1-3.4 3.4h-5.1l-4.4 3.5v-3.5h-.5a3.4 3.4 0 0 1-3.4-3.4v-6.1Z" fill="#171A21"/><path d="M15.3 12.9v5.9l5-3-5-2.9Z" fill="#8DB5DF"/></svg></button>
             <button class="logopick" type="button" data-l="3" aria-label="Вариант 3">
-              <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="16" fill="#171A21" stroke="#8DB5DF" stroke-width="2"/><ellipse cx="17" cy="17" rx="15.4" ry="6.2" stroke="#8DB5DF" stroke-width="1.5" opacity=".55" transform="rotate(-28 17 17)"/><path d="M14.4 12.6v8.8l7.2-4.4-7.2-4.4Z" fill="#8DB5DF"/></svg></button>
+              <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="16" fill="var(--bg)" stroke="#8DB5DF" stroke-width="2"/><ellipse cx="17" cy="17" rx="15.4" ry="6.2" stroke="#8DB5DF" stroke-width="1.5" opacity=".55" transform="rotate(-28 17 17)"/><path d="M14.4 12.6v8.8l7.2-4.4-7.2-4.4Z" fill="#8DB5DF"/></svg></button>
           </div>
         </div>
       </div>
 
-      <!-- The "Watching" and "Library" sections are gone entirely.
-           "Next episode automatically" stayed as a switch on the watch page
-           itself — that is where it is needed, right under the "next"
-           button. The automatic mark at 90% now simply always works: that
-           is exactly what people expect of a player, and a separate setting
-           for it is redundant. Sorting and "show finished" left along with
-           the tabs: the library is one list, freshest at the top. -->
+      <!-- Разделы «Просмотр» и «Список» убраны целиком.
+           «Следующая серия сама» осталась переключателем на самой странице
+           просмотра — там она и нужна, прямо под кнопкой «дальше».
+           Автоотметка на 90% теперь просто работает всегда: это ровно то,
+           чего от плеера ждут, и отдельная настройка тут лишняя.
+           Сортировка и «показывать законченные» ушли вместе со вкладками:
+           список один, самое свежее сверху. -->
 
       <div class="grp">
         <h4 data-ru="Уведомления" data-en="Notifications">Уведомления</h4>
@@ -470,10 +553,16 @@
                   aria-checked="false" aria-label="Вход по коду из приложения"></button>
         </div>
 
-        <!-- The code appears only after the box is ticked: there is no
-             reason to show it to everyone, let alone the secret. -->
+        <!-- Код появляется только после галочки: показывать его всем подряд
+             незачем, а секрет — тем более. -->
         <div class="twofa" id="twofa-box" hidden>
-          <div class="qrwrap"><img id="twofa-qr" alt="QR-код для приложения" width="184" height="184"></div>
+          <div class="qrwrap"><img id="twofa-qr" alt="QR-код для приложения" width="184" height="184">
+            <!-- Если на сервере нечем нарисовать картинку, показываем это
+                 вместо неё: ключ ниже вводится в приложение руками. -->
+            <p class="qrnone" id="twofa-manual" hidden
+               data-ru="Картинку показать нечем — введите ключ в приложение вручную, он ниже."
+               data-en="No QR renderer here — enter the key below into your app by hand.">
+              Картинку показать нечем — введите ключ в приложение вручную, он ниже.</p></div>
           <div class="twofa-steps">
             <p data-ru="1. Откройте приложение-аутентификатор и отсканируйте код."
                data-en="1. Open your authenticator app and scan the code.">
@@ -525,15 +614,14 @@
     <div class="pfoot" id="pfoot">
       <button class="wide" id="set-save" type="button" style="width:auto;padding:11px 24px"
         data-ru="Сохранить" data-en="Save">Сохранить</button>
-      <!-- The "Close" button is gone: the cross in the corner does the
-           same thing, and two buttons side by side only make people choose
-           between them. -->
+      <!-- Кнопка «Закрыть» убрана: крестик в углу делает то же самое,
+           и две кнопки рядом только заставляют выбирать между ними. -->
       <span class="saved" id="saved" data-ru="Сохранено" data-en="Saved">Сохранено</span>
     </div>
   </div>
 </div>
 
-<!-- ==================== NEWS (ADMIN) ==================== -->
+<!-- ==================== НОВОСТИ (АДМИН) ==================== -->
 <div class="veil" id="veil-news">
   <div class="sheet" role="dialog" aria-modal="true" aria-label="Новости сайта" style="max-width:520px">
     <button class="close" id="news-x" type="button" aria-label="Закрыть">×</button>
@@ -549,13 +637,12 @@
       placeholder="Что сообщить людям…"></textarea>
     <div class="newscount" id="news-count"></div>
 
-    <!-- The English version of the same announcement. There is nothing to
-         translate it by machine with: an announcement is written by a live
-         person in their own words, and running it through someone else's
-         translator means handing outside a text that never asked to go
-         there. Hence a second field, filled in by the same admin. Not
-         filled in — English speakers will see the Russian text: your own
-         announcement in the wrong language is more use than emptiness. -->
+    <!-- Английская версия того же объявления. Машиной перевести нечем:
+         объявление пишет живой человек своими словами, а гонять его
+         через чужой переводчик — значит отдать наружу текст, который
+         туда не просился. Поэтому второе поле, и заполняет его тот же
+         админ. Не заполнил — англоязычным покажется русский текст:
+         своё объявление не на том языке полезнее пустоты. -->
     <label class="newslabel" data-ru="По-английски — необязательно"
            data-en="In English — optional">По-английски — необязательно</label>
     <textarea class="inp" id="news-text-en" rows="3" maxlength="300"
@@ -575,7 +662,7 @@
   </div>
 </div>
 
-<!-- ==================== PHOTO CROPPING ==================== -->
+<!-- ==================== ОБРЕЗКА ФОТО ==================== -->
 <div class="veil" id="veil-crop">
   <div class="sheet cropwrap" role="dialog" aria-modal="true" style="max-width:340px">
     <h3 style="font-size:19px;margin-bottom:4px" data-ru="Обрежьте фото" data-en="Crop your photo">Обрежьте фото</h3>
@@ -595,21 +682,23 @@
   </div>
 </div>
 
-<!-- ==================== DECIDE FOR ME ==================== -->
+<!-- ==================== РЕШИ ЗА МЕНЯ ==================== -->
 <div class="veil" id="veil-roul">
   <div class="roul" id="roul" role="dialog" aria-modal="true">
     <h3 data-ru="Реши за меня" data-en="Pick for me">Реши за меня</h3>
     <div class="sub" data-ru="Случайное аниме из открытого каталога"
          data-en="A random anime from an open catalogue">Случайное аниме из открытого каталога</div>
 
-    <div class="roul-load" id="roul-load" hidden><div class="spin"></div></div>
+    <div class="roul-load" id="roul-load" hidden>
+      <div class="loader" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="bootline" data-ru="Выбираем наугад" data-en="Picking at random">Выбираем наугад</div>
+    </div>
     <div class="pickres" id="pickres"></div>
     <div class="err" id="roul-err" role="alert"></div>
 
-    <!-- The button leads to the same search as the box at the top, and
-         that now goes to the catalogue first rather than straight to the
-         sources. The old caption, "Find at the sources", promised the wrong
-         step. -->
+    <!-- Кнопка ведёт в тот же поиск, что и строка наверху, а он теперь
+         идёт сперва в справочник, а не сразу к источникам. Прежняя
+         подпись «Найти у источников» обещала не тот шаг. -->
     <a class="wide" id="roul-watch" href="#" hidden
        data-ru="Найти на сайте" data-en="Find it here">Найти на сайте</a>
     <button class="wide" id="roul-go" type="button" data-ru="Ещё раз" data-en="Again">Ещё раз</button>
@@ -618,12 +707,12 @@
   </div>
 </div>
 
-<!-- ==================== PARTS OF A FRANCHISE ====================
+<!-- ==================== ЧАСТИ ФРАНШИЗЫ ====================
 
-     Here everything released for one story opens up: seasons, films, OVAs
-     and specials by year. Before this list, search gave one line for each
-     of them in a jumble, and there was no telling from such results where
-     to start "Наруто". -->
+     Здесь открывается всё, что вышло по одной истории: сезоны, фильмы,
+     OVA и спешлы по годам. До этого списка поиск отдавал по одной строке
+     на каждую из них вперемешку, и понять, с чего начинать «Наруто», по
+     такой выдаче было нельзя. -->
 <div class="veil" id="veil-fr">
   <div class="sheet frsheet" role="dialog" aria-modal="true" aria-labelledby="fr-title">
     <button class="close" id="fr-close" type="button" aria-label="Закрыть">&times;</button>
@@ -640,7 +729,7 @@
   </div>
 </div>
 
-<!-- ==================== ABOUT THE SITE ==================== -->
+<!-- ==================== ПРО САЙТ ==================== -->
 <div class="veil" id="veil">
   <div class="sheet" role="dialog" aria-modal="true">
     <button class="close" id="btn-close" type="button" aria-label="Закрыть">×</button>
@@ -675,25 +764,51 @@
   </div>
 </div>
 
-<!-- ==================== LOADING ==================== -->
+<!-- ==================== ЗАГРУЗКА ==================== -->
 <div class="boot" id="boot">
-  <div class="spin"></div>
-  <div class="fact">
-    <div class="k" id="boot-k">Пока грузится</div>
-    <div class="q" id="boot-q">—</div>
-    <div class="a" id="boot-a"></div>
+  <div class="bootmark" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
+      <path d="M8 5.5v13l11-6.5z"></path>
+    </svg>
   </div>
-  <div class="bar"><i id="boot-bar"></i></div>
+  <div class="loader" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="bootline" id="boot-line"
+       data-ru="Загрузка анимеДик" data-en="Loading анимеДик">Загрузка анимеДик</div>
+  <div class="bootbar"><i id="boot-bar"></i></div>
 </div>
 
-<!-- ==================== NOTIFICATION ==================== -->
+<!-- Кнопка связи. Всегда на виду у правого края, поверх содержимого,
+     но ниже окон: перекрывать собой диалоги ей незачем. -->
+<button class="svyaz" id="btn-svyaz" type="button" aria-label="Связаться"
+        title="Связаться">
+  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M20.5 11.7c0 4.2-3.8 7.6-8.5 7.6-1 0-2-.16-2.9-.45L4 20.5l1.7-4.2a7.2 7.2 0 0 1-1.7-4.6C4 7.5 7.8 4.1 12 4.1s8.5 3.4 8.5 7.6Z"
+          stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M9.9 9.6a2.2 2.2 0 1 1 3 2.05c-.55.24-.9.75-.9 1.35v.3"
+          stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    <circle cx="12" cy="16" r="1" fill="currentColor"/>
+  </svg>
+</button>
+
+<!-- ==================== УВЕДОМЛЕНИЕ ==================== -->
+<!-- Совет включить вход по коду. Приходит только тому, у кого он ещё
+     не включён, и только один раз: включил или закрыл — больше не видит. -->
 <div class="toast" id="toast">
-  <span class="ic">ИИ</span>
+  <span class="ic" aria-hidden="true">
+    <svg width="17" height="17" viewBox="0 0 16 16" fill="none">
+      <path d="M8 1.6 13 3.4v4.2c0 3-2.1 5.6-5 6.8-2.9-1.2-5-3.8-5-6.8V3.4L8 1.6Z"
+            stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+      <path d="M5.9 8.1 7.4 9.6l3-3.2" stroke="currentColor" stroke-width="1.4"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </span>
   <div class="tx">
-    <b data-ru="Сайт собран с помощью ИИ" data-en="This site was built with AI">Сайт собран с помощью ИИ</b>
-    <span data-ru="Весь код написан нейросетью, поэтому возможны сбои. По ошибкам и доступу — к администратору."
-          data-en="All the code was written by a neural network, so glitches happen. Contact the administrator about errors or access.">
-      Весь код написан нейросетью, поэтому возможны сбои. По ошибкам и доступу — к администратору.</span>
+    <b data-ru="Включите вход по коду" data-en="Turn on the sign-in code">Включите вход по коду</b>
+    <span data-ru="Тогда одного пароля для входа в ваш аккаунт мало: попросят ещё шесть цифр из приложения на телефоне. Они меняются каждые полминуты, и подобрать или подсмотреть их нельзя."
+          data-en="Then a password alone will not open your account: it also asks for six digits from an app on your phone. They change every half a minute, so they cannot be guessed or peeked at.">
+      Тогда одного пароля для входа в ваш аккаунт мало: попросят ещё шесть цифр из приложения на телефоне. Они меняются каждые полминуты, и подобрать или подсмотреть их нельзя.</span>
+    <button class="small" id="toast-go" type="button"
+            data-ru="Включить" data-en="Turn it on">Включить</button>
   </div>
   <button class="x" id="toast-x" type="button" aria-label="Закрыть">×</button>
 </div>

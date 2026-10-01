@@ -1,29 +1,28 @@
-"""The anime catalogue: descriptions, genres and a random pick.
+"""Справочник аниме: описания, жанры и случайный выбор.
 
-The sources the video comes from know only "a name and episodes" —
-neither descriptions nor genres in any convenient form. For catalogue
-data we go elsewhere.
+Источники, с которых берётся видео, знают только «название и серии» —
+ни описания, ни жанров в удобном виде у них нет. За справочными данными
+ходим отдельно.
 
-The main catalogue is Shikimori: it is Russian-language, and description
-and genres arrive in Russian straight away. That matters more than it
-seems: nobody will read an English description under the player, and
-"Horror, Supernatural" instead of "Ужасы, Мистика" does not answer the
-question "what is this thing anyway".
+Основной справочник — Shikimori: он русскоязычный, и описание с жанрами
+приходят сразу на русском. Это важнее, чем кажется: английское описание
+под плеером читать никто не станет, а «Horror, Supernatural» вместо
+«Ужасы, Мистика» не отвечает на вопрос «а что это вообще такое».
 
-The fallback is AniList, for when Shikimori stays silent. Its answer is
-in English, so genres are translated through the dictionary below and
-the description is shown as it is: English beats none.
+Запасной — AniList, на случай если Shikimori молчит. Его ответ на
+английском, поэтому жанры переводятся по словарю ниже, а описание
+показывается как есть: лучше английское, чем никакого.
 
-Why through our own server rather than straight from the browser:
+Почему через свой сервер, а не прямо из браузера:
 
-  * otherwise every visitor's address would go to someone else's site
-    every time a page opens — exactly what this site does nowhere else;
-  * answers can be put in a shared cache: one request for everybody
-    instead of one per person;
-  * somebody else's answer is parsed here, and only what we need leaves
-    for the outside — no markup, no links, no extra fields.
+  * иначе адрес каждого посетителя уходил бы на чужой сайт при каждом
+    открытии страницы — это ровно то, чего сайт не делает нигде больше;
+  * ответы можно класть в общий кэш: один запрос на всех вместо одного
+    на каждого;
+  * чужой ответ разбирается здесь, и наружу уходит только то, что нам
+    нужно, — без разметки, без ссылок, без лишних полей.
 
-Neither of them requires keys or registration.
+Ключей и регистрации ни один из них не требует.
 """
 
 from __future__ import annotations
@@ -38,9 +37,8 @@ from typing import Any
 
 import httpx
 
-# The name-matching measure lives next to the video sources: it is
-# needed both there and here — to tell which part of a franchise is open
-# right now.
+# Мера совпадения названий живёт рядом с источниками видео: она нужна
+# и там, и здесь — понять, какая из частей франшизы открыта сейчас.
 from . import anime
 
 log = logging.getLogger("anime.catalog")
@@ -48,20 +46,18 @@ log = logging.getLogger("anime.catalog")
 SHIKI = "https://shikimori.one/api"
 ANILIST = "https://graphql.anilist.co"
 TIMEOUT = 12.0
-# Shikimori asks to be introduced to. Without that it is entitled to
-# refuse.
+# Shikimori просит представляться. Без этого он вправе отвечать отказом.
 #
-# Latin letters only: HTTP headers travel in a single-byte encoding, and
-# Cyrillic in them kills the request before it is even sent —
-# UnicodeEncodeError. The error looked harmless: "the catalogue did not
-# answer", and everything quietly went to the English-language fallback.
-# So Russian descriptions did not work at all, and the cause was hiding
-# in our own header.
+# Только латиница: заголовки HTTP передаются однобайтовой кодировкой, и
+# кириллица в них роняет запрос ещё до отправки — UnicodeEncodeError.
+# Ошибка при этом выглядела безобидно: «справочник не ответил», и всё
+# молча уходило к запасному англоязычному. То есть русские описания
+# не работали вовсе, а причина пряталась в собственном заголовке.
 HEADERS = {"User-Agent": "animedik/1.0 (personal home site)"}
 
-# How long we wait between calls to the catalogues. Access is free, but
-# abusing it is not allowed: exceed it and the server's address gets
-# banned, and the catalogue falls away for everyone at once.
+# Сколько ждём между обращениями к справочникам. Доступ свободный, но
+# злоупотреблять им нельзя: превысим — забанят по адресу сервера,
+# и справочник отвалится у всех сразу.
 MIN_GAP = 0.6
 _last_call = [0.0]
 _gate = asyncio.Lock()
@@ -70,9 +66,9 @@ _cache: dict[str, tuple[float, Any]] = {}
 CACHE_TTL = 24 * 3600          # описания меняются раз в год, если вообще
 CACHE_MAX = 500
 
-# The random pick is taken from the first pages by popularity. Beyond
-# them begins what nobody has heard of — and a "random anime" out of that
-# turns into a list of unknown names and stops being interesting.
+# Случайное берём из первых страниц по популярности. Дальше начинается
+# то, о чём никто не слышал, — «случайное аниме» из такого превращается
+# в список неизвестных названий и перестаёт быть интересным.
 RANDOM_PAGES = 220
 
 
@@ -96,11 +92,11 @@ def _cache_put(key: str, value: Any) -> None:
 
 
 async def _pause() -> None:
-    """We do not pester someone else's site.
+    """Не частим к чужому сайту.
 
-    The lock is needed because several requests may run at once: without
-    it they would all see the same "last call" and go out simultaneously,
-    which means the limit would not work at all.
+    Замок нужен, потому что запросов может идти несколько разом: без него
+    все они увидели бы одно и то же «последнее обращение» и ушли наружу
+    одновременно, то есть ограничение не сработало бы вовсе.
     """
     async with _gate:
         gap = MIN_GAP - (time.time() - _last_call[0])
@@ -110,11 +106,11 @@ async def _pause() -> None:
 
 
 async def _get(url: str, params: dict | None = None) -> Any:
-    """An ordinary request. Any trouble — we quietly return nothing.
+    """Обычный запрос. Любая беда — тихо возвращаем ничего.
 
-    The catalogue is a pleasant addition, not something the site cannot
-    work without: it must not bring down the watch page because it is
-    under maintenance.
+    Справочник это приятное дополнение, а не то, без чего сайт не
+    работает: он не должен ронять страницу просмотра, если у него
+    профилактика.
     """
     await _pause()
     try:
@@ -144,19 +140,19 @@ async def _ask_anilist(query: str, variables: dict) -> dict | None:
 
 
 # --------------------------------------------------------------------------
-# Cleaning up someone else's text
+# Чистка чужого текста
 # --------------------------------------------------------------------------
-# Shikimori writes descriptions in its own markup: [b]bold[/b],
-# [url=...]link[/url], [character=123]name[/character], [spoiler]...
-# AniList uses ordinary html. All of it goes to the browser as text, so
-# it would show up as is, in the middle of a sentence.
+# Shikimori пишет описания своей разметкой: [b]жирный[/b],
+# [url=...]ссылка[/url], [character=123]имя[/character], [spoiler]...
+# AniList — обычным html. Всё это уходит в браузер текстом, поэтому
+# показалось бы как есть, посреди предложения.
 _BB_SPOILER = re.compile(r"\[spoiler[^\]]*\].*?\[/spoiler\]", re.S | re.I)
 _BB_PAIR = re.compile(r"\[(\w+)(?:=[^\]]*)?\](.*?)\[/\1\]", re.S)
 _BB_ANY = re.compile(r"\[/?[^\]]{0,60}\]")
 _HTML_TAG = re.compile(r"<[^>]+>")
 _JUNK = re.compile(r"\((?:source|written by|источник)[^)]*\)", re.I)
 
-# The turns of phrase after which descriptions usually start retelling the plot.
+# Обороты, за которыми в описаниях обычно начинается пересказ сюжета.
 _SPOILER_WORDS = re.compile(
     r"(?:however|but then|it turns out|in the end|finally,|"
     r"однако|но затем|оказывается|в финале|в конце концов|"
@@ -166,37 +162,37 @@ DESC_MAX = 420
 
 
 def clean_description(raw: str | None) -> str:
-    """A short description with no markup and no spoilers.
+    """Короткое описание без разметки и без спойлеров.
 
-    We take the beginning only: the first sentences are the setup, which
-    is what people read them for. After that the retelling begins, and
-    with it what spoils the watching.
+    Берём только начало: первые предложения — это завязка, ради которой
+    и читают. Дальше начинается пересказ, а с ним и то, что портит
+    просмотр.
     """
     if not raw:
         return ""
     text = str(raw)
-    # 1. Pieces marked as a spoiler outright — out whole.
+    # 1. Куски, прямо помеченные как спойлер, — целиком вон.
     text = _BB_SPOILER.sub(" ", text)
-    # 2. Paired tags: we keep the contents and remove the tags.
+    # 2. Парные метки: оставляем содержимое, метки убираем.
     for _ in range(3):                              # вложенность бывает
         new = _BB_PAIR.sub(r"\2", text)
         if new == text:
             break
         text = new
-    # 3. Leftovers of single tags and html.
+    # 3. Остатки одиночных меток и html.
     text = _BB_ANY.sub(" ", text)
     text = html.unescape(_HTML_TAG.sub(" ", text))
     text = _JUNK.sub(" ", text)
     text = re.sub(r"\s+", " ", text).strip()
 
-    # We cut at the first turn of phrase that usually precedes a plot twist.
+    # Режем по первому обороту, за которым обычно идёт поворот сюжета.
     cut = _SPOILER_WORDS.search(text)
     if cut and cut.start() > 120:
         text = text[:cut.start()].strip()
 
     if len(text) <= DESC_MAX:
         return text.rstrip(" ,;:—-")
-    # We trim at a sentence boundary, not in the middle of a word.
+    # Обрезаем по границе предложения, а не посреди слова.
     head = text[:DESC_MAX]
     dot = max(head.rfind(". "), head.rfind("! "), head.rfind("? "))
     if dot > 160:
@@ -205,8 +201,8 @@ def clean_description(raw: str | None) -> str:
     return (head[:space] if space > 0 else head).rstrip(" ,;:—-") + "…"
 
 
-# AniList genres arrive in English. Its list is closed and short, so a
-# dictionary is enough — nothing has to be guessed.
+# Жанры AniList приходят по-английски. Список у него закрытый и короткий,
+# поэтому словаря достаточно — гадать ничего не нужно.
 GENRE_RU = {
     "Action": "Экшен", "Adventure": "Приключения", "Comedy": "Комедия",
     "Drama": "Драма", "Ecchi": "Этти", "Fantasy": "Фэнтези",
@@ -222,22 +218,62 @@ def ru_genre(name: str) -> str:
 
 
 # --------------------------------------------------------------------------
-# Parsing the answers
+# Разбор ответов
 # --------------------------------------------------------------------------
 KIND_RU = {
     "tv": "сериал", "movie": "фильм", "ova": "OVA", "ona": "ONA",
     "special": "спешл", "music": "клип",
-    # Recaps and specials shown on television arrive under a separate
-    # label. Untranslated it rode into the interface as it was —
-    # "tv_special" in the middle of a Russian list of parts.
+    # Пересказы и спецвыпуски, показанные по телевизору, приходят
+    # отдельной меткой. Без перевода она уезжала в интерфейс как есть —
+    # «tv_special» посреди русского списка частей.
     "tv_special": "спецвыпуск", "pv": "трейлер", "cm": "реклама",
     "TV": "сериал", "MOVIE": "фильм", "OVA": "OVA", "ONA": "ONA",
     "SPECIAL": "спешл", "MUSIC": "клип", "TV_SHORT": "короткий сериал",
 }
 
 
+SHIKI_HOST = "https://shikimori.one"
+
+
+def _poster_url(tail: object) -> str:
+    """Адрес обложки — или пустая строка.
+
+    Раньше домен дописывался всему, что не начинается с "http". Строка
+    "javascript:alert(1)" превращалась в "https://shikimori.onejavascript:..."
+    — мусор, собранный из чужого ответа. Признаём только две формы:
+    путь от корня и готовый https-адрес.
+    """
+    if not isinstance(tail, str):
+        return ""
+    tail = tail.strip()
+    if not tail:
+        return ""
+    if tail.startswith("/") and not tail.startswith("//"):
+        return SHIKI_HOST + tail
+    if tail.startswith("https://"):
+        return tail
+    return ""
+
+
+def _whole(value: object) -> int | None:
+    """Целое число или ничего.
+
+    Справочник — чужой сервер. Если вместо количества серий придёт
+    "много", а вместо года — "недавно", это уедет прямо на страницу.
+    Всё, что не приводится к целому, превращается в «неизвестно»:
+    отсутствие числа страница переживает, а мусор вместо числа — нет.
+    """
+    if isinstance(value, bool) or value is None:
+        return None
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        return None
+    return n if 0 <= n <= 100000 else None
+
+
 def pack_shiki(a: dict | None, full: dict | None = None) -> dict | None:
-    """Shikimori's answer. It is Russian-language, nothing needs translating."""
+    """Ответ Shikimori. Он русскоязычный, переводить ничего не нужно."""
     if not a:
         return None
     name = a.get("russian") or a.get("name") or ""
@@ -258,20 +294,18 @@ def pack_shiki(a: dict | None, full: dict | None = None) -> dict | None:
     poster = ""
     image = a.get("image") or {}
     if isinstance(image, dict):
-        tail = image.get("original") or image.get("preview") or ""
-        if tail:
-            poster = tail if tail.startswith("http") else "https://shikimori.one" + tail
+        poster = _poster_url(image.get("original") or image.get("preview"))
     return {
         "title": name,
         "title_en": a.get("name") or "",
         "year": year,
-        "episodes": a.get("episodes") or a.get("episodes_aired") or None,
+        "episodes": _whole(a.get("episodes")) or _whole(a.get("episodes_aired")),
         "kind": KIND_RU.get(a.get("kind", ""), a.get("kind") or ""),
         "genres": genres,
         "about": clean_description(d.get("description")),
         "poster": poster,
-        # Shikimori's score is out of ten, we bring it to a hundred: the
-        # same as the fallback catalogue, so they can be shown alike.
+        # У Shikimori оценка десятибалльная, приводим к сотне: так же,
+        # как у запасного справочника, чтобы показывать одинаково.
         "score": int(round(score * 10)) if score else None,
     }
 
@@ -288,7 +322,7 @@ Q_RANDOM = ("query ($p: Int) { Page(page: $p, perPage: 1) {"
 
 
 def pack_anilist(media: dict | None) -> dict | None:
-    """The fallback catalogue's answer. Genres we translate, the description we leave."""
+    """Ответ запасного справочника. Жанры переводим, описание оставляем."""
     if not media or media.get("isAdult"):
         return None
     titles = media.get("title") or {}
@@ -300,27 +334,27 @@ def pack_anilist(media: dict | None) -> dict | None:
     return {
         "title": name,
         "title_en": titles.get("english") or "",
-        "year": media.get("seasonYear"),
-        "episodes": media.get("episodes"),
+        "year": _whole(media.get("seasonYear")),
+        "episodes": _whole(media.get("episodes")),
         "kind": KIND_RU.get(media.get("format", ""), media.get("format") or ""),
         "genres": [ru_genre(g) for g in (media.get("genres") or [])][:5],
         "about": clean_description(media.get("description")),
-        "poster": cover.get("large") or cover.get("medium") or "",
+        "poster": _poster_url(cover.get("large")) or _poster_url(cover.get("medium")),
         "score": int(score) if isinstance(score, int) else None,
     }
 
 
 # --------------------------------------------------------------------------
-# Simplifying the name
+# Упрощение названия
 # --------------------------------------------------------------------------
 def simpler_titles(title: str) -> list[str]:
-    """Variants of the name from the full one to the shortest.
+    """Варианты названия от полного к самому короткому.
 
-    Video sources write a name their own way: "Магическая битва 2",
-    "Магическая битва 0 Фильм", "Магическая академия Атараксия: Гибрид x
-    Сердце". The catalogue knows no such strings — it knows "Магическая
-    битва". Without simplification no description was found for anything
-    that ran longer than one season, and that is a good half of the list.
+    Источники видео пишут название по-своему: «Магическая битва 2»,
+    «Магическая битва 0 Фильм», «Магическая академия Атараксия: Гибрид
+    x Сердце». Справочник таких строк не знает — он знает «Магическая
+    битва». Без упрощения описание не находилось у всего, что вышло
+    больше одного сезона, а это добрая половина списка.
     """
     title = (title or "").strip()
     out = [title]
@@ -343,28 +377,27 @@ def simpler_titles(title: str) -> list[str]:
 
 
 # --------------------------------------------------------------------------
-# What the endpoints call
+# То, что вызывают ручки
 # --------------------------------------------------------------------------
 async def _shiki_about(title: str) -> dict | None:
     found = await _get(SHIKI + "/animes", {"search": title, "limit": 1, "censored": "true"})
     if not isinstance(found, list) or not found:
         return None
     brief = found[0]
-    # Genres and description sit in the detailed card only.
+    # Жанры и описание лежат только в подробной карточке.
     full = await _get(SHIKI + "/animes/" + str(brief.get("id")))
     return pack_shiki(brief, full if isinstance(full, dict) else None)
 
 
 async def about(title: str, lang: str = "ru") -> dict | None:
-    """Reference data by name: description, year, genres, score.
+    """Справка по названию: описание, год, жанры, оценка.
 
-    First the Russian catalogue, then the fallback. If the full name is
-    not found — we try the simplified variants (see simpler_titles).
+    Сначала русский справочник, потом запасной. Если полное название не
+    нашлось — пробуем упрощённые варианты (см. simpler_titles).
 
-    lang="en" flips the order: AniList is asked first, being the
-    English-language one. A Russian description is exactly as useless to
-    a person who switched the site to English as an English one is to a
-    Russian speaker.
+    lang="en" переворачивает порядок: первым спрашивается AniList, он
+    англоязычный. Русское описание человеку, переключившему сайт на
+    английский, бесполезно ровно так же, как английское — русскому.
     """
     title = (title or "").strip()[:120]
     if len(title) < 2:
@@ -381,11 +414,11 @@ async def about(title: str, lang: str = "ru") -> dict | None:
         packed = await _shiki_about(variant)
         if packed and packed.get("about"):
             break
-        # There is no Russian description — let us ask the fallback, it may have one.
+        # Русского описания нет — спросим запасной, вдруг там есть.
         data = await _ask_anilist(Q_SEARCH, {"s": variant})
         fallback = pack_anilist((data or {}).get("Media"))
         if fallback and fallback.get("about"):
-            # The name and genres we still prefer in Russian.
+            # Название и жанры всё равно предпочитаем русские.
             if packed:
                 fallback["title"] = packed["title"]
                 fallback["genres"] = packed["genres"] or fallback["genres"]
@@ -400,11 +433,11 @@ async def about(title: str, lang: str = "ru") -> dict | None:
 
 
 async def _about_en(title: str) -> dict | None:
-    """The same, but in English: AniList first, the Russian catalogue as fallback.
+    """То же, но по-английски: сначала AniList, русский справочник запасным.
 
-    AniList has description and genres in English to begin with, nothing
-    needs translating. If it stays silent we take the Russian card — with
-    it at least the year, the episode count and the cover will be right.
+    У AniList описание и жанры на английском изначально, переводить
+    ничего не нужно. Если он молчит, берём русскую карточку — с ней
+    хотя бы год, число серий и обложка будут верными.
     """
     key = "about:en:" + title.lower()
     hit = _cache_get(key)
@@ -418,8 +451,8 @@ async def _about_en(title: str) -> dict | None:
         if media:
             found = pack_anilist(media)
             if found:
-                # Our genres get translated into Russian while parsing —
-                # here that is exactly what is not wanted.
+                # Жанры у нас переводятся на русский при разборе — здесь
+                # это ровно то, чего не надо.
                 found["genres"] = [g for g in (media.get("genres") or [])][:5]
                 titles = media.get("title") or {}
                 found["title"] = (titles.get("english") or titles.get("romaji")
@@ -434,7 +467,7 @@ async def _about_en(title: str) -> dict | None:
 
 
 async def random_anime() -> dict | None:
-    """A random anime from the catalogue — not from your library."""
+    """Случайное аниме из справочника — не из вашего списка."""
     page = random.randint(1, RANDOM_PAGES)
     key = f"page:{page}"
     hit = _cache_get(key)
@@ -460,44 +493,44 @@ async def random_anime() -> dict | None:
 
 
 # ==========================================================================
-# Searching by franchise
+# Поиск по франшизам
 # ==========================================================================
-# How this search differs from the one that was here.
+# Чем этот поиск отличается от того, что был.
 #
-# The search box used to send a query to the video site, and the person
-# got what that site considers similar. For "Наруто" it looked like this:
-# source A knows "Наруто Ураганные хроники" and "Боруто", but does not
-# know "Наруто". Source B dumps twenty-one lines in a jumble: first
-# "Боруто: Фильм", then the second season, then a special about a sports
-# festival. Which of these is "Наруто" itself and in what order to watch
-# it all — such a list gives no way of telling.
+# Раньше в строку поиска уходил запрос к источнику видео, и человек
+# получал то, что этот источник считает похожим. У «Наруто» это
+# выглядело так: один источник знает «Наруто Ураганные хроники» и
+# «Боруто», но не знает «Наруто». Другой вываливает двадцать одну строку
+# вперемешку: сначала «Боруто: Фильм», потом второй сезон, потом спешл
+# про спортивный фестиваль. Где здесь сам «Наруто» и в каком порядке всё
+# это смотреть — по такому списку не понять никак.
 #
-# The reason is simple: video sites have no notion of a franchise. Every
-# season, film and OVA sits there as a separate record with an arbitrary
-# name, and the links between them are stored nowhere.
+# Причина простая: у сайтов с видео нет понятия «франшиза». Каждый сезон,
+# фильм и OVA лежат у них отдельными записями с произвольными названиями,
+# и связи между ними не хранится нигде.
 #
-# The catalogue does have them. At Shikimori every card is marked with a
-# franchise field: "Наруто", "Ураганные хроники" and every film and
-# special all carry one label, "naruto". So search now goes through the
-# catalogue: a query returns one card per franchise, and inside it all
-# the parts in order of release.
+# А у справочника она есть. У Shikimori каждая карточка помечена полем
+# franchise: и «Наруто», и «Ураганные хроники», и все фильмы со спешлами
+# несут одну метку «naruto». Поэтому поиск теперь идёт по справочнику:
+# на запрос возвращается одна карточка на франшизу, а внутри неё — все
+# части по порядку выхода.
 #
-# Shikimori was chosen as the main one over AniList for two reasons: it
-# gives Russian names (the site is Russian, and "Атака титанов" reads
-# better than "Shingeki no Kyojin"), and only it has the franchise label.
-# AniList stays as the fallback for when Shikimori does not answer; it
-# knows no franchises, so parts there are gathered by a shared beginning
-# of the name — worse, but better than nothing.
+# Shikimori выбран основным, а не AniList, по двум причинам: он отдаёт
+# русские названия (сайт русский, и «Атака титанов» читается лучше, чем
+# «Shingeki no Kyojin»), и метка франшизы есть только у него. AniList
+# остаётся запасным на случай, когда Shikimori не отвечает; франшиз он
+# не знает, поэтому там части собираются по совпадению начала названия —
+# хуже, но лучше, чем ничего.
 
 SHIKI_GQL = "https://shikimori.one/api/graphql"
 
-# Labels that have nothing to do with watching: trailers, promotional
-# clips and music videos. In a list of parts they are only in the way —
-# nobody watches them, yet they take up room.
+# Метки, которые не имеют отношения к просмотру: трейлеры, рекламные
+# ролики и музыкальные клипы. В списке частей они только мешают — их
+# не смотрят, а место в списке занимают.
 JUNK_KINDS = {"pv", "cm", "music"}
 
-# How many parts of a franchise the catalogue gives at once. Fifty is its
-# own ceiling; it will not give more however much you want.
+# Сколько частей франшизы справочник отдаёт за один раз. Полсотни —
+# его собственный потолок, больше он не отдаст при всём желании.
 FRANCHISE_LIMIT = 50
 
 GQL_FIELDS = """
@@ -508,7 +541,7 @@ GQL_FIELDS = """
 
 
 async def _ask_shiki_gql(query: str, variables: dict | None = None) -> dict | None:
-    """A request to the catalogue's GraphQL. Silence is not an error, it is None."""
+    """Запрос к GraphQL справочника. Молчание — не ошибка, а None."""
     await _pause()
     try:
         async with httpx.AsyncClient(timeout=TIMEOUT, headers=HEADERS,
@@ -528,7 +561,7 @@ async def _ask_shiki_gql(query: str, variables: dict | None = None) -> dict | No
 
 
 def pack_part(node: dict | None) -> dict | None:
-    """One part of a franchise: a season, a film, an OVA or a special."""
+    """Одна часть франшизы: сезон, фильм, OVA или спешл."""
     if not isinstance(node, dict):
         return None
     title = node.get("russian") or node.get("name") or ""
@@ -550,9 +583,9 @@ def pack_part(node: dict | None) -> dict | None:
         "year": year if isinstance(year, int) else None,
         "kind": kind,
         "kind_ru": KIND_RU.get(kind, kind),
-        # A series still airing has no total episode count set: "Ван-Пис"
-        # ran for twenty-six years, and how many there will be in the end
-        # nobody knows. Then we show how many are out.
+        # У выходящего сейчас сериала общее число серий не проставлено:
+        # «Ван-Пис» шёл двадцать шесть лет, и сколько их будет всего, не
+        # знает никто. Тогда показываем, сколько вышло.
         "episodes": node.get("episodes") or node.get("episodesAired") or None,
         "ongoing": node.get("status") == "ongoing",
         "poster": (poster.get("mainUrl") or poster.get("originalUrl") or ""),
@@ -560,26 +593,25 @@ def pack_part(node: dict | None) -> dict | None:
     }
 
 
-# Within one year the series comes first, then in descending order of
-# "mainness": what people watch above what they watch afterwards. The
-# catalogue gives no date finer than the year, so there is nothing to
-# order 2013 "by day of release" with — but ordering by sense is possible.
+# Внутри одного года сериал идёт первым, дальше по убыванию «основного»:
+# то, что смотрят, выше того, что смотрят после. Точнее года справочник
+# дату не отдаёт, поэтому упорядочить 2013 год «по дням выхода» нечем —
+# а упорядочить по смыслу можно.
 KIND_RANK = {"tv": 0, "ona": 1, "movie": 2, "tv_special": 3, "ova": 3,
              "special": 4}
 
 
 def _sort_key(part: dict) -> tuple:
-    """The order of parts — by release.
+    """Порядок частей — по выходу.
 
-    What is not out yet goes to the end: it has no year, and putting a
-    zero there is not allowed — an announcement would then stand ahead of
-    the first season.
+    Ещё не вышедшее уезжает в конец: года у него нет, и подставлять ноль
+    нельзя — иначе анонс встал бы впереди первого сезона.
 
-    Parts of the same age within a year are sorted out by kind. Without
-    that, "Атака титанов" led with four lines of OVA, a theatrical short
-    and a recap — all from 2013 — while the first season itself stood
-    fourth. Formally correct, reads like a list of anything except what
-    the person came for.
+    Ровесники внутри года разбираются по виду. Без этого у «Атаки
+    титанов» первыми четырьмя строками шли OVA, театральная миниатюра и
+    пересказ — всё 2013 года, — а сам первый сезон стоял четвёртым.
+    Формально верно, читается как список чего угодно, кроме того, за чем
+    пришли.
     """
     rank = KIND_RANK.get(part.get("kind") or "", 5)
     size = -(part.get("episodes") or 0)
@@ -591,21 +623,20 @@ def sort_parts(parts: list[dict]) -> list[dict]:
 
 
 def main_part(parts: list[dict]) -> dict:
-    """The part a franchise is recognised by.
+    """Часть, по которой франшиза узнаётся.
 
-    It is almost always the first series: "Наруто", not "Наруто:
-    Ураганные хроники" and not "Боруто".
+    Это почти всегда первый сериал: «Наруто», а не «Наруто: Ураганные
+    хроники» и не «Боруто».
 
-    Series are picked strictly, as a separate tier, rather than together
-    with the series-adjacent. Otherwise this happens: for "Атака титанов"
-    the first season and a recap cut came out in the same year, the cut
-    is marked tv_special, and sorting by the year alone made the
-    franchise be called "Атака титанов: Рекап". For "Судьба" a special
-    about the "Grand Order" climbed to the top the same way.
+    Сериалы отбираются строго, отдельной ступенью, а не вместе с
+    околосериальным. Иначе выходит вот что: у «Атаки титанов» первый
+    сезон и нарезка-пересказ вышли в один и тот же год, нарезка помечена
+    как tv_special, и при сортировке по одному только году франшиза
+    называлась «Атака титанов: Рекап». У «Судьбы» тем же образом наверх
+    вылезал спешл про «Великий приказ».
 
-    Within a tier, at an equal year, whichever has more episodes wins:
-    the main story is almost always longer than the special accompanying
-    it.
+    Внутри ступени при равном годе побеждает то, где больше серий:
+    основная история почти всегда длиннее сопровождающего её спешла.
     """
     for tier in ([p for p in parts if p.get("kind") == "tv"],
                  [p for p in parts if p.get("kind") in ("tv_special", "ona")],
@@ -617,22 +648,22 @@ def main_part(parts: list[dict]) -> dict:
 
 
 def mark_main(parts: list[dict]) -> list[dict]:
-    """Marks the part people start watching from.
+    """Помечает часть, с которой начинают смотреть.
 
-    The rule is simple: the earliest one. The list is sorted by year
-    anyway, so the mark lands on the first line — what is written in the
-    list is what is marked, with no discrepancy.
+    Правило простое: самая ранняя. Список и так отсортирован по годам,
+    поэтому отметка встаёт на первую строку — что написано в списке, то
+    и помечено, разночтений нет.
 
-    A cleverer rule used to stand here: "the franchise's first series".
-    It was invented for the sake of "Ван-Пис", whose earliest part is an
-    OVA from 1998, shot before the series, while the series itself came
-    out a year later. The rule did send people to the series, but at the
-    cost of the "start" mark leaving the line that is first in the list —
-    and there is nothing to explain that with to someone looking at it.
+    Здесь стояло правило похитрее: «первый сериал франшизы». Придумано
+    оно было ради «Ван-Пис», у которого самое раннее — OVA 1998 года,
+    снятая до сериала, а сам сериал вышел годом позже. Правило и правда
+    отправляло к сериалу, но ценой того, что отметка «начало» уезжала
+    со строки, которая в списке первая, — а объяснить это глядящему на
+    список нечем.
 
-    Within one year the order is not accidental (see _sort_key): a series
-    stands above OVAs and recaps. So for "Атака титанов", where 2013
-    brought a series, an OVA and a cut, the mark is on the series anyway.
+    Внутри одного года порядок не случаен (см. _sort_key): сериал стоит
+    выше OVA и пересказов. Поэтому у «Атаки титанов», где в 2013 году
+    вышли и сериал, и OVA, и нарезка, отметка всё равно на сериале.
     """
     if not parts:
         return parts
@@ -642,29 +673,28 @@ def mark_main(parts: list[dict]) -> list[dict]:
 
 
 def group_key(part: dict) -> str:
-    """Under which label a part lands in a shared card.
+    """Под какой меткой часть попадёт в общую карточку.
 
-    Most catalogue cards have the franchise label set. Where there is
-    none (standalone films, fresh announcements), the name itself becomes
-    the label: such a franchise consists of one part, and that is true.
+    У большинства карточек справочника метка франшизы проставлена. Там,
+    где её нет (одиночные фильмы, свежие анонсы), меткой становится само
+    название: такая франшиза состоит из одной части, и это правда.
     """
     return part.get("franchise") or ("title:" + part["title"].lower())
 
 
 async def _franchise_pages(fid: str) -> list[dict] | None:
-    """Every part of one franchise, both pages at once.
+    """Все части одной франшизы, обеими страницами сразу.
 
-    The catalogue's limit is fifty cards at a time, and its order runs
-    from new to old. You do not get burned by this immediately: "Наруто"
-    has twenty-nine parts, everything fits, and it seems that is how it
-    should be. But "Ван-Пис" has ninety — and the first fifty are the
-    years 2015–2027, meaning "Ван-Пис" itself, from 1999, does not make
-    it into the answer at all. The franchise was called "Ван-Пис: Остров
-    Рыболюдей", and the first episode in the list came from the middle.
+    Ограничение справочника — полсотни карточек за раз, а порядок у него
+    от новых к старым. На этом обжигаешься не сразу: у «Наруто» частей
+    двадцать девять, всё влезает, и кажется, что так и надо. А у «Ван-Пис»
+    их девяносто — и первые полсотни это 2015–2027 годы, то есть сам
+    «Ван-Пис» 1999 года в ответ не попадает вовсе. Франшиза называлась
+    «Ван-Пис: Остров Рыболюдей», и первая серия в списке была из середины.
 
-    So two pages are taken. Both in one request, through field aliases:
-    two calls to someone else's site would take twice as long for exactly
-    nothing.
+    Поэтому страниц берётся две. Обе — одним запросом, через псевдонимы
+    полей: два обращения к чужому сайту заняли бы вдвое больше времени
+    ровно ни за чем.
     """
     safe = re.sub(r"[^a-z0-9_-]", "", str(fid).lower())[:60]
     if not safe:
@@ -694,19 +724,17 @@ GQL_SEARCH = ("query ($s: String) { animes(search: $s, limit: 24, censored: true
 
 
 def franchise_card(fid: str, parts: list[dict]) -> dict:
-    """A franchise card: what is visible in the results before a click.
+    """Карточка франшизы: то, что видно в выдаче до нажатия.
 
-    The numbers on the card are about the main part, not the franchise as
-    a whole: the first season's year of release and how many episodes it
-    has. That is what search knows without asking the catalogue a second
-    time.
+    Числа в карточке — про главную часть, а не про франшизу целиком: год
+    выхода первого сезона и сколько в нём серий. Это то, что знает поиск,
+    не спрашивая справочник второй раз.
 
-    The temptation to write "29 parts" here was there, and had to be
-    given up: at search time not all the franchise's parts are known,
-    only those that made it into the answer. The number would come out
-    right sometimes and wrong others, and there is no checking it by eye
-    — exactly the case where it is better to write nothing. The full list
-    opens on a click, and there it is full.
+    Соблазн написать здесь «29 частей» был, и от него пришлось отказаться:
+    при поиске известны не все части франшизы, а только те, что попали
+    в ответ на запрос. Число вышло бы то верным, то нет, а проверить его
+    глазами нельзя — как раз тот случай, когда лучше не писать ничего.
+    Полный список открывается по нажатию, и там он полный.
     """
     head = main_part(parts)
     poster = head.get("poster") or next((p["poster"] for p in parts if p.get("poster")), "")
@@ -723,12 +751,11 @@ def franchise_card(fid: str, parts: list[dict]) -> dict:
 
 
 def group_found(found: list[dict]) -> tuple[list[str], dict[str, list[dict]]]:
-    """Sorts what was found into franchises, keeping the order of the results.
+    """Раскладывает найденное по франшизам, сохраняя порядок выдачи.
 
-    The groups are ordered by how early the group's first part appeared
-    in the catalogue's answer. The catalogue has already sorted the
-    answer by closeness to the query, and there is no reason to reorder
-    it by our own devices.
+    Порядок групп — по тому, как рано в ответе справочника встретилась
+    первая часть группы. Справочник уже отсортировал ответ по близости
+    к запросу, и переупорядочивать его своими силами незачем.
     """
     order: list[str] = []
     grouped: dict[str, list[dict]] = {}
@@ -742,18 +769,17 @@ def group_found(found: list[dict]) -> tuple[list[str], dict[str, list[dict]]]:
 
 
 async def search_franchises(q: str) -> list[dict] | None:
-    """Search through the catalogue: one card per franchise.
+    """Поиск по справочнику: одна карточка на франшизу.
 
-    Exactly one request to the outside. Unfolding every franchise found
-    here in full is tempting and wrong: the query "битва" brings back
-    eleven of them, and the person would wait for all eleven lists to
-    load in order to read the first line and click it. Lists load on a
-    click, one at a time.
+    Ровно один запрос наружу. Раскрывать здесь каждую найденную франшизу
+    целиком — заманчиво и неправильно: на запрос «битва» их приходит
+    одиннадцать, и человек ждал бы, пока подгрузятся все одиннадцать
+    списков, чтобы прочитать первую строку и нажать на неё. Списки
+    подгружаются по нажатию, по одному.
 
-    None means "the catalogue did not answer" — which is not the same as
-    an empty list. On an empty list the site will say "nothing found",
-    while on None it goes off to search the old way, straight at the
-    video sources.
+    None означает «справочник не ответил» — это не то же самое, что
+    пустой список. По пустому списку сайт скажет «ничего не нашлось»,
+    а по None уйдёт искать старым способом, прямо у источников видео.
     """
     q = (q or "").strip()[:100]
     if len(q) < 2:
@@ -780,10 +806,9 @@ async def search_franchises(q: str) -> list[dict] | None:
     order, grouped = group_found(found)
     cards = []
     for k in order:
-        # What was found for this group we put in the cache in advance:
-        # if the catalogue goes down between the search and the click,
-        # the list of parts will open anyway — incomplete, perhaps, but
-        # not empty.
+        # Найденное по этой группе кладём в кэш заранее: если справочник
+        # ляжет между поиском и нажатием, список частей всё равно
+        # откроется — пусть неполный, но не пустой.
         _cache_put("part:" + k, sort_parts(grouped[k]))
         cards.append(franchise_card(k, grouped[k]))
     _cache_put(key, cards)
@@ -791,15 +816,14 @@ async def search_franchises(q: str) -> list[dict] | None:
 
 
 async def _franchise_raw(fid: str) -> list[dict] | None:
-    """The franchise's parts as they are — with no marks, straight from cache or network."""
+    """Части франшизы как они есть — без пометок, прямо из кэша или сети."""
     hit = _cache_get("fr:" + fid)
     if hit is not None:
         return hit
 
-    # Labels with a colon are assembled by us, not by the catalogue:
-    # "title:…" is a group of one title, "al:…" is a splice from the
-    # fallback catalogue. Asking Shikimori about those is pointless, it
-    # knows no such thing.
+    # Метки с двоеточием собраны нами, а не справочником: «title:…» —
+    # группа из одного тайтла, «al:…» — склейка запасного справочника.
+    # Спрашивать про них Shikimori бессмысленно, он таких не знает.
     if ":" not in fid:
         full = await _franchise_pages(fid)
         if full:
@@ -809,21 +833,20 @@ async def _franchise_raw(fid: str) -> list[dict] | None:
     known = _cache_get("part:" + fid)
     if known:
         return known
-    # The search cache fell apart — we will gather the group again by
-    # the name that stayed in the label itself.
+    # Кэш поиска рассыпался — соберём группу заново по названию, которое
+    # осталось в самой метке.
     if ":" in fid and await search_franchises(fid.split(":", 1)[1]) is not None:
         return _cache_get("part:" + fid) or []
     return None
 
 
 async def franchise_parts(fid: str) -> list[dict] | None:
-    """Every part of one franchise in order of release.
+    """Все части одной франшизы по порядку выхода.
 
-    Copies leave for the outside, not the records from the cache: the
-    marks — "start" here and "watching now" on the watch page — are each
-    answer's own business, while the list is shared by everybody.
-    Mutating a shared cache for each person is a sure way to show one
-    person what another one chose.
+    Наружу уходят копии, а не записи из кэша: пометки — «начало» здесь и
+    «сейчас смотрите» на странице просмотра — своё дело каждого ответа,
+    а список лежит один на всех. Мутировать общий кэш под каждого —
+    верный способ показать одному человеку то, что выбрал другой.
     """
     fid = (fid or "").strip()[:80]
     if not fid:
@@ -831,34 +854,33 @@ async def franchise_parts(fid: str) -> list[dict] | None:
     parts = await _franchise_raw(fid)
     if parts is None:
         return None
-    # The mark is placed by position, so the sorting must already be
-    # applied. Parts come from the cache sorted; sorting once more is
-    # cheaper than forgetting once.
+    # Отметка ставится по порядку, поэтому сортировка обязана быть уже
+    # применена. Из кэша части приходят отсортированными; пересортировать
+    # ещё раз дешевле, чем однажды забыть.
     return mark_main(sort_parts([dict(p) for p in parts]))
 
 
 # --------------------------------------------------------------------------
-# Parts of the same story — for the watch page
+# Части той же истории — для страницы просмотра
 # --------------------------------------------------------------------------
-# Search answers the question "what to watch". This piece answers a
-# different one, which arises once you are in the player: "which season
-# is this and what comes next".
+# Поиск отвечает на вопрос «что посмотреть». Этот кусок отвечает на другой,
+# который возникает уже в плеере: «а это какой сезон и что дальше».
 #
-# There used to be no answer anywhere. A title that landed on a shelf
-# lived there as a separate record with one name, and there was nowhere
-# to learn it had a second season and three films — you had to remember
-# they existed and look for them by hand.
+# Раньше ответа не было нигде. Тайтл, попавший в полку, жил там отдельной
+# записью с одним названием, и узнать, что у него есть второй сезон и три
+# фильма, было неоткуда — надо было вспомнить, что они существуют, и
+# поискать их руками.
 
 
 async def related_parts(title: str) -> list[dict] | None:
-    """Every part of the story this title belongs to.
+    """Все части истории, к которой относится этот тайтл.
 
-    In: the name as the video source or the shelf knows it; out: the
-    whole franchise list, in which the part open right now is marked with
-    the current field.
+    На вход — название так, как его знает источник видео или полка;
+    на выход — весь список франшизы, где часть, открытая сейчас, помечена
+    полем current.
 
-    None means "the catalogue did not answer": on such an answer the page
-    simply does not show the block, rather than showing an empty one.
+    None означает «справочник не ответил»: страница по такому ответу
+    просто не покажет блок, а не покажет пустой.
     """
     title = (title or "").strip()[:120]
     if len(title) < 2:
@@ -870,10 +892,10 @@ async def related_parts(title: str) -> list[dict] | None:
     if not cards:
         return []
 
-    # The catalogue sorts its answer by closeness to the query, so the
-    # franchise wanted is the first one. There is nothing to check that
-    # with by our own devices: the card has only the main part's name in
-    # hand, while the match may be with any of them.
+    # Справочник сортирует ответ по близости к запросу, поэтому нужная
+    # франшиза — первая. Проверять это ещё раз своими силами нечем: у
+    # карточки на руках только название главной части, а совпасть должно
+    # с любой из них.
     out = await franchise_parts(cards[0]["id"])
     if out is None:
         return None
@@ -891,18 +913,18 @@ async def related_parts(title: str) -> list[dict] | None:
 
 
 # --------------------------------------------------------------------------
-# The fallback catalogue
+# Запасной справочник
 # --------------------------------------------------------------------------
-# AniList has no franchise label at all — there the links between parts
-# are kept as graph edges (sequel, prequel, side story), and gathering a
-# franchise out of them would mean walking the graph with a separate
-# request per part. For a fallback path that switches on once a year that
-# is far too expensive.
+# У AniList метки франшизы нет вовсе — там связи между частями хранятся
+# рёбрами графа (продолжение, приквел, побочная история), и чтобы собрать
+# из них франшизу, пришлось бы обходить граф отдельными запросами на
+# каждую часть. Ради запасного пути, который включается раз в год, это
+# слишком дорого.
 #
-# So parts here are gathered by name: "Магическая битва", "Магическая
-# битва 2", "Магическая битва 0" — a shared beginning. The split such a
-# method gives is rougher, but when the main catalogue is down the choice
-# is not between good and rough, it is between rough and an empty screen.
+# Поэтому здесь части собираются по названию: «Магическая битва»,
+# «Магическая битва 2», «Магическая битва 0» — общее начало. Разбивку
+# такой способ даёт грубее, но когда основной справочник лежит, выбор
+# стоит не между хорошим и грубым, а между грубым и пустым экраном.
 
 ANILIST_KIND = {
     "TV": "tv", "TV_SHORT": "tv", "MOVIE": "movie", "OVA": "ova",
@@ -916,8 +938,8 @@ Q_FIND = ("query ($s: String) { Page(page: 1, perPage: 25) {"
 
 
 def _base_name(title: str) -> str:
-    """The name without the season tail: "Jujutsu Kaisen 2nd Season" →
-    "jujutsu kaisen". Parts are glued into one franchise by it."""
+    """Название без хвоста сезона: «Jujutsu Kaisen 2nd Season» → «jujutsu
+    kaisen». По нему части и склеиваются в одну франшизу."""
     text = re.split(r"\s*[:—–]\s*", title or "")[0].strip().lower()
     text = re.sub(r"\s*(?:\d+(?:st|nd|rd|th)?|[ivx]+)?\s*"
                   r"(?:season|part|movie|film|ova|ona|special|special edition)\s*\d*$",
@@ -927,7 +949,7 @@ def _base_name(title: str) -> str:
 
 
 async def _anilist_search(q: str) -> list[dict] | None:
-    """The same answer as the main catalogue's, but from the fallback."""
+    """Тот же ответ, что у основного справочника, но из запасного."""
     data = await _ask_anilist(Q_FIND, {"s": q})
     media = ((data or {}).get("Page") or {}).get("media")
     if media is None:
@@ -950,8 +972,8 @@ async def _anilist_search(q: str) -> list[dict] | None:
             "id": str(m.get("id") or ""),
             "title": name,
             "title_en": titles.get("english") or "",
-            # The label glues the parts of one story to each other and
-            # means nothing outside this answer — hence the prefix.
+            # Метка склеивает части одной истории между собой и ничего
+            # не значит за пределами этого ответа — отсюда и приставка.
             "franchise": "al:" + _base_name(name),
             "year": m.get("seasonYear"),
             "kind": kind,

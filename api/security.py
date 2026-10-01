@@ -1,7 +1,7 @@
-"""Passwords, sessions, protection against guessing.
+"""Пароли, сессии, защита от перебора.
 
-Everything to do with "who are you" is gathered here. The logic is kept
-apart so that it can be tested independently of the web layer.
+Здесь собрано всё, что касается «кто ты такой». Логика вынесена отдельно,
+чтобы её можно было проверить тестами независимо от веб-части.
 """
 
 from __future__ import annotations
@@ -17,17 +17,17 @@ import time
 import unicodedata
 
 # --------------------------------------------------------------------------
-# Passwords
+# Пароли
 # --------------------------------------------------------------------------
-# PBKDF2 from the standard library: it needs no third-party package, and
-# so it adds no further dependency that has to be kept up to date.
-# 600,000 iterations is the OWASP recommendation for SHA-256 from 2023 on.
+# PBKDF2 из стандартной библиотеки: не требует сторонних пакетов, а значит
+# не добавляет ещё одну зависимость, которую надо обновлять.
+# 600 000 итераций — рекомендация OWASP для SHA-256 на 2023+ год.
 PBKDF2_ROUNDS = 600_000
 SALT_BYTES = 16
 
 
 def hash_password(password: str, *, rounds: int = PBKDF2_ROUNDS) -> str:
-    """Returns a string of the form pbkdf2_sha256$rounds$salt$hash."""
+    """Возвращает строку вида pbkdf2_sha256$раунды$соль$хэш."""
     if not isinstance(password, str) or not password:
         raise ValueError("пустой пароль")
     salt = secrets.token_bytes(SALT_BYTES)
@@ -36,7 +36,7 @@ def hash_password(password: str, *, rounds: int = PBKDF2_ROUNDS) -> str:
 
 
 def verify_password(password: str, stored: str) -> bool:
-    """Checks a password against the stored hash in constant time."""
+    """Сверяет пароль с сохранённым хэшем за постоянное время."""
     try:
         algo, rounds_s, salt_hex, hash_hex = stored.split("$", 3)
         if algo != "pbkdf2_sha256":
@@ -47,13 +47,13 @@ def verify_password(password: str, stored: str) -> bool:
     except (ValueError, AttributeError):
         return False
     dk = hashlib.pbkdf2_hmac("sha256", (password or "").encode("utf-8"), salt, rounds)
-    # compare_digest — so the hash cannot be guessed character by character from the response time
+    # compare_digest — чтобы по времени ответа нельзя было подбирать хэш посимвольно
     return hmac.compare_digest(dk, expected)
 
 
-# An empty password is checked against this so that a login that does not
-# exist takes the same time to handle as one that does. Otherwise the
-# response speed reveals which logins have been created.
+# Пустой пароль сверяем с этим, чтобы несуществующий логин обрабатывался
+# столько же времени, сколько существующий. Иначе по скорости ответа можно
+# понять, какие логины заведены.
 _DUMMY_HASH = hash_password("dummy-password-for-timing", rounds=PBKDF2_ROUNDS)
 
 
@@ -62,13 +62,13 @@ def waste_time_like_a_real_check() -> None:
 
 
 # --------------------------------------------------------------------------
-# Password requirements
+# Требования к паролю
 # --------------------------------------------------------------------------
 PASSWORD_MIN = 10
 PASSWORD_MAX = 200
 
-# The passwords that get tried first. The list is short, but it covers
-# the most obvious options.
+# Пароли, которые перебирают в первую очередь. Список короткий, но самые
+# очевидные варианты закрывает.
 WEAK = {
     "password", "password1", "qwerty123", "123456789", "1234567890",
     "iloveyou", "admin12345", "letmein123", "welcome123", "anime12345",
@@ -77,7 +77,7 @@ WEAK = {
 
 
 def password_problem(password: str) -> str | None:
-    """Returns the text of the problem, or None if the password will do."""
+    """Возвращает текст проблемы или None, если пароль годится."""
     if not isinstance(password, str):
         return "Пароль должен быть строкой"
     if len(password) < PASSWORD_MIN:
@@ -92,12 +92,12 @@ def password_problem(password: str) -> str | None:
 
 
 def looks_like_email(value: str) -> bool:
-    """A rough check of an email address.
+    """Грубая проверка адреса почты.
 
-    Checking an address for real is pointless: the only reliable way to
-    learn that it works is to send a letter to it. Here we catch only an
-    obvious typo and keep control characters and spaces out of the
-    field, since a letter's headers can be spoiled with those.
+    Проверять адрес по-настоящему бессмысленно: единственный надёжный
+    способ узнать, что он рабочий, — отправить туда письмо. Здесь мы
+    ловим только явную опечатку и не пускаем в поле управляющие символы
+    и пробелы, которыми можно испортить заголовки письма.
     """
     value = (value or "").strip()
     if not 5 <= len(value) <= 120:
@@ -116,11 +116,11 @@ def looks_like_email(value: str) -> bool:
 
 
 def safe_for_log(value: str) -> str:
-    """Removes everything that could spoil a line in the log.
+    """Убирает всё, чем можно испортить строку журнала.
 
-    Only this value reaches the log and the keys of the attempt counter:
-    otherwise a newline inside a login could be used to append a forged
-    entry to the log.
+    В журнал и в ключи счётчика попыток попадает только это значение:
+    переводом строки внутри логина иначе можно было бы дописать
+    поддельную запись в лог.
     """
     return "".join(ch for ch in str(value or "") if ch.isprintable())[:64]
 
@@ -129,20 +129,19 @@ LOGIN_RE = re.compile(r"^[a-z0-9](?:[a-z0-9._-]{1,30})[a-z0-9]$")
 
 
 def normalize_login(login: str) -> str:
-    """Brings a login to one form, so that Valera and valera are one person.
+    """Приводит логин к единому виду, чтобы Valera и valera были одним человеком.
 
-    Stray spaces and newlines at the edges are removed — copying from a
-    messenger often brings them along.
+    Лишние пробелы и переводы строк по краям убираются — их часто приносит
+    копирование из мессенджера.
 
-    Inner characters are NOT touched. The temptation to cut out the "bad"
-    ones is strong, but it is a mistake: `vale<newline>ra` would then
-    quietly turn into `valera` and let a person into someone else's
-    account. Strings like that must be rejected by the login_problem
-    check, not silently repaired by this function.
+    Внутренние символы НЕ трогаем. Соблазн вырезать «плохие» велик, но это
+    ошибка: тогда `vale<перевод строки>ra` тихо превратится в `valera`
+    и пустит человека в чужой аккаунт. Такие строки должна отклонять
+    проверка login_problem, а не молча исправлять эта функция.
     """
     if not isinstance(login, str):
         return ""
-    # NFKC folds together lookalike characters such as full-width Latin letters
+    # NFKC схлопывает похожие символы вроде полноширинных латинских букв
     return unicodedata.normalize("NFKC", login).strip().lower()[:64]
 
 
@@ -159,7 +158,7 @@ def login_problem(login: str) -> str | None:
 
 
 # --------------------------------------------------------------------------
-# Session tokens
+# Токены сессий
 # --------------------------------------------------------------------------
 SESSION_BYTES = 32           # 256 бит случайности — подобрать невозможно
 SESSION_IDLE = 14 * 24 * 3600   # две недели без действий — и сессия мертва
@@ -172,39 +171,38 @@ def new_token() -> str:
 
 
 def pepper() -> str:
-    """The server's secret string.
+    """Секретная строка сервера.
 
-    It is read on every call rather than once at import: that way it can
-    be substituted in tests, and changing the string in the settings
-    closes every session at once without restarting the process.
+    Читается при каждом обращении, а не один раз при импорте: так её можно
+    подменить в тестах и так смена строки в настройках сразу закрывает все
+    сессии, не требуя перезапуска процесса.
     """
     return os.getenv("SESSION_PEPPER", "")
 
 
 def token_fingerprint(token: str) -> str:
-    """We store the token's fingerprint in the database, not the token.
+    """В базе храним не сам токен, а его отпечаток.
 
-    If the database is stolen, its contents cannot be used to sign in:
-    the token cannot be recovered from the fingerprint.
+    Если базу украдут, войти по её содержимому будет нельзя: из отпечатка
+    токен не восстановить.
     """
     return hashlib.sha256((pepper() + (token or "")).encode("utf-8")).hexdigest()
 
 
 # --------------------------------------------------------------------------
-# Limiting sign-in attempts
+# Ограничение попыток входа
 # --------------------------------------------------------------------------
 class LoginGuard:
-    """Counts failed attempts and slows guessing down.
+    """Считает неудачные попытки и притормаживает перебор.
 
-    We count by login and by address separately: otherwise an attacker
-    either tries many passwords against one login or one password
-    against many logins, and one of the counters lets them through.
+    Считаем отдельно по логину и по адресу: иначе злоумышленник либо
+    перебирает пароли к одному логину, либо один пароль ко многим логинам,
+    и один из счётчиков его пропускает.
 
-    What matters is that entries remove themselves. An entry used to be
-    cleaned only at the next call with the same key — and guessing with
-    a hundred thousand different logins left a hundred thousand entries
-    in memory forever. A slow leak that after a month of work would have
-    turned into eaten memory.
+    Важно, что записи убираются сами. Раньше запись чистилась только при
+    следующем обращении по тому же ключу — и перебор с сотней тысяч разных
+    логинов оставлял в памяти сотню тысяч записей навсегда. Медленная течь,
+    которая через месяц работы превратилась бы в съеденную память.
     """
 
     WINDOW = 15 * 60      # окно, за которое помним попытки
@@ -220,12 +218,11 @@ class LoginGuard:
         self._last_sweep = time.time()
 
     def _sweep(self, now: float, force: bool = False) -> None:
-        """Removes everything expired in one go, not entry by entry.
+        """Убирает всё просроченное целиком, а не по одной записи.
 
-        force=True arrives when the dictionary has already outgrown its
-        ceiling. Without it the cleanup ran once a minute — and during
-        that minute guessing could stuff in as many entries as it liked.
-        The hole was exactly in the gap between cleanups.
+        force=True приходит, когда словарь уже перерос потолок. Без этого
+        уборка шла раз в минуту — и за эту минуту перебор успевал набить
+        сколько угодно записей. Дыра была ровно в промежутке между уборками.
         """
         if not force and now - self._last_sweep < self.SWEEP_EVERY:
             return
@@ -235,10 +232,9 @@ class LoginGuard:
             del self._fails[key]
         for key in [k for k, until in self._locked.items() if until <= now]:
             del self._locked[key]
-        # If the dictionary swelled anyway — we keep the freshest
-        # entries. Forgetting somebody's attempt is not frightening:
-        # guessing will run into the limit on the nginx side. Eaten
-        # memory is worse.
+        # Если словарь всё равно распух — оставляем самые свежие записи.
+        # Забыть чужую попытку не страшно: перебор упрётся в ограничение
+        # на стороне nginx. Съеденная память страшнее.
         if len(self._fails) > self.MAX_KEYS:
             fresh = sorted(self._fails.items(), key=lambda kv: -max(kv[1]))
             self._fails = dict(fresh[: self.MAX_KEYS // 2])
@@ -255,11 +251,11 @@ class LoginGuard:
         return items
 
     def size(self) -> tuple[int, int]:
-        """For observation: how many entries are in memory right now."""
+        """Для наблюдения: сколько записей сейчас в памяти."""
         return len(self._fails), len(self._locked)
 
     def locked_for(self, login: str, ip: str) -> int:
-        """How many seconds one still may not try. 0 — one may."""
+        """Сколько секунд ещё нельзя пробовать. 0 — можно."""
         now = time.time()
         over = len(self._fails) >= self.MAX_KEYS or len(self._locked) >= self.MAX_KEYS
         self._sweep(now, force=over)
@@ -274,8 +270,8 @@ class LoginGuard:
 
     def note_failure(self, login: str, ip: str) -> None:
         now = time.time()
-        # The ceiling is checked on every entry: between scheduled
-        # cleanups the dictionary must not have time to swell.
+        # Потолок проверяем на каждой записи: между плановыми уборками
+        # словарь не должен успевать раздуться.
         over = len(self._fails) >= self.MAX_KEYS or len(self._locked) >= self.MAX_KEYS
         self._sweep(now, force=over)
         for key, limit in ((f"l:{login}", self.MAX_PER_LOGIN), (f"i:{ip}", self.MAX_PER_IP)):
@@ -297,11 +293,10 @@ class LoginGuard:
 
 
 class RateLimiter:
-    """A simple rate limit: no more than N calls per period.
+    """Простое ограничение частоты: не больше N обращений за период.
 
-    Like the sign-in attempt counter, it cleans itself in one go rather
-    than key by key: otherwise memory grows with every new visitor and
-    never shrinks.
+    Как и счётчик попыток входа, чистит себя целиком, а не по одному ключу:
+    иначе память растёт от каждого нового посетителя и никогда не убывает.
     """
 
     MAX_KEYS = 20_000
@@ -344,22 +339,21 @@ class RateLimiter:
 
 
 # --------------------------------------------------------------------------
-# Protection against forged requests from other sites (CSRF)
+# Защита от подделки запросов с чужих сайтов (CSRF)
 # --------------------------------------------------------------------------
 def csrf_for(session_token: str) -> str:
-    """A form marker computed from the session token.
+    """Метка формы, вычисленная из токена сессии.
 
-    This used to be simply a random number: the server put it in a cookie
-    and then compared the cookie with the header. The weak spot of such a
-    scheme is the cookie. Anyone who managed to set a `csrf` cookie in
-    the browser (a neighbour on the domain, an access point over http, an
-    old infected tab) set both halves of the check at once and passed it.
+    Раньше здесь было просто случайное число: сервер клал его в куку и потом
+    сверял куку с заголовком. Слабое место такой схемы — кука. Кто угодно,
+    кто сумел поставить браузеру куку `csrf` (сосед по домену, точка доступа
+    на http, старая заражённая вкладка), задавал обе половины проверки сразу
+    и проходил её.
 
-    Now the marker is a signature of the session fingerprint, and forging
-    it without knowing SESSION_PEPPER is impossible. A planted cookie
-    with someone else's value will not agree with the session and will be
-    rejected. Nothing needs storing: the value is always recomputed from
-    the token itself.
+    Теперь метка — это подпись от отпечатка сессии, и подделать её, не зная
+    SESSION_PEPPER, нельзя. Подставленная кука с чужим значением не сойдётся
+    с сессией и будет отклонена. Хранить ничего не нужно: значение всегда
+    пересчитывается из самого токена.
     """
     mac = hmac.new(
         ("csrf|" + pepper()).encode("utf-8"),
@@ -371,7 +365,7 @@ def csrf_for(session_token: str) -> str:
 
 def csrf_ok(from_cookie: str | None, from_header: str | None,
             session_token: str | None = None) -> bool:
-    """We check both that the cookie matches the header and the marker's own signature."""
+    """Проверяем и совпадение куки с заголовком, и подпись самой метки."""
     if not from_cookie or not from_header:
         return False
     if len(from_cookie) < 16 or len(from_cookie) > 200:
@@ -379,27 +373,25 @@ def csrf_ok(from_cookie: str | None, from_header: str | None,
     if not hmac.compare_digest(from_cookie, from_header):
         return False
     if session_token is None:
-        # With no session there is nothing to compare against: such
-        # requests are cut off by the permission check anyway, and never
-        # reach a write to the database.
+        # Без сессии сверять не с чем: такие запросы всё равно отсекает
+        # проверка прав, до записи в базу они не доходят.
         return True
     return hmac.compare_digest(from_cookie, csrf_for(session_token))
 
 
 # --------------------------------------------------------------------------
-# The visitor's address
+# Адрес посетителя
 # --------------------------------------------------------------------------
 def valid_ip(value: str) -> str:
-    """Returns the address if it really is one, otherwise an empty string.
+    """Возвращает адрес, если это действительно адрес, иначе пустую строку.
 
-    Needed so that an arbitrary string sent from outside does not land in
-    the attempt counter's key: otherwise every request looks like a new
-    visitor.
+    Нужно, чтобы в ключ счётчика попыток не попадала произвольная строка,
+    присланная снаружи: иначе каждый запрос выглядит как новый посетитель.
     """
     value = (value or "").strip()
     if not value or len(value) > 45:
         return ""
-    # nginx may send the address with a port — we cut it off
+    # nginx может прислать адрес с портом — отрезаем
     if value.count(":") == 1 and "." in value:
         value = value.split(":")[0]
     try:

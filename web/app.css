@@ -1,4 +1,76 @@
-/* ================== shared design tokens ================== */
+/* ================= ШРИФТ ================= */
+/* Nunito лежит внутри проекта, а не грузится с fonts.googleapis.com.
+
+   Так сайт не зависит от чужого сервера: нет сети или закрыт домен —
+   шрифт всё равно свой. И браузер посетителя больше никуда не ходит:
+   раньше он сам приносил Google свой адрес и адрес страницы.
+
+   Взяты только используемые начертания (400, 600, 700, 800), без
+   курсива, и только кириллица с латиницей. unicode-range оставлен как
+   есть: браузер скачивает лишь тот файл, символы из которого реально
+   встретились на странице. */
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:400;font-display:swap;
+  src:url('/static/fonts/nunito-cyrillic-400.woff2') format('woff2');
+  unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:400;font-display:swap;
+  src:url('/static/fonts/nunito-latin-ext-400.woff2') format('woff2');
+  unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:400;font-display:swap;
+  src:url('/static/fonts/nunito-latin-400.woff2') format('woff2');
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:600;font-display:swap;
+  src:url('/static/fonts/nunito-cyrillic-600.woff2') format('woff2');
+  unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:600;font-display:swap;
+  src:url('/static/fonts/nunito-latin-ext-600.woff2') format('woff2');
+  unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:600;font-display:swap;
+  src:url('/static/fonts/nunito-latin-600.woff2') format('woff2');
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:700;font-display:swap;
+  src:url('/static/fonts/nunito-cyrillic-700.woff2') format('woff2');
+  unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:700;font-display:swap;
+  src:url('/static/fonts/nunito-latin-ext-700.woff2') format('woff2');
+  unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:700;font-display:swap;
+  src:url('/static/fonts/nunito-latin-700.woff2') format('woff2');
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:800;font-display:swap;
+  src:url('/static/fonts/nunito-cyrillic-800.woff2') format('woff2');
+  unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:800;font-display:swap;
+  src:url('/static/fonts/nunito-latin-ext-800.woff2') format('woff2');
+  unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:800;font-display:swap;
+  src:url('/static/fonts/nunito-latin-800.woff2') format('woff2');
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ================== единые токены оформления ================== */
 :root{
   --mint:#84CBB6; --sky:#8DB5DF; --lilac:#AEA1D8; --sand:#D9A97F;
   --warn:#E3A76B; --alert:#DE8A8A;
@@ -6,11 +78,62 @@
   --card-min:178px;
   --shadow-soft:0 14px 34px -18px rgba(0,0,0,.72);
   --shadow-lift:0 22px 46px -20px rgba(0,0,0,.8);
+  /* Тень под кнопкой при наведении. Раньше здесь светилось мятным —
+     кнопка будто подсвечивалась изнутри, и на тёмном фоне это било
+     по глазам. Обычная мягкая тень отвечает на тот же вопрос
+     («мышь здесь»), но не кричит. */
+  --shadow-hover:0 10px 22px -12px rgba(0,0,0,.85);
+  --shadow-press:0 3px 10px -6px rgba(0,0,0,.9);
+  /* Одна кривая на все движения: так они выглядят как одна система,
+     а не как десять разных анимаций, написанных в разное время. */
+  --ease:cubic-bezier(.2,.7,.3,1);
+  --fast:.16s; --mid:.24s; --slow:.4s;
 }
 html[data-depth="deep"]{--bg:#191C24;--surface:#22262F;--surface-2:#2A2F3A;--line:#333846;
   --text:#E5E3EA;--dim:#959AA9;--dimmer:#6F7484}
 html[data-depth="mid"]{--bg:#2C313C;--surface:#363C49;--surface-2:#414857;--line:#4B5262;
   --text:#EBE9F0;--dim:#A8ADBB;--dimmer:#848A99}
+/* ================== ТЕМЫ ==================
+   Каждая тема — свой набор цветов, и у каждой два варианта под
+   переключатель «Фон: глубже / мягче». Идут после html[data-depth],
+   потому что вес правил одинаковый и решает порядок в файле.
+
+   «Как сейчас» повторяет исходные значения намеренно: так все четыре
+   темы устроены одинаково, и ни одна не оказывается особенной. */
+
+/* ---------- Как сейчас ---------- */
+html[data-theme="kak-seychas"]{--bg:#191C24;--surface:#22262F;--surface-2:#2A2F3A;--line:#333846;
+  --text:#E5E3EA;--dim:#959AA9;--dimmer:#6F7484}
+html[data-theme="kak-seychas"][data-depth="mid"]{--bg:#2C313C;--surface:#363C49;--surface-2:#414857;
+  --line:#4B5262;--text:#EBE9F0;--dim:#A8ADBB;--dimmer:#848A99}
+
+/* ---------- Ночь: холоднее и глубже ---------- */
+html[data-theme="noch"]{--bg:#0E1119;--surface:#161A24;--surface-2:#1D2230;--line:#2A3145;
+  --text:#E2E7F2;--dim:#8C96AC;--dimmer:#626C84}
+html[data-theme="noch"][data-depth="mid"]{--bg:#191E2B;--surface:#222839;--surface-2:#2B3245;
+  --line:#38405A;--text:#E8ECF6;--dim:#99A2B8;--dimmer:#6F7890}
+
+/* ---------- Уголь: почти чёрный, для тёмных комнат и OLED ---------- */
+html[data-theme="ugol"]{--bg:#0A0B0E;--surface:#131519;--surface-2:#1A1D23;--line:#262931;
+  --text:#E6E4E9;--dim:#8C8F97;--dimmer:#61646C}
+html[data-theme="ugol"][data-depth="mid"]{--bg:#15171C;--surface:#1E2128;--surface-2:#262A32;
+  --line:#343841;--text:#EAE8ED;--dim:#999CA4;--dimmer:#6E717A}
+
+/* ---------- Бумага: светлая ----------
+   Здесь же переопределены тени: чёрная тень в 85% прозрачности,
+   уместная на тёмном фоне, на светлом выглядит грязным пятном. */
+html[data-theme="bumaga"]{--bg:#EFEBE2;--surface:#FFFFFF;--surface-2:#F6F2EA;--line:#DCD5C8;
+  --text:#22201C;--dim:#6B6459;--dimmer:#857E70;
+  --shadow-soft:0 12px 28px -18px rgba(60,50,35,.42);
+  --shadow-lift:0 18px 40px -20px rgba(60,50,35,.5);
+  --shadow-hover:0 8px 18px -10px rgba(60,50,35,.5);
+  --shadow-press:0 3px 8px -5px rgba(60,50,35,.55)}
+html[data-theme="bumaga"][data-depth="mid"]{--bg:#F8F5EF;--surface:#FFFFFF;--surface-2:#FBF8F3;
+  --line:#E7E1D6;--text:#2A2823;--dim:#665F53;--dimmer:#8C8577}
+
+/* Заглушка обложки была нарисована тремя тёмно-синими цветами прямо в
+   правиле — на светлой теме получалась чёрная дыра посреди страницы.
+   Теперь она из тех же переменных, что и всё остальное. */
 html[data-accent="mint"] {--mint:#84CBB6}
 html[data-accent="sky"]  {--mint:#8DB5DF}
 html[data-accent="lilac"]{--mint:#AEA1D8}
@@ -24,7 +147,7 @@ h1,h2,h3,h4{font-family:Nunito,system-ui,sans-serif;font-weight:800;letter-spaci
 button{font-family:inherit}
 :focus-visible{outline:2px solid var(--mint);outline-offset:2px}
 
-/* the error message */
+/* сообщение об ошибке */
 .err{display:none;margin-top:12px;padding:10px 13px;border-radius:var(--r-sm);font-size:13.5px;
   background:color-mix(in srgb,var(--alert) 15%,var(--surface-2));
   border:1px solid color-mix(in srgb,var(--alert) 34%,var(--line));color:var(--text)}
@@ -36,11 +159,11 @@ button{font-family:inherit}
   background-size:200% 100%;animation:sk 1.3s ease-in-out infinite;border-radius:var(--r-md)}
 @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* ==================== MAIN PAGE ==================== */
-/* ================= LOGO ================= */
+/* ==================== ГЛАВНАЯ ==================== */
+/* ================= ЛОГОТИП ================= */
 .mark{width:34px;height:34px;flex:none;border-radius:11px;display:block}
 
-/* ================= SIGN-IN SCREEN ================= */
+/* ================= ЭКРАН ВХОДА ================= */
 .gate{
   position:fixed;inset:0;z-index:200;background:var(--bg);
   display:grid;place-items:center;padding:24px;overflow-y:auto;
@@ -72,14 +195,15 @@ button{font-family:inherit}
 }
 .field input::placeholder{color:var(--dimmer)}
 .field input:focus{outline:none;border-color:var(--sky);
-  box-shadow:0 0 0 4px color-mix(in srgb,var(--sky) 15%,transparent)}
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--sky) 22%,transparent)}
 .wide{
   width:100%;border:none;cursor:pointer;background:var(--mint);color:#16201D;
   border-radius:999px;padding:12px;font-family:Nunito;font-weight:700;font-size:15px;transition:.2s;
 }
-.wide:hover{transform:translateY(-2px);box-shadow:0 12px 24px -12px var(--mint)}
+.wide:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover);filter:brightness(1.05)}
+.wide:active{transform:translateY(0) scale(.985);box-shadow:var(--shadow-press);transition-duration:.06s}
 .wide.ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--line)}
-.wide.ghost:hover{box-shadow:0 12px 24px -14px #000;border-color:var(--dimmer)}
+.wide.ghost:hover{box-shadow:var(--shadow-hover);border-color:var(--dimmer);filter:none}
 .split{display:flex;align-items:center;gap:11px;margin:18px 0;color:var(--dimmer);font-size:12px}
 .split::before,.split::after{content:'';flex:1;height:1px;background:var(--line)}
 .locked{
@@ -89,8 +213,11 @@ button{font-family:inherit}
 .locked svg{flex:none;margin-top:2px}
 .gate .langrow{display:flex;justify-content:center;gap:6px;margin-top:16px}
 
-/* ================= SWITCHES ================= */
+/* ================= ПЕРЕКЛЮЧАТЕЛИ ================= */
 .seg{display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:999px;border:1px solid var(--line)}
+/* Пять кнопок подряд в одну строку не влезают — этому ряду разрешено
+   переноситься. Остальным нельзя: там по две-три кнопки. */
+.seg.wrap{flex-wrap:wrap;border-radius:var(--r-md)}
 .seg button{
   border:none;background:none;color:var(--dim);cursor:pointer;border-radius:999px;
   font-family:Nunito;font-weight:600;font-size:13px;padding:6px 12px;transition:.2s;
@@ -98,7 +225,7 @@ button{font-family:inherit}
 .seg button:hover{color:var(--text)}
 .seg button.on{background:var(--surface-2);color:var(--text)}
 
-/* ================= GUEST BANNER ================= */
+/* ================= ПЛАШКА ГОСТЯ ================= */
 .stickytop{position:sticky;top:0;z-index:80}
 .guest{
   display:none;align-items:center;gap:12px;flex-wrap:wrap;
@@ -123,7 +250,7 @@ button{font-family:inherit}
   border-radius:999px;padding:4px 11px;font-size:12px;font-family:Nunito;font-weight:600;
 }
 .guest .mini-btn:hover{color:var(--text)}
-/* the warning and the last minute */
+/* предупреждение и последняя минута */
 .guest.warn{background:color-mix(in srgb,var(--warn) 17%,var(--surface));
   border-bottom-color:color-mix(in srgb,var(--warn) 34%,var(--line))}
 .guest.warn .tag{background:var(--warn)} .guest.warn .rail i{background:var(--warn)}
@@ -133,12 +260,16 @@ button{font-family:inherit}
 .guest .lastmsg{display:none;width:100%;color:var(--text);font-size:13px;padding-top:2px}
 .guest.last .lastmsg{display:block}
 
-/* ================= HEADER ================= */
+/* ================= ШАПКА ================= */
 header{
   background:color-mix(in srgb,var(--bg) 94%,transparent);
   backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
 }
-.bar{max-width:1160px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+/* Ширина шапки у каждой страницы своя, поэтому и правило своё.
+   Раньше все три назывались просто .bar, и выигрывало последнее —
+   шапка главной жила по ширине от страницы итогов. */
+[data-page="index"] .bar{max-width:1160px;margin:0 auto;padding:14px 24px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit;flex:none}
 .brand b{font-family:Nunito;font-weight:700;font-size:19px;white-space:nowrap}
 .brand b i{font-style:normal;color:var(--mint)}
@@ -149,12 +280,12 @@ header{
 }
 .find input::placeholder{color:var(--dimmer)}
 .find input:focus{outline:none;border-color:var(--sky);background:var(--surface-2);
-  box-shadow:0 0 0 4px color-mix(in srgb,var(--sky) 16%,transparent)}
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--sky) 22%,transparent)}
 .find::before{
   content:'';position:absolute;left:17px;top:50%;width:11px;height:11px;margin-top:-7px;
   border:1.7px solid var(--dimmer);border-radius:50%;box-shadow:6px 6px 0 -4.6px var(--dimmer);
 }
-/* Tab styles are gone along with the tabs themselves: the library is one list. */
+/* Стили вкладок убраны вместе с самими вкладками: список один. */
 .iconbtn{
   width:36px;height:36px;flex:none;border-radius:50%;border:1px solid var(--line);
   background:var(--surface);color:var(--dim);cursor:pointer;display:grid;place-items:center;transition:.2s;
@@ -170,7 +301,7 @@ header{
 
 main{max-width:1160px;margin:0 auto;padding:0 24px 90px}
 
-/* ================= TOP: the row and the counters ================= */
+/* ================= ВЕРХ: ряд + счётчики ================= */
 .topline{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:28px 0 14px}
 .topline h2{font-family:Nunito;font-size:20px;font-weight:700;margin:0}
 .topline .cnt{font-size:13.5px;color:var(--dim)}
@@ -183,11 +314,11 @@ main{max-width:1160px;margin:0 auto;padding:0 24px 90px}
 .pill.accent b{color:var(--mint)}
 .pill.cool b{color:var(--sky)}
 
-/* "Continue".
-   This used to be a strip scrolling sideways (.rowline): three or four
-   cards fitted, the rest had to be dragged with the mouse, and how many
-   there were in total was invisible. Now it is a grid: everything in plain
-   sight at once, wrapping by itself to the screen width. */
+/* «Продолжить».
+   Раньше это была лента с прокруткой вбок (.rowline): помещалось
+   три-четыре карточки, остальные надо было утаскивать мышью, и сколько
+   их всего — было не видно. Теперь сетка: всё сразу на виду и само
+   переносится по ширине экрана. */
 .contgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 .mini{
   display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit;
@@ -210,7 +341,7 @@ main{max-width:1160px;margin:0 auto;padding:0 24px 90px}
 .mini .mr i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--sky)}
 .mini .mleft{font-size:11.5px;color:var(--dimmer);margin-top:5px}
 
-/* ================= GRID ================= */
+/* ================= СЕТКА ================= */
 .sec{display:flex;align-items:baseline;gap:12px;margin:38px 0 18px}
 .sec h2{font-size:21px;font-weight:700;margin:0}
 .sec span{font-size:14px;color:var(--dim)}
@@ -218,36 +349,77 @@ main{max-width:1160px;margin:0 auto;padding:0 24px 90px}
 .sec a{font-family:Nunito;font-weight:600;font-size:14px;color:var(--sky);text-decoration:none}
 .sec a:hover{text-decoration:underline}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-min),1fr));gap:24px 20px}
-.card{text-decoration:none;color:inherit;display:block;position:relative}
+/* Карточки в ряду одной высоты: тогда полосы прогресса встают на одну
+   линию, как бы ни различалась длина названий. Обложки при этом
+   остаются наверху — карточка внутри колонка. */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-min),1fr));
+  gap:26px 20px;align-items:stretch}
+.card{text-decoration:none;color:inherit;position:relative;padding-bottom:2px;
+  display:flex;flex-direction:column}
 .card .wrap{position:relative;border-radius:var(--r-md)}
 .card .pic{position:relative;aspect-ratio:3/4.2;border-radius:var(--r-md);overflow:hidden;
   box-shadow:var(--shadow-soft);transition:transform .26s cubic-bezier(.2,.7,.3,1),box-shadow .26s}
 .card .pic i{position:absolute;inset:0}
-.card:hover .pic{transform:translateY(-6px);box-shadow:var(--shadow-lift)}
-.card .cardglow{position:absolute;left:12%;right:12%;bottom:-6px;height:56px;border-radius:50%;
-  filter:blur(26px);opacity:0;transition:opacity .3s;z-index:-1}
-.card:hover .cardglow{opacity:.55}
-.card .badge{position:absolute;right:9px;top:9px;z-index:2;border-radius:999px;padding:3px 10px;
-  font-family:Nunito;font-weight:700;font-size:11.5px;
-  background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(6px);color:var(--text)}
-.card .badge.done{background:color-mix(in srgb,var(--mint) 88%,transparent);color:#16201D}
-.card .resume{position:absolute;left:9px;top:9px;z-index:2;border-radius:999px;padding:3px 9px;
-  font-family:Nunito;font-weight:700;font-size:11px;background:var(--sky);color:#151D27}
-.card .line{position:absolute;left:11px;right:11px;bottom:11px;height:5px;border-radius:99px;z-index:2;
-  background:color-mix(in srgb,#000 46%,transparent);overflow:hidden}
-.card .line i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--sky)}
-.card h3{font-family:Nunito;font-weight:700;font-size:15.5px;margin:12px 0 2px;line-height:1.25}
-.card .meta{font-size:13px;color:var(--dim)}
+.card:hover .pic{transform:translateY(-6px);box-shadow:var(--shadow-lift)}/* ---------- строка прогресса под названием ---------- */
+/* Полоса лежала на самой обложке, у нижнего края, а число — плашкой в
+   углу. Под ними был не фон, а кадр из аниме: на светлых и пёстрых
+   обложках их попросту не было видно, и это оставалось делом везения.
+   Здесь под ними всегда один и тот же фон страницы. */
+/* margin-top:auto прижимает строку к низу карточки — из-за этого
+   полосы соседних карточек оказываются на одной линии даже когда одно
+   название занимает строку, а другое три. */
+.cprog{display:flex;align-items:center;gap:9px;margin:auto 2px 0;padding-top:10px;
+  min-height:14px}
+.cbar{
+  flex:1;min-width:0;height:7px;border-radius:99px;position:relative;overflow:hidden;
+  background:var(--surface-2);
+  /* Своя обводка: без неё дорожка сливается с фоном. */
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 85%,transparent);
+}
+.cbar i{
+  position:absolute;left:0;top:0;bottom:0;border-radius:99px;
+  background:linear-gradient(90deg,
+             color-mix(in srgb,var(--mint) 58%,var(--sky)),
+             var(--mint));
+}
+/* Кружок на конце заливки: отмечает, где именно вы остановились. */
+.cbar i::after{
+  content:'';position:absolute;right:0;top:50%;width:7px;height:7px;margin-top:-3.5px;
+  border-radius:50%;background:var(--mint);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--bg) 82%,transparent);
+}
+.cprog.full .cbar i::after{display:none}
+.cnum{
+  flex:none;font-family:Nunito;font-weight:700;font-size:11.5px;color:var(--dim);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.cprog.full .cnum{color:var(--mint)}
+/* Считать долю не от чего — полосы нет, но высота строки сохраняется,
+   иначе карточки в ряду разъедутся. */
+.cprog.nobar .cbar{visibility:hidden}
+.cbar i{transform-origin:left center;animation:growLine .5s var(--ease) both .12s}
+.cnum{animation:fadeIn .34s var(--ease) both .18s}
 
-/* The "remove from the library" button. The only free corner of a cover is
-   the bottom right: top right is the episode counter, top left "continue",
-   bottom left the second you stopped at, and along the bottom the progress
-   bar. A 22px bottom offset lifts the button just above the bar, so it does
-   not touch it. With a mouse it appears on hover, so as not to flicker
-   across the grid. On a touch screen there is no hover, so there it is
-   always visible: otherwise the button simply does not exist for a phone. */
-.card .del{position:absolute;right:9px;bottom:22px;z-index:4;width:26px;height:26px;
+/* Название под обложкой.
+
+   Обрезать многоточием не стали намеренно: точки съедают ровно ту
+   часть, по которой тайтл и узнают, — «Вторая атака», «часть вторая»,
+   номер сезона. Пусть лучше название займёт три строки.
+
+   Чтобы от разной длины не рвался ряд, под название отведено место
+   под две строки: короткие названия его добирают пустотой, длинные
+   растут вниз, а верх у всех карточек в ряду совпадает. */
+.card h3{font-family:Nunito;font-weight:700;font-size:15px;line-height:1.35;
+  margin:14px 2px 0;overflow-wrap:anywhere}
+
+/* Кнопка «убрать из списка». Единственный свободный угол обложки —
+   правый нижний: справа сверху счётчик серий, слева сверху «продолжить»,
+   слева снизу секунда остановки, по низу полоса прогресса. Отступ снизу
+   в 22px поднимает кнопку ровно над полосой, чтобы она её не задевала.
+   На мыши появляется при наведении, чтобы не мельтешить в сетке. На
+   сенсорном экране наведения не бывает, поэтому там она видна всегда:
+   иначе кнопки просто не существует для телефона. */
+.card .del{position:absolute;right:9px;bottom:9px;z-index:4;width:26px;height:26px;
   border-radius:50%;border:1px solid var(--line);cursor:pointer;padding:0;
   background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(6px);
   color:var(--dim);font-size:16px;line-height:1;
@@ -258,7 +430,7 @@ main{max-width:1160px;margin:0 auto;padding:0 24px 90px}
   background:color-mix(in srgb,var(--bg) 92%,transparent)}
 @media (hover:none){.card .del{opacity:1}}
 
-/* ================= EPISODES ================= */
+/* ================= СЕРИИ ================= */
 .eps-box{margin-top:52px;background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:24px;box-shadow:var(--shadow-soft)}
 .eps-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;flex-wrap:wrap}
@@ -270,15 +442,48 @@ main{max-width:1160px;margin:0 auto;padding:0 24px 90px}
 .ep:hover{color:var(--text);border-color:var(--dimmer);transform:translateY(-2px)}
 .ep.seen{background:transparent;color:var(--dimmer);border-color:transparent}
 .ep.seen::after{content:' ✓';color:var(--mint);font-size:11px}
-.ep.now{background:var(--sky);border-color:var(--sky);color:#151D27;box-shadow:0 10px 22px -12px var(--sky)}
+.ep.now{background:var(--sky);border-color:var(--sky);color:#151D27;box-shadow:var(--shadow-hover)}
 
-footer{border-top:1px solid var(--line);margin-top:56px}
+/* Свой фон обязателен: праздничный задник лежит ниже, и без фона
+   надгробия проступали сквозь текст — выглядело как поломка. */
+[data-page="index"] footer{border-top:1px solid var(--line);margin-top:56px;
+  background:var(--bg);position:relative;z-index:1}
 .beta{max-width:62ch;line-height:1.45}
+.footlinks{display:flex;gap:18px;align-items:center;flex:none}
+
+/* ---------- страница правил ---------- */
+/* Страница короткая, и без этого футер повисал посреди экрана, а под
+   ним оставалась пустота. Растягиваем на всю высоту окна. */
+[data-page="pravila"] body{min-height:100vh;display:flex;flex-direction:column}
+[data-page="pravila"] main{flex:1}
+.pravila{max-width:760px;margin:0 auto;width:100%;padding:36px 24px 60px}
+.pravila h1{font-size:clamp(26px,4vw,34px);margin:0 0 20px}
+.pravila-text{font-size:15.5px;line-height:1.65;color:var(--text)}
+.pravila-text h2{font-size:19px;margin:30px 0 8px}
+.pravila-text p{margin:0 0 14px}
+.pravila-text ol,.pravila-text ul{margin:0 0 14px;padding-left:22px}
+.pravila-text li{margin-bottom:7px}
+.pravila .lead{color:var(--dim);font-size:15px;margin:0 0 26px;max-width:60ch}
+.pravila-text .pusto{color:var(--dim)}
+/* Главный абзац раздела об ответственности: он и есть причина, по
+   которой страницу открывают, — выделяем рамкой, а не капслоком. */
+.pravila-text .vazhno{
+  border:1px solid color-mix(in srgb,var(--sand) 45%,var(--line));
+  background:color-mix(in srgb,var(--sand) 9%,transparent);
+  border-radius:var(--r-md);padding:14px 16px;margin:0 0 14px;
+  font-family:Nunito;font-weight:600;
+}
+[data-page="pravila"] footer{border-top:1px solid var(--line);background:var(--bg)}
+[data-page="pravila"] .bar{max-width:760px;margin:0 auto;padding:14px 24px;
+  display:flex;align-items:center;gap:14px}
+[data-page="pravila"] footer .in{max-width:760px;margin:0 auto;padding:20px 24px;
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  font-size:13.5px;color:var(--dim)}
 footer .in{max-width:1160px;margin:0 auto;padding:20px 24px;display:flex;
   justify-content:space-between;align-items:center;
   gap:18px;flex-wrap:wrap;font-size:13.5px;color:var(--dim)}
 
-/* The banner above the player: why there is nothing to watch */
+/* Плашка над плеером: почему смотреть нечего */
 .notice{
   display:flex;gap:11px;align-items:flex-start;margin-bottom:14px;padding:13px 16px;
   border-radius:var(--r-md);border:1px solid color-mix(in srgb,var(--sand) 45%,var(--line));
@@ -294,17 +499,16 @@ footer .in{max-width:1160px;margin:0 auto;padding:20px 24px;display:flex;
 .notice .tx b{display:block;color:var(--text);font-family:Nunito;font-weight:700;
   font-size:14.5px;margin-bottom:2px}
 
-/* Full screen.
-   Without these lines the container goes full screen while inside it the
-   previous box with its aspect ratio stays: a small video in the middle of
-   a huge black field. From the outside it looks like "the button does not
-   work". */
+/* Полный экран.
+   Без этих строк контейнер уходит в полный экран, а внутри остаётся
+   прежняя коробка с соотношением сторон: маленькое видео посреди
+   огромного чёрного поля. Со стороны выглядит как «кнопка не работает». */
 #screen:-webkit-full-screen{width:100vw;height:100vh;border-radius:0}
 #screen:-webkit-full-screen video{width:100%;height:100%;object-fit:contain}
 footer a{color:var(--sky);text-decoration:none}
 footer a:hover{text-decoration:underline}
 
-/* ================= THE "ABOUT THE SITE" DIALOG ================= */
+/* ================= ОКНО «ПРО САЙТ» ================= */
 .veil{position:fixed;inset:0;z-index:150;background:rgba(8,10,14,.72);backdrop-filter:blur(5px);
   display:none;place-items:center;padding:22px;overflow-y:auto}
 .veil.show{display:grid}
@@ -328,7 +532,7 @@ footer a:hover{text-decoration:underline}
 .made .r span{font-size:13px;color:var(--dim)}
 .made .r .who-ai{color:var(--lilac)} .made .r .who-me{color:var(--mint)}
 
-/* ================= FILTERS ================= */
+/* ================= ФИЛЬТРЫ ================= */
 .filtbtn{
   display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
   color:var(--dim);border-radius:999px;padding:10px 16px;cursor:pointer;flex:none;
@@ -337,10 +541,10 @@ footer a:hover{text-decoration:underline}
 .filtbtn:hover{color:var(--text);border-color:var(--dimmer)}
 .filtbtn.on{background:color-mix(in srgb,var(--mint) 16%,var(--surface));border-color:var(--mint);color:var(--text)}
 
-/* The filter panel's styles (.filters, .frow, .chips, .chip, .fbot) have
-   been deleted along with the panel itself: it picked only among what was
-   already saved, while the sources cannot search for new anime by genre.
-   .chip stayed only inside .sheet — it is the "assembled with AI" badge. */
+/* Стили панели фильтров (.filters, .frow, .chips, .chip, .fbot) удалены
+   вместе с самой панелью: она отбирала только среди уже сохранённого,
+   а искать новое аниме по жанрам источники не умеют.
+   .chip остался только внутри .sheet — это значок «Собрано с ИИ». */
 
 .empty{
   display:none;text-align:center;padding:44px 20px;color:var(--dim);
@@ -350,7 +554,7 @@ footer a:hover{text-decoration:underline}
 .empty b{display:block;font-family:Nunito;font-weight:700;font-size:16px;color:var(--text);margin-bottom:5px}
 .card.hidden{display:none}
 
-/* ================= ROULETTE ================= */
+/* ================= РУЛЕТКА ================= */
 .roul{
   position:relative;width:100%;max-width:430px;background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:26px;box-shadow:var(--shadow-lift);text-align:center;
@@ -361,7 +565,7 @@ footer a:hover{text-decoration:underline}
 .roul .pickres{display:none;margin-bottom:16px}
 .roul.done .pickres{display:block}
 .roul .pickres .m{font-size:12.5px;color:var(--dim)}
-/* The cover of the title that came up: the result used to be one line of text */
+/* Обложка выпавшего тайтла: раньше результат был одной строкой текста */
 .roul .pickres .cover{
   width:96px;aspect-ratio:3/4.2;margin:2px auto 12px;border-radius:var(--r-md);
   background:var(--surface-2);background-size:cover;background-position:center;
@@ -370,40 +574,55 @@ footer a:hover{text-decoration:underline}
 }
 .roul .pickres .cover .noart{font-family:Nunito;font-weight:700;font-size:30px;color:var(--dimmer)}
 .roul .pickres .nm{font-family:Nunito;font-weight:700;font-size:19px;margin:3px 0 2px}
-/* The "Watch" button appears only together with the result */
+/* Кнопка «Смотреть» появляется только вместе с результатом */
 .roul #roul-watch{display:none;text-decoration:none;text-align:center;margin-bottom:9px}
 .roul.done #roul-watch{display:block}
 
-/* ================= LOADING SCREEN ================= */
+/* ================= ЭКРАН ЗАГРУЗКИ ================= */
 .boot{
   position:fixed;inset:0;z-index:190;background:var(--bg);display:none;
   flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:26px;text-align:center;
 }
 .boot.show{display:flex}
-.boot .spin{width:46px;height:46px;border-radius:50%;border:3px solid var(--line);
-  border-top-color:var(--mint);animation:sp 1s linear infinite}
+.boot.show .bootline{animation:fadeIn .5s var(--ease) both .15s}
 @keyframes sp{to{transform:rotate(360deg)}}
-.boot .fact{max-width:430px}
-.boot .fact .k{font-family:Nunito;font-weight:700;font-size:11px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--mint);margin-bottom:8px}
-.boot .fact .q{font-size:17px;line-height:1.45;font-family:Nunito;font-weight:600}
-.boot .fact .a{font-size:13px;color:var(--dim);margin-top:8px}
-.boot .bar{width:190px;height:3px;border-radius:99px;background:var(--surface-2);overflow:hidden}
-.boot .bar i{display:block;height:100%;width:0;background:var(--mint);border-radius:99px;transition:width .25s}
 
-/* ================= CONTINUE MARK ================= */
+/* ---------- общий индикатор загрузки ---------- */
+/* Три точки, идущие волной. Кольцо на медленной машине выглядит
+   замершим — непонятно, идёт что-то или сайт умер. У точек фаза
+   разная, поэтому движение видно даже на одном кадре. */
+.loader{display:flex;gap:7px;align-items:center;justify-content:center}
+.loader i{width:9px;height:9px;border-radius:50%;background:var(--mint);
+  animation:dotWave 1.05s var(--ease) infinite}
+.loader i:nth-child(2){animation-delay:.14s}
+.loader i:nth-child(3){animation-delay:.28s}
+.loader.dark i{background:#fff}
+@keyframes dotWave{
+  0%,70%,100%{transform:translateY(0) scale(.82);opacity:.42}
+  35%        {transform:translateY(-8px) scale(1);opacity:1}
+}
+
+/* ---------- экран загрузки ---------- */
+.bootmark{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;
+  background:var(--mint);color:#12211C;animation:markBeat 1.8s var(--ease) infinite}
+@keyframes markBeat{
+  0%,100%{transform:scale(1)}
+  50%    {transform:scale(1.06)}
+}
+.bootline{font-family:Nunito;font-weight:600;font-size:15px;color:var(--dim)}
+/* Своё имя, а не .bar: с общим именем полоса забирала у шапки
+   display:flex и padding:14px 24px и превращалась в серую таблетку. */
+.bootbar{width:190px;height:3px;border-radius:99px;background:var(--surface-2);overflow:hidden;
+  position:relative}
+.bootbar i{display:block;height:100%;width:0;background:var(--mint);border-radius:99px;
+  transition:width .25s var(--ease)}
+
+/* ================= МЕТКА ПРОДОЛЖЕНИЯ ================= */
 .at{
   display:inline-flex;align-items:center;gap:5px;color:var(--mint);
   font-family:Nunito;font-weight:700;font-size:12px;
 }
-.at svg{flex:none}
-.card .stamp{
-  position:absolute;left:11px;bottom:22px;z-index:3;border-radius:7px;padding:2px 8px;
-  background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(6px);
-  font-family:Nunito;font-weight:700;font-size:11px;color:var(--mint);
-}
-
-/* ================= ACCOUNT PAGE ================= */
+.at svg{flex:none}/* ================= КАБИНЕТ ================= */
 .who{cursor:pointer}
 .who:hover{border-color:var(--dimmer)}
 .ava{
@@ -411,7 +630,7 @@ footer a:hover{text-decoration:underline}
   font-family:Nunito;font-weight:700;font-size:12px;color:#171A21;
   background-size:cover;background-position:center;overflow:hidden;
 }
-/* the role under the name */
+/* роль под именем */
 .role{
   display:inline-block;margin-top:3px;border-radius:999px;padding:2px 10px;
   font-family:Nunito;font-weight:700;font-size:11px;letter-spacing:.04em;
@@ -451,10 +670,10 @@ footer a:hover{text-decoration:underline}
   background:var(--surface-2);border:1px solid var(--line);color:var(--text);border-radius:var(--r-sm);
   padding:9px 12px;font-family:inherit;font-size:14px;min-width:150px;
 }
-.inp:focus{outline:none;border-color:var(--mint);box-shadow:0 0 0 3px color-mix(in srgb,var(--mint) 16%,transparent)}
+.inp:focus{outline:none;border-color:var(--mint);box-shadow:0 0 0 2px color-mix(in srgb,var(--mint) 22%,transparent)}
 select.inp{cursor:pointer}
 
-/* the yes/no switch */
+/* переключатель да/нет */
 .sw{width:44px;height:25px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);
   position:relative;cursor:pointer;flex:none;transition:.22s;padding:0}
 .sw::after{content:'';position:absolute;left:3px;top:2.5px;width:18px;height:18px;border-radius:50%;
@@ -462,24 +681,57 @@ select.inp{cursor:pointer}
 .sw[aria-checked="true"]{background:color-mix(in srgb,var(--mint) 35%,var(--surface-2));border-color:var(--mint)}
 .sw[aria-checked="true"]::after{left:22px;background:var(--mint)}
 
-/* colour swatches */
+/* образцы цвета */
 .swatches{display:flex;gap:8px}
 .sc{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;transition:.18s}
 .sc:hover{transform:scale(1.09)}
 .sc.on{border-color:var(--text);box-shadow:0 0 0 3px color-mix(in srgb,var(--text) 14%,transparent)}
 
-/* choosing a logo */
+/* выбор логотипа */
+/* ---------- карточки тем ---------- */
+/* Настройка в столбик, а не в строку: карточки шире переключателей и
+   в одну строку с подписью не помещаются. */
+.opt.col{display:block}
+.opt.col .lb{display:block;margin-bottom:10px}
+.themes{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:10px}
+.theme{
+  border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r-md);
+  padding:8px 8px 9px;cursor:pointer;display:grid;gap:7px;justify-items:stretch;
+}
+.theme .thpv{
+  position:relative;display:block;height:46px;border-radius:var(--r-sm);
+  border:1px solid color-mix(in srgb,#000 22%,transparent);overflow:hidden;
+}
+.theme .thbar{position:absolute;left:7px;right:7px;top:9px;height:15px;border-radius:4px}
+.theme .thdot{position:absolute;left:7px;bottom:8px;width:11px;height:11px;border-radius:50%}
+.theme .thnm{font-family:Nunito;font-weight:600;font-size:12.5px;color:var(--dim);text-align:center}
+.theme:hover{border-color:var(--dimmer);transform:translateY(-2px);box-shadow:var(--shadow-hover)}
+.theme:active{transform:translateY(0) scale(.97);box-shadow:var(--shadow-press)}
+.theme.on{border-color:var(--text)}
+.theme.on .thnm{color:var(--text)}
+/* Галочка у выбранной — чтобы выбор читался не только по рамке. */
+.theme.on .thpv::after{
+  content:'';position:absolute;right:6px;top:6px;width:16px;height:16px;border-radius:50%;
+  background:var(--text);
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4 8.4l2.6 2.6L12 5.6' fill='none' stroke='black' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/12px no-repeat,
+          linear-gradient(#000,#000);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
+/* Подпись под настройкой. Имя .hint уже занято подписью в
+   обрезчике аватарки, поэтому своё. */
+.optnote{display:block;margin-top:9px;font-size:12px;line-height:1.45;color:var(--dimmer)}
+
 .logos{display:flex;gap:9px;flex-wrap:wrap}
 .logopick{
   width:52px;height:52px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface-2);
   cursor:pointer;display:grid;place-items:center;transition:.18s;padding:0;
 }
 .logopick:hover{border-color:var(--dimmer)}
-.logopick.on{border-color:var(--mint);box-shadow:0 0 0 3px color-mix(in srgb,var(--mint) 16%,transparent)}
+.logopick.on{border-color:var(--mint);box-shadow:0 0 0 2px color-mix(in srgb,var(--mint) 22%,transparent)}
 .logo-v{display:none}
 .logo-v.on{display:block}
 
-/* the administrator's block */
+/* блок администратора */
 .adm{background:color-mix(in srgb,var(--lilac) 11%,var(--surface-2));
   border:1px solid color-mix(in srgb,var(--lilac) 26%,var(--line));border-radius:var(--r-md);padding:14px}
 .adm .accs{display:grid;gap:7px;margin:11px 0}
@@ -501,7 +753,7 @@ select.inp{cursor:pointer}
 }
 .saved.show{opacity:1}
 
-/* ---------- for a guest the settings are read-only ---------- */
+/* ---------- гостю настройки только на просмотр ---------- */
 .lockbar{
   display:none;align-items:flex-start;gap:10px;margin:14px 0 2px;padding:11px 13px;
   background:color-mix(in srgb,var(--sand) 14%,var(--surface-2));
@@ -514,7 +766,7 @@ select.inp{cursor:pointer}
 .pbody.ro .lockbar{opacity:1;pointer-events:auto}
 .pfoot.ro #set-save{display:none}
 
-/* ---------- photo cropping ---------- */
+/* ---------- обрезка фото ---------- */
 .cropwrap{max-width:300px}
 .stage{
   width:220px;height:220px;border-radius:50%;overflow:hidden;position:relative;margin:0 auto 14px;
@@ -539,7 +791,7 @@ input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;bac
   cursor:pointer;border:none}
 .hint{font-size:12px;color:var(--dimmer);text-align:center;margin-bottom:14px}
 
-/* ---------- notifications ---------- */
+/* ---------- уведомления ---------- */
 .bellwrap{position:relative}
 .dotcount{
   position:absolute;right:-2px;top:-2px;min-width:17px;height:17px;border-radius:99px;
@@ -572,7 +824,7 @@ input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;bac
 .nrow.soon .when{color:var(--sand)}
 .drop .df{padding:10px 15px;font-size:12px;color:var(--dimmer);border-top:1px solid var(--line)}
 
-/* ================= NOTIFICATION AT SIGN-IN ================= */
+/* ================= УВЕДОМЛЕНИЕ ПРИ ВХОДЕ ================= */
 .toast{
   position:fixed;left:50%;bottom:24px;transform:translate(-50%,26px);z-index:170;
   max-width:min(440px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);
@@ -580,8 +832,12 @@ input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;bac
   display:flex;gap:11px;align-items:flex-start;opacity:0;pointer-events:none;transition:.35s;
 }
 .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
-.toast .ic{width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;
-  background:color-mix(in srgb,var(--lilac) 22%,var(--surface-2));color:var(--lilac);font-size:13px;font-weight:700}
+/* Значок-щит вместо букв «ИИ»: плашка теперь про защиту входа. */
+.toast .ic{width:28px;height:28px;border-radius:9px;flex:none;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--mint) 20%,var(--surface-2));color:var(--mint)}
+.toast .ic svg{display:block}
+/* Кнопка «Включить» — на своей строке, чтобы не жалась к тексту. */
+.toast #toast-go{margin-top:11px}
 .toast .tx{font-size:13.5px;color:var(--dim);line-height:1.42}
 .toast .tx b{color:var(--text);font-family:Nunito;display:block;margin-bottom:2px;font-size:14px}
 .toast .x{border:none;background:none;color:var(--dimmer);cursor:pointer;font-size:17px;line-height:1;padding:0 2px}
@@ -592,28 +848,26 @@ input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;bac
   .find{order:5;width:100%;flex-basis:100%}
   .guest .rail{display:none}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-/* ==================== WATCHING ==================== */
-/* ---------- header ---------- */
+/* ==================== ПРОСМОТР ==================== */
+/* ---------- шапка ---------- */
 header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 94%,transparent);
   backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.bar{max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+[data-page="watch"] .bar{max-width:1240px;margin:0 auto;padding:12px 24px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .back{display:flex;align-items:center;gap:8px;color:var(--dim);text-decoration:none;
   font-family:Nunito;font-weight:600;font-size:14px}
 .back:hover{color:var(--text)}
 .hcrumb{flex:1;min-width:0;font-size:13.5px;color:var(--dimmer);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hcrumb b{color:var(--text);font-family:Nunito;font-weight:600}
-.iconbtn{width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--line);
-  background:var(--surface);color:var(--dim);cursor:pointer;display:grid;place-items:center}
-.iconbtn:hover{color:var(--text);border-color:var(--dimmer)}
+/* Кнопка-значок описана один раз, в разделе шапки. */
 
-/* ---------- the page's frame ---------- */
+/* ---------- каркас страницы ---------- */
 .page{max-width:1240px;margin:0 auto;padding:22px 24px 80px;
   display:grid;grid-template-columns:1fr 316px;gap:26px;align-items:start}
 
-/* ---------- the player ---------- */
+/* ---------- плеер ---------- */
 .player{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#0D0F14;
   box-shadow:var(--shadow-lift)}
 .screen{aspect-ratio:16/9;position:relative;overflow:hidden;display:grid;place-items:center}
@@ -625,26 +879,25 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
   display:grid;place-items:center;transition:.22s;box-shadow:0 18px 40px -16px rgba(0,0,0,.9);
 }
 .playbtn:hover{transform:scale(1.06)}
-/* The large heading has been moved down: above it there is now a strip
-   with the dub and the source, and they used to overlap — the name was read
-   twice, one over the other. */
-/* The name and the episode number stayed in the markup, but out of sight:
-   the code and screen readers read them. Over the frame they hung as a
-   third copy of the same name and covered the picture. */
+/* Крупный заголовок сдвинут вниз: над ним теперь полоса с озвучкой и
+   источником, и раньше они наезжали друг на друга — название читалось
+   дважды, одно поверх другого. */
+/* Название и номер серии остались в разметке, но не на виду: их
+   читает код и программы чтения с экрана. Поверх кадра они висели
+   третьей копией того же названия и закрывали картинку. */
 .titlemeta{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);
   white-space:nowrap;pointer-events:none}
 
-/* the time bar */
-/* touch-action:none is essential: without it a finger on the bar scrolls
-   the page rather than dragging the handle — the browser gives the gesture
-   to scrolling and stops sending pointermove. The strip is taller than the
-   bar itself (5px cannot be caught with a finger), so it has an invisible
-   margin above and below. */
+/* дорожка времени */
+/* touch-action:none обязателен: без него палец на дорожке прокручивает
+   страницу, а не тянет ползунок — браузер отдаёт жест прокрутке и
+   перестаёт слать pointermove. Полоса выше самой дорожки (5px пальцем
+   не поймать), поэтому у неё есть невидимый запас сверху и снизу. */
 .track{position:relative;height:5px;background:color-mix(in srgb,#fff 12%,transparent);
   cursor:pointer;touch-action:none}
 .track::before{content:'';position:absolute;left:0;right:0;top:-9px;bottom:-9px}
-/* While it is being dragged the bar is thicker and the handle larger: it
-   is visible that it is this you are holding, and where you will land. */
+/* Пока тянут — дорожка толще и ползунок крупнее: видно, что держишь
+   именно её, и куда попадёшь. */
 .track.dragging{height:7px;margin-top:-1px}
 .track.dragging .knob{transform:scale(1.6)}
 .track:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
@@ -653,11 +906,12 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
 .track .knob{position:absolute;left:38%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;
   border-radius:50%;background:var(--mint);box-shadow:0 3px 10px -3px #000;transition:transform .18s}
 .track:hover .knob{transform:scale(1.25)}
-/* markers: the opening and the preview of the next episode */
+/* метки: опенинг и превью следующей серии */
 .track .mark{position:absolute;top:0;bottom:0;width:2px;background:var(--sand);opacity:.75}
 
-/* the bottom panel */
-.ctrl{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#14171E;flex-wrap:wrap}
+/* нижняя панель */
+.ctrl{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#14171E;
+  flex-wrap:nowrap;overflow:visible}
 .cbtn{width:36px;height:36px;border-radius:10px;border:none;background:transparent;color:var(--dim);
   cursor:pointer;display:grid;place-items:center;transition:.16s;flex:none}
 .cbtn:hover{background:#1E222B;color:var(--text)}
@@ -666,7 +920,7 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
 .time b{color:var(--text)}
 .ctrl .sp{flex:1;min-width:4px}
 
-/* the drop-down settings in the panel */
+/* выпадающие настройки в панели */
 .sel{position:relative}
 .selbtn{
   display:flex;align-items:center;gap:7px;background:#1E222B;border:1px solid #2B303B;color:var(--dim);
@@ -680,12 +934,11 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
   position:absolute;right:0;bottom:46px;min-width:190px;background:var(--surface);
   border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow-lift);
   padding:6px;display:none;z-index:20;
-  /* The menu grows upwards from the button, and it has nowhere to grow:
-     eight sources, three headings and their captions do not fit into a
-     short window — the top items go off the edge of the screen, and there
-     is no way to reach them at all. And at the top is exactly what is
-     needed most: "it is here". Hence a ceiling and a scrollbar of its own.
-     The same for the list of dubs: there can be up to forty of them. */
+  /* Меню растёт вверх от кнопки, и расти ему некуда: восемь источников,
+     три заголовка и подписи не влезают в невысокое окно — верхние
+     пункты уезжают за край экрана, и добраться до них нельзя никак.
+     А наверху как раз самое нужное: «тут оно есть». Поэтому потолок и
+     собственная прокрутка. То же и у списка озвучек: их бывает под сорок. */
   max-height:min(62vh,430px);overflow-y:auto;overscroll-behavior:contain;
 }
 .menu.show{display:block}
@@ -700,7 +953,7 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
 .menu button.on::after{content:'✓';margin-left:auto;color:var(--mint)}
 .menu .sub{font-size:11.5px;color:var(--dimmer);margin-left:auto}
 
-/* ---------- under the player ---------- */
+/* ---------- под плеером ---------- */
 .under{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
 .chipbtn{
   display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
@@ -709,19 +962,19 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
 }
 .chipbtn:hover{border-color:var(--dimmer);transform:translateY(-1px)}
 .chipbtn.primary{background:var(--mint);color:#16201D;border-color:var(--mint)}
-.chipbtn.primary:hover{box-shadow:0 12px 24px -12px var(--mint)}
+.chipbtn.primary:hover{box-shadow:var(--shadow-hover)}
 .chipbtn.mute{color:var(--dim)}
 
 .tag{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);
   border-radius:999px;padding:4px 11px;font-size:12px;color:var(--dim)}
 .tag b{color:var(--text);font-family:Nunito;font-weight:600}
-/* An empty banner is not a banner, it is a grey rectangle about nothing.
-   Exactly such a one hung next to the "Next episode" button: "continue from
-   09:08" is written into it, but until an episode has been started there is
-   nothing to write, while the background and the border stayed. */
+/* Пустая плашка — это не плашка, а серый прямоугольник ни о чём. Рядом
+   с кнопкой «Следующая серия» висела ровно такая: в неё пишется
+   «продолжить с 09:08», но пока серию не начинали, писать нечего, а
+   фон с рамкой оставались. */
 .tag:empty{display:none}
 
-/* the description */
+/* описание */
 .desc{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
   padding:20px 22px;box-shadow:var(--shadow-soft)}
 .desc h3{margin:0 0 8px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:9px}
@@ -735,7 +988,7 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
 .desc p{margin:0 0 14px;color:var(--dim);font-size:14.5px}
 .tags{display:flex;gap:7px;flex-wrap:wrap}
 
-/* frames from the episode */
+/* кадры из серии */
 .strip{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;margin-top:8px;scrollbar-width:thin}
 .shot{flex:0 0 168px;border-radius:var(--r-sm);overflow:hidden;position:relative;aspect-ratio:16/9;
   border:1px solid var(--line);cursor:pointer;transition:.2s}
@@ -744,35 +997,31 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
 .shot span{position:absolute;right:6px;bottom:6px;background:rgba(10,12,17,.8);border-radius:6px;
   padding:1px 7px;font-family:Nunito;font-weight:600;font-size:11px}
 
-/* ---------- the right column ----------
-   The panels here are called by the same word, card, as the title cards in
-   the library — the name is taken twice. While the rule stood without a
-   qualifier, it reached the cards in the grid too: the poster got a border
-   and a background that have no business being there. We limit it to the
-   column. */
+/* ---------- правая колонка ---------- */
 .side{display:grid;gap:18px;position:sticky;top:80px}
-.side .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+/* Панель, а не карточка аниме. Раньше называлась .card и через это
+   переопределяла карточку на главной: один файл стилей на три
+   страницы, побеждает то объявление, что ниже. */
+.pane{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
   box-shadow:var(--shadow-soft);overflow:hidden}
-.card .ch{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:9px}
-.card .ch h3{margin:0;font-size:15px;font-weight:700}
-.card .ch span{font-size:12.5px;color:var(--dim);margin-left:auto}
-.card .cb{padding:14px 18px 18px}
+.pane .ch{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:9px}
+.pane .ch h3{margin:0;font-size:15px;font-weight:700}
+.pane .ch span{font-size:12.5px;color:var(--dim);margin-left:auto}
+.pane .cb{padding:14px 18px 18px}
 
-/* the next episode */
+/* следующая серия */
 .next{display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit}
 .next .nt{width:74px;height:44px;border-radius:9px;overflow:hidden;position:relative;flex:none}
 .next .nt i{position:absolute;inset:0}
 .next .nb b{display:block;font-family:Nunito;font-weight:700;font-size:14px}
 .next .nb span{font-size:12.5px;color:var(--dim)}
 .autonext{display:flex;align-items:center;gap:9px;margin-top:13px;font-size:12.5px;color:var(--dim)}
-.sw{width:40px;height:23px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);
-  position:relative;cursor:pointer;flex:none;padding:0;transition:.22s}
-.sw::after{content:'';position:absolute;left:3px;top:2px;width:17px;height:17px;border-radius:50%;
-  background:var(--dimmer);transition:.22s}
+/* Переключатель описан один раз, в разделе кабинета: он должен
+   выглядеть одинаково и в настройках, и на странице просмотра. */
 .sw[aria-checked="true"]{background:color-mix(in srgb,var(--mint) 35%,var(--surface-2));border-color:var(--mint)}
 .sw[aria-checked="true"]::after{left:19px;background:var(--mint)}
 
-/* the episode list */
+/* список серий */
 .eplist{max-height:330px;overflow-y:auto;padding:8px 10px 10px}
 .eprow{display:flex;align-items:center;gap:11px;width:100%;background:none;border:none;cursor:pointer;
   color:inherit;padding:8px 9px;border-radius:10px;text-align:left;transition:.14s}
@@ -785,7 +1034,7 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
 .eprow.now{background:color-mix(in srgb,var(--mint) 16%,var(--surface-2))}
 .eprow.now .n{color:var(--mint)}
 
-/* the title's progress */
+/* прогресс тайтла */
 .prog{height:6px;border-radius:99px;background:var(--surface-2);position:relative;margin:11px 0 8px}
 .prog i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--mint)}
 .pnote{font-size:12.5px;color:var(--dim);display:flex;justify-content:space-between;gap:8px}
@@ -799,33 +1048,32 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
   .time{width:100%;order:9}
   .page{padding:16px 14px 60px}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
-/* ==================== THE YEAR IN REVIEW ==================== */
+/* ==================== ИТОГИ ГОДА ==================== */
 header{border-bottom:1px solid var(--line)}
-.bar{max-width:960px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px}
-.back{display:flex;align-items:center;gap:8px;color:var(--dim);text-decoration:none;
-  font-family:Nunito;font-weight:600;font-size:14px}
-.back:hover{color:var(--text)}
+[data-page="stats"] .bar{max-width:960px;margin:0 auto;padding:14px 24px;
+  display:flex;align-items:center;gap:14px}
+/* Кнопка «назад» описана выше, в разделе просмотра. */
 .bar .sp{flex:1}
 .share{
   display:inline-flex;align-items:center;gap:8px;background:var(--mint);color:#16201D;border:none;
   border-radius:999px;padding:9px 17px;cursor:pointer;font-family:Nunito;font-weight:700;font-size:14px;
   transition:.2s;
 }
-.share:hover{transform:translateY(-2px);box-shadow:0 12px 24px -12px var(--mint)}
+.share:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}
+.share:active{transform:translateY(0) scale(.98);transition-duration:.06s}
 
-/* The container of the year-in-review page.
-   The selector used to be simply `.wrap` — and it hit EVERY element with
-   that class, including the cover wrapper inside a card on the main page. A
-   card 206px wide got a 112px cover (24px of padding on each side) and 90px
-   of emptiness under it. That is, half the room on the main page went
-   nowhere because of a rule belonging to an entirely different page.
-   `body > .wrap` — the page's container lies directly in body, a card's
-   wrapper does not. */
+/* Контейнер страницы итогов года.
+   Раньше селектор был просто `.wrap` — и бил по КАЖДОМУ элементу с таким
+   классом, включая обёртку обложки внутри карточки на главной. Карточка
+   шириной 206px получала обложку в 112px (по 24px отступа с каждой
+   стороны) и 90px пустоты под ней. То есть половина места на главной
+   уходила в никуда из-за правила от совсем другой страницы.
+   `body > .wrap` — контейнер страницы лежит прямо в body, обёртка
+   карточки — нет. */
 body > .wrap{max-width:960px;margin:0 auto;padding:0 24px 90px}
 
-/* ---------- the title ---------- */
+/* ---------- заглавие ---------- */
 .hero{position:relative;text-align:center;padding:58px 0 44px}
 .hero .glow{position:absolute;left:50%;top:0;width:520px;height:300px;margin-left:-260px;
   border-radius:50%;filter:blur(90px);opacity:.24;pointer-events:none;
@@ -836,7 +1084,7 @@ body > .wrap{max-width:960px;margin:0 auto;padding:0 24px 90px}
 .hero h1 em{font-style:normal;color:var(--mint)}
 .hero p{position:relative;color:var(--dim);margin:0;font-size:16px}
 
-/* ---------- the large numbers ---------- */
+/* ---------- крупные числа ---------- */
 .big{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:16px}
 .b{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
   padding:22px;box-shadow:var(--shadow-soft);position:relative;overflow:hidden}
@@ -846,14 +1094,13 @@ body > .wrap{max-width:960px;margin:0 auto;padding:0 24px 90px}
 .b.mint .n{color:var(--mint)} .b.sky .n{color:var(--sky)}
 .b.lilac .n{color:var(--lilac)} .b.sand .n{color:var(--sand)}
 
-/* ---------- the year's calendar ----------
-   The same clash of names as with the right column: here card is a block of
-   the page, not a title card. We qualify by tag: the year's blocks are
-   marked up as section, the cards in the library as links. */
-section.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+/* ---------- календарь года ---------- */
+/* Панель итогов года: у неё свои отступы, поэтому и имя своё.
+   С общим именем она перебивала панель на странице просмотра. */
+.block{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
   padding:22px;box-shadow:var(--shadow-soft);margin-top:16px}
-section.card > h3{margin:0 0 4px;font-size:17px;font-weight:700}
-section.card > .cap{font-size:13.5px;color:var(--dim);margin-bottom:18px}
+.block > h3{margin:0 0 4px;font-size:17px;font-weight:700}
+.block > .cap{font-size:13.5px;color:var(--dim);margin-bottom:18px}
 .year{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
 .mon{flex:0 0 auto}
 .mon .mn{font-size:11px;color:var(--dimmer);font-family:Nunito;font-weight:600;margin-bottom:6px;
@@ -866,7 +1113,7 @@ section.card > .cap{font-size:13.5px;color:var(--dim);margin-bottom:18px}
 .d.l4{background:var(--mint)}
 .legend{display:flex;align-items:center;gap:7px;margin-top:13px;font-size:12px;color:var(--dimmer)}
 
-/* ---------- genres ---------- */
+/* ---------- жанры ---------- */
 .gen{display:grid;gap:11px}
 .g{display:flex;align-items:center;gap:12px}
 .g .nm{width:130px;font-family:Nunito;font-weight:600;font-size:14px;flex:none}
@@ -874,17 +1121,17 @@ section.card > .cap{font-size:13.5px;color:var(--dim);margin-bottom:18px}
 .g .track i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}
 .g .v{width:52px;text-align:right;font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
 
-/* ---------- two columns ---------- */
+/* ---------- две колонки ---------- */
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
 @media (max-width:760px){.two{grid-template-columns:1fr}}
 
-/* a record */
+/* рекорд */
 .rec{display:flex;align-items:center;gap:16px}
 .rec .num{font-family:Nunito;font-weight:700;font-size:52px;line-height:1;color:var(--sand)}
 .rec .tx b{display:block;font-family:Nunito;font-weight:600;font-size:15px;margin-bottom:2px}
 .rec .tx span{font-size:13px;color:var(--dim)}
 
-/* the top title */
+/* топ тайтл */
 .top1{display:flex;gap:14px;align-items:center}
 .top1 .cv{width:62px;height:88px;border-radius:10px;overflow:hidden;position:relative;flex:none;
   box-shadow:var(--shadow-soft)}
@@ -892,7 +1139,7 @@ section.card > .cap{font-size:13.5px;color:var(--dim);margin-bottom:18px}
 .top1 .tx b{display:block;font-family:Nunito;font-weight:700;font-size:16px;margin-bottom:3px}
 .top1 .tx span{font-size:13px;color:var(--dim);display:block}
 
-/* the strip of months */
+/* лента месяцев */
 .months{display:grid;gap:9px;margin-top:2px}
 .m{display:flex;align-items:center;gap:11px}
 .m .mm{width:34px;font-size:12px;color:var(--dimmer);font-family:Nunito;font-weight:600;flex:none}
@@ -902,12 +1149,12 @@ section.card > .cap{font-size:13.5px;color:var(--dim);margin-bottom:18px}
 .m.best .tr i{background:var(--mint)}
 .m.best .vv{color:var(--mint)}
 
-footer{border-top:1px solid var(--line);margin-top:44px}
+[data-page="stats"] footer{border-top:1px solid var(--line);margin-top:44px;
+  background:var(--bg)}
 footer .in{max-width:960px;margin:0 auto;padding:20px 24px;font-size:13.5px;color:var(--dim);
   display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
-/* ==================== REAL VIDEO ==================== */
+/* ==================== НАСТОЯЩЕЕ ВИДЕО ==================== */
 #video{
   position:absolute;inset:0;width:100%;height:100%;
   object-fit:contain;background:#000;display:block;z-index:1;
@@ -923,34 +1170,33 @@ footer .in{max-width:960px;margin:0 auto;padding:20px 24px;font-size:13.5px;colo
   border:3px solid rgba(255,255,255,.18);border-top-color:var(--mint);
   animation:sp 1s linear infinite;
 }
+.loadwrap .loader i{box-shadow:0 2px 8px -2px rgba(0,0,0,.9)}
+#screen:fullscreen{width:100vw;height:100vh}
+#screen:fullscreen #video{object-fit:contain}
 
-/* ==================== PERFORMANCE ==================== */
-/* Blur is the most expensive operation for a browser. On large areas and
-   on hover it was what gave the feeling of stuttering. We keep it only
-   where it really shows, and make it softer. */
-.card .cardglow{display:none}
+/* ==================== ПРОИЗВОДИТЕЛЬНОСТЬ ==================== */
+/* Размытие — самая дорогая операция для браузера. На больших областях
+   и при наведении оно и давало ощущение подтормаживания. Оставляем
+   только там, где оно действительно заметно, и делаем мягче. */
 .glow,.glowS{filter:blur(48px);opacity:.22}
 .gate .aura,.gate .aura2{filter:blur(80px)}
 header{backdrop-filter:none;background:var(--bg)}
-.stickytop{background:var(--bg)}
-.card .badge{backdrop-filter:none;background:rgba(16,19,26,.82)}
-.card .resume,.card .stamp{backdrop-filter:none;background:rgba(16,19,26,.85)}
-.veil{backdrop-filter:none;background:rgba(8,10,14,.82)}
+.stickytop{background:var(--bg)}.veil{backdrop-filter:none;background:rgba(8,10,14,.82)}
 
-/* We hint to the browser that only the position moves —
-   then it does not redraw the whole card. */
+/* Подсказываем браузеру, что двигается только положение —
+   тогда он не перерисовывает всю карточку целиком. */
 .card .pic,.mini{will-change:transform}
 .card:not(:hover) .pic,.mini:not(:hover){will-change:auto}
 
-/* ==================== COVERS ==================== */
-/* Pictures from the sources come in any shape. They used to be stretched
-   and blurred — now they fill the card, centred and undistorted. */
+/* ==================== ОБЛОЖКИ ==================== */
+/* Картинки от источников бывают любой формы. Раньше они растягивались
+   и мылились — теперь заполняют карточку по центру без искажений. */
 .card .pic i,.mini .mp i,.nrow .th i,.next .nt i,.top1 .cv i{
   background-size:cover;background-position:center center;background-repeat:no-repeat;
 }
 .card .pic{background:var(--surface-2)}
 
-/* ==================== VOLUME ==================== */
+/* ==================== ГРОМКОСТЬ ==================== */
 .volbox{display:flex;align-items:center;gap:6px;flex:none}
 #c-vol{
   width:74px;height:4px;-webkit-appearance:none;appearance:none;border-radius:99px;
@@ -966,20 +1212,24 @@ header{backdrop-filter:none;background:var(--bg)}
 }
 @media (max-width:700px){ #c-vol{display:none} }
 
-/* ==================== COVER PLACEHOLDER ==================== */
-/* If there is no cover, instead of an empty rectangle we show the name's
-   first letter — that way the cards look alike. */
+/* ==================== ЗАГЛУШКА ОБЛОЖКИ ==================== */
+/* Если обложки нет, вместо пустого прямоугольника показываем
+   первую букву названия — так карточки выглядят одинаково. */
 .card .pic .noart,.mini .mp .noart{
   position:absolute;inset:0;display:grid;place-items:center;z-index:0;
-  font-family:Nunito,sans-serif;font-weight:700;color:rgba(255,255,255,.32);
-  background:linear-gradient(155deg,#333A47,#232936 60%,#1B2029);
+  font-family:Nunito,sans-serif;font-weight:700;
+  color:color-mix(in srgb,var(--dimmer) 70%,transparent);
+  background:linear-gradient(155deg,
+             color-mix(in srgb,var(--surface-2) 82%,var(--line)),
+             var(--surface-2) 60%,
+             color-mix(in srgb,var(--surface-2) 84%,var(--bg)));
 }
 .card .pic .noart{font-size:44px}
 .mini .mp .noart{font-size:18px}
 
-/* ==================== THE SAME LOOK ON EVERY SCREEN ==================== */
-/* The player and the panel under it used to sprawl on narrow screens:
-   the buttons wrapped one at a time, the time slid down. */
+/* ==================== ОДИНАКОВЫЙ ВИД НА ВСЕХ ЭКРАНАХ ==================== */
+/* Плеер и панель под ним раньше расползались на узких экранах:
+   кнопки переносились по одной, время уезжало вниз. */
 @media (max-width:900px){
   .page{grid-template-columns:1fr;gap:20px}
   .side{position:static}
@@ -1016,21 +1266,18 @@ header{backdrop-filter:none;background:var(--bg)}
   .opt .lb{min-width:120px}
   .inp{min-width:120px;width:100%}
 }
-/* The settings panel and the dialogs must not run off the screen */
+/* Панель настроек и окна не должны вылезать за экран */
 .veil{padding:16px}
 .panel,.sheet,.roul{max-height:calc(100vh - 32px);overflow-y:auto}
 
-/* The cover covers the letter placeholder once it has loaded */
-.card .pic i,.mini .mp i{z-index:1}
-.card .badge,.card .resume,.card .stamp,.card .line{z-index:3}
-
-/* A player error goes on a line of its own over the frame, not in place of the name */
+/* Обложка перекрывает заглушку с буквой, когда загрузилась */
+.card .pic i,.mini .mp i{z-index:1}/* Ошибка плеера — отдельной строкой поверх кадра, а не вместо названия */
 .playerr{
   position:absolute;left:16px;right:16px;bottom:16px;z-index:7;margin:0;
   text-align:center;
 }
 
-/* ================= LIBRARY TABS ================= */
+/* ================= ВКЛАДКИ СПИСКА ================= */
 .sec .tabs{display:flex;gap:4px;background:var(--surface);padding:4px;
   border-radius:999px;border:1px solid var(--line);flex:none}
 .sec .tabs a{padding:7px 15px;border-radius:999px;text-decoration:none;color:var(--dim);
@@ -1038,21 +1285,7 @@ header{backdrop-filter:none;background:var(--bg)}
 .sec .tabs a:hover{color:var(--text)}
 .sec .tabs a.on{background:var(--surface-2);color:var(--text);box-shadow:0 4px 12px -8px #000}
 
-/* Marks on the cover: finished, or which episode you stopped at */
-.card .done-mark{position:absolute;left:9px;top:9px;z-index:2;border-radius:999px;
-  padding:4px 11px;font-weight:800;font-size:11px;
-  background:color-mix(in srgb,var(--mint) 90%,transparent);color:#16201D}
-.card .count{position:absolute;right:9px;top:9px;z-index:2;border-radius:999px;
-  padding:4px 10px;font-weight:800;font-size:11.5px;color:var(--text);
-  background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(6px)}
-/* The watch bar: how many episodes are behind you */
-.card .line{position:absolute;left:11px;right:11px;bottom:11px;height:5px;
-  border-radius:99px;z-index:2;overflow:hidden;
-  background:color-mix(in srgb,#000 52%,transparent)}
-.card .line i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;
-  background:var(--sky)}
-
-/* ================= THE ADMINISTRATOR'S ANNOUNCEMENT ================= */
+/* Пометки на обложке: досмотрено, либо на какой серии остановились *//* Полоса просмотра: сколько серий позади *//* ================= ОБЪЯВЛЕНИЕ АДМИНИСТРАТОРА ================= */
 .sitenews{display:flex;gap:12px;align-items:flex-start;margin-bottom:22px;
   padding:14px 18px;border-radius:var(--r-md);
   border:1px solid color-mix(in srgb,var(--sky) 42%,var(--line));
@@ -1064,8 +1297,10 @@ header{backdrop-filter:none;background:var(--bg)}
 .sitenews .tx{min-width:0;font-size:14px;color:var(--text);line-height:1.55;
   white-space:pre-wrap;overflow-wrap:anywhere}
 
-/* ================= ROULETTE ================= */
-.roul-load{padding:26px 0}
+/* ================= РУЛЕТКА ================= */
+/* Раньше здесь был кружок, которому не задали ни размера, ни вращения:
+   окно молчало без единого признака жизни, пока отвечал справочник. */
+.roul-load{padding:24px 0 20px;display:grid;place-items:center;gap:14px}
 .roul-load[hidden]{display:none}
 .roul .pickres .rtags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:9px}
 .roul .pickres .rtags .tag{background:var(--surface-2);border:1px solid var(--line);
@@ -1073,7 +1308,7 @@ header{backdrop-filter:none;background:var(--bg)}
 .roul .pickres .about{margin-top:12px;font-size:13.5px;line-height:1.55;color:var(--dim);
   text-align:left;max-height:168px;overflow:auto}
 
-/* ================= SIGN-IN BY CODE ================= */
+/* ================= ВХОД ПО КОДУ ================= */
 .check{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px;
   color:var(--dim);user-select:none}
 .check input{width:17px;height:17px;accent-color:var(--mint);cursor:pointer}
@@ -1094,14 +1329,14 @@ header{backdrop-filter:none;background:var(--bg)}
   background:var(--surface-2);border:1px solid var(--line);color:var(--text);
   font-size:12.5px;word-break:break-all;letter-spacing:.06em}
 
-/* A calm paragraph in the "about the project" dialog */
+/* Спокойный абзац в окне «о проекте» */
 .sheet .quiet{color:var(--dimmer);font-size:13px;line-height:1.6}
 
-/* ================= OUR OWN DIALOGS (instead of confirm/prompt/alert) ================= */
-/* Our own dialog must lie over everything, including the account page and
-   the news dialog: it is always opened FROM them. At z-index:60 it ended up
-   under the settings panel (which has 150) — the dialog was created but
-   could not be seen, and the click looked like "nothing happened". */
+/* ================= СВОИ ОКНА (вместо confirm/prompt/alert) ================= */
+/* Своё окно должно лежать поверх всего, включая кабинет и окно новостей:
+   оно всегда открывается ИЗ них. При z-index:60 оно оказывалось под
+   панелью настроек (у неё 150) — окно создавалось, но его не было
+   видно, и нажатие выглядело как «ничего не произошло». */
 .veil.dialog{z-index:400}
 .dbox{
   width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);
@@ -1115,9 +1350,9 @@ header{backdrop-filter:none;background:var(--bg)}
 .dbox .wide.danger{background:var(--sand);color:#20180E}
 .dbox .wide.danger:hover{filter:brightness(1.06)}
 
-/* ==================== PARTS OF A FRANCHISE ====================
-   A list of what came out for one story: seasons, films, OVAs and specials
-   by year. It opens on a click on a card from the search. */
+/* ==================== ЧАСТИ ФРАНШИЗЫ ====================
+   Список того, что вышло по одной истории: сезоны, фильмы, OVA и спешлы
+   по годам. Открывается по нажатию на карточку из поиска. */
 .frsheet{max-width:620px;padding:24px}
 .frhead{display:flex;gap:15px;align-items:flex-start;margin:0 30px 16px 0}
 .frart{
@@ -1132,9 +1367,8 @@ header{backdrop-filter:none;background:var(--bg)}
 .frsub:empty{display:none}
 .frnote{color:var(--dim);font-size:13px;margin-top:7px}
 
-/* The list scrolls inside itself: "Ван-Пис" has seventy-six parts, and
-   without this the sheet would run three screens down along with the
-   header. */
+/* Список прокручивается внутри себя: у «Ван-Пис» частей семьдесят шесть,
+   и без этого лист уезжал бы на три экрана вниз вместе с шапкой. */
 .parts{max-height:min(56vh,460px);overflow-y:auto;margin:0 -6px;padding:0 6px}
 .part{
   display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
@@ -1154,9 +1388,9 @@ header{backdrop-filter:none;background:var(--bg)}
   color:var(--text);
 }
 .part .m{display:block;font-size:12.5px;color:var(--dim);margin-top:2px}
-/* The mark on the first row. The list is sorted by year, but twenty-nine
-   identical rows still do not answer the question "where do I start" — the
-   mark does. */
+/* Пометка у первой строки. Список отсортирован по годам, но двадцать
+   девять одинаковых строк всё равно не отвечают на вопрос «с чего
+   начать» — пометка отвечает. */
 .part .first{
   display:inline-block;margin-left:7px;vertical-align:middle;border-radius:999px;
   padding:1px 8px;font-size:11px;font-weight:700;line-height:1.5;
@@ -1173,10 +1407,10 @@ header{backdrop-filter:none;background:var(--bg)}
   .frtx h3{font-size:18px}
 }
 
-/* ==================== THIS STORY IN FULL ====================
-   The same list of parts as in the search, but in the narrow column next to
-   the player. Two differences: it is tighter, and what is open right now is
-   marked in it. */
+/* ==================== ЭТА ИСТОРИЯ ЦЕЛИКОМ ====================
+   Тот же список частей, что в поиске, но в узкой колонке рядом с
+   плеером. Отличий два: он теснее и в нём помечено то, что открыто
+   прямо сейчас. */
 .sideparts{max-height:300px;overflow-y:auto;padding:10px 12px 12px;margin:0}
 .sideparts .part{padding:7px 8px;gap:9px;margin-bottom:7px}
 .sideparts .part:last-child{margin-bottom:0}
@@ -1185,9 +1419,8 @@ header{backdrop-filter:none;background:var(--bg)}
 .sideparts .part .m{font-size:12px}
 .sideparts .part .go{font-size:17px}
 
-/* The open part is not a button: there is nowhere to click on what is
-   already open. So it is not highlighted on hover and does not slide
-   sideways. */
+/* Открытая часть не кнопка: нажимать на то, что уже открыто, некуда.
+   Поэтому она не подсвечивается наведением и не съезжает вбок. */
 .part.now{
   border-color:color-mix(in srgb,var(--mint) 45%,var(--line));
   background:color-mix(in srgb,var(--mint) 11%,var(--surface-2));
@@ -1205,19 +1438,19 @@ header{backdrop-filter:none;background:var(--bg)}
   .sideparts{max-height:260px}
 }
 
-/* ---------- division inside the menu ----------
-   A heading for a part of the list. In its place there used to be the .sub
-   class — the same as the "many dubs" caption inside the buttons. The
-   heading and the contents looked alike, and the division did not read: the
-   line "it is here" looked like just another line of small grey text.
+/* ---------- разделение внутри меню ----------
+   Заголовок части списка. Раньше на его месте стоял класс .sub — тот же,
+   что у подписи «много озвучек» внутри кнопок. Заголовок и содержимое
+   выглядели одинаково, и разделение не читалось: строка «здесь оно есть»
+   выглядела просто ещё одной строчкой мелким серым.
 
-   Now it has a line above it, a round icon and a colour of its own — green
-   where the title is, muted where it was not checked, and dim where it was
-   looked for and not found. */
-/* The list of sources is wider than the other menus: every row has a
-   caption ("many dubs", "not here"), and in a narrow column it wrapped onto
-   a second line — because of which eight items looked like sixteen and the
-   group headings were lost in that mush. */
+   Теперь у него линия сверху, круглый значок и свой цвет — зелёный там,
+   где тайтл есть, приглушённый там, где не проверяли, и тусклый там, где
+   искали и не нашли. */
+/* Список источников шире прочих меню: у каждой строки есть подпись
+   («много озвучек», «тут этого нет»), и в узкой колонке она переносилась
+   на вторую строку — из-за чего восемь пунктов выглядели как шестнадцать
+   и заголовки групп в этой каше терялись. */
 #m-s{min-width:264px}
 .menu .sub{white-space:nowrap}
 .menu button{gap:12px}
@@ -1241,29 +1474,28 @@ header{backdrop-filter:none;background:var(--bg)}
 .menu .mgroup.no .dot{background:color-mix(in srgb,var(--alert) 20%,var(--surface-2));
   color:var(--alert)}
 
-/* A source that does not have this title. We do not hide it: a vanished
-   row explains nothing, a person sees seven items instead of eight and does
-   not know where the eighth went. We show it switched off — that is the
-   answer. */
+/* Источник, у которого этого тайтла нет. Не прячем: пропавшая строка
+   ничего не объясняет, человек видит семь пунктов вместо восьми и не
+   знает, куда делся восьмой. Показываем выключенным — это и есть ответ. */
 .menu button.gone{color:var(--dimmer);cursor:default;opacity:.72}
 .menu button.gone:hover{background:none;color:var(--dimmer)}
 .menu button.gone .sub{color:color-mix(in srgb,var(--alert) 70%,var(--dimmer))}
 
-/* A service line in the menu: "loading…", "looking at who has it…".
-   Neither a heading nor a button — simply a state. */
+/* Служебная строка меню: «загружается…», «смотрим, у кого оно есть…».
+   Не заголовок и не кнопка — просто состояние. */
 .menu .mnote{padding:7px 10px;font-size:12px;color:var(--dimmer)}
 
-/* A caption instead of a menu: when there is nothing to choose from, the
-   button stops looking like a button — but the dub's name stays in sight. */
+/* Подпись вместо меню: когда выбирать не из чего, кнопка перестаёт
+   выглядеть кнопкой — но название озвучки остаётся на виду. */
 .selbtn.flat{cursor:default;opacity:.85}
 .selbtn.flat:hover{border-color:var(--line);color:inherit}
 .selbtn.flat::after{display:none}
-/* The "as text" mark on subtitles: this is not another dub but another way
-   to watch, and the difference must be visible before the click. */
+/* Пометка «текстом» у субтитров: это не другая озвучка, а другой способ
+   смотреть, и разница должна быть видна до нажатия. */
 .menu button .sub{margin-left:7px;font-size:11px;color:var(--dimmer)}
 
-/* The button on the banner: "Choose another source". It stands where the
-   person reads about the trouble — not where the cure is hidden away. */
+/* Кнопка в плашке: «Выбрать другой источник». Стоит там, где человек
+   читает про беду, — а не там, где спрятано лекарство. */
 .noticego{
   flex:none;align-self:center;margin-left:auto;white-space:nowrap;cursor:pointer;
   background:var(--sand);color:#20180E;border:none;border-radius:999px;
@@ -1276,9 +1508,9 @@ header{backdrop-filter:none;background:var(--bg)}
   .noticego{margin-left:33px;align-self:flex-start}
 }
 
-/* The "Original with subtitles" row at the bottom of the dub list. This is
-   not one of the dubs but an offer to look elsewhere — hence it is set off
-   by a line and highlighted. */
+/* Строка «Оригинал с субтитрами» внизу списка озвучек. Это не одна из
+   озвучек, а предложение поискать в другом месте, — поэтому отделена
+   линией и подсвечена. */
 .menu button.findsubs{
   margin-top:6px;padding-top:11px;border-top:1px solid var(--line);
   border-radius:0 0 9px 9px;color:var(--mint);font-weight:700;
@@ -1286,12 +1518,11 @@ header{backdrop-filter:none;background:var(--bg)}
 .menu button.findsubs:hover{background:color-mix(in srgb,var(--mint) 10%,transparent)}
 .menu button.findsubs .sub{color:var(--dimmer);font-weight:400}
 
-/* ==================== SCROLLBARS ====================
-   The browser draws them its own way: on Windows that is a white strip with
-   little arrows, and in the middle of a dark site it looks like a cut-out
-   from another program. We paint them to match our own look — both in new
-   browsers (scrollbar-color) and in those that understand only the WebKit
-   way. */
+/* ==================== ПОЛОСЫ ПРОКРУТКИ ====================
+   Браузер рисует их своими: на Windows это белая полоса со стрелочками,
+   и посреди тёмного сайта она выглядит вырезкой из другой программы.
+   Красим под своё оформление — и в новых браузерах (scrollbar-color),
+   и в тех, что понимают только вебкитовский способ. */
 :root{scrollbar-color:var(--line) transparent;scrollbar-width:thin}
 *::-webkit-scrollbar{width:10px;height:10px}
 *::-webkit-scrollbar-track{background:transparent}
@@ -1300,21 +1531,21 @@ header{backdrop-filter:none;background:var(--bg)}
   border:2px solid transparent;background-clip:content-box;
 }
 *::-webkit-scrollbar-thumb:hover{background:var(--dimmer);background-clip:content-box}
-/* Arrows at the ends are a habit from the nineties, they take up more room
-   than they help. */
+/* Стрелки на концах — привычка из девяностых, места занимают больше,
+   чем помогают. */
 *::-webkit-scrollbar-button{display:none}
 *::-webkit-scrollbar-corner{background:transparent}
 
-/* ==================== PLAYER: PANELS AND FULL SCREEN ==================== */
+/* ==================== ПЛЕЕР: ПАНЕЛИ И ПОЛНЫЙ ЭКРАН ==================== */
 
-/* A transparent layer for clicks on the picture. It lies OVER the video but
-   UNDER the captions and buttons: a click on the "watch" button must not
-   count as a click on the screen at the same time. */
+/* Прозрачный слой для нажатий по картинке. Лежит НАД видео, но ПОД
+   надписями и кнопками: нажатие по кнопке «смотреть» не должно
+   одновременно считаться нажатием по экрану. */
 .screen .tapzone{position:absolute;inset:0;z-index:3;cursor:pointer}
 
-/* The sign that flashes in the middle on play and pause. Without it a click
-   on the picture looks like "nothing happened": the image froze, and why is
-   unclear. */
+/* Знак, вспыхивающий в середине при пуске и паузе. Без него нажатие по
+   картинке выглядит как «ничего не произошло»: изображение замерло, а
+   почему — непонятно. */
 .screen .tapflash{
   position:absolute;left:50%;top:50%;width:74px;height:74px;margin:-37px 0 0 -37px;
   border-radius:50%;background:rgba(10,12,16,.62);color:#fff;z-index:6;
@@ -1328,7 +1559,7 @@ header{backdrop-filter:none;background:var(--bg)}
   100%{opacity:0;transform:scale(1.32)}
 }
 
-/* The top strip over the picture: what is open and what to watch it with. */
+/* Верхняя полоса поверх картинки: что открыто и чем это смотреть. */
 .screen .topbar{
   position:absolute;left:0;right:0;top:0;z-index:5;
   display:flex;align-items:center;gap:9px;padding:12px 14px;flex-wrap:nowrap;
@@ -1342,33 +1573,32 @@ header{backdrop-filter:none;background:var(--bg)}
 }
 .screen .topbar .sp{flex:1;min-width:4px}
 
-/* A menu from the top strip opens downwards: it has nowhere to go up. */
+/* Меню из верхней полосы раскрывается вниз: вверх ему некуда. */
 .menu.down{bottom:auto;top:44px}
 
-/* While people watch, the panels go away. They come back on any movement of
-   the mouse, on pause and on hover. */
+/* Пока смотрят — панели уходят. Появляются от любого движения мыши,
+   от паузы и при наведении. */
 .player.idle .topbar,
 .player.idle .ctrl,
 .player.idle .track{opacity:0;pointer-events:none}
 .player.idle .screen .tapzone{cursor:none}
 .player.idle .topbar{transform:translateY(-8px)}
 
-/* ---------- full screen ----------
-   The whole player expands, not the picture alone: otherwise the seek bar
-   and the buttons stay outside full screen, and the only way out is the
-   Escape key.
+/* ---------- полный экран ----------
+   Разворачивается весь плеер, а не одна картинка: иначе дорожка с
+   кнопками остаются за пределами полного экрана, и выйти можно только
+   клавишей Escape.
 
-   Every rule is written twice: through `:fullscreen` and through the `.fs`
-   class that the code hangs itself. Not everyone supports the pseudo-class
-   — on an iPhone the video expands its own way, and `:fullscreen` does not
-   fire there at all. The class works the same everywhere. */
+   Каждое правило записано дважды: через `:fullscreen` и через класс
+   `.fs`, который вешает сам код. Псевдокласс поддерживают не все —
+   на iPhone видео разворачивается своим способом, и `:fullscreen` там
+   не срабатывает вовсе. Класс работает везде одинаково. */
 .player:fullscreen,
 .player.fs{
-  /* fixed, not merely dimensions: in real full screen the browser puts the
-     element over everything itself, while the class has to be told so
-     explicitly — otherwise the player stays in the page flow, the seek bar
-     and the panel are measured from its top edge and slide below the
-     screen. */
+  /* fixed, а не просто размеры: в настоящем полном экране браузер сам
+     кладёт элемент поверх всего, а вот классу нужно сказать это явно —
+     иначе плеер остаётся в потоке страницы, дорожка с панелью считаются
+     от его верхнего края и уезжают ниже экрана. */
   position:fixed;inset:0;z-index:200;
   width:100vw;height:100vh;border-radius:0;background:#000;
   display:flex;flex-direction:column;
@@ -1377,7 +1607,7 @@ header{backdrop-filter:none;background:var(--bg)}
 .player.fs .screen{flex:1;min-height:0;aspect-ratio:auto;border-radius:0}
 .player:fullscreen video,
 .player.fs video{width:100%;height:100%;object-fit:contain}
-/* The seek bar and the panel lie over the picture rather than taking room from it. */
+/* Дорожка и панель ложатся поверх картинки, а не отнимают у неё место. */
 .player:fullscreen .track,
 .player.fs .track{position:absolute;left:0;right:0;bottom:52px;z-index:7}
 .player:fullscreen .ctrl,
@@ -1390,17 +1620,17 @@ header{backdrop-filter:none;background:var(--bg)}
 .player.fs .screen .topbar{padding:16px 20px}
 .player:fullscreen .screen .topbar .tb-name,
 .player.fs .screen .topbar .tb-name{font-size:16px}
-/* Menus must fit in full screen: the screen is tall, while there is just as
-   much room above the bottom panel. */
+/* Меню в полном экране должны помещаться: экран высокий, а места над
+   нижней панелью столько же. */
 .player:fullscreen .menu,
 .player.fs .menu{max-height:min(56vh,420px)}
 
-/* ---------- the bottom panel ----------
-   There is no more wrapping. flex-wrap used to stand here, and as soon as
-   seven blocks stopped fitting, "source" together with the full-screen
-   button moved to a second line — the panel looked broken. Now the surplus
-   leaves it by itself: the selects' captions hide first, then the volume. */
-.ctrl{flex-wrap:nowrap;overflow:visible}
+/* ---------- нижняя панель ----------
+   Переносов больше нет. Раньше стоял flex-wrap, и как только семь
+   блоков переставали помещаться, «источник» с кнопкой полного экрана
+   уезжали на вторую строку — панель выглядела сломанной. Теперь
+   лишнее уходит из неё само: подписи селектов прячутся, потом
+   громкость. Сам запрет переносов — в основном правиле .ctrl выше. */
 .ctrl .time{white-space:nowrap;font-variant-numeric:tabular-nums}
 
 @media (max-width:760px){
@@ -1414,10 +1644,9 @@ header{backdrop-filter:none;background:var(--bg)}
   .screen .topbar .tb-name{max-width:34%;font-size:13px}
 }
 
-/* ---------- the buttons' response ----------
-   A button that does not respond to a press in any way feels broken: while
-   the video is thinking, there is no telling whether the press counted at
-   all. */
+/* ---------- отклик кнопок ----------
+   Кнопка, которая никак не отзывается на нажатие, ощущается как
+   неработающая: пока видео думает, непонятно, засчиталось ли вообще. */
 .cbtn{transition:transform .12s ease,color .14s ease,background .14s ease}
 .cbtn:active{transform:scale(.86)}
 .selbtn{transition:transform .12s ease,border-color .14s ease,color .14s ease}
@@ -1426,8 +1655,8 @@ header{backdrop-filter:none;background:var(--bg)}
 .playbtn:active{transform:scale(.92)}
 .playbtn[hidden]{display:none}
 
-/* The grid of episode numbers in the "Episode" menu. As a list of rows they
-   would take up the whole screen — "Ван-Пис" has more than a thousand. */
+/* Сетка номеров серий в меню «Серия». Списком строк они занимали бы
+   экран целиком — у «Ван-Пис» их больше тысячи. */
 .menu .epgrid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));
   gap:5px;padding:4px 4px 6px;max-height:230px;overflow-y:auto;
@@ -1442,46 +1671,44 @@ header{backdrop-filter:none;background:var(--bg)}
 #m-e{min-width:290px}
 
 
-/* ---------- the menu from the top strip ----------
-   It used to open to the player's full height: the thirty-seven dubs of
-   "Магическая битва" ran into the bottom edge of the picture, were cut off
-   mid-word and covered the play button in the middle at the same time. A
-   list that cannot be seen to the end and that gets in the way of clicking
-   the video itself is worse than a short one.
+/* ---------- меню из верхней полосы ----------
+   Раскрывалось во всю высоту плеера: тридцать семь озвучек «Магической
+   битвы» упирались в нижний край картинки, обрезались на полуслове и
+   заодно накрывали кнопку пуска в середине. Список, который не видно
+   до конца и который мешает нажать на само видео, — хуже короткого.
 
-   The ceiling is measured from the player's height, not the screen's: the
-   menu lives inside the picture and cannot get out of it — `.player` clips
-   everything surplus, and the rest of the list would simply disappear. */
+   Потолок считается от высоты плеера, а не от экрана: меню живёт
+   внутри картинки и вылезти за неё не может — `.player` обрезает всё
+   лишнее, и продолжение списка просто исчезало бы. */
 .screen .topbar .menu{max-height:min(52vh,320px)}
 .player:fullscreen .screen .topbar .menu,
 .player.fs .screen .topbar .menu{max-height:min(64vh,440px)}
 
-/* ---------- alignment in the bottom panel ----------
-   "Quality" stood higher than its neighbours: the `.sel` wrapper is a block
-   rather than a flex, and the button inside it sat on the top edge of the
-   line instead of the middle, as the other icons do. */
+/* ---------- выравнивание в нижней панели ----------
+   «Качество» стояло выше соседей: обёртка `.sel` — блок, а не флекс,
+   и кнопка внутри него ложилась по верхнему краю строки, а не по
+   середине, как остальные значки. */
 .ctrl .sel{display:flex;align-items:center}
 .ctrl .selbtn{display:inline-flex;align-items:center}
 
-/* While a list is open, the large play button steps into the background:
-   they stand in the same place in the middle of the frame and compete for
-   attention. Hiding it altogether is not allowed — after choosing, it is
-   exactly this that has to be pressed again. */
+/* Пока открыт список, большая кнопка пуска уходит на второй план: они
+   стоят на одном месте посреди кадра и спорят за внимание. Совсем
+   прятать нельзя — после выбора нажимать снова придётся именно на неё. */
 .player:has(.menu.show) .playbtn{opacity:.22}
 
-/* ==================== BOXES IN THE LIBRARY ====================
-   One card per story rather than per record. "Ван-Пис" used to have four in
-   a row — the series from two sources, a film and one more with no cover;
-   four identical names in a row read as a mistake. */
+/* ==================== КОРОБКИ В СПИСКЕ ====================
+   Одна карточка на историю, а не на каждую запись. У «Ван-Пис» их было
+   четыре подряд — сериал с двух источников, фильм и ещё один без
+   обложки; четыре одинаковых названия в ряд читаются как ошибка. */
 
-/* The number of parts on the cover — like the spines of discs on the side of a box set. */
+/* Число частей на обложке — как корешки дисков на торце коробки. */
 .card .pic .discs{
   position:absolute;left:9px;top:9px;z-index:2;border-radius:999px;padding:3px 9px;
   font-family:Nunito;font-weight:700;font-size:11.5px;line-height:1.35;
   background:rgba(16,19,26,.74);color:#E6E4EC;backdrop-filter:blur(3px);
 }
-/* A box is a little deeper than an ordinary card: a thin strip on the left
-   hints at the stack inside. */
+/* Коробка чуть глубже обычной карточки: тонкая полоска слева намекает
+   на стопку внутри. */
 .card.boxcard .wrap::before{
   content:'';position:absolute;left:-4px;top:8px;bottom:8px;width:4px;border-radius:4px 0 0 4px;
   background:color-mix(in srgb,var(--mint) 34%,var(--surface-2));opacity:.75;
@@ -1489,12 +1716,12 @@ header{backdrop-filter:none;background:var(--bg)}
 .card.boxcard:hover .wrap::before{opacity:1}
 
 
-/* Your own parts in an open box are links, leading straight to the player. */
+/* Свои части в открытой коробке — ссылки, ведут прямо в плеер. */
 .part.mine{text-decoration:none}
 .part.mine .nm{color:var(--text)}
 
-/* The language switch in the header: more compact than on the sign-in
-   screen, so as not to compete with the rest. */
+/* Переключатель языка в шапке: компактнее, чем на экране входа, чтобы
+   не спорить с остальным. */
 .lang-seg{flex:none;padding:3px}
 .lang-seg .lang{
   border:none;background:none;color:var(--dimmer);cursor:pointer;border-radius:999px;
@@ -1505,42 +1732,40 @@ header{backdrop-filter:none;background:var(--bg)}
 .lang-seg .lang.on{background:var(--surface-2);color:var(--text)}
 @media (max-width:560px){.lang-seg .lang{padding:5px 8px;font-size:11px}}
 
-/* ==================== THE CARD: AN EVEN ROW ====================
-   What was wrong.
+/* ==================== КАРТОЧКА: РОВНЫЙ РЯД ====================
+   Что было не так.
 
-   The row came out ragged: some names take one line, others two, others
-   have a line about the part under the name as well — "Магическая битва 0.
-   Фильм · ep. 1 / 1". The cards came out at different heights, and the grid
-   slid.
+   Ряд получался рваным: у одних названий одна строка, у других две, у
+   третьих под названием ещё и строчка про часть — «Магическая битва 0.
+   Фильм · ep. 1 / 1». Карточки выходили разной высоты, и сетка ехала.
 
-   And the watch bar stood right under the name and read as an underline —
-   as though the name were emphasised somehow.
+   А полоса просмотра стояла прямо под названием и читалась как
+   подчёркивание — будто название чем-то выделено.
 
-   Now the card has a constant layout: the cover, two lines under the name,
-   one line about the place in watching. The bar has gone back onto the
-   cover — there it does not compete with the text. */
-.card{display:flex;flex-direction:column}
+   Теперь у карточки постоянная разметка: обложка, две строки под
+   названием, одна строка про место в просмотре. Полоса вернулась на
+   обложку — там она не спорит с текстом. Сама карточка — колонка:
+   это объявлено в основном правиле .card выше. */
 
-/* The name: no more than two lines. A long one is trimmed with an ellipsis
-   — otherwise one card stretches while its neighbours stay short. We do not
-   reserve height for it: the bottom line is pressed to the bottom anyway,
-   and the row is even without that. */
+/* Название: не больше двух строк. Длинное обрезается многоточием —
+   иначе одна карточка растягивается, а соседние остаются низкими.
+   Высоту под него не резервируем: нижняя строка и так прижата к низу,
+   и ряд ровный без этого. */
 .card h3{
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   margin:11px 0 0;
 }
 
-/* ---------- the card's bottom line ----------
-   The watch bar and the episode number on one line, pressed to the bottom.
+/* ---------- нижняя строка карточки ----------
+   Полоса просмотра и номер серии в одну линию, прижатые к низу.
 
-   Pressed there not for looks: names are of different lengths — one on a
-   line, another on two — and the line that follows straight after the name
-   ends up at a different height on every card. The row looks scattered
-   because of it.
+   Прижаты не для красоты: названия разной длины — одно в строку, другое
+   в две, — и строка, идущая сразу за названием, у каждой карточки
+   оказывается на своей высоте. Ряд от этого выглядит рассыпанным.
 
-   The bar cannot lie on the cover: covers are all different, and on a light
-   one it is lost, on a dark one it cuts the eye, on a busy one it cannot be
-   seen at all. */
+   На обложке полоса лежать не может: обложки у всех разные, и на
+   светлой она теряется, на тёмной режет глаз, на пёстрой её не видно
+   вовсе. */
 .card .foot{
   margin-top:auto;padding-top:10px;
   display:flex;align-items:center;gap:10px;
@@ -1553,15 +1778,15 @@ header{backdrop-filter:none;background:var(--bg)}
   position:absolute;left:0;top:0;bottom:0;border-radius:99px;
   background:var(--sky);transition:width .4s cubic-bezier(.2,.7,.3,1);
 }
-/* A dot at the end of the filled part: it shows where exactly you stand.
-   Without it a short stretch at the start of a long bar is barely readable —
-   for "Ван-Пис" that is two episodes out of a thousand. */
+/* Точка на конце заполненной части: показывает, где именно вы стоите.
+   Без неё короткий отрезок в начале длинной полосы почти не читается —
+   у «Ван-Пис» это две серии из тысячи. */
 .card .foot .seenbar i::after{
   content:'';position:absolute;right:-3px;top:50%;width:7px;height:7px;
   margin-top:-3.5px;border-radius:50%;background:var(--sky);
 }
-/* Finished gets a calm colour: the bar has nowhere left to grow, and
-   highlighting it as "in progress right now" would be wrong. */
+/* Досмотренное — спокойный цвет: полосе уже некуда расти, подсвечивать
+   её как «идёт прямо сейчас» неправильно. */
 .card .foot .seenbar.full i,
 .card .foot .seenbar.full i::after{background:color-mix(in srgb,var(--mint) 75%,var(--line))}
 
@@ -1569,26 +1794,25 @@ header{backdrop-filter:none;background:var(--bg)}
   flex:none;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums;
   white-space:nowrap;
 }
-/* When there is no bar, the number takes the line by itself and stands on the left. */
+/* Когда полосы нет — номер занимает строку сам и стоит слева. */
 .card .foot .num.only{margin-right:auto;color:var(--dimmer)}
 
-/* Covers come in any shape, while the tile is one. We fill it completely:
-   otherwise on some cards the picture spans the full width and on others it
-   has margins at the sides, and the row looks assembled from different
-   places. */
+/* Обложки бывают любой формы, а плитка одна. Заполняем её целиком:
+   иначе у одних карточек картинка во всю ширину, у других с полями по
+   бокам, и ряд выглядит собранным из разных мест. */
 .card .pic i{background-size:cover;background-position:center center}
 
 
-/* Captions and the counter by the announcement fields. */
+/* Подписи и счётчик у полей объявления. */
 .newslabel{display:block;margin:14px 0 6px;font-size:12.5px;color:var(--dim);
   font-family:Nunito;font-weight:600}
 .newscount{margin-top:5px;font-size:12px;color:var(--dimmer);text-align:right}
 .newscount.low{color:var(--sand)}
 
 
-/* ==================== DEMONSTRATION MODE ====================
-   A calm frame rather than an alarming one: this is neither an error nor a
-   warning but an explanation of what is being shown here. */
+/* ==================== ДЕМОНСТРАЦИОННЫЙ РЕЖИМ ====================
+   Спокойная рамка, а не тревожная: это не ошибка и не предупреждение,
+   а объяснение, что здесь показывают. */
 .demonote{
   display:flex;gap:11px;align-items:flex-start;margin:0 0 14px;padding:12px 16px;
   border-radius:var(--r-md);border:1px solid color-mix(in srgb,var(--sky) 38%,var(--line));
@@ -1600,3 +1824,512 @@ header{backdrop-filter:none;background:var(--bg)}
   display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1;
 }
 .demonote .tx{min-width:0;font-size:13.5px;color:var(--dim);line-height:1.45}
+
+/* ======================================================================
+   ДВИЖЕНИЕ
+
+   Одна кривая (--ease) и три длительности на весь сайт. Смысл не в
+   украшательстве: движение отвечает на вопросы, которые иначе задаёт
+   человек. «Нажалось ли?» — кнопка проседает. «Это можно нажать?» —
+   приподнимается под мышкой. «Откуда взялось окно?» — оно выросло из
+   середины, а не появилось рывком. «Список обновился?» — карточки
+   выехали по очереди.
+
+   Всё короткое: 0.16–0.4 секунды. Длиннее — и интерфейс начинает
+   казаться медленным, каким бы красивым ни было само движение.
+   ====================================================================== */
+
+/* ---------- появления ---------- */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(.94) translateY(8px); }
+  60%  { opacity: 1; transform: scale(1.012) translateY(0); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-10px) scale(.99); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes growLine { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes spinOnce { to { transform: rotate(360deg); } }
+@keyframes nudge {
+  0%,100% { transform: translateX(0); }
+  25%     { transform: translateX(-3px); }
+  75%     { transform: translateX(3px); }
+}
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0 rgba(255,255,255,.16); }
+  100% { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+}
+
+/* Подсказка на месте картинки, когда рисовать её нечем. */
+.qrnone{max-width:184px;font-size:12.5px;line-height:1.4;color:var(--dim);
+  border:1px dashed var(--line);border-radius:var(--r-sm);padding:10px 12px;margin:0}
+
+/* ---------- кнопки: одинаковый отклик у всех ---------- */
+button, .chipbtn, .wide, .share, .iconbtn, .filtbtn, .small, .lang, .sc, .logopick {
+  transition: transform var(--fast) var(--ease),
+              box-shadow var(--fast) var(--ease),
+              background var(--fast) var(--ease),
+              border-color var(--fast) var(--ease),
+              color var(--fast) var(--ease),
+              filter var(--fast) var(--ease);
+}
+/* Нажатие видно у каждой кнопки без исключения: она проседает.
+   Раньше половина кнопок на нажатие не отвечала никак, и было
+   непонятно, попал ты по ней или нет. */
+button:active, .chipbtn:active, .share:active { transform: scale(.97); }
+.wide:active { transform: translateY(0) scale(.985); }
+
+/* Кнопки-значки в шапке: приподнимаются и чуть подсвечивают рамку */
+.iconbtn { transition: transform var(--fast) var(--ease), border-color var(--fast) var(--ease),
+                       color var(--fast) var(--ease), background var(--fast) var(--ease); }
+.iconbtn:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+.iconbtn:active { transform: translateY(0) scale(.93); box-shadow: var(--shadow-press); }
+.iconbtn svg { transition: transform var(--mid) var(--ease); }
+/* Колокольчик качается, значок обновляется поворотом — каждый значок
+   двигается по-своему, чтобы их было видно как разные кнопки. */
+#btn-bell:hover svg { animation: nudge .5s var(--ease); }
+#btn-news:hover svg { transform: translateY(-1px) rotate(-6deg); }
+#btn-stats:hover svg { transform: scaleY(1.18); }
+#btn-about:hover svg { transform: rotate(20deg); }
+#btn-roul:hover svg { transform: rotate(90deg); }
+
+.filtbtn:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+.filtbtn:active { transform: translateY(0) scale(.97); }
+
+.small { transition: transform var(--fast) var(--ease), background var(--fast) var(--ease),
+                     border-color var(--fast) var(--ease), color var(--fast) var(--ease),
+                     box-shadow var(--fast) var(--ease); }
+.small:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+.small:active { transform: scale(.96); box-shadow: var(--shadow-press); }
+
+/* Мелкие кнопки, у которых отклик был только цветом текста: тень
+   отвечает на вопрос «я на ней?» быстрее, чем оттенок серого. */
+.seg button, .who button, .guest .mini-btn, .selbtn, .cbtn {
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease),
+              background var(--fast) var(--ease), color var(--fast) var(--ease),
+              border-color var(--fast) var(--ease);
+}
+.seg button:hover, .who button:hover, .guest .mini-btn:hover {
+  transform: translateY(-1px); box-shadow: var(--shadow-hover);
+}
+.seg button:active, .who button:active, .guest .mini-btn:active {
+  transform: translateY(0) scale(.96); box-shadow: var(--shadow-press);
+}
+/* Кружок с аватаркой чуть подрастает — видно, что вся плашка нажимается */
+.who .ava { transition: transform var(--mid) var(--ease); }
+.who:hover .ava { transform: scale(1.08); }
+/* Треугольник в логотипе слегка подаётся вперёд */
+.brand .logo, .brand svg { transition: transform var(--mid) var(--ease); }
+.brand:hover .logo, .brand:hover svg { transform: translateX(2px) scale(1.05); }
+/* Поле поиска приподнимается, когда в нём печатают */
+.find input { transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease),
+                          box-shadow var(--fast) var(--ease), transform var(--fast) var(--ease); }
+.find input:focus { transform: translateY(-1px); }
+
+/* ---------- карточки ---------- */
+/* Выезжают по очереди. Задержка крошечная: при двадцати карточках
+   последняя появится через полсекунды, а не через минуту. */
+.grid .card { animation: riseIn .3s var(--ease) both; }
+.grid .card:nth-child(1)  { animation-delay: .00s }
+.grid .card:nth-child(2)  { animation-delay: .03s }
+.grid .card:nth-child(3)  { animation-delay: .06s }
+.grid .card:nth-child(4)  { animation-delay: .09s }
+.grid .card:nth-child(5)  { animation-delay: .12s }
+.grid .card:nth-child(6)  { animation-delay: .15s }
+.grid .card:nth-child(7)  { animation-delay: .18s }
+.grid .card:nth-child(8)  { animation-delay: .21s }
+.grid .card:nth-child(9)  { animation-delay: .24s }
+.grid .card:nth-child(10) { animation-delay: .27s }
+.grid .card:nth-child(n+11) { animation-delay: .3s }
+
+/* Обложка чуть приближается под мышкой — как будто карточка оживает */
+.card .pic i { transition: transform var(--slow) var(--ease); }
+.card:hover .pic i { transform: scale(1.06); }
+/* Название под мышкой.
+
+   Две попытки мимо: сперва оно зеленело — подсвечивало пол-экрана;
+   потом подчёркивалось — линия под текстом смотрелась как ссылка из
+   девяностых и спорила с полосой просмотра под ней.
+
+   Третий вариант ничего не пририсовывает. В покое название чуть
+   приглушено, под мышкой доходит до полной яркости. Разница видна,
+   но на карточке не появляется ни одной новой линии. */
+.card h3 { color: color-mix(in srgb, var(--text) 84%, var(--dim));
+           transition: color var(--fast) var(--ease); }
+.card:hover h3 { color: var(--text); }
+
+/* Крестик удаления вырастает, а не появляется рывком */
+.card .del { transform: scale(.8); transition: opacity var(--fast) var(--ease),
+             transform var(--fast) var(--ease), color var(--fast) var(--ease),
+             border-color var(--fast) var(--ease), background var(--fast) var(--ease); }
+.card:hover .del, .card .del:focus-visible { opacity: 1; transform: scale(1); }
+.card .del:hover { transform: scale(1.12) rotate(90deg); }
+.card .del:active { transform: scale(.92) rotate(90deg); }
+@media (hover:none) { .card .del { opacity: 1; transform: scale(1); } }
+
+/* Полоса просмотра растёт слева направо *//* Пометки на обложке проявляются следом за карточкой *//* ---------- вкладки ---------- */
+.sec .tabs a { transition: color var(--fast) var(--ease), background var(--mid) var(--ease),
+                           transform var(--fast) var(--ease); }
+.sec .tabs a:active { transform: scale(.96); }
+.sec .tabs a.on { animation: popIn .26s var(--ease); }
+
+/* ---------- окна ---------- */
+.veil { transition: opacity var(--mid) var(--ease); }
+.veil.show .panel, .veil.show .sheet, .veil.show .roul,
+.veil.show .cropwrap, .veil.dialog .dbox {
+  animation: popIn .28s var(--ease);
+}
+/* Содержимое своего окна проявляется чуть позже коробки — так глаз
+   успевает заметить, что окно приехало, прежде чем читать текст. */
+.dbox h3 { animation: riseIn .3s var(--ease) both .06s; }
+.dbox p  { animation: riseIn .3s var(--ease) both .1s; }
+.dbox .drow { animation: riseIn .3s var(--ease) both .14s; }
+
+/* ---------- переключатель ---------- */
+/* Кружок едет с лёгким перелётом — так переключение чувствуется
+   щелчком, а не просто сменой цвета. */
+.sw { transition: background var(--mid) var(--ease), border-color var(--mid) var(--ease); }
+.sw::after { transition: left .22s cubic-bezier(.34,1.4,.5,1), background var(--mid) var(--ease); }
+.sw:active::after { width: 21px; }
+.sw[aria-checked="true"] { animation: pulseRing .45s var(--ease); }
+
+/* ---------- объявление и уведомления ---------- */
+.sitenews:not([hidden]) { animation: dropIn .34s var(--ease); }
+.notice:not([hidden]) { animation: dropIn .34s var(--ease); }
+.drop.show { animation: dropIn .22s var(--ease); }
+.nrow { transition: background var(--fast) var(--ease), transform var(--fast) var(--ease); }
+.nrow:hover { transform: translateX(3px); }
+.toast.show { animation: slideUp .36s var(--ease); }
+
+/* ---------- рулетка ---------- */
+.roul.done .pickres .cover { animation: popIn .38s var(--ease) both; }
+.roul.done .pickres .nm    { animation: riseIn .34s var(--ease) both .07s; }
+.roul.done .pickres .m     { animation: riseIn .34s var(--ease) both .11s; }
+.roul.done .pickres .rtags { animation: riseIn .34s var(--ease) both .15s; }
+.roul.done .pickres .about { animation: riseIn .34s var(--ease) both .19s; }
+.roul.done #roul-watch     { animation: riseIn .34s var(--ease) both .23s; }
+.roul .pickres .rtags .tag { transition: transform var(--fast) var(--ease),
+                                         border-color var(--fast) var(--ease); }
+.roul .pickres .rtags .tag:hover { transform: translateY(-2px); border-color: var(--dimmer); }
+
+/* ---------- страница просмотра ---------- */
+.eprow { transition: background var(--fast) var(--ease), transform var(--fast) var(--ease),
+                     color var(--fast) var(--ease); }
+.eprow:hover { transform: translateX(4px); }
+.eprow:active { transform: translateX(2px) scale(.99); }
+.cbtn { transition: transform var(--fast) var(--ease), color var(--fast) var(--ease),
+                    background var(--fast) var(--ease); }
+.cbtn:hover { transform: scale(1.12); }
+.cbtn:active { transform: scale(.92); }
+.playbtn { transition: transform var(--mid) var(--ease), box-shadow var(--mid) var(--ease); }
+.playbtn:hover { transform: scale(1.08); box-shadow: var(--shadow-lift); }
+.playbtn:active { transform: scale(.96); }
+.selbtn { transition: transform var(--fast) var(--ease), border-color var(--fast) var(--ease),
+                      background var(--fast) var(--ease); }
+.selbtn:hover { transform: translateY(-1px); }
+.menu.show { animation: dropIn .2s var(--ease); }
+.menu button { transition: background var(--fast) var(--ease), transform var(--fast) var(--ease); }
+.menu button:hover { transform: translateX(3px); }
+
+/* ---------- итоги года ---------- */
+.big .b { animation: riseIn .38s var(--ease) both; }
+.big .b:nth-child(2) { animation-delay: .06s }
+.big .b:nth-child(3) { animation-delay: .12s }
+.big .b:nth-child(4) { animation-delay: .18s }
+.big .b { transition: transform var(--mid) var(--ease); }
+.big .b:hover { transform: translateY(-3px); }
+.gen .g .track i { transform-origin: left center; animation: growLine .6s var(--ease) both .15s; }
+.months .m .tr i { transform-origin: left center; animation: growLine .6s var(--ease) both .15s; }
+.year .d { transition: transform var(--fast) var(--ease); }
+.year .d:hover { transform: scale(1.5); }
+
+/* ---------- вход ---------- */
+.gate .box { animation: popIn .4s var(--ease); }
+.gate .field, .gate .wide, .gate .split, .gate .locked, .gate .langrow {
+  animation: riseIn .4s var(--ease) both;
+}
+.gate .field:nth-of-type(1) { animation-delay: .05s }
+.gate .field:nth-of-type(2) { animation-delay: .09s }
+.gate .wide { animation-delay: .13s }
+.gate .split { animation-delay: .16s }
+.gate .locked { animation-delay: .2s }
+.gate .langrow { animation-delay: .24s }
+
+/* ---------- прочее ---------- */
+.spin { animation: spinOnce .9s linear infinite; }
+a { transition: color var(--fast) var(--ease); }
+.acc { transition: background var(--fast) var(--ease), transform var(--fast) var(--ease); }
+.acc:hover { transform: translateX(3px); }
+.mini { transition: transform var(--mid) var(--ease), box-shadow var(--mid) var(--ease),
+                    border-color var(--mid) var(--ease); }
+
+/* ================= ПРАЗДНИКИ =================
+   Украшение поверх темы. Цвета темы не трогаются — поэтому во время
+   праздника переключение тем работает как обычно, а праздник остаётся
+   при любой теме. Акцентный цвет тоже не трогается: иначе кнопки
+   выбора акцента на месяц превратились бы в кнопки, которые ничего не
+   делают.
+
+   Слой лежит ПОД содержимым (z-index:0, содержимое — 1). Снег,
+   пролетающий поверх текста, мил секунд десять, а на одиннадцатой
+   мешает читать; в просветах между карточками его видно достаточно. */
+/* Два слоя.
+
+   Заливка — под всем (z-index:0): она красит страницу.
+   Летающее — над содержимым (z-index:100), но под окнами кабинета
+   (150) и под экраном входа (200): при вводе пароля мельтешение ни к
+   чему, а вот над карточками снег и должен идти. Под содержимым он
+   прятался за обложками и шёл в основном по пустому низу страницы. */
+.prazdnik{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.prazdnik.verh{z-index:100}
+#app{position:relative;z-index:1}
+.prazdnik .zaliv{position:absolute;inset:0}
+
+/* ---------- Новый год ---------- */
+html[data-holiday="newyear"] .prazdnik .zaliv{
+  background:
+    radial-gradient(130% 70% at 50% -16%, color-mix(in srgb,#6FB3E0 62%,transparent), transparent 72%),
+    radial-gradient(100% 55% at 8% 108%, color-mix(in srgb,#8AA6D8 44%,transparent), transparent 74%),
+    linear-gradient(180deg, color-mix(in srgb,#4E7FA8 20%,transparent), transparent 42%);
+}
+/* Размер и прозрачность — через переменные, а не прямо в элементе.
+   Свойство, записанное в сам элемент, сильнее любого правила из файла,
+   и переопределить его под светлую тему было бы нечем. */
+.snezh{
+  position:absolute;top:-14px;border-radius:50%;
+  width:var(--razmer,7px);height:var(--razmer,7px);
+  background:radial-gradient(circle at 34% 32%, #fff, color-mix(in srgb,#DCEBFA 70%,transparent));
+  opacity:0;animation:snegopad linear infinite;
+}
+/* На светлой теме белый снег на белом фоне пропадает. Здесь хлопья
+   крупнее, синее, с каймой и собственной тенью — и заметно плотнее:
+   прозрачность берётся из отдельной переменной, потому что обычную
+   элемент задаёт сам, и правилом её не перебить. */
+html[data-theme="bumaga"] .snezh{
+  width:calc(var(--razmer,7px) * 1.45);
+  height:calc(var(--razmer,7px) * 1.45);
+  background:radial-gradient(circle at 32% 28%, #FFFFFF 26%, #7FAAD6);
+  box-shadow:0 0 0 1px color-mix(in srgb,#2F5F91 52%,transparent),
+             0 2px 4px -1px rgba(28,58,92,.45);
+  animation-name:snegopadSvet;
+}
+@keyframes snegopadSvet{
+  0%   {transform:translate3d(0,-20px,0) scale(.85);opacity:0}
+  8%   {opacity:var(--vidno-svet,.9)}
+  92%  {opacity:var(--vidno-svet,.9)}
+  100% {transform:translate3d(var(--snos,18px),102vh,0) scale(1);opacity:0}
+}
+@keyframes snegopad{
+  0%   {transform:translate3d(0,-20px,0) scale(.85);opacity:0}
+  8%   {opacity:var(--vidno,.5)}
+  92%  {opacity:var(--vidno,.5)}
+  100% {transform:translate3d(var(--snos,18px),102vh,0) scale(1);opacity:0}
+}
+
+/* ---------- Хэллоуин ---------- */
+html[data-holiday="halloween"] .prazdnik .zaliv{
+  background:
+    radial-gradient(120% 66% at 50% 112%, color-mix(in srgb,#E08A3C 58%,transparent), transparent 70%),
+    radial-gradient(95% 58% at 86% -10%, color-mix(in srgb,#7E5AA8 52%,transparent), transparent 72%),
+    linear-gradient(180deg, color-mix(in srgb,#4A2F5E 22%,transparent), transparent 46%);
+}
+/* Цвета задника собраны в одном месте: на светлой теме силуэт должен
+   быть темнее, а луна теплее, иначе всё сливается с бумагой. */
+html[data-holiday="halloween"]{
+  --hall-temno:#1B1424; --hall-kamen:#2C2338; --hall-kost:#C9C2B4;
+  --hall-ogon:#F2A93E; --hall-luna:#F3E4B8; --hall-luna-svet:rgba(243,228,184,.16);
+  --hall-krater:rgba(180,164,120,.5);
+}
+html[data-theme="bumaga"][data-holiday="halloween"]{
+  --hall-temno:#3A2B45; --hall-kamen:#4C3B5A; --hall-kost:#F0EADC;
+  --hall-luna:#F6C46A; --hall-luna-svet:rgba(246,196,106,.3);
+}
+/* Кладбище во всю ширину у нижнего края — это фон, а не украшение
+   поверх текста, поэтому живёт в нижнем слое. */
+/* Высота не задаётся: она получается из ширины, потому что картинка
+   держит свои пропорции. Задать и то и другое — значит вернуть
+   растягивание, из-за которого тыквы были овальными. */
+.kladbische{
+  position:absolute;left:0;right:0;bottom:0;width:100%;height:auto;display:block;
+}
+/* Луна высоко: пусть её меньше видно за содержимым — так просили.
+   Над самым кладбищем она смотрелась приземлённо. */
+.luna{
+  position:absolute;right:clamp(18px,8vw,140px);
+  top:clamp(88px,17vh,200px);
+  width:clamp(78px,10vw,136px);height:auto;display:block;
+}
+.letuchka{
+  position:absolute;color:color-mix(in srgb,#241C2C 72%,transparent);
+  opacity:.5;animation:polyot linear infinite;
+}
+html[data-theme="bumaga"] .letuchka{color:color-mix(in srgb,#4A3A55 60%,transparent)}
+@keyframes polyot{
+  0%   {transform:translate3d(-10vw,0,0) rotate(-4deg)}
+  50%  {transform:translate3d(50vw,-26px,0) rotate(5deg)}
+  100% {transform:translate3d(112vw,0,0) rotate(-4deg)}
+}
+
+/* ---------- Сакура ---------- */
+html[data-holiday="sakura"] .prazdnik .zaliv{
+  background:
+    radial-gradient(125% 64% at 50% -14%, color-mix(in srgb,#E894B0 52%,transparent), transparent 72%),
+    radial-gradient(95% 52% at 90% 106%, color-mix(in srgb,#E8B58C 40%,transparent), transparent 74%),
+    linear-gradient(180deg, color-mix(in srgb,#9C5C77 18%,transparent), transparent 44%);
+}
+.lepestok{
+  position:absolute;top:-16px;
+  background:linear-gradient(140deg,#F7C6D6,#EFA3BC);
+  border-radius:70% 30% 62% 38% / 60% 62% 38% 40%;
+  opacity:0;animation:padenie linear infinite;
+}
+@keyframes padenie{
+  0%   {transform:translate3d(0,-20px,0) rotate(0deg);opacity:0}
+  10%  {opacity:var(--vidno,.55)}
+  90%  {opacity:var(--vidno,.55)}
+  100% {transform:translate3d(var(--snos,60px),102vh,0) rotate(420deg);opacity:0}
+}
+
+/* ---------- Значок рядом с логотипом ---------- */
+.prazdznak{display:grid;place-items:center;flex:none;margin-left:-2px}
+.prazdznak svg{display:block}
+
+/* ================= КНОПКИ ШАПКИ И СВЯЗЬ =================
+   На широком экране .acts — обычный ряд кнопок, подписи спрятаны, а
+   бургера нет. На узком всё наоборот: ряд превращается в список с
+   подписями и раскрывается кнопкой. Кнопки при этом одни и те же —
+   вторая копия для телефона означала бы два набора обработчиков,
+   которые однажды разойдутся. */
+.acts{display:flex;align-items:center;gap:9px}
+.acts .lbl{display:none}
+.burger{display:none}
+
+.svyaz{
+  position:fixed;right:clamp(14px,2.5vw,26px);bottom:clamp(14px,3vh,28px);z-index:120;
+  width:50px;height:50px;border-radius:50%;border:1px solid var(--line);
+  background:var(--surface);color:var(--mint);cursor:pointer;
+  display:grid;place-items:center;box-shadow:var(--shadow-lift);
+}
+.svyaz:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover),var(--shadow-lift)}
+.svyaz:active{transform:translateY(0) scale(.94)}
+
+@media (max-width:620px){
+  .burger{display:grid}
+  /* Список кнопок выпадает из-под шапки во всю её ширину. */
+  .acts{
+    display:none;position:absolute;left:14px;right:14px;top:calc(100% + 8px);
+    flex-direction:column;align-items:stretch;gap:4px;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+    padding:7px;box-shadow:var(--shadow-lift);z-index:70;
+  }
+  .acts.open{display:flex;animation:dropIn .2s var(--ease)}
+  .acts .lbl{display:block;font-family:Nunito;font-weight:600;font-size:14px}
+  /* Внутри списка кнопки становятся строками: значок слева, подпись
+     справа. Круглый значок без подписи в вертикальном списке не
+     читается вовсе — непонятно, что за кнопка. */
+  .acts .iconbtn,.acts .filtbtn,.acts .bellwrap>.iconbtn{
+    width:100%;height:auto;border-radius:var(--r-sm);border:none;background:none;
+    display:flex;align-items:center;gap:12px;justify-content:flex-start;
+    padding:10px 11px;color:var(--text);
+  }
+  .acts .iconbtn:hover,.acts .filtbtn:hover,.acts .bellwrap>.iconbtn:hover{
+    background:var(--surface-2);transform:none;box-shadow:none;
+  }
+  .acts .bellwrap{width:100%}
+  .acts .drop{position:static;width:100%;margin-top:6px}
+  .svyaz{width:46px;height:46px;bottom:14px;right:14px}
+  /* Шапке нужен упор для выпадающего списка. */
+  [data-page="index"] header{position:sticky;top:0}
+  [data-page="index"] .bar{position:relative}
+}
+
+/* ==================== ТЕЛЕФОН: УЗКИЙ ЭКРАН ====================
+   Проверено на 375 пикселях. Главный признак сломанной вёрстки —
+   горизонтальная прокрутка; её быть не должно ни на одной странице. */
+@media (max-width:620px){
+  main{padding:0 14px 70px}
+
+  /* Шапка в три строки вместо четырёх: сверху имя сайта и профиль,
+     под ними поиск во всю ширину, ниже кнопки. */
+  [data-page="index"] .bar{padding:10px 14px;gap:8px}
+  .brand{order:1}
+  .brand b{font-size:17px}
+  .who{order:2;margin-left:auto}
+  .find{order:3;width:100%;flex-basis:100%}
+  /* Порядок: имя сайта, бургер, профиль, под ними поиск. */
+  .burger{order:2}
+  .who{order:3}
+  .find{order:4}
+
+  /* Заголовок раздела и вкладки.
+
+     Было `display:flex` без переноса: заголовок сжимался до ширины
+     соседей и рвался посреди слова, а вкладки уходили за край экрана.
+     Теперь заголовок не сжимается, а вкладки занимают свою строку. */
+  .sec{flex-wrap:wrap;align-items:center;gap:8px 10px;margin:24px 0 14px}
+  .sec h2{flex:none;white-space:nowrap;font-size:19px}
+  .sec .sp{display:none}
+  .sec .tabs{order:9;width:100%;justify-content:stretch}
+  .sec .tabs a{flex:1;text-align:center;padding:8px 6px;font-size:13px}
+
+  /* Карточки: две в ряд на любом телефоне. */
+  .grid{gap:20px 12px}
+
+  /* Футер в столбик — иначе ссылки прижимаются к тексту. */
+  [data-page="index"] footer .in{flex-direction:column;align-items:flex-start;gap:12px}
+
+  /* Кабинет и окна: поля меньше, места под содержимое больше. */
+  .panel,.sheet,.roul{padding:20px 16px}
+  .opt{gap:10px}
+
+  /* Праздник: украшений вдвое меньше — экран меньше, батарею жалко.
+     Число задаётся в коде, здесь только размеры. */
+  .luna{top:clamp(70px,12vh,120px);right:12px}
+}
+
+@media (max-width:400px){
+  .sec h2{font-size:18px}
+  /* Прячем только имя. Первый вариант правила убирал все span внутри
+     плашки — вместе с именем исчезала и аватарка. */
+  #whoami{display:none}
+}
+
+/* ======================================================================
+   Уважение к настройке «меньше движения».
+
+   В системе есть переключатель для тех, кому анимации мешают: от
+   укачивания до мигрени. Игнорировать его — значит сделать сайт
+   неудобным ровно для тех, кто об этом уже попросил.
+   ====================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card:hover .pic i { transform: none; }
+  .card:hover .pic { transform: none; }
+  /* Праздник остаётся целиком, просто перестаёт двигаться.
+
+     Убирать украшение вовсе — перебор: человек просил меньше движения,
+     а не меньше картинок. Снежинки и лепестки рассыпаны по экрану и
+     стоят на месте, летучие мыши висят там, где висели. */
+  .snezh, .lepestok, .letuchka {
+    animation: none;
+    top: var(--stoyat, 30%);
+    opacity: var(--vidno, .5);
+  }
+  .letuchka { left: var(--stoyat-x, 30%); }
+  html[data-theme="bumaga"] .snezh { opacity: var(--vidno-svet, .9); }
+}

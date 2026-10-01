@@ -1,7 +1,7 @@
-"""Managing accounts from the console.
+"""Управление аккаунтами из консоли.
 
-There is no sign-up through the site. Accounts are created from here or
-from the administrator page. Run it like this:
+Регистрации через сайт нет. Аккаунты заводятся отсюда либо из кабинета
+администратора. Запускается так:
 
     python -m api.admin add valera --admin
     python -m api.admin list
@@ -9,8 +9,8 @@ from the administrator page. Run it like this:
     python -m api.admin disable misha
     python -m api.admin delete kate
 
-The password is typed blind; passing it in command-line arguments is not
-allowed: it would stay in the shell history and in the process list.
+Пароль вводится вслепую, в аргументах командной строки его передавать
+нельзя: он остался бы в истории оболочки и в списке процессов.
 """
 
 from __future__ import annotations
@@ -105,9 +105,9 @@ def cmd_delete(args) -> None:
         sys.exit(1)
     name = user["login"]
     print(f"  Будет удалён аккаунт {name} со всеми его данными.")
-    # We compare against what is actually in the database, and by the
-    # same rules as at sign-in. Otherwise "Valera" did not match "valera",
-    # and deletion was cancelled on a correctly typed login.
+    # Сравниваем с тем, что реально лежит в базе, и по тем же правилам,
+    # что и при входе. Иначе «Valera» не совпадала с «valera», и удаление
+    # отменялось при верно введённом логине.
     typed = security.normalize_login(input("  Введите логин ещё раз для подтверждения: "))
     if typed != name:
         print("  Отменено.")
