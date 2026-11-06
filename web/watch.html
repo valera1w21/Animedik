@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru" data-page="watch">
+<html lang="ru" data-depth="mid" data-accent="mint" data-lang="ru" data-page="watch">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<title>анимеДик — просмотр</title>
+<title data-ru="анимеДик — просмотр" data-en="animeDik — watch">анимеДик — просмотр</title>
+<!-- Значок сайта — одинаково на всех четырёх страницах. SVG берут
+     современные браузеры, ICO (16/32/48) — всё остальное, PNG 180 —
+     iPhone на домашнем экране, манифест — Android и «установить». -->
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/static/site.webmanifest">
+<meta name="theme-color" content="#2C313C">
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
@@ -13,29 +21,38 @@
 <header>
   <div class="bar">
     <a class="back" href="/">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path d="M9.8 3.5 5.3 8l4.5 4.5" stroke="currentColor" stroke-width="1.7"
               stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span data-ru="К списку" data-en="Back to list">К списку</span>
     </a>
     <div class="hcrumb"><b id="w-title">—</b> <span id="w-crumb"></span></div>
     <span class="sp"></span>
-      <!-- Переключатель языка стоит на виду, а не в настройках.
-           Человек, который не знает русского, до настроек не доберётся:
-           чтобы их открыть, надо сперва понять, что написано на кнопке.
-           Поэтому кнопка языка есть на каждой странице и работает до
-           входа — выбор запоминается в самом браузере. -->
-      <div class="seg lang-seg" role="group" aria-label="Язык / Language">
-        <button class="lang" type="button" data-set-lang="ru">RU</button>
-        <button class="lang" type="button" data-set-lang="en">EN</button>
-      </div>
+      <!-- Переключателя RU/EN в шапке больше нет. Он путал: люди думали,
+           что «EN» переключает и озвучку в плеере. Язык сайта и язык
+           аниме — две отдельные настройки в кабинете (и язык сайта — ещё
+           на странице входа). -->
   </div>
 </header>
 
-<div class="page">
+<!-- Страница просмотра — три части, и каждая одним целым.
 
-  <!-- ============ ЛЕВАЯ ЧАСТЬ: ПЛЕЕР ============ -->
-  <div>
+     Раньше всё лежало россыпью: плеер, под ним отдельно «Следующая
+     серия», «Уже смотрю» и «сохранено», над картинкой — серия, озвучка
+     и источник, ниже — «О чём это», а справа три отдельные карточки
+     («Дальше», серии, части истории). Глазу было не за что зацепиться.
+
+     Теперь:
+       1. плеер и под ним панель «что смотрю» — один тёмный блок: серия
+          с ‹ ›, озвучка, источник, язык, субтитры, «следующая сама» и
+          «в планы»; та же панель видна и в полном экране;
+       2. под плеером — название, описание и жанры одной карточкой;
+       3. справа одна колонка: «дальше» сверху и вкладки «Серии» /
+          «Вся история». -->
+<div class="page wpage">
+
+  <!-- ============ ЛЕВАЯ ЧАСТЬ: ПЛЕЕР И О ТАЙТЛЕ ============ -->
+  <div class="wmain">
     <!-- Плашка над плеером. Показывается, когда смотреть нечего и надо
          объяснить почему: аниме ещё не озвучено, нет на этом источнике,
          или источник не отдал ни одного плеера. Раньше в таких случаях
@@ -62,6 +79,10 @@
            не нашли: панель внизу, плашка вверху, и между ними плеер. -->
       <button class="noticego" id="w-notice-go" type="button" hidden
               data-ru="Выбрать другой источник" data-en="Pick another source">Выбрать другой источник</button>
+      <!-- Английского нигде нет: одна кнопка — переключить язык аниме на
+           русский и открыть то же самое. Сам сайт на русский не уходит. -->
+      <button class="noticego" id="w-notice-ru" type="button" hidden
+              data-ru="Смотреть на русском" data-en="Watch in Russian">Смотреть на русском</button>
     </div>
 
     <!-- Плеер целиком, вместе с дорожкой и панелью.
@@ -109,34 +130,16 @@
           <h1 id="w-name">—</h1>
         </div>
 
-        <!-- Верхняя полоса поверх картинки: что открыто и чем это
-             смотреть. Озвучка с источником переехали сюда из нижней
-             панели — там их было не достать в полном экране, а нижняя
-             панель от них ломалась на две строки. -->
+        <!-- Полоса поверх картинки — только в полном экране: там не видно
+             ни шапки страницы, ни названия под плеером. Озвучка, источник
+             и серия переехали в панель под картинкой (она видна и в
+             полном экране, см. .wbar). -->
         <div class="topbar" id="topbar">
           <div class="tb-name" id="tb-name"></div>
-          <span class="sp"></span>
-          <div class="sel">
-            <button class="selbtn" id="eps-btn" data-menu="m-e">
-              <span class="cap" data-ru="Серия" data-en="Episode">Серия</span><i id="v-e">—</i>
-            </button>
-            <div class="menu down" id="m-e"><div class="mh" data-ru="Серии и части" data-en="Episodes and parts">Серии и части</div></div>
-          </div>
-          <div class="sel" id="sel-dub">
-            <button class="selbtn" id="dub-btn" data-menu="m-d">
-              <span class="cap" data-ru="Озвучка" data-en="Dub">Озвучка</span><i id="v-d">—</i>
-            </button>
-            <div class="menu down" id="m-d"><div class="mh" data-ru="Озвучка" data-en="Dub">Озвучка</div></div>
-          </div>
-          <div class="sel">
-            <button class="selbtn" data-menu="m-s">
-              <span class="cap" data-ru="Источник" data-en="Source">Источник</span><i id="v-s">source-a</i>
-            </button>
-            <div class="menu down" id="m-s"><div class="mh" data-ru="Откуда берётся видео" data-en="Video source">Откуда берётся видео</div></div>
-          </div>
         </div>
 
-        <button class="playbtn" id="bigplay" aria-label="Смотреть">
+        <button class="playbtn" id="bigplay" type="button" aria-label="Смотреть"
+                data-ru-aria="Смотреть" data-en-aria="Play">
           <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
             <path d="M8.5 4.8v16.4L21 13 8.5 4.8Z" fill="currentColor"/></svg>
         </button>
@@ -146,6 +149,10 @@
         <div class="err playerr" id="w-err" role="alert"></div>
       </div>
 
+      <!-- Дорожка и панель — одним блоком (см. .dock в app.css): в полном
+           экране они вместе ложатся поверх картинки, а ползунок дорожки
+           не прячется наполовину под видео. -->
+      <div class="dock">
       <div class="track" id="track">
         <div class="buf"></div>
         <div class="pos" id="pos"></div>
@@ -159,112 +166,217 @@
            отдельной строкой. -->
       <div class="ctrl">
         <button class="cbtn" id="c-play" type="button" aria-label="Пуск">
-          <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path id="play-icon" d="M6 3.6v10.8L14.4 9 6 3.6Z" fill="currentColor"/></svg></button>
-        <button class="cbtn" id="c-back" type="button" aria-label="Назад на 10 секунд">
-          <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+        <button class="cbtn" id="c-back" type="button" aria-label="Назад на 10 секунд"
+                data-ru-aria="Назад на 10 секунд" data-en-aria="Back 10 seconds">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path d="M9 4.5a4.5 4.5 0 1 1-4.4 5.4" stroke="currentColor" stroke-width="1.5"
                   stroke-linecap="round"/><path d="M6.6 2.4 4.3 4.6l2.5 2" stroke="currentColor"
                   stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button class="cbtn" id="c-fwd" type="button" aria-label="Вперёд на 10 секунд">
-          <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+        <button class="cbtn" id="c-fwd" type="button" aria-label="Вперёд на 10 секунд"
+                data-ru-aria="Вперёд на 10 секунд" data-en-aria="Forward 10 seconds">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path d="M9 4.5a4.5 4.5 0 1 0 4.4 5.4" stroke="currentColor" stroke-width="1.5"
                   stroke-linecap="round"/><path d="M11.4 2.4l2.3 2.2-2.5 2" stroke="currentColor"
                   stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <div class="volbox">
-          <button class="cbtn" id="c-mute" type="button" aria-label="Звук">
+          <button class="cbtn" id="c-mute" type="button" aria-label="Звук"
+                  data-ru-aria="Звук" data-en-aria="Sound">
             <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
               <path d="M4 7v4h2.4L9.6 13.6V4.4L6.4 7H4Z" stroke="currentColor" stroke-width="1.4"
                     stroke-linejoin="round"/><path id="vol-wave" d="M12 6.6a3.4 3.4 0 0 1 0 4.8"
                     stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
-          <input type="range" id="c-vol" min="0" max="1" step="0.01" value="1" aria-label="Громкость">
+          <input type="range" id="c-vol" min="0" max="1" step="0.01" value="1" aria-label="Громкость"
+                 data-ru-aria="Громкость" data-en-aria="Volume">
         </div>
 
         <span class="time"><b id="w-cur">00:00</b> / <span id="w-total">--:--</span></span>
 
+        <!-- Где остановились: «сохранено 12:34» / «продолжить с 08:10».
+             Стоит у времени, к которому и относится. -->
+        <span class="tag wsaved" id="w-saved"></span>
+
         <span class="sp"></span>
 
         <div class="sel">
-          <button class="selbtn" data-menu="m-q">
+          <button class="selbtn" data-menu="m-q" type="button" aria-haspopup="true" aria-expanded="false">
             <span class="cap" data-ru="Качество" data-en="Quality">Качество</span><i id="v-q">—</i>
           </button>
           <div class="menu" id="m-q"><div class="mh" data-ru="Качество" data-en="Quality">Качество</div></div>
         </div>
 
-        <button class="cbtn" id="c-full" type="button" aria-label="Во весь экран">
-          <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+        <button class="cbtn" id="c-full" type="button" aria-label="Во весь экран"
+                data-ru-aria="Во весь экран" data-en-aria="Fullscreen">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path id="full-icon" d="M6.6 2.7H2.7v3.9M11.4 2.7h3.9v3.9M11.4 15.3h3.9v-3.9M6.6 15.3H2.7v-3.9"
                   stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                   stroke-linejoin="round"/></svg></button>
       </div>
-    </div>
 
-    <!-- кнопки под плеером -->
-    <div class="under">
-      <a class="chipbtn primary" id="w-next" href="#">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M5.4 3.2v9.6L13 8 5.4 3.2Z" fill="currentColor"/></svg>
-        <span data-ru="Следующая серия" data-en="Next episode">Следующая серия</span>
-      </a>
-      <!-- «Отметить просмотренной» и «+85 секунд» убраны.
-           Первая была не нужна: серия отмечается сама на 90%. Вторая
-           перематывала на глазок и чаще промахивалась, чем попадала. -->
-      <span class="tag" id="w-saved"></span>
-    </div>
+      <!-- Панель «что смотрю». Внутри плеера и внутри .dock: в полном
+           экране она ложится поверх картинки вместе с дорожкой и прячется
+           вместе с ними, когда смотрят. Меню раскрываются вверх, по
+           картинке (на телефоне — вниз, см. app.css). -->
+      <div class="wbar" id="wbar">
+        <div class="wb-ep">
+          <button class="wbtn" id="w-prev" type="button" aria-label="Предыдущая серия"
+                  title="Предыдущая серия">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.9"
+                    stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="sel">
+            <button class="selbtn" id="eps-btn" data-menu="m-e" type="button" aria-haspopup="true" aria-expanded="false">
+              <span class="cap" data-ru="Серия" data-en="Episode">Серия</span><i id="v-e">—</i>
+            </button>
+            <div class="menu" id="m-e"><div class="mh" data-ru="Серии и части" data-en="Episodes and parts">Серии и части</div></div>
+          </div>
+          <button class="wbtn" id="w-next" type="button" aria-label="Следующая серия"
+                  title="Следующая серия">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.9"
+                    stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
 
-    <!-- описание серии -->
-    <div class="desc">
-      <h3><span data-ru="О чём это" data-en="What it is about">О чём это</span>
-        <span class="nospoil" data-ru="без спойлеров" data-en="no spoilers">без спойлеров</span></h3>
-      <p id="w-about">—</p>
-      <p class="epnote" id="w-epnote"></p>
-      <div class="tags" id="w-tags"></div>
-    </div>
-  </div>
+        <div class="sel" id="sel-dub">
+          <button class="selbtn" id="dub-btn" data-menu="m-d" type="button" aria-haspopup="true" aria-expanded="false">
+            <svg class="ic" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <rect x="5.6" y="1.8" width="4.8" height="8" rx="2.4" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M3.4 7.6a4.6 4.6 0 0 0 9.2 0M8 12.2v2.2" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round"/></svg>
+            <span class="cap" data-ru="Озвучка" data-en="Dub">Озвучка</span><i id="v-d">—</i>
+          </button>
+          <div class="menu" id="m-d"><div class="mh" data-ru="Озвучка" data-en="Dub">Озвучка</div></div>
+        </div>
 
-  <!-- ============ ПРАВАЯ КОЛОНКА ============ -->
-  <aside class="side">
+        <div class="sel">
+          <button class="selbtn" data-menu="m-s" type="button" aria-haspopup="true" aria-expanded="false">
+            <svg class="ic" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <rect x="2" y="2.6" width="12" height="4.4" rx="1.4" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="2" y="9" width="12" height="4.4" rx="1.4" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="4.9" cy="4.8" r=".9" fill="currentColor"/><circle cx="4.9" cy="11.2" r=".9" fill="currentColor"/></svg>
+            <span class="cap" data-ru="Источник" data-en="Source">Источник</span><i id="v-s">…</i>
+          </button>
+          <div class="menu" id="m-s"><div class="mh" data-ru="Откуда берётся видео" data-en="Video source">Откуда берётся видео</div></div>
+        </div>
 
-    <div class="pane">
-      <div class="ch"><h3 data-ru="Дальше" data-en="Up next">Дальше</h3><span id="w-autonote"></span></div>
-      <div class="cb">
-        <a class="next" id="w-nextcard" href="#"><span class="nt"><i></i></span><span class="nb"><b id="w-nexttitle">—</b><span id="w-nextsub"></span></span></a>
-        <div class="autonext" id="w-autobox">
-          <button class="sw" role="switch" aria-checked="true" aria-label="Автопереход"></button>
-          <span data-ru="Включать следующую самой" data-en="Auto-play the next one">Включать следующую самой</span>
+        <!-- Язык: и сайта, и аниме — в одном маленьком меню. Язык сайта
+             меняет только надписи; язык аниме — что звучит и чем подписано,
+             и после него страница сама ищет серию там, где он есть. -->
+        <div class="sel">
+          <button class="selbtn" id="lang-btn" data-menu="m-l" type="button" aria-haspopup="true" aria-expanded="false"
+                  aria-label="Язык" title="Язык сайта и аниме"
+                  data-ru-aria="Язык" data-en-aria="Language">
+            <svg class="ic" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M1.9 8h12.2M8 1.8c-3.4 3.6-3.4 8.8 0 12.4M8 1.8c3.4 3.6 3.4 8.8 0 12.4"
+                    stroke="currentColor" stroke-width="1.4"/></svg>
+            <i id="v-l">RU</i>
+          </button>
+          <div class="menu wlang" id="m-l"></div>
+        </div>
+
+        <!-- Субтитры отдельными файлами (RU-E, часть английских).
+             Вшитые в картинку переключать нечем — тогда кнопки нет. -->
+        <div class="sel" id="sel-cc" hidden>
+          <button class="selbtn cc" id="cc-btn" data-menu="m-c" type="button" aria-haspopup="true" aria-expanded="false"
+                  aria-label="Субтитры" title="Субтитры (C)"
+                  data-ru-aria="Субтитры" data-en-aria="Subtitles">
+            <b class="ccmark">CC</b><i id="v-c"></i>
+          </button>
+          <div class="menu" id="m-c"></div>
+        </div>
+
+        <span class="sp"></span>
+
+        <div class="wb-me">
+          <!-- Переключатель «включать следующую самой» — здесь, рядом с
+               сериями: к ним он и относится. -->
+          <div class="autonext" id="w-autobox">
+            <button class="sw" type="button" role="switch" aria-checked="true" aria-label="Автопереход"
+                    data-ru-aria="Автопереход" data-en-aria="Autoplay next"></button>
+            <span data-ru="Следующая сама" data-en="Autoplay next">Следующая сама</span>
+            <span class="wnote" id="w-autonote"></span>
+          </div>
+          <!-- Отложить тайтл в «Планирую смотреть». Начатое в планы не
+               кладётся: тогда кнопка неактивна и говорит «Уже смотрите». -->
+          <button class="wbtn wplan" id="w-plan" type="button" aria-pressed="false" hidden>
+            <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M5 2.6h8a.9.9 0 0 1 .9.9v12L9 12.3l-4.9 3.2v-12a.9.9 0 0 1 .9-.9Z"
+                    stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+            <span id="w-plan-t">В планы</span>
+          </button>
         </div>
       </div>
-    </div>
-
-    <div class="pane">
-      <div class="ch"><h3 id="w-side-title">—</h3><span id="w-side-count"></span></div>
-      <div class="cb" style="padding-bottom:2px">
-        <div class="prog"><i id="w-prog" style="width:0%"></i></div>
-        <div class="pnote"><span id="w-seen"></span><span id="w-left"></span></div>
       </div>
-      <div class="eplist" id="w-eplist"></div>
     </div>
 
-    <!-- Другие части этой же истории.
-
-         Список серий выше отвечает на вопрос «где я внутри сезона».
-         Этот — на вопрос, который возникает следом: «а какой это сезон
-         и что ещё есть». Раньше ответа не было нигде: тайтл лежал в
-         полке отдельной записью с одним названием, и про второй сезон
-         с тремя фильмами надо было вспомнить самому.
-
-         Блок появляется, только если частей и правда больше одной. -->
-    <div class="pane" id="w-fr-card" hidden>
-      <div class="ch">
-        <h3 data-ru="Эта история целиком" data-en="The whole story">Эта история целиком</h3>
-        <span id="w-fr-count"></span>
+    <!-- О тайтле: название, серия, описание и жанры — одной карточкой.
+         «Отметить просмотренной» и «+85 секунд» убраны давно: серия
+         отмечается сама на 90%, а перемотка на глазок промахивалась. -->
+    <section class="winfo">
+      <div class="wi-head">
+        <!-- Название — то же, что в шапке, но здесь рядом с ним значок
+             18+ (его ставит paintSideAge). -->
+        <h2 id="w-side-title">—</h2>
+        <p class="epnote" id="w-epnote"></p>
       </div>
-      <div class="parts sideparts" id="w-fr-list"></div>
-      <div class="err" id="w-fr-err" role="alert" style="margin:0 14px 14px"></div>
-    </div>
+      <h3 class="wi-cap"><span data-ru="О чём это" data-en="What it is about">О чём это</span>
+        <span class="nospoil" data-ru="без спойлеров" data-en="no spoilers">без спойлеров</span></h3>
+      <p id="w-about">—</p>
+      <div class="tags" id="w-tags"></div>
+    </section>
+  </div>
 
-    </aside>
+  <!-- ============ ПРАВАЯ КОЛОНКА: ОДНА КАРТОЧКА ============ -->
+  <aside class="side wside">
+    <div class="pane wpane">
+
+      <!-- Что дальше. Номер на картинке остаётся, если обложка не
+           загрузилась (см. paintArt). -->
+      <a class="next" id="w-nextcard" href="#">
+        <span class="nt" id="w-nextthumb"><i></i><em id="w-nextnum" aria-hidden="true"></em></span>
+        <span class="nb"><small class="nlbl" data-ru="Дальше" data-en="Up next">Дальше</small>
+          <b id="w-nexttitle">—</b><span id="w-nextsub"></span></span>
+      </a>
+
+      <!-- Серии и части истории — вкладками в одной карточке, а не двумя
+           карточками друг под другом. Вкладка «Вся история» появляется,
+           только если частей больше одной (renderRelated снимает hidden). -->
+      <div class="wtabs" role="tablist">
+        <button class="wtab on" id="w-tab-eps" type="button" role="tab" aria-selected="true"
+                aria-controls="w-pan-eps"><span data-ru="Серии" data-en="Episodes">Серии</span>
+          <span class="cnt" id="w-side-count"></span></button>
+        <button class="wtab" id="w-fr-card" type="button" role="tab" aria-selected="false"
+                aria-controls="w-pan-fr" hidden><span data-ru="Вся история" data-en="Whole story">Вся история</span>
+          <span class="cnt" id="w-fr-count"></span></button>
+      </div>
+
+      <div class="wpanel" id="w-pan-eps" role="tabpanel" aria-labelledby="w-tab-eps">
+        <div class="wprog">
+          <div class="prog"><i id="w-prog" style="width:0%"></i></div>
+          <div class="pnote"><span id="w-seen"></span><span id="w-left"></span></div>
+        </div>
+        <div class="eplist" id="w-eplist"></div>
+      </div>
+
+      <!-- Другие части этой же истории: сезоны, фильмы, OVA по порядку.
+           Список серий отвечает на «где я внутри сезона», этот — на «какой
+           это сезон и что ещё есть». -->
+      <div class="wpanel" id="w-pan-fr" role="tabpanel" aria-labelledby="w-fr-card" hidden>
+        <div class="parts sideparts" id="w-fr-list"></div>
+        <div class="err" id="w-fr-err" role="alert" style="margin:0 14px 14px"></div>
+      </div>
+    </div>
+  </aside>
 </div>
+
+<!-- Футер — как на остальных страницах; прижат к низу окна правилами
+     «футер всегда внизу» в app.css, даже когда серий и описания мало. -->
+<footer><div class="in">
+  <span data-ru="анимеДик" data-en="animeDik">анимеДик</span>
+  <a href="/pravila" target="_blank" rel="noopener" data-ru="Правила" data-en="Rules">Правила</a>
+</div></footer>
 
 
 <script src="/static/hls.min.js"></script>

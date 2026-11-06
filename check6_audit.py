@@ -12,10 +12,6 @@ import sys
 import tempfile
 import time
 
-# Проверки публичной версии идут в демонстрационном режиме: другого здесь
-# нет. Внешние источники видео не входят в этот репозиторий, и
-# единственный рабочий источник — свободное видео (api/anime_demo.py).
-os.environ.setdefault("MODE", "demo")
 os.environ["DB_PATH"] = os.path.join(tempfile.mkdtemp(), "audit.db")
 os.environ["COOKIE_SECURE"] = "0"
 os.environ["SESSION_PEPPER"] = "audit-pepper"
@@ -29,6 +25,8 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 from fastapi.testclient import TestClient          # noqa: E402
 from api import anime, main, security, store       # noqa: E402
+import fake_sources                                 # noqa: E402
+fake_sources.install()
 
 # Вывод здесь на русском, а консоль Windows по умолчанию живёт в cp1251:
 # первая же стрелка или галочка роняла весь запуск с UnicodeEncodeError,
@@ -65,7 +63,7 @@ def reset():
 
 
 def login(c, user=None, pwd=None):
-    r = c.post("/api/auth/login", json={"login": user or "valera", "password": pwd or PASS})
+    r = c.post("/api/auth/login", json={"login": user or "hozyain", "password": pwd or PASS})
     if r.status_code == 200:
         c.headers["X-CSRF-Token"] = r.json()["csrf"]
     return r
@@ -86,7 +84,7 @@ def without_comments(src):
 
 def run():
     store.init()
-    for name, role in (("valera", "admin"), ("misha", "user")):
+    for name, role in (("hozyain", "admin"), ("misha", "user")):
         if store.get_user_by_login(name) is None:
             store.create_user(name, PASS, role)
 
@@ -116,7 +114,7 @@ def run():
     c = TestClient(main.app)
     given = 0
     for i in range(40):
-        r = c.post("/api/auth/guest",
+        r = c.post("/api/auth/guest", json={},
                    headers=through_nginx(f"172.16.{i // 256}.{i % 256}"))
         c.cookies.clear()
         if r.status_code == 200:
@@ -126,23 +124,29 @@ def run():
 
     reset()
     c = TestClient(main.app)
-    r = c.post("/api/auth/guest",
+    r = c.post("/api/auth/guest", json={},
                headers={"X-Forwarded-For": "not-an-address, 198.51.100.9",
                         "X-Real-IP": "198.51.100.9"})
     check("мусор в цепочке не мешает найти настоящий адрес",
           r.status_code == 200, r.status_code)
-    r = c.post("/api/auth/guest", headers={"X-Real-IP": "sdelay-mne-krasivo"})
+    r = c.post("/api/auth/guest", json={}, headers={"X-Real-IP": "sdelay-mne-krasivo"})
     c.cookies.clear()
     check("мусор вместо адреса не роняет сервер",
           r.status_code in (200, 429, 503), r.status_code)
 
     # Настройка nginx — часть той же защиты, проверяем и её.
+    # Раньше здесь проверялось «перезапись стоит после include
+    # proxy_params». Это была ошибка: nginx не перекрывает заголовок,
+    # заданный дважды на одном уровне, а отправляет ОБА — до приложения
+    # доходили «X-Forwarded-For: 1.1.1.1, адрес» и «X-Forwarded-For: адрес».
+    # Теперь proxy_params не подключается вовсе (подробно —
+    # check34_ops.py).
     conf = open("deploy/nginx-anime.conf", encoding="utf-8").read()
+    code = "\n".join(l.split("#", 1)[0] for l in conf.splitlines())
     check("nginx перезаписывает X-Forwarded-For",
-          "proxy_set_header X-Forwarded-For $remote_addr;" in conf)
-    check("перезапись стоит после include proxy_params",
-          conf.index("include /etc/nginx/proxy_params;")
-          < conf.index("proxy_set_header X-Forwarded-For $remote_addr;"))
+          re.search(r"proxy_set_header\s+X-Forwarded-For\s+\$remote_addr;", code) is not None)
+    check("proxy_params не подключается (с ним заголовки уходили бы дважды)",
+          "proxy_params" not in code)
 
     # ==================================================================
     group("Метка формы привязана к сессии")
@@ -163,7 +167,7 @@ def run():
     check("навязанная кука не проходит", r.status_code == 403, r.status_code)
 
     c.cookies.set("csrf", real)
-    r = c.post("/api/me/profile", json={"display_name": "Валера"},
+    r = c.post("/api/me/profile", json={"display_name": "Хозяин"},
                headers={"X-CSRF-Token": real})
     check("настоящая метка проходит", r.status_code == 200, r.status_code)
 
@@ -260,18 +264,18 @@ def run():
             return FakeAnime()
 
     item = FakeItem()
-    anime.cache_put("raw:source-a:777", item)
+    anime.cache_put("raw:ru_a:777", item)
 
     import asyncio
     loop = asyncio.new_event_loop()
     got = loop.run_until_complete(
-        anime.find_anime("source-a", "777", ""))
+        anime.find_anime("ru_a", "777", ""))
     # Прежде заготовка из поиска не читалась никогда, и без title сюда
     # прилетал бы отказ 409.
     check("заготовка из поиска разворачивается без похода в сеть",
           isinstance(got, FakeAnime) and item.calls == 1, item.calls)
     got2 = loop.run_until_complete(
-        anime.find_anime("source-a", "777", ""))
+        anime.find_anime("ru_a", "777", ""))
     check("второй раз берётся из кэша", got2 is got and item.calls == 1, item.calls)
     loop.close()
 
@@ -335,8 +339,12 @@ def run():
     app_js = open("web/app.js", encoding="utf-8").read()
     check("функции esc больше нет", "function esc(" not in app_js)
     main_py = open("api/main.py", encoding="utf-8").read()
-    for dead in ("import json", "import secrets", "Cookie,", "Header,"):
+    for dead in ("import secrets", "Cookie,", "Header,"):
         check(f"нет неиспользуемого: {dead}", dead not in main_py)
+    # json снова нужен (fix-21: ключи памяти резолва и видео) — но только
+    # если им правда пользуются.
+    check("import json — только если он используется",
+          "import json" not in main_py or "json.dumps(" in main_py)
     check("устаревших on_event не осталось", "@app.on_event" not in main_py)
 
     # ==================================================================
@@ -360,8 +368,9 @@ def run():
           and "__sources" not in without_comments(js))
 
     group("Страницы не кэшируются, файлы — с переспросом")
-    check("под правило попали и /watch, и /stats",
-          '"/", "/watch", "/stats"' in main_py)
+    check("под правило попали все страницы (PAGES), и /pravila тоже",
+          "path in PAGES" in main_py
+          and all(p in main.PAGES for p in ("/", "/watch", "/stats", "/pravila")))
     check("для файлов задан переспрос", "no-cache" in main_py)
 
     group("Найденное в живом браузере")

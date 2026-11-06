@@ -17,6 +17,7 @@ import logging
 import os
 import smtplib
 import ssl
+import unicodedata
 from email.message import EmailMessage
 
 log = logging.getLogger("anime.mail")
@@ -25,14 +26,36 @@ SITE_NAME = "анимеДик"
 SITE_URL = os.getenv("SITE_URL", "").rstrip("/")
 
 SMTP_HOST = os.getenv("SMTP_HOST", "")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587") or 587)
+
+
+def _smtp_port(raw: str | None) -> int:
+    """Порт почтового сервера. 0 — порт задан неверно, письма выключены.
+
+    Раньше здесь стоял голый int(): опечатка в .env («58o», «587 # tls»)
+    роняла при импорте весь сайт, а не только письма. Теперь сайт
+    работает, письма молчат, а в журнале — строка с причиной."""
+    raw = (raw or "").strip()
+    if not raw:
+        return 587
+    try:
+        port = int(raw)
+    except ValueError:
+        port = 0
+    if not 1 <= port <= 65535:
+        log.warning("SMTP_PORT=%r — это не номер порта (нужно число 1–65535, обычно 587 "
+                    "или 465). Письма о новых сериях выключены, сайт работает.", raw[:20])
+        return 0
+    return port
+
+
+SMTP_PORT = _smtp_port(os.getenv("SMTP_PORT"))
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASS = os.getenv("SMTP_PASS", "")
 SMTP_FROM = os.getenv("SMTP_FROM", SMTP_USER)
 
 
 def enabled() -> bool:
-    return bool(SMTP_HOST and SMTP_FROM)
+    return bool(SMTP_HOST and SMTP_FROM and SMTP_PORT)
 
 
 # --------------------------------------------------------------------------
@@ -47,6 +70,25 @@ TEXT = "#ECEEF3"
 DIM = "#9AA3B2"
 MINT = "#84CBB6"
 SKY = "#8DB5DF"
+
+
+def one_line(value, limit: int = 300) -> str:
+    """Строка без переводов строк и прочих управляющих символов.
+
+    Название тайтла приходит из браузера и от источников, и в нём может
+    оказаться перевод строки. В теле письма это безобидно, а в теме —
+    нет: email.message отказывается собирать заголовок с переводом строки
+    (это защита от подстановки чужих заголовков) и бросает ValueError.
+    Раньше это валило всю часовую рассылку: одно кривое название — и
+    письма не получал никто, кто стоял в очереди после него.
+
+    Управляющие символы (категория Cc) и разделители строк и абзацев
+    (Zl, Zp) заменяются пробелом, лишние пробелы схлопываются.
+    """
+    text = str(value if value is not None else "")
+    text = "".join(" " if unicodedata.category(c) in ("Cc", "Zl", "Zp") else c
+                   for c in text)
+    return " ".join(text.split())[:limit]
 
 
 def _esc(value) -> str:
@@ -204,19 +246,44 @@ def send_episode(to: str, **kw) -> bool:
     """Отправляет письмо. Без настроек SMTP просто ничего не делает."""
     if not enabled() or not to:
         return False
-    msg = EmailMessage()
-    msg["Subject"] = f"{kw.get('title', 'Аниме')} — серия {kw.get('episode', '')}"
-    msg["From"] = SMTP_FROM
-    msg["To"] = to
-    msg.set_content(episode_text(**{k: v for k, v in kw.items() if k != "display_name"}))
-    msg.add_alternative(episode_html(**kw), subtype="html")
+    # Название чистим и здесь, хотя на входе в API оно уже чистое: в базе
+    # могут лежать записи, сохранённые до этой проверки.
+    if "title" in kw:
+        kw["title"] = one_line(kw["title"]) or "Аниме"
     try:
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as s:
-            s.starttls(context=ssl.create_default_context())
+        # Сборка письма — внутри try. Раньше она стояла снаружи, и ошибка
+        # при сборке (перевод строки в теме, кривой адрес) вылетала из
+        # функции исключением, а не честным False.
+        msg = EmailMessage()
+        msg["Subject"] = f"{kw.get('title', 'Аниме')} — серия {kw.get('episode', '')}"
+        msg["From"] = SMTP_FROM
+        msg["To"] = to
+        msg.set_content(episode_text(**{k: v for k, v in kw.items() if k != "display_name"}))
+        msg.add_alternative(episode_html(**kw), subtype="html")
+        context = ssl.create_default_context()
+        if SMTP_PORT == 465:
+            # Порт 465 — шифрование с первого байта (SMTPS). Раньше и к нему
+            # шли обычным SMTP с STARTTLS: соединение молча висело до
+            # таймаута, и письма не уходили ни разу, а в журнале было лишь
+            # «письмо не ушло». Gmail, Яндекс и Mail.ru дают оба порта.
+            server = smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=15, context=context)
+        else:
+            server = smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15)
+        with server as s:
+            if SMTP_PORT != 465:
+                # Без шифрования не отправляем: если сервер STARTTLS не
+                # умеет, starttls() бросит ошибку, и пароль почты не уйдёт
+                # открытым текстом.
+                s.starttls(context=context)
             if SMTP_USER:
                 s.login(SMTP_USER, SMTP_PASS)
             s.send_message(msg)
         return True
     except Exception as exc:                         # noqa: BLE001
-        log.warning("письмо не ушло: %s: %s", type(exc).__name__, exc)
+        # Текст ошибки почтового сервера в журнал не идёт целиком: в отказе
+        # по адресу (SMTPRecipientsRefused) он содержит адрес получателя
+        # полностью, а журнал читают шире, чем базу. Достаточно вида ошибки
+        # и кода ответа сервера.
+        code = getattr(exc, "smtp_code", "")
+        log.warning("письмо не ушло: %s%s", type(exc).__name__, f" (код {code})" if code else "")
         return False

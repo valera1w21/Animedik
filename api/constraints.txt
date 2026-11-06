@@ -1,0 +1,34 @@
+# Точные версии ВСЕХ библиотек, включая вложенные (то, что тянут за собой
+# fastapi, uvicorn и прочие). Это «ограничения» (constraints):
+# сами по себе они ничего не ставят, а только говорят pip, какую версию
+# взять, если библиотека понадобилась.
+#
+# Зачем: без этого файла при каждой пересборке образа вложенные
+# библиотеки приезжали бы самые свежие — сегодня одни, через месяц
+# другие. Сломать сайт (или принести чужой код) могло бы обновление,
+# о котором вы даже не знали.
+#
+# Как пересобрать после правки requirements*.txt (из папки проекта):
+#     pip install uv
+#     uv pip compile api/requirements.txt api/requirements-private.txt --universal --python-version 3.12 --no-header --no-annotate -o api/constraints.txt
+# затем вернуть этот заголовок наверх и прогнать проверки.
+#
+annotated-doc==0.0.5
+annotated-types==0.8.0
+anyio==4.15.1
+certifi==2026.10.23
+click==8.5.0
+fastapi==0.141.1
+h11==0.16.0
+httpcore==1.0.9
+httptools==0.9.0
+httpx==0.28.1
+idna==3.20
+pillow==13.0.0
+pydantic==2.13.5
+pydantic-core==2.46.5
+starlette==1.7.0
+typing-extensions==4.16.0
+typing-inspection==0.4.4
+uvicorn==0.54.0
+uvloop==0.23.0 ; sys_platform != 'win32'

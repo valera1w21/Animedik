@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru" data-page="stats">
+<html lang="ru" data-depth="mid" data-accent="mint" data-lang="ru" data-page="stats">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<title>анимеДик — итоги года</title>
+<title data-ru="анимеДик — итоги года" data-en="animeDik — year in review">анимеДик — итоги года</title>
+<!-- Значок сайта — одинаково на всех четырёх страницах. SVG берут
+     современные браузеры, ICO (16/32/48) — всё остальное, PNG 180 —
+     iPhone на домашнем экране, манифест — Android и «установить». -->
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/static/site.webmanifest">
+<meta name="theme-color" content="#2C313C">
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
@@ -27,23 +35,18 @@
 <header>
   <div class="bar">
     <a class="back" href="/">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path d="M9.8 3.5 5.3 8l4.5 4.5" stroke="currentColor" stroke-width="1.7"
               stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span data-ru="На главную" data-en="Home">На главную</span>
     </a>
     <span class="sp"></span>
-      <!-- Переключатель языка стоит на виду, а не в настройках.
-           Человек, который не знает русского, до настроек не доберётся:
-           чтобы их открыть, надо сперва понять, что написано на кнопке.
-           Поэтому кнопка языка есть на каждой странице и работает до
-           входа — выбор запоминается в самом браузере. -->
-      <div class="seg lang-seg" role="group" aria-label="Язык / Language">
-        <button class="lang" type="button" data-set-lang="ru">RU</button>
-        <button class="lang" type="button" data-set-lang="en">EN</button>
-      </div>
+      <!-- Переключателя RU/EN в шапке больше нет. Он путал: люди думали,
+           что «EN» переключает и озвучку в плеере. Язык сайта и язык
+           аниме — две отдельные настройки в кабинете (и язык сайта — ещё
+           на странице входа). -->
     <button class="share" id="st-share" type="button">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path d="M8 2.5v8M5 5.4 8 2.4l3 3" stroke="currentColor" stroke-width="1.6"
               stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M3.2 9.6v3.2h9.6V9.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -138,7 +141,7 @@
   <!-- Год раньше был вписан в разметку числом. С первого января он стал бы
        враньём, и заметил бы это только тот, кто присмотрится. Ставит скрипт. -->
   <span id="st-foot">—</span>
-  <span>анимеДик</span>
+  <span data-ru="анимеДик" data-en="animeDik">анимеДик</span>
 </div></footer>
 
 

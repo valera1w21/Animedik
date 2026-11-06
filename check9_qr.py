@@ -156,7 +156,7 @@ def run():
         строки = [
             "a",
             "привет",
-            "otpauth://totp/animeDik:valera?secret=JBSWY3DPEHPK3PXP"
+            "otpauth://totp/animeDik:hozyain?secret=JBSWY3DPEHPK3PXP"
             "&issuer=animeDik&algorithm=SHA1&digits=6&period=30",
             "0123456789" * 5,
             "ЖЖЖ" * 40,
@@ -200,7 +200,7 @@ def run():
         # Выбор маски — наше дело: он записан в самом коде, поэтому любая
         # из восьми читается. Но проверим, что выбор осмысленный.
         group("Выбор маски")
-        текст = ("otpauth://totp/animeDik:valera?secret=JBSWY3DPEHPK3PXP"
+        текст = ("otpauth://totp/animeDik:hozyain?secret=JBSWY3DPEHPK3PXP"
                  "&issuer=animeDik&algorithm=SHA1&digits=6&period=30")
         оценки = []
         for маска in range(8):
@@ -217,7 +217,7 @@ def run():
     group("Настройка входа по коду не зависит от чужих библиотек")
     from api import twofa
     секрет = twofa.new_secret()
-    ссылка = twofa.otpauth_uri(секрет, "valera")
+    ссылка = twofa.otpauth_uri(секрет, "hozyain")
     картинка = twofa.qr_data_uri(ссылка)
     check("картинка получена", bool(картинка), (картинка or "")[:34])
     check("это svg внутри страницы",

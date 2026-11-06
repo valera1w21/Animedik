@@ -1,0 +1,3936 @@
+{
+"jojo": [
+{
+"id": "61469",
+"title": "Невероятное приключение ДжоДжо: Гонка «Стальной шар»",
+"kind": "ona",
+"episodes": 2,
+"status": "ongoing",
+"date": "2026-03-19",
+"related": [
+{
+"relationKind": "prequel",
+"id": "53273"
+}
+]
+},
+{
+"id": "53273",
+"title": "Невероятное приключение ДжоДжо: Каменный океан. Часть 3",
+"kind": "ona",
+"episodes": 14,
+"status": "released",
+"date": "2022-12-01",
+"related": [
+{
+"relationKind": "prequel",
+"id": "51367"
+},
+{
+"relationKind": "sequel",
+"id": "61469"
+}
+]
+},
+{
+"id": "51367",
+"title": "Невероятное приключение ДжоДжо: Каменный океан. Часть 2",
+"kind": "ona",
+"episodes": 12,
+"status": "released",
+"date": "2022-09-01",
+"related": [
+{
+"relationKind": "prequel",
+"id": "48661"
+},
+{
+"relationKind": "sequel",
+"id": "53273"
+}
+]
+},
+{
+"id": "48661",
+"title": "Невероятное приключение ДжоДжо: Каменный океан",
+"kind": "ona",
+"episodes": 12,
+"status": "released",
+"date": "2021-12-01",
+"related": [
+{
+"relationKind": "prequel",
+"id": "37991"
+},
+{
+"relationKind": "sequel",
+"id": "51367"
+}
+]
+},
+{
+"id": "38972",
+"title": "Невероятное приключение ДжоДжо: Золотой ветер — Рекапы",
+"kind": "tv_special",
+"episodes": 3,
+"status": "released",
+"date": "2019-01-05",
+"related": [
+{
+"relationKind": "full_story",
+"id": "37991"
+}
+]
+},
+{
+"id": "37991",
+"title": "Невероятное приключение ДжоДжо: Золотой ветер",
+"kind": "tv",
+"episodes": 39,
+"status": "released",
+"date": "2018-10-06",
+"related": [
+{
+"relationKind": "prequel",
+"id": "31933"
+},
+{
+"relationKind": "sequel",
+"id": "48661"
+},
+{
+"relationKind": "summary",
+"id": "38972"
+}
+]
+},
+{
+"id": "33191",
+"title": "Так говорил Рохан Кишибэ",
+"kind": "ova",
+"episodes": 4,
+"status": "released",
+"date": "2017-09-20",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "31933"
+}
+]
+},
+{
+"id": "31933",
+"title": "Невероятное приключение ДжоДжо: Несокрушимый алмаз",
+"kind": "tv",
+"episodes": 39,
+"status": "released",
+"date": "2016-04-02",
+"related": [
+{
+"relationKind": "prequel",
+"id": "26055"
+},
+{
+"relationKind": "sequel",
+"id": "37991"
+},
+{
+"relationKind": "side_story",
+"id": "33191"
+}
+]
+},
+{
+"id": "26055",
+"title": "Невероятное приключение ДжоДжо: Рыцари звёздной пыли 2",
+"kind": "tv",
+"episodes": 24,
+"status": "released",
+"date": "2015-01-10",
+"related": [
+{
+"relationKind": "prequel",
+"id": "20899"
+},
+{
+"relationKind": "sequel",
+"id": "31933"
+},
+{
+"relationKind": "alternative_version",
+"id": "666"
+}
+]
+},
+{
+"id": "20899",
+"title": "Невероятное приключение ДжоДжо: Рыцари звёздной пыли",
+"kind": "tv",
+"episodes": 24,
+"status": "released",
+"date": "2014-04-05",
+"related": [
+{
+"relationKind": "prequel",
+"id": "14719"
+},
+{
+"relationKind": "sequel",
+"id": "26055"
+},
+{
+"relationKind": "alternative_version",
+"id": "665"
+}
+]
+},
+{
+"id": "14719",
+"title": "Невероятное приключение ДжоДжо",
+"kind": "tv",
+"episodes": 26,
+"status": "released",
+"date": "2012-10-06",
+"related": [
+{
+"relationKind": "sequel",
+"id": "20899"
+},
+{
+"relationKind": "alternative_version",
+"id": "3603"
+}
+]
+},
+{
+"id": "3603",
+"title": "Невероятное приключение ДжоДжо: Призрачная кровь",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2007-02-17",
+"related": [
+{
+"relationKind": "alternative_version",
+"id": "41306"
+},
+{
+"relationKind": "alternative_version",
+"id": "14719"
+}
+]
+},
+{
+"id": "41306",
+"title": "Невероятное приключение ДжоДжо: Призрачная кровь — Пилотный выпуск",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2004-03-28",
+"related": [
+{
+"relationKind": "alternative_version",
+"id": "3603"
+}
+]
+},
+{
+"id": "665",
+"title": "Невероятное приключение ДжоДжо OVA (2000)",
+"kind": "ova",
+"episodes": 7,
+"status": "released",
+"date": "2000-05-25",
+"related": [
+{
+"relationKind": "sequel",
+"id": "666"
+},
+{
+"relationKind": "alternative_version",
+"id": "20899"
+}
+]
+},
+{
+"id": "666",
+"title": "Невероятное приключение ДжоДжо OVA",
+"kind": "ova",
+"episodes": 6,
+"status": "released",
+"date": "1993-11-19",
+"related": [
+{
+"relationKind": "prequel",
+"id": "665"
+},
+{
+"relationKind": "alternative_version",
+"id": "26055"
+}
+]
+}
+],
+"naruto": [
+{
+"id": "64614",
+"title": "Наруто: Ураганные хроники х PUBG Mobile",
+"kind": "pv",
+"episodes": 1,
+"status": "released",
+"date": "2026-07-08",
+"related": [
+{
+"relationKind": "other",
+"id": "1735"
+}
+]
+},
+{
+"id": "53236",
+"title": "Путь Наруто",
+"kind": "pv",
+"episodes": 1,
+"status": "released",
+"date": "2022-10-03",
+"related": [
+{
+"relationKind": "other",
+"id": "20"
+},
+{
+"relationKind": "other",
+"id": "1735"
+}
+]
+},
+{
+"id": "34566",
+"title": "Боруто: Новое поколение Наруто",
+"kind": "tv",
+"episodes": 293,
+"status": "released",
+"date": "2017-04-05",
+"related": [
+{
+"relationKind": "prequel",
+"id": "1735"
+},
+{
+"relationKind": "sequel",
+"id": "54687"
+},
+{
+"relationKind": "side_story",
+"id": "35072"
+},
+{
+"relationKind": "alternative_version",
+"id": "28755"
+},
+{
+"relationKind": "alternative_version",
+"id": "32365"
+},
+{
+"relationKind": "other",
+"id": "36564"
+}
+]
+},
+{
+"id": "35072",
+"title": "Боруто: Джамп Феста 2016",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2016-11-27",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "34566"
+}
+]
+},
+{
+"id": "32365",
+"title": "Боруто: День, когда Наруто стал хокагэ",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2016-07-06",
+"related": [
+{
+"relationKind": "alternative_version",
+"id": "34566"
+},
+{
+"relationKind": "parent_story",
+"id": "1735"
+},
+{
+"relationKind": "other",
+"id": "28755"
+}
+]
+},
+{
+"id": "28755",
+"title": "Боруто",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2015-08-07",
+"related": [
+{
+"relationKind": "prequel",
+"id": "1735"
+},
+{
+"relationKind": "alternative_version",
+"id": "34566"
+},
+{
+"relationKind": "other",
+"id": "32365"
+}
+]
+},
+{
+"id": "16870",
+"title": "Наруто: Последний фильм",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2014-12-06",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "1735"
+}
+]
+},
+{
+"id": "19511",
+"title": "Наруто: Ураганные хроники — Битва с яичницей-глазуньей",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2013-10-06",
+"related": [
+{
+"relationKind": "other",
+"id": "1735"
+}
+]
+},
+{
+"id": "13667",
+"title": "Наруто: Ураганные хроники 6 — Путь ниндзя",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2012-07-28",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "1735"
+}
+]
+},
+{
+"id": "12979",
+"title": "Наруто: Весна юности Рока Ли",
+"kind": "tv",
+"episodes": 51,
+"status": "released",
+"date": "2012-04-03",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "1735"
+}
+]
+},
+{
+"id": "10589",
+"title": "Наруто: Ураганные хроники 5 — Кровавая тюрьма",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2011-07-30",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "1735"
+},
+{
+"relationKind": "other",
+"id": "10686"
+}
+]
+},
+{
+"id": "10686",
+"title": "Наруто: Пылающий экзамен на тюнина! Наруто против Конохамару!",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2011-07-30",
+"related": [
+{
+"relationKind": "other",
+"id": "10589"
+}
+]
+},
+{
+"id": "10075",
+"title": "Наруто х UT",
+"kind": "ova",
+"episodes": 1,
+"status": "released",
+"date": "2011-01-01",
+"related": [
+{
+"relationKind": "other",
+"id": "1735"
+}
+]
+},
+{
+"id": "8246",
+"title": "Наруто: Ураганные хроники 4 — Затерянная башня",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2010-07-31",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "1735"
+},
+{
+"relationKind": "other",
+"id": "10659"
+}
+]
+},
+{
+"id": "10659",
+"title": "Наруто: Джин и три желания!",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2010-07-31",
+"related": [
+{
+"relationKind": "other",
+"id": "8246"
+}
+]
+},
+{
+"id": "7367",
+"title": "Наруто: Пересечение дорог",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2009-10-12",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "20"
+}
+]
+},
+{
+"id": "6325",
+"title": "Наруто: Ураганные хроники 3 — Наследники воли огня",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2009-08-01",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "1735"
+}
+]
+},
+{
+"id": "4437",
+"title": "Наруто: Ураганные хроники 2 — Связи",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2008-08-02",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "1735"
+}
+]
+},
+{
+"id": "4134",
+"title": "Наруто: Ураганные хроники — Школа Конохи",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2008-02-06",
+"related": [
+{
+"relationKind": "other",
+"id": "1735"
+}
+]
+},
+{
+"id": "2472",
+"title": "Наруто: Ураганные хроники 1 — Адепты Тёмного царства",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2007-08-04",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "1735"
+}
+]
+},
+{
+"id": "1735",
+"title": "Наруто: Ураганные хроники",
+"kind": "tv",
+"episodes": 500,
+"status": "released",
+"date": "2007-02-15",
+"related": [
+{
+"relationKind": "prequel",
+"id": "20"
+},
+{
+"relationKind": "sequel",
+"id": "28755"
+},
+{
+"relationKind": "sequel",
+"id": "34566"
+},
+{
+"relationKind": "side_story",
+"id": "2472"
+},
+{
+"relationKind": "side_story",
+"id": "4437"
+},
+{
+"relationKind": "side_story",
+"id": "6325"
+},
+{
+"relationKind": "side_story",
+"id": "8246"
+},
+{
+"relationKind": "side_story",
+"id": "10589"
+},
+{
+"relationKind": "side_story",
+"id": "13667"
+},
+{
+"relationKind": "side_story",
+"id": "16870"
+},
+{
+"relationKind": "side_story",
+"id": "32365"
+},
+{
+"relationKind": "spin_off",
+"id": "12979"
+},
+{
+"relationKind": "other",
+"id": "4134"
+},
+{
+"relationKind": "other",
+"id": "10075"
+},
+{
+"relationKind": "other",
+"id": "40971"
+},
+{
+"relationKind": "other",
+"id": "19511"
+},
+{
+"relationKind": "other",
+"id": "53236"
+},
+{
+"relationKind": "other",
+"id": "64614"
+},
+{
+"relationKind": "other",
+"id": "54688"
+}
+]
+},
+{
+"id": "2144",
+"title": "Наруто 3: Грандиозный переполох! Бунт зверей на острове Миказуки!",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2006-08-05",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "20"
+}
+]
+},
+{
+"id": "1074",
+"title": "Наруто: Наконец-таки! Соревнования дзёнинов против гэнинов!",
+"kind": "ova",
+"episodes": 1,
+"status": "released",
+"date": "2005-12-22",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "20"
+}
+]
+},
+{
+"id": "936",
+"title": "Наруто 2: Большое столкновение! Призрачные руины в глубине земли",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2005-08-06",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "20"
+}
+]
+},
+{
+"id": "442",
+"title": "Наруто 1: Книга искусств ниндзя Снежной принцессы",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2004-08-21",
+"related": [
+{
+"relationKind": "side_story",
+"id": "2248"
+},
+{
+"relationKind": "parent_story",
+"id": "20"
+}
+]
+},
+{
+"id": "2248",
+"title": "Наруто: Спортивный фестиваль Конохи",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2004-08-21",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "442"
+}
+]
+},
+{
+"id": "594",
+"title": "Наруто: Битва на Хидден-Фолс",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2003-12-20",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "20"
+}
+]
+},
+{
+"id": "761",
+"title": "Наруто: Найти тёмно-красный четырёхлистный клевер!",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2003-05-24",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "20"
+}
+]
+},
+{
+"id": "20",
+"title": "Наруто",
+"kind": "tv",
+"episodes": 220,
+"status": "released",
+"date": "2002-10-03",
+"related": [
+{
+"relationKind": "sequel",
+"id": "1735"
+},
+{
+"relationKind": "side_story",
+"id": "761"
+},
+{
+"relationKind": "side_story",
+"id": "594"
+},
+{
+"relationKind": "side_story",
+"id": "442"
+},
+{
+"relationKind": "side_story",
+"id": "936"
+},
+{
+"relationKind": "side_story",
+"id": "1074"
+},
+{
+"relationKind": "side_story",
+"id": "2144"
+},
+{
+"relationKind": "side_story",
+"id": "7367"
+},
+{
+"relationKind": "other",
+"id": "53236"
+},
+{
+"relationKind": "other",
+"id": "54688"
+}
+]
+},
+{
+"id": "54687",
+"title": "Боруто: Новое поколение Наруто. Часть 2",
+"kind": "tv",
+"episodes": 0,
+"status": "anons",
+"date": null,
+"related": [
+{
+"relationKind": "prequel",
+"id": "34566"
+}
+]
+},
+{
+"id": "54688",
+"title": "Наруто",
+"kind": "tv",
+"episodes": 4,
+"status": "anons",
+"date": null,
+"related": [
+{
+"relationKind": "other",
+"id": "20"
+}
+]
+}
+],
+"aot": [
+{
+"id": "59571",
+"title": "Атака титанов: Заключительная глава — Последняя атака",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2024-11-08",
+"related": [
+{
+"relationKind": "full_story",
+"id": "51535"
+}
+]
+},
+{
+"id": "51535",
+"title": "Атака титанов: Финал — Заключительная глава",
+"kind": "tv_special",
+"episodes": 2,
+"status": "released",
+"date": "2023-03-04",
+"related": [
+{
+"relationKind": "prequel",
+"id": "48583"
+},
+{
+"relationKind": "summary",
+"id": "59571"
+}
+]
+},
+{
+"id": "48583",
+"title": "Атака титанов: Финал. Часть 2",
+"kind": "tv",
+"episodes": 12,
+"status": "released",
+"date": "2022-01-10",
+"related": [
+{
+"relationKind": "prequel",
+"id": "40028"
+},
+{
+"relationKind": "sequel",
+"id": "51535"
+}
+]
+},
+{
+"id": "49627",
+"title": "Атака титанов: Финал — Спецвыпуски",
+"kind": "special",
+"episodes": 2,
+"status": "released",
+"date": "2021-07-07",
+"related": [
+{
+"relationKind": "prequel",
+"id": "39477"
+},
+{
+"relationKind": "parent_story",
+"id": "40028"
+}
+]
+},
+{
+"id": "40028",
+"title": "Атака титанов: Финал",
+"kind": "tv",
+"episodes": 16,
+"status": "released",
+"date": "2020-12-07",
+"related": [
+{
+"relationKind": "prequel",
+"id": "38524"
+},
+{
+"relationKind": "sequel",
+"id": "48583"
+},
+{
+"relationKind": "side_story",
+"id": "49627"
+},
+{
+"relationKind": "other",
+"id": "51618"
+}
+]
+},
+{
+"id": "42091",
+"title": "Атака титанов: Хроника",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2020-07-17",
+"related": [
+{
+"relationKind": "full_story",
+"id": "16498"
+},
+{
+"relationKind": "full_story",
+"id": "25777"
+},
+{
+"relationKind": "full_story",
+"id": "35760"
+},
+{
+"relationKind": "full_story",
+"id": "38524"
+}
+]
+},
+{
+"id": "49739",
+"title": "Атака титанов x Сникерс",
+"kind": "cm",
+"episodes": 2,
+"status": "released",
+"date": "2019-10-01",
+"related": [
+{
+"relationKind": "other",
+"id": "16498"
+}
+]
+},
+{
+"id": "38524",
+"title": "Атака титанов 3. Часть 2",
+"kind": "tv",
+"episodes": 10,
+"status": "released",
+"date": "2019-04-29",
+"related": [
+{
+"relationKind": "prequel",
+"id": "35760"
+},
+{
+"relationKind": "sequel",
+"id": "40028"
+},
+{
+"relationKind": "summary",
+"id": "42091"
+}
+]
+},
+{
+"id": "39477",
+"title": "Атака титанов 3: Спецвыпуски",
+"kind": "special",
+"episodes": 7,
+"status": "released",
+"date": "2018-10-17",
+"related": [
+{
+"relationKind": "prequel",
+"id": "19391"
+},
+{
+"relationKind": "sequel",
+"id": "49627"
+},
+{
+"relationKind": "parent_story",
+"id": "35760"
+}
+]
+},
+{
+"id": "35760",
+"title": "Атака титанов 3",
+"kind": "tv",
+"episodes": 12,
+"status": "released",
+"date": "2018-07-23",
+"related": [
+{
+"relationKind": "prequel",
+"id": "25777"
+},
+{
+"relationKind": "sequel",
+"id": "38524"
+},
+{
+"relationKind": "side_story",
+"id": "39477"
+},
+{
+"relationKind": "summary",
+"id": "42091"
+},
+{
+"relationKind": "other",
+"id": "54468"
+}
+]
+},
+{
+"id": "36702",
+"title": "Атака титанов: Рёв пробуждения",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2018-01-13",
+"related": [
+{
+"relationKind": "prequel",
+"id": "23777"
+},
+{
+"relationKind": "parent_story",
+"id": "25777"
+}
+]
+},
+{
+"id": "36106",
+"title": "Атака титанов: Потерянные девушки",
+"kind": "ova",
+"episodes": 3,
+"status": "released",
+"date": "2017-12-08",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "16498"
+}
+]
+},
+{
+"id": "39478",
+"title": "Атака титанов в планетарии",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2017-05-20",
+"related": [
+{
+"relationKind": "other",
+"id": "25777"
+}
+]
+},
+{
+"id": "35122",
+"title": "Атака титанов: Оборона Skytree",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2017-04-10",
+"related": [
+{
+"relationKind": "other",
+"id": "16498"
+}
+]
+},
+{
+"id": "25777",
+"title": "Атака титанов 2",
+"kind": "tv",
+"episodes": 12,
+"status": "released",
+"date": "2017-04-01",
+"related": [
+{
+"relationKind": "prequel",
+"id": "16498"
+},
+{
+"relationKind": "sequel",
+"id": "35760"
+},
+{
+"relationKind": "summary",
+"id": "42091"
+},
+{
+"relationKind": "alternative_version",
+"id": "36702"
+},
+{
+"relationKind": "other",
+"id": "39478"
+}
+]
+},
+{
+"id": "31374",
+"title": "Атака! Титаны средней школы",
+"kind": "tv",
+"episodes": 12,
+"status": "released",
+"date": "2015-10-04",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "16498"
+}
+]
+},
+{
+"id": "23777",
+"title": "Атака титанов: Крылья свободы",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2015-06-27",
+"related": [
+{
+"relationKind": "prequel",
+"id": "23775"
+},
+{
+"relationKind": "sequel",
+"id": "36702"
+},
+{
+"relationKind": "parent_story",
+"id": "16498"
+}
+]
+},
+{
+"id": "25781",
+"title": "Атака титанов: Выбор без сожалений",
+"kind": "ova",
+"episodes": 2,
+"status": "released",
+"date": "2014-12-09",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "16498"
+}
+]
+},
+{
+"id": "23775",
+"title": "Атака титанов: Багровые луки и стрелы",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2014-11-22",
+"related": [
+{
+"relationKind": "sequel",
+"id": "23777"
+},
+{
+"relationKind": "alternative_version",
+"id": "19285"
+},
+{
+"relationKind": "parent_story",
+"id": "16498"
+}
+]
+},
+{
+"id": "18397",
+"title": "Атака титанов OVA",
+"kind": "ova",
+"episodes": 3,
+"status": "released",
+"date": "2013-12-09",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "16498"
+}
+]
+},
+{
+"id": "19391",
+"title": "Атака титанов: Театр с монстрами — Вперёд, кадетский корпус!",
+"kind": "special",
+"episodes": 9,
+"status": "released",
+"date": "2013-07-17",
+"related": [
+{
+"relationKind": "sequel",
+"id": "39477"
+},
+{
+"relationKind": "other",
+"id": "16498"
+}
+]
+},
+{
+"id": "19285",
+"title": "Атака титанов: Рекап",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2013-07-07",
+"related": [
+{
+"relationKind": "alternative_version",
+"id": "23775"
+},
+{
+"relationKind": "full_story",
+"id": "16498"
+}
+]
+},
+{
+"id": "16498",
+"title": "Атака титанов",
+"kind": "tv",
+"episodes": 25,
+"status": "released",
+"date": "2013-04-07",
+"related": [
+{
+"relationKind": "sequel",
+"id": "25777"
+},
+{
+"relationKind": "side_story",
+"id": "18397"
+},
+{
+"relationKind": "spin_off",
+"id": "25781"
+},
+{
+"relationKind": "spin_off",
+"id": "31374"
+},
+{
+"relationKind": "spin_off",
+"id": "36106"
+},
+{
+"relationKind": "summary",
+"id": "19285"
+},
+{
+"relationKind": "summary",
+"id": "23775"
+},
+{
+"relationKind": "summary",
+"id": "23777"
+},
+{
+"relationKind": "summary",
+"id": "42091"
+},
+{
+"relationKind": "character",
+"id": "49739"
+},
+{
+"relationKind": "other",
+"id": "19391"
+},
+{
+"relationKind": "other",
+"id": "35122"
+}
+]
+}
+],
+"gintama": [
+{
+"id": "62277",
+"title": "Гинтама: Ёшивара в огне",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2026-02-13",
+"related": [
+{
+"relationKind": "alternative_version",
+"id": "918"
+}
+]
+},
+{
+"id": "54757",
+"title": "Гинтама: 3-Z класс Гинпачи-сэнсэя",
+"kind": "tv",
+"episodes": 12,
+"status": "released",
+"date": "2025-10-07",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "918"
+},
+{
+"relationKind": "other",
+"id": "54761"
+}
+]
+},
+{
+"id": "62640",
+"title": "Душа маджонга и Гинтама",
+"kind": "pv",
+"episodes": 1,
+"status": "released",
+"date": "2025-10-03",
+"related": [
+{
+"relationKind": "other",
+"id": "918"
+},
+{
+"relationKind": "other",
+"id": "50789"
+}
+]
+},
+{
+"id": "59688",
+"title": "Гинтама в кино: Кинтама",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2024-11-22",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "15417"
+}
+]
+},
+{
+"id": "58091",
+"title": "Гинтама в кино: Куртизанка нации",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2024-06-21",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "15417"
+}
+]
+},
+{
+"id": "57753",
+"title": "Душа маджонга: Кан!",
+"kind": "ona",
+"episodes": 13,
+"status": "released",
+"date": "2024-04-25",
+"related": [
+{
+"relationKind": "prequel",
+"id": "50789"
+}
+]
+},
+{
+"id": "58792",
+"title": "Душа маджонга: Пятая годовщина",
+"kind": "pv",
+"episodes": 1,
+"status": "released",
+"date": "2024-04-25",
+"related": [
+{
+"relationKind": "other",
+"id": "55394"
+}
+]
+},
+{
+"id": "57670",
+"title": "Гинтама x «Мета Квест 3»",
+"kind": "cm",
+"episodes": 1,
+"status": "released",
+"date": "2023-12-01",
+"related": [
+{
+"relationKind": "other",
+"id": "918"
+}
+]
+},
+{
+"id": "56544",
+"title": "Гинтама в кино: Барагаки",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2023-11-10",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "9969"
+}
+]
+},
+{
+"id": "54761",
+"title": "Гинтама: 3-Z класс Гинпачи-сэнсэя — Спецвыпуск",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2023-03-19",
+"related": [
+{
+"relationKind": "other",
+"id": "918"
+},
+{
+"relationKind": "other",
+"id": "54757"
+}
+]
+},
+{
+"id": "53766",
+"title": "Душа маджонга: Пон — Спецвыпуск",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2022-10-26",
+"related": [
+{
+"relationKind": "prequel",
+"id": "50789"
+}
+]
+},
+{
+"id": "50789",
+"title": "Душа маджонга: Пон",
+"kind": "tv",
+"episodes": 11,
+"status": "released",
+"date": "2022-04-09",
+"related": [
+{
+"relationKind": "prequel",
+"id": "51525"
+},
+{
+"relationKind": "sequel",
+"id": "53766"
+},
+{
+"relationKind": "sequel",
+"id": "57753"
+},
+{
+"relationKind": "side_story",
+"id": "51465"
+},
+{
+"relationKind": "other",
+"id": "55394"
+},
+{
+"relationKind": "other",
+"id": "62640"
+}
+]
+},
+{
+"id": "51525",
+"title": "Душа маджонга: Пон — Эпизод 0",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2022-04-01",
+"related": [
+{
+"relationKind": "sequel",
+"id": "50789"
+}
+]
+},
+{
+"id": "51465",
+"title": "Душа маджонга: Пон ONA",
+"kind": "ona",
+"episodes": 1,
+"status": "released",
+"date": "2022-03-29",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "50789"
+}
+]
+},
+{
+"id": "44087",
+"title": "Гинтама: Полуфинал",
+"kind": "special",
+"episodes": 2,
+"status": "released",
+"date": "2021-01-15",
+"related": [
+{
+"relationKind": "prequel",
+"id": "37491"
+},
+{
+"relationKind": "sequel",
+"id": "39486"
+}
+]
+},
+{
+"id": "39486",
+"title": "Гинтама: Финал",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2021-01-08",
+"related": [
+{
+"relationKind": "prequel",
+"id": "44087"
+},
+{
+"relationKind": "other",
+"id": "48436"
+}
+]
+},
+{
+"id": "48436",
+"title": "Гинтама: Финал x Фасоль",
+"kind": "cm",
+"episodes": 2,
+"status": "released",
+"date": "2020-12-02",
+"related": [
+{
+"relationKind": "other",
+"id": "7261"
+},
+{
+"relationKind": "other",
+"id": "39486"
+}
+]
+},
+{
+"id": "55394",
+"title": "Душа маджонга: Реклама",
+"kind": "cm",
+"episodes": 5,
+"status": "released",
+"date": "2020-06-22",
+"related": [
+{
+"relationKind": "other",
+"id": "50789"
+},
+{
+"relationKind": "other",
+"id": "58792"
+}
+]
+},
+{
+"id": "40323",
+"title": "Гинтама x Удар монстра",
+"kind": "ona",
+"episodes": 2,
+"status": "released",
+"date": "2019-08-29",
+"related": [
+{
+"relationKind": "character",
+"id": "918"
+},
+{
+"relationKind": "character",
+"id": "30757"
+}
+]
+},
+{
+"id": "37491",
+"title": "Гинтама 8",
+"kind": "tv",
+"episodes": 14,
+"status": "released",
+"date": "2018-07-09",
+"related": [
+{
+"relationKind": "prequel",
+"id": "36838"
+},
+{
+"relationKind": "sequel",
+"id": "44087"
+}
+]
+},
+{
+"id": "37864",
+"title": "Гинтама и KFC Китай",
+"kind": "cm",
+"episodes": 1,
+"status": "released",
+"date": "2018-05-09",
+"related": [
+{
+"relationKind": "other",
+"id": "918"
+}
+]
+},
+{
+"id": "36838",
+"title": "Гинтама 7",
+"kind": "tv",
+"episodes": 12,
+"status": "released",
+"date": "2018-01-08",
+"related": [
+{
+"relationKind": "prequel",
+"id": "35843"
+},
+{
+"relationKind": "sequel",
+"id": "37491"
+}
+]
+},
+{
+"id": "35843",
+"title": "Гинтама 6",
+"kind": "tv",
+"episodes": 13,
+"status": "released",
+"date": "2017-10-02",
+"related": [
+{
+"relationKind": "prequel",
+"id": "34096"
+},
+{
+"relationKind": "sequel",
+"id": "36838"
+},
+{
+"relationKind": "other",
+"id": "36553"
+}
+]
+},
+{
+"id": "34096",
+"title": "Гинтама 5",
+"kind": "tv",
+"episodes": 12,
+"status": "released",
+"date": "2017-01-09",
+"related": [
+{
+"relationKind": "prequel",
+"id": "28977"
+},
+{
+"relationKind": "sequel",
+"id": "35843"
+}
+]
+},
+{
+"id": "32366",
+"title": "Гинтама 4: Любовные благовония",
+"kind": "ova",
+"episodes": 2,
+"status": "released",
+"date": "2016-08-04",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "28977"
+}
+]
+},
+{
+"id": "32122",
+"title": "Гинтама: Джамп Феста 2015",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2015-11-03",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "28977"
+}
+]
+},
+{
+"id": "28977",
+"title": "Гинтама 4",
+"kind": "tv",
+"episodes": 51,
+"status": "released",
+"date": "2015-04-08",
+"related": [
+{
+"relationKind": "prequel",
+"id": "15417"
+},
+{
+"relationKind": "sequel",
+"id": "34096"
+},
+{
+"relationKind": "side_story",
+"id": "32122"
+},
+{
+"relationKind": "side_story",
+"id": "32366"
+}
+]
+},
+{
+"id": "25313",
+"title": "Гинтама: Джамп Феста 2014",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2015-04-03",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "15417"
+}
+]
+},
+{
+"id": "19261",
+"title": "Гинтама x Фасоль",
+"kind": "cm",
+"episodes": 6,
+"status": "released",
+"date": "2013-12-03",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "15335"
+},
+{
+"relationKind": "other",
+"id": "7261"
+}
+]
+},
+{
+"id": "15335",
+"title": "Гинтама: Финальная арка — Ёродзуя навсегда!",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2013-07-06",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "15417"
+},
+{
+"relationKind": "character",
+"id": "19261"
+}
+]
+},
+{
+"id": "15417",
+"title": "Гинтама 3",
+"kind": "tv",
+"episodes": 13,
+"status": "released",
+"date": "2012-10-04",
+"related": [
+{
+"relationKind": "prequel",
+"id": "9969"
+},
+{
+"relationKind": "sequel",
+"id": "28977"
+},
+{
+"relationKind": "side_story",
+"id": "15335"
+},
+{
+"relationKind": "side_story",
+"id": "25313"
+},
+{
+"relationKind": "summary",
+"id": "58091"
+},
+{
+"relationKind": "summary",
+"id": "59688"
+}
+]
+},
+{
+"id": "21899",
+"title": "Гинтама: Лучшее из «Гинтамы» в кино",
+"kind": "movie",
+"episodes": 2,
+"status": "released",
+"date": "2012-08-26",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "918"
+},
+{
+"relationKind": "parent_story",
+"id": "9969"
+}
+]
+},
+{
+"id": "9969",
+"title": "Гинтама 2",
+"kind": "tv",
+"episodes": 51,
+"status": "released",
+"date": "2011-04-04",
+"related": [
+{
+"relationKind": "prequel",
+"id": "918"
+},
+{
+"relationKind": "sequel",
+"id": "15417"
+},
+{
+"relationKind": "summary",
+"id": "21899"
+},
+{
+"relationKind": "summary",
+"id": "56544"
+},
+{
+"relationKind": "character",
+"id": "9863"
+}
+]
+},
+{
+"id": "9735",
+"title": "Гинтама: Сказание о Бэнидзакуре — Дополнение",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2010-12-15",
+"related": [
+{
+"relationKind": "other",
+"id": "7472"
+}
+]
+},
+{
+"id": "7472",
+"title": "Гинтама: Сказание о Бэнидзакуре",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2010-04-24",
+"related": [
+{
+"relationKind": "alternative_version",
+"id": "918"
+},
+{
+"relationKind": "other",
+"id": "9735"
+}
+]
+},
+{
+"id": "10643",
+"title": "Гинтама: Грандиозное собрание",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2010-03-25",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "918"
+}
+]
+},
+{
+"id": "6945",
+"title": "Гинтама: Рождение Белого Демона",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2008-09-21",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "918"
+},
+{
+"relationKind": "other",
+"id": "2951"
+},
+{
+"relationKind": "other",
+"id": "25313"
+}
+]
+},
+{
+"id": "918",
+"title": "Гинтама",
+"kind": "tv",
+"episodes": 201,
+"status": "released",
+"date": "2006-04-04",
+"related": [
+{
+"relationKind": "sequel",
+"id": "9969"
+},
+{
+"relationKind": "side_story",
+"id": "2951"
+},
+{
+"relationKind": "side_story",
+"id": "6945"
+},
+{
+"relationKind": "side_story",
+"id": "10643"
+},
+{
+"relationKind": "side_story",
+"id": "25313"
+},
+{
+"relationKind": "side_story",
+"id": "32122"
+},
+{
+"relationKind": "spin_off",
+"id": "54757"
+},
+{
+"relationKind": "alternative_version",
+"id": "7472"
+},
+{
+"relationKind": "alternative_version",
+"id": "21899"
+},
+{
+"relationKind": "alternative_version",
+"id": "62277"
+},
+{
+"relationKind": "character",
+"id": "40323"
+},
+{
+"relationKind": "other",
+"id": "15335"
+},
+{
+"relationKind": "other",
+"id": "19261"
+},
+{
+"relationKind": "other",
+"id": "37864"
+},
+{
+"relationKind": "other",
+"id": "54761"
+},
+{
+"relationKind": "other",
+"id": "57670"
+},
+{
+"relationKind": "other",
+"id": "62640"
+}
+]
+},
+{
+"id": "2951",
+"title": "Гинтама: Джамп Феста 2005",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2005-09-24",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "918"
+},
+{
+"relationKind": "other",
+"id": "6945"
+},
+{
+"relationKind": "other",
+"id": "25313"
+}
+]
+}
+],
+"one_piece": [
+{
+"id": "57557",
+"title": "Ван-Пис",
+"kind": "ona",
+"episodes": 7,
+"status": "anons",
+"date": "2027-02-01",
+"related": [
+{
+"relationKind": "alternative_version",
+"id": "21"
+}
+]
+},
+{
+"id": "64858",
+"title": "Ван-Пис: Долина Бога",
+"kind": "movie",
+"episodes": 1,
+"status": "anons",
+"date": "2027-01-01",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "62233",
+"title": "Ван-Пис: Героини",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2026-07-05",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "62969",
+"title": "Ван-Пис: Приключения доктора Чоппера — Последняя всемирная трансляция гения",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2025-11-23",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "62593",
+"title": "Ван-Пис: Приключения доктора Чоппера — Маскарад предателей",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2025-10-12",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "62394",
+"title": "Ван-Пис: Приключения доктора Чоппера — Гордая мечта гиганта",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2025-08-31",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "62214",
+"title": "Любовный Ван-Пис: Накануне фестиваля",
+"kind": "ona",
+"episodes": 1,
+"status": "released",
+"date": "2025-08-09",
+"related": [
+{
+"relationKind": "prequel",
+"id": "61293"
+}
+]
+},
+{
+"id": "61892",
+"title": "Ван-Пис: Запись приключений доктора Чоппера — Друзья на перепутье!",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2025-06-22",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "61674",
+"title": "Ван-Пис: Запись приключений доктора Чоппера — Баллада отца и дочери",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2025-05-11",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "61393",
+"title": "Ван-Пис: Остров Яичная Голова",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2025-04-05",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "61293",
+"title": "Любовный Ван-Пис",
+"kind": "ona",
+"episodes": 5,
+"status": "released",
+"date": "2025-04-01",
+"related": [
+{
+"relationKind": "sequel",
+"id": "62214"
+},
+{
+"relationKind": "other",
+"id": "21"
+}
+]
+},
+{
+"id": "60790",
+"title": "Луффи, Ло",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2025-01-19",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "60108",
+"title": "Ван-Пис: Остров Рыболюдей",
+"kind": "tv",
+"episodes": 21,
+"status": "released",
+"date": "2024-11-03",
+"related": [
+{
+"relationKind": "alternative_version",
+"id": "21"
+}
+]
+},
+{
+"id": "60022",
+"title": "Ван-Пис: Письмо от поклонника",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2024-10-20",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "59908",
+"title": "Ван-Пис: Незыблемое правосудие! Хроника морского дозора!",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2024-09-29",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "59596",
+"title": "Ван-Пис: Хроника бурных перемен! Закулисная деятельность революционеров!",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2024-08-25",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "59029",
+"title": "Ван-Пис: История, высеченная в камне! Старые и новые императоры моря!",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2024-06-16",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "58663",
+"title": "Ван-Пис: Дневник вражды! Соломенные шляпы против Сайфер Пола",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2024-04-14",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "58307",
+"title": "Ван-Пис и бедняжка: Я оставлю эту шляпу тебе",
+"kind": "pv",
+"episodes": 1,
+"status": "released",
+"date": "2024-03-04",
+"related": [
+{
+"relationKind": "other",
+"id": "21"
+}
+]
+},
+{
+"id": "58015",
+"title": "Ван-Пис: Кампания по прославлению! Хирург Смерти Трафальгар Ло",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2024-02-04",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "56055",
+"title": "Монстры: Сто три милости — Проклятие дракона",
+"kind": "ona",
+"episodes": 1,
+"status": "released",
+"date": "2024-01-22",
+"related": [
+{
+"relationKind": "character",
+"id": "21"
+}
+]
+},
+{
+"id": "57556",
+"title": "Ван-Пис: Путь Момоносукэ к становлению великим сёгуном",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2023-12-24",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "55647",
+"title": "Ван-Пис: Обзор жестокой битвы! Альянс против Большой Мамочки",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2023-06-18",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "55289",
+"title": "Ван-Пис: Обзор жестокой битвы! Зоро против суперзвезды!",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2023-05-14",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "53890",
+"title": "Ван Пис: Жестокий бой! Соломенная шляпа против Тобироппо",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2022-12-25",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "53235",
+"title": "Ван-Пис: Жестокая битва! Пятёрка нового поколения",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2022-10-09",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "52921",
+"title": "Ван Пис: Легендарные записи — Рыжеволосый Шанкс!",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2022-08-28",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+},
+{
+"relationKind": "parent_story",
+"id": "50410"
+}
+]
+},
+{
+"id": "50410",
+"title": "Ван-Пис: Красный",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2022-08-06",
+"related": [
+{
+"relationKind": "side_story",
+"id": "52921"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+},
+{
+"relationKind": "other",
+"id": "52832"
+},
+{
+"relationKind": "other",
+"id": "52871"
+},
+{
+"relationKind": "other",
+"id": "52847"
+},
+{
+"relationKind": "other",
+"id": "52872"
+},
+{
+"relationKind": "other",
+"id": "52873"
+},
+{
+"relationKind": "other",
+"id": "52846"
+},
+{
+"relationKind": "other",
+"id": "52893"
+}
+]
+},
+{
+"id": "52199",
+"title": "Ван-Пис: Легенда об Одэне Кодзуки",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2022-06-26",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "50696",
+"title": "Ван-Пис: План помощи Луффи! Секретная комната Бартоломео!",
+"kind": "tv_special",
+"episodes": 4,
+"status": "released",
+"date": "2021-12-26",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "51163",
+"title": "Ван-Пис: Сообщение о профилактике инфекций от пиратов Соломенной Шляпы",
+"kind": "cm",
+"episodes": 9,
+"status": "released",
+"date": "2020-03-16",
+"related": [
+{
+"relationKind": "other",
+"id": "21"
+}
+]
+},
+{
+"id": "38234",
+"title": "Ван-Пис: Бегство",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2019-08-09",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "40181",
+"title": "Ван-Пис x Look Plus",
+"kind": "cm",
+"episodes": 1,
+"status": "released",
+"date": "2019-07-29",
+"related": [
+{
+"relationKind": "other",
+"id": "21"
+}
+]
+},
+{
+"id": "37902",
+"title": "Ван-Пис: Эпизод Небесного Острова",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2018-08-25",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "36215",
+"title": "Ван-Пис: Эпизод Ист Блю — Большое приключение Луффи и его команды",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2017-08-26",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "36239",
+"title": "На что смотрят наши глаза",
+"kind": "cm",
+"episodes": 1,
+"status": "released",
+"date": "2017-06-19",
+"related": [
+{
+"relationKind": "other",
+"id": "21"
+}
+]
+},
+{
+"id": "35770",
+"title": "Голодные дни",
+"kind": "cm",
+"episodes": 11,
+"status": "released",
+"date": "2017-06-07",
+"related": [
+{
+"relationKind": "alternative_version",
+"id": "52139"
+},
+{
+"relationKind": "character",
+"id": "2406"
+},
+{
+"relationKind": "character",
+"id": "2225"
+},
+{
+"relationKind": "character",
+"id": "512"
+},
+{
+"relationKind": "character",
+"id": "21"
+}
+]
+},
+{
+"id": "38419",
+"title": "Ван-Пис на токийской телебашне: Сокровище острова Тонгари",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2016-11-01",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "34165",
+"title": "Ван-Пис: Пробуем вкуснятину!",
+"kind": "cm",
+"episodes": 1,
+"status": "released",
+"date": "2016-09-11",
+"related": [
+{
+"relationKind": "other",
+"id": "21"
+}
+]
+},
+{
+"id": "31490",
+"title": "Ван-Пис: Золото",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2016-07-23",
+"related": [
+{
+"relationKind": "prequel",
+"id": "33606"
+},
+{
+"relationKind": "prequel",
+"id": "33338"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+},
+{
+"relationKind": "other",
+"id": "36242"
+},
+{
+"relationKind": "other",
+"id": "36240"
+},
+{
+"relationKind": "other",
+"id": "36241"
+}
+]
+},
+{
+"id": "33338",
+"title": "Ван-Пис: Золотое сердце",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2016-07-16",
+"related": [
+{
+"relationKind": "sequel",
+"id": "31490"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "33606",
+"title": "Ван-Пис: Золото — Эпизод 0",
+"kind": "ona",
+"episodes": 1,
+"status": "released",
+"date": "2016-07-02",
+"related": [
+{
+"relationKind": "sequel",
+"id": "31490"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "50385",
+"title": "Ван-Пис: Записи о персонажах",
+"kind": "special",
+"episodes": 9,
+"status": "released",
+"date": "2016-06-20",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "36241",
+"title": "Ван-Пис: Золото — С попкорном в кино",
+"kind": "cm",
+"episodes": 1,
+"status": "released",
+"date": "2016-06-01",
+"related": [
+{
+"relationKind": "other",
+"id": "36242"
+},
+{
+"relationKind": "other",
+"id": "31490"
+}
+]
+},
+{
+"id": "36240",
+"title": "Ван-Пис: Золото и Скретч",
+"kind": "cm",
+"episodes": 1,
+"status": "released",
+"date": "2016-05-01",
+"related": [
+{
+"relationKind": "other",
+"id": "30153"
+},
+{
+"relationKind": "other",
+"id": "31490"
+}
+]
+},
+{
+"id": "36242",
+"title": "Ван-Пис: Золото x TOHO Cinemas",
+"kind": "cm",
+"episodes": 1,
+"status": "released",
+"date": "2016-02-29",
+"related": [
+{
+"relationKind": "other",
+"id": "36241"
+},
+{
+"relationKind": "other",
+"id": "31490"
+}
+]
+},
+{
+"id": "57413",
+"title": "Ван-Пис x Xfit",
+"kind": "cm",
+"episodes": 2,
+"status": "released",
+"date": "2016-02-21",
+"related": [
+{
+"relationKind": "other",
+"id": "21"
+}
+]
+},
+{
+"id": "32051",
+"title": "Ван-Пис: Приключение в Небуландии",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2015-12-19",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "59822",
+"title": "Звёздные войны и Ван-Пис",
+"kind": "cm",
+"episodes": 1,
+"status": "released",
+"date": "2015-12-19",
+"related": [
+{
+"relationKind": "other",
+"id": "21"
+}
+]
+},
+{
+"id": "32437",
+"title": "Ван-Пис: Приключение на длинно-круглой земле",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2015-12-11",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "31289",
+"title": "Ван-Пис: Эпизод Сабо — Узы трёх братьев, чудесное воссоединение и унаследованная воля",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2015-08-22",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "54196",
+"title": "Ван-Пис 4D",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2015-03-13",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "25161",
+"title": "Ван-Пис 3D2Y: Пережить смерть Эйса! Обещание Луффи своим накама",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2014-08-30",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "22661",
+"title": "Ван-Пис: Крик сердца",
+"kind": "special",
+"episodes": 3,
+"status": "released",
+"date": "2014-01-19",
+"related": [
+{
+"relationKind": "other",
+"id": "21"
+},
+{
+"relationKind": "other",
+"id": "3848"
+}
+]
+},
+{
+"id": "19123",
+"title": "Ван-Пис: Эпизод Мерри — История об ещё одном накаме",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2013-08-24",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "53880",
+"title": "Ван-Пис: Планетарий",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2013-07-13",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "16468",
+"title": "Ван-Пис: Остров мечты",
+"kind": "ona",
+"episodes": 2,
+"status": "released",
+"date": "2012-12-23",
+"related": [
+{
+"relationKind": "sequel",
+"id": "12859"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "12859",
+"title": "Ван-Пис: Z",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2012-12-15",
+"related": [
+{
+"relationKind": "prequel",
+"id": "16239"
+},
+{
+"relationKind": "prequel",
+"id": "16468"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "16239",
+"title": "Ван-Пис: Эпизод Луффи — Приключения на Ладоневом острове",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2012-12-15",
+"related": [
+{
+"relationKind": "sequel",
+"id": "12859"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "15323",
+"title": "Ван-Пис: Эпизод Нами — Слёзы навигатора и узы друзей",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2012-08-25",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "59801",
+"title": "Ван-Пис x UHA Mikakutou",
+"kind": "cm",
+"episodes": 7,
+"status": "released",
+"date": "2012-01-01",
+"related": [
+{
+"relationKind": "other",
+"id": "21"
+}
+]
+},
+{
+"id": "12001",
+"title": "Ван-Пис 3D",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2011-12-01",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "28683",
+"title": "Ван-Пис: Приключения в Алабасте — Пролог",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2011-08-20",
+"related": [
+{
+"relationKind": "sequel",
+"id": "2107"
+},
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "9999",
+"title": "Ван-Пис 3D: Погоня за соломенной шляпой",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2011-03-19",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+},
+{
+"relationKind": "other",
+"id": "20871"
+}
+]
+},
+{
+"id": "20871",
+"title": "Ван-Пис 3D x «Серена»: Погоня за Соломенной шляпой — Проникновение! Таузенд Санни!",
+"kind": "cm",
+"episodes": 1,
+"status": "released",
+"date": "2011-03-05",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+},
+{
+"relationKind": "other",
+"id": "9999"
+}
+]
+},
+{
+"id": "59959",
+"title": "Ван-Пис x Schick",
+"kind": "cm",
+"episodes": 2,
+"status": "released",
+"date": "2010-06-01",
+"related": [
+{
+"relationKind": "other",
+"id": "21"
+}
+]
+},
+{
+"id": "8740",
+"title": "Ван-Пис: Жестокий мир — Эпизод 0",
+"kind": "ova",
+"episodes": 1,
+"status": "released",
+"date": "2010-04-16",
+"related": [
+{
+"relationKind": "sequel",
+"id": "4155"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "8171",
+"title": "Ван-Пис: Рекап",
+"kind": "ova",
+"episodes": 1,
+"status": "released",
+"date": "2010-03-17",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "4155",
+"title": "Ван-Пис: Жестокий мир",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2009-12-12",
+"related": [
+{
+"relationKind": "prequel",
+"id": "8740"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "5252",
+"title": "Ван-Пис: Начало приключений",
+"kind": "ova",
+"episodes": 1,
+"status": "released",
+"date": "2008-11-24",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "3848",
+"title": "Ван-Пис: Эпизод Чоппера Плюс — Зимнее цветение, чудесная сакура",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2008-03-01",
+"related": [
+{
+"relationKind": "alternative_version",
+"id": "21"
+},
+{
+"relationKind": "other",
+"id": "22661"
+}
+]
+},
+{
+"id": "53878",
+"title": "Ван-Пис: Космос — это весело! Остров звёздного неба",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2007-04-21",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "2107",
+"title": "Ван-Пис: Приключение в Алабасте — Принцесса пустыни и пираты",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2007-03-03",
+"related": [
+{
+"relationKind": "prequel",
+"id": "28683"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "465",
+"title": "Ван-Пис: Гигантский механический солдат замка Каракури",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2006-03-04",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "51162",
+"title": "Ван-Пис: Тайна пиратов Соломенной Шляпы!",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2006-01-03",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "2020",
+"title": "Ван-Пис: Воспоминания детектива в соломенной шляпе",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2005-12-18",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "464",
+"title": "Ван-Пис: Барон Омацури и Секретный Остров",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2005-03-05",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "463",
+"title": "Ван-Пис: Проклятие Святого Меча",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2004-03-06",
+"related": [
+{
+"relationKind": "side_story",
+"id": "2490"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "2490",
+"title": "Ван-Пис: Цельсь! Пиратские короли бейсбола",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2004-03-06",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+},
+{
+"relationKind": "parent_story",
+"id": "463"
+}
+]
+},
+{
+"id": "1238",
+"title": "Ван-Пис: Защитить! Последнее великое представление!",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2003-12-14",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "1237",
+"title": "Ван-Пис: Открытие в большом море! Большая мечта отца!",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2003-04-06",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "462",
+"title": "Ван-Пис: Путешествие в один конец",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2003-03-01",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "461",
+"title": "Ван-Пис: Королевство Чоппера на Острове Необычных Животных",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2002-03-02",
+"related": [
+{
+"relationKind": "side_story",
+"id": "2386"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "2386",
+"title": "Ван-Пис: Футбольный король мечты",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2002-03-02",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+},
+{
+"relationKind": "parent_story",
+"id": "461"
+}
+]
+},
+{
+"id": "460",
+"title": "Ван-Пис: Приключение на Заводном Острове",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2001-03-03",
+"related": [
+{
+"relationKind": "side_story",
+"id": "2385"
+},
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "2385",
+"title": "Ван-Пис: Танцевальный марафон Джанго",
+"kind": "special",
+"episodes": 1,
+"status": "released",
+"date": "2001-03-03",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+},
+{
+"relationKind": "parent_story",
+"id": "460"
+}
+]
+},
+{
+"id": "1094",
+"title": "Ван-Пис: Приключение в глуби океана",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "2000-12-20",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "459",
+"title": "Ван-Пис. Фильм",
+"kind": "movie",
+"episodes": 1,
+"status": "released",
+"date": "2000-03-04",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "16143",
+"title": "Ван-Пис: Запасной план. Идеальный метод захвата Ван-Пис",
+"kind": "tv_special",
+"episodes": 1,
+"status": "released",
+"date": "1999-12-22",
+"related": [
+{
+"relationKind": "full_story",
+"id": "21"
+}
+]
+},
+{
+"id": "21",
+"title": "Ван-Пис",
+"kind": "tv",
+"episodes": 1180,
+"status": "ongoing",
+"date": "1999-10-20",
+"related": [
+{
+"relationKind": "side_story",
+"id": "466"
+},
+{
+"relationKind": "side_story",
+"id": "459"
+},
+{
+"relationKind": "side_story",
+"id": "1094"
+},
+{
+"relationKind": "side_story",
+"id": "460"
+},
+{
+"relationKind": "side_story",
+"id": "2385"
+},
+{
+"relationKind": "side_story",
+"id": "461"
+},
+{
+"relationKind": "side_story",
+"id": "2386"
+},
+{
+"relationKind": "side_story",
+"id": "462"
+},
+{
+"relationKind": "side_story",
+"id": "1237"
+},
+{
+"relationKind": "side_story",
+"id": "1238"
+},
+{
+"relationKind": "side_story",
+"id": "463"
+},
+{
+"relationKind": "side_story",
+"id": "2490"
+},
+{
+"relationKind": "side_story",
+"id": "464"
+},
+{
+"relationKind": "side_story",
+"id": "2020"
+},
+{
+"relationKind": "side_story",
+"id": "465"
+},
+{
+"relationKind": "side_story",
+"id": "53878"
+},
+{
+"relationKind": "side_story",
+"id": "5252"
+},
+{
+"relationKind": "side_story",
+"id": "4155"
+},
+{
+"relationKind": "side_story",
+"id": "8740"
+},
+{
+"relationKind": "side_story",
+"id": "9999"
+},
+{
+"relationKind": "side_story",
+"id": "12001"
+},
+{
+"relationKind": "side_story",
+"id": "12859"
+},
+{
+"relationKind": "side_story",
+"id": "16239"
+},
+{
+"relationKind": "side_story",
+"id": "16468"
+},
+{
+"relationKind": "side_story",
+"id": "53880"
+},
+{
+"relationKind": "side_story",
+"id": "25161"
+},
+{
+"relationKind": "side_story",
+"id": "32051"
+},
+{
+"relationKind": "side_story",
+"id": "33606"
+},
+{
+"relationKind": "side_story",
+"id": "33338"
+},
+{
+"relationKind": "side_story",
+"id": "31490"
+},
+{
+"relationKind": "side_story",
+"id": "38234"
+},
+{
+"relationKind": "side_story",
+"id": "50410"
+},
+{
+"relationKind": "side_story",
+"id": "60022"
+},
+{
+"relationKind": "side_story",
+"id": "60790"
+},
+{
+"relationKind": "side_story",
+"id": "62233"
+},
+{
+"relationKind": "side_story",
+"id": "64858"
+},
+{
+"relationKind": "side_story",
+"id": "64859"
+},
+{
+"relationKind": "summary",
+"id": "16143"
+},
+{
+"relationKind": "summary",
+"id": "51162"
+},
+{
+"relationKind": "summary",
+"id": "2107"
+},
+{
+"relationKind": "summary",
+"id": "8171"
+},
+{
+"relationKind": "summary",
+"id": "28683"
+},
+{
+"relationKind": "summary",
+"id": "15323"
+},
+{
+"relationKind": "summary",
+"id": "19123"
+},
+{
+"relationKind": "summary",
+"id": "31289"
+},
+{
+"relationKind": "summary",
+"id": "32437"
+},
+{
+"relationKind": "summary",
+"id": "50385"
+},
+{
+"relationKind": "summary",
+"id": "36215"
+},
+{
+"relationKind": "summary",
+"id": "37902"
+},
+{
+"relationKind": "summary",
+"id": "50696"
+},
+{
+"relationKind": "summary",
+"id": "52199"
+},
+{
+"relationKind": "summary",
+"id": "52921"
+},
+{
+"relationKind": "summary",
+"id": "53235"
+},
+{
+"relationKind": "summary",
+"id": "53890"
+},
+{
+"relationKind": "summary",
+"id": "55289"
+},
+{
+"relationKind": "summary",
+"id": "55647"
+},
+{
+"relationKind": "summary",
+"id": "57556"
+},
+{
+"relationKind": "summary",
+"id": "58015"
+},
+{
+"relationKind": "summary",
+"id": "58663"
+},
+{
+"relationKind": "summary",
+"id": "59029"
+},
+{
+"relationKind": "summary",
+"id": "59596"
+},
+{
+"relationKind": "summary",
+"id": "59908"
+},
+{
+"relationKind": "summary",
+"id": "61393"
+},
+{
+"relationKind": "summary",
+"id": "61674"
+},
+{
+"relationKind": "summary",
+"id": "61892"
+},
+{
+"relationKind": "summary",
+"id": "62394"
+},
+{
+"relationKind": "summary",
+"id": "62593"
+},
+{
+"relationKind": "summary",
+"id": "62969"
+},
+{
+"relationKind": "alternative_version",
+"id": "3848"
+},
+{
+"relationKind": "alternative_version",
+"id": "60108"
+},
+{
+"relationKind": "alternative_version",
+"id": "57557"
+},
+{
+"relationKind": "character",
+"id": "813"
+},
+{
+"relationKind": "character",
+"id": "23933"
+},
+{
+"relationKind": "character",
+"id": "23935"
+},
+{
+"relationKind": "character",
+"id": "10033"
+},
+{
+"relationKind": "character",
+"id": "52139"
+},
+{
+"relationKind": "character",
+"id": "59832"
+},
+{
+"relationKind": "character",
+"id": "56055"
+},
+{
+"relationKind": "other",
+"id": "59959"
+},
+{
+"relationKind": "other",
+"id": "59801"
+},
+{
+"relationKind": "other",
+"id": "22661"
+},
+{
+"relationKind": "other",
+"id": "59822"
+},
+{
+"relationKind": "other",
+"id": "57413"
+},
+{
+"relationKind": "other",
+"id": "34165"
+},
+{
+"relationKind": "other",
+"id": "38419"
+},
+{
+"relationKind": "other",
+"id": "36239"
+},
+{
+"relationKind": "other",
+"id": "40181"
+},
+{
+"relationKind": "other",
+"id": "40970"
+},
+{
+"relationKind": "other",
+"id": "51163"
+},
+{
+"relationKind": "other",
+"id": "56015"
+},
+{
+"relationKind": "other",
+"id": "58307"
+},
+{
+"relationKind": "other",
+"id": "63224"
+}
+]
+},
+{
+"id": "466",
+"title": "Ван-Пис: Победить пирата Ганзака!",
+"kind": "ova",
+"episodes": 1,
+"status": "released",
+"date": "1998-07-26",
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+},
+{
+"id": "64859",
+"title": "Ван-Пис: Baad",
+"kind": "movie",
+"episodes": 1,
+"status": "anons",
+"date": null,
+"related": [
+{
+"relationKind": "parent_story",
+"id": "21"
+}
+]
+}
+]
+}

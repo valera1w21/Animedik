@@ -21,6 +21,8 @@ logging.getLogger("anime").setLevel(logging.ERROR)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastapi.testclient import TestClient          # noqa: E402
 from api import main, security, store             # noqa: E402
+import fake_sources                                 # noqa: E402
+fake_sources.install()
 
 # Вывод здесь на русском, а консоль Windows по умолчанию живёт в cp1251:
 # первая же стрелка или галочка роняла весь запуск с UnicodeEncodeError,
@@ -69,7 +71,7 @@ def reset():
 def run():
     store.init()
     reset()
-    aid = store.create_user("valera", "Zaliv-Pepel-2026", "admin", "valera")
+    aid = store.create_user("hozyain", "Zaliv-Pepel-2026", "admin", "hozyain")
     mid = store.create_user("misha", "Tihiy-Signal-2026", "user", "misha")
     kid = store.create_user("kate", "Dolina-Otrazheniy-26", "user", "kate")
 
@@ -81,7 +83,7 @@ def run():
     fake = security.new_token()
     c.cookies.set("sid", fake)
     check("свой токен до входа не работает", c.get("/api/me").status_code == 401)
-    r = c.post("/api/auth/login", json={"login": "valera", "password": "Zaliv-Pepel-2026"})
+    r = c.post("/api/auth/login", json={"login": "hozyain", "password": "Zaliv-Pepel-2026"})
     issued = ""
     for raw in r.headers.get_list("set-cookie"):
         if raw.startswith("sid="):
@@ -101,7 +103,7 @@ def run():
     group("Гостевой и пользовательский токены не смешиваются")
     reset()
     g = C()
-    rg = g.post("/api/auth/guest")
+    rg = g.post("/api/auth/guest", json={})
     gt = [x.split(";", 1)[0][4:] for x in rg.headers.get_list("set-cookie")
           if x.startswith("sid=")][0]
     u = C()
@@ -136,17 +138,17 @@ def run():
     group("Хитрые логины")
     reset()
     tricky = [
-        ("VALERA", "верхний регистр — тот же человек", 200),
-        ("  valera  ", "пробелы по краям", 200),
-        ("valera\u0000", "нулевой байт", 401),
+        ("HOZYAIN", "верхний регистр — тот же человек", 200),
+        ("  hozyain  ", "пробелы по краям", 200),
+        ("hozyain\u0000", "нулевой байт", 401),
         # Перевод строки по краям — та же лишняя пустота, что и пробел:
         # его убирают намеренно, потому что он часто приезжает из буфера обмена.
-        ("valera\n", "перевод строки по краю убирается", 200),
-        ("vale\nra", "перевод строки внутри", 401),
-        ("valera\u202eadmin", "переворот направления текста", 401),
-        ("ＶＡＬＥＲＡ", "полноширинные буквы", 200),
-        ("valera'--", "хвост как в SQL", 401),
-        ("valerа", "кириллическая а внутри", 401),
+        ("hozyain\n", "перевод строки по краю убирается", 200),
+        ("hozy\nain", "перевод строки внутри", 401),
+        ("hozyain\u202eadmin", "переворот направления текста", 401),
+        ("ＨＯＺＹＡＩＮ", "полноширинные буквы", 200),
+        ("hozyain'--", "хвост как в SQL", 401),
+        ("hozyаin", "кириллическая а внутри", 401),
     ]
     for value, why, want in tricky:
         reset()
@@ -166,7 +168,7 @@ def run():
             best = min(best, time.perf_counter() - t0)
         return best
 
-    t_real = timed("valera")
+    t_real = timed("hozyain")
     t_fake = timed("nikogo-net-takogo")
     ratio = max(t_real, t_fake) / max(0.0001, min(t_real, t_fake))
     check("время сопоставимо", ratio < 3, f"{t_real:.3f}с против {t_fake:.3f}с, разница x{ratio:.1f}")
@@ -175,7 +177,7 @@ def run():
     group("Одновременная запись одного и того же")
     reset()
     w = C()
-    login(w, "valera", "Zaliv-Pepel-2026")
+    login(w, "hozyain", "Zaliv-Pepel-2026")
     errors = []
 
     def hammer(n):
@@ -204,7 +206,7 @@ def run():
     group("Права: понижение и удаление администратора")
     reset()
     a = C()
-    login(a, "valera", "Zaliv-Pepel-2026")
+    login(a, "hozyain", "Zaliv-Pepel-2026")
     check("нельзя удалить себя", a.request("DELETE", f"/api/admin/users/{aid}").status_code == 409)
     check("нельзя выключить последнего администратора",
           a.post(f"/api/admin/users/{aid}/disable").status_code == 409)
@@ -256,7 +258,7 @@ def run():
     still = [x["key"] for x in k.get("/api/library").json()["items"]]
     check("чужой записи не удалить", "секрет-кати" in still)
     a2 = C()
-    login(a2, "valera", "Zaliv-Pepel-2026")
+    login(a2, "hozyain", "Zaliv-Pepel-2026")
     admin_sees = [x["key"] for x in a2.get("/api/library").json()["items"]]
     check("даже администратор не видит чужую полку", "секрет-кати" not in admin_sees)
 
@@ -304,7 +306,7 @@ def run():
     group("Странные запросы")
     reset()
     q = C()
-    login(q, "valera", "Zaliv-Pepel-2026")
+    login(q, "hozyain", "Zaliv-Pepel-2026")
     check("очень длинный адрес", q.get("/api/library?" + "a=1&" * 2000).status_code in (200, 414, 431))
     check("HEAD не ломает", q.head("/api/health").status_code in (200, 405))
     check("неизвестный метод", q.request("PATCH", "/api/library").status_code in (404, 405))
@@ -362,7 +364,7 @@ def run():
     group("Пароль не всплывает в ответах")
     reset()
     pc = C()
-    r = login(pc, "valera", "Zaliv-Pepel-2026")
+    r = login(pc, "hozyain", "Zaliv-Pepel-2026")
     check("в ответе входа нет пароля", "Zaliv-Pepel-2026" not in r.text)
     check("в ответе входа нет хэша", "pbkdf2" not in r.text)
     check("в /api/me нет пароля", "pbkdf2" not in pc.get("/api/me").text)

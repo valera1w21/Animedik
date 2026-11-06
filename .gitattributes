@@ -14,6 +14,12 @@
 *.timer     text eol=lf
 *.conf      text eol=lf
 Dockerfile  text eol=lf
+# Файлы настроек и бот: с CRLF значения получали бы невидимый «\r» на
+# конце (ключ бота переставал подходить), а #!-строка бота не работала бы.
+*.example   text eol=lf
+*.yml       text eol=lf
+.dockerignore text eol=lf
+ops/*.py    text eol=lf
 
 *.png binary
 *.jpg binary

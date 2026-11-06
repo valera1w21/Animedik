@@ -1,176 +1,159 @@
-# анимеДик
+# animeDik
 
-**[English version → README.en.md](README.en.md)**
+**[Русская версия → README.ru.md](README.ru.md)**
 
-Личный каталог аниме: свой список, отметки о просмотре, поиск по
-франшизам и плеер, который помнит секунду, на которой вы остановились.
-Сайт на FastAPI и SQLite, интерфейс — обычный JavaScript без фреймворков.
+A personal anime catalogue: your own library, watch progress, search by
+franchise, and a player that remembers the second you stopped at. The
+server is FastAPI + SQLite; the pages are plain JavaScript with no
+frameworks and no build step.
 
-> **Демонстрационный режим.** В этом репозитории нет и не будет доступа к
-> чужому видео. Вместо серий плеер играет фильмы Blender Foundation под
-> лицензией Creative Commons — этого достаточно, чтобы увидеть, как
-> работают поиск, плеер и отметки о просмотре.
-
----
-
-## Что это и зачем
-
-Я делал это для себя. Хотелось одного: держать свой список аниме на своём
-железе, а не в чужом сервисе, и чтобы плеер не терял место, на котором я
-остановился. Постепенно из этого вырос сайт с аккаунтами, двухфакторным
-входом, письмами о новых сериях и телеграм-ботом, который чинит сервер,
-пока я сплю.
-
-Теперь я выкладываю его публично — как работу, которую можно посмотреть.
-Честно о состоянии: это **альфа**, эксперимент. Он работает и проверен
-собственными наборами проверок, но писался под одного человека и одну
-машину, а не как продукт.
+> **Demonstration mode.** This repository contains no access to anyone
+> else's video, and never will. Instead of episodes the player plays
+> Blender Foundation films under a Creative Commons licence — enough to
+> show how search, the player and watch progress work.
 
 ---
 
-## Чего здесь нет
+## What this is and why
 
-Источников видео. Совсем.
+I built it for myself. I wanted my anime library to live on my own
+hardware instead of someone else's service, and I wanted a player that
+never loses the place I stopped at. That grew into a site with accounts,
+two-factor sign-in, e-mails about new episodes and a small AI helper.
 
-Раньше сайт брал видео с чужих сайтов через сторонние библиотеки. Для
-публичного репозитория это убрано целиком: список источников, обёртки,
-порядки перебора и сами зависимости. Технически это незаконно, и лишних
-проблем я не хочу.
-
-Место, куда подключается свой источник, осталось описанным — в
-[`api/anime.py`](api/anime.py) лежит пустой словарь `SOURCES` и
-объяснение, какие четыре метода должен уметь ваш модуль. Кто разбирается,
-сделает сам и будет отвечать за это сам.
-
-Всё остальное — поиск по справочнику, франшизы, список, отметки, плеер,
-аккаунты — работает поверх этого места и о самом источнике ничего не
-знает.
+It is published as a piece of work you can look at. To be honest about its
+state: this is an **alpha**, an experiment. It works and is covered by its
+own check suites, but it was written for one person and one home server,
+not as a product. It was also written together with an AI (Claude) — partly
+to find out what such a tool can actually do.
 
 ---
 
-## Что умеет
+## What is not here
 
-**Поиск по франшизам.** На запрос «наруто» приходит одна карточка
-«Наруто», а не двадцать одна строка вперемешку. По нажатию открываются
-все части истории по годам, с пометкой, с чего начинают смотреть. Данные
-берутся из открытых справочников (Shikimori, AniList) — ключей и
-регистрации они не требуют.
+**Video sources. None at all.**
 
-**Список коробками.** Один тайтл — одна карточка, даже если у него четыре
-сезона и два фильма. Внизу карточки полоса просмотра и «серия N из M».
+The private version takes video from third-party sites. In this repository
+all of that is removed: the list of sources, their parsers, their fallback
+order and their libraries. It is not legal to publish, and I do not want
+the trouble.
 
-**Плеер.** HLS и обычные файлы, перетаскиваемая дорожка, клик по экрану —
-пауза, полный экран со всеми кнопками, переключение серий и частей прямо
-из плеера. Секунда, на которой вы остановились, сохраняется и при уходе
-со страницы тоже.
+The place where a source plugs in is still documented: `api/anime.py` has
+an empty `SOURCES` dictionary and an explanation of the four methods a
+source module must provide (`api/anime_demo.py` is a working template).
+Whoever plugs in a source does it themselves and answers for it themselves.
 
-**Два языка.** Русский и английский, включая названия аниме, вид тайтла и
-описания. Переключатель на виду и работает до входа: человеку, который не
-читает по-русски, не нужно сперва искать настройки.
-
-**Аккаунты.** Регистрации нет — аккаунты заводит владелец командой в
-консоли или из своего кабинета. Пароли PBKDF2 в 600 000 раундов,
-двухфакторный вход по коду из приложения (TOTP, реализован здесь же, без
-зависимостей), CSRF-метки, ограничение попыток входа, отпечатки сессий.
-Гость получает пропуск на час, который живёт только в памяти процесса.
-
-**Итоги года.** Календарь просмотров, жанры, рекорды — считаются из
-настоящих записей, а не из круглых чисел.
-
-**Письма о новых сериях.** Необязательно: не задали SMTP — письма просто
-не уходят, сайт работает как обычно.
+With `MODE=private` and no source plugged in, every video endpoint answers
+an honest **501 Not Implemented**; everything else keeps working.
 
 ---
 
-## Как запустить
+## What it can do
 
-### Через Docker (как оно и работает у меня)
+- **Search by franchise.** Typing "naruto" gives one "Naruto" card, not
+  twenty lines in a jumble. Opening it shows every part of the story by
+  year, with a mark on the one people usually start from. Data comes from
+  open catalogues (Shikimori, AniList, Jikan) — no keys, no registration.
+- **One title — one card.** Four seasons and two films are still one card
+  in your library, with a progress bar and "episode N of M".
+- **The player.** HLS and plain files, a draggable seek bar, full screen,
+  switching episodes and parts from the player, subtitles (SRT/ASS/VTT are
+  converted to WebVTT on the server). The second you stopped at is saved,
+  including when you close the page.
+- **Two languages, kept separate.** The site language (Russian/English) and
+  the anime language (dub or subtitles) are two different settings.
+- **Accounts without sign-up.** The owner creates accounts from the console
+  or the admin page. Roles: guest, user, admin. Two-factor sign-in with an
+  authenticator app (TOTP, implemented here without dependencies), backup
+  codes, "sign out everywhere".
+- **18+ is hidden by default** and can be turned on in the profile; a
+  separate "Hentai" switch exists only for signed-in users, never for
+  guests.
+- **An AI helper** (the "?" bubble) for signed-in users only: answers
+  questions about the site and briefly about anime, knows neither the
+  site's name nor its address, has no internet access and cannot do
+  anything on the site. Optional — off without an API key.
+- **The year in review**, themes, seasonal decorations (New Year,
+  Halloween, Sakura) that switch on by date, a notification bell for new
+  episodes, optional e-mails about them.
+
+---
+
+## Quick start
+
+With Docker:
 
 ```bash
 cp .env.example .env
-# впишите свою строку в SESSION_PEPPER и поставьте COOKIE_SECURE=0,
-# если открываете сайт по http://localhost — иначе браузер не сохранит
-# куку сессии, и вход будет выглядеть сломанным без всякой причины
+# put a long random string into SESSION_PEPPER (openssl rand -hex 32),
+# and set COOKIE_SECURE=0 if you open the site over plain http://localhost
 docker compose up -d --build
+docker compose exec app python -m api.admin add your_login --admin
 ```
 
-Откройте `http://localhost:8080`. Заведите себе аккаунт:
+Open `http://localhost:8080`.
 
-```bash
-docker compose exec app python -m api.admin add ваш_логин --admin
-```
-
-### Без Docker
-
-```bash
-python -m venv .venv && . .venv/bin/activate
-pip install -r api/requirements.txt
-MODE=demo SESSION_PEPPER=любая-строка COOKIE_SECURE=0 uvicorn api.main:app --port 8080
-```
-
-Нужен Python 3.12 — на нём собран образ. `MODE=demo` — это и есть
-демонстрационный режим;
-`MODE=private` без подключённого источника ответит честной ошибкой 501.
+Without Docker, the full instructions for Linux and Windows are in
+**[INSTALL.md](INSTALL.md)**.
 
 ---
 
-## Что где лежит
+## What lies where
 
 ```
 api/
-  main.py          веб-приложение, 46 маршрутов
-  anime.py         работа с источниками видео — здесь подключается свой
-  anime_demo.py    демонстрационный источник: свободное видео
-  catalog.py       справочник: описания, жанры, франшизы
-  store.py         SQLite: аккаунты, список, отметки, сессии
-  security.py      пароли, сессии, CSRF, ограничения частоты
-  twofa.py         вход по коду из приложения (TOTP)
-  mail.py          письма о новых сериях
-  admin.py         управление аккаунтами из консоли
-web/               страницы, стили и скрипты — без сборки и фреймворков
-deploy/            конфиги nginx
-check1..8, tests   самописные наборы проверок
+  main.py          the web application: pages and API routes
+  anime.py         talking to video sources — the place where yours plugs in
+  anime_demo.py    the demonstration source: free Blender films
+  catalog.py       the catalogue: search, descriptions, genres, franchises
+  store.py         SQLite: accounts, library, watch marks, sessions
+  security.py      passwords, sessions, CSRF marks, rate limits
+  twofa.py, qr.py  sign-in by a code from an app, and its QR code
+  hls.py           the video relay for streams that need a Referer
+  subtitles.py     subtitles of any format → WebVTT
+  netguard.py      outgoing requests may only go to the public internet
+  helper.py        the AI helper
+  mail.py          e-mails about new episodes
+  errors.py        error messages in both languages
+  admin.py         managing accounts from the console
+web/               pages, styles and scripts — no build step, no frameworks
+deploy/            nginx configs
+tests.py, check*.py   the check suites
 ```
 
 ---
 
-## Проверки
+## Documents
 
-Наборов девять. Они не про покрытие в процентах, а про то, что однажды
-уже ломалось: подделка адреса посетителя, перебор паролей, кэш, который
-не читался, полоса просмотра, уехавшая за край.
-
-```bash
-python tests.py
-python check1_static.py     # и так далее до check8_demo.py
-```
-
-`check8_demo.py` отдельно следит за тем, что в демонстрационном режиме
-сайт действительно никуда за чужим видео не ходит и работает без
-библиотек, которых в этом репозитории нет.
-
-Проверки печатают по-русски.
+| File | What is in it |
+|---|---|
+| [INSTALL.md](INSTALL.md) | Installing on a server (Docker, nginx, Cloudflare Tunnel) and running locally |
+| [SECURITY.md](SECURITY.md) | How the site protects itself and how to report a problem |
+| [TESTING.md](TESTING.md) | How to run the check suites and what each one checks |
 
 ---
 
-## Стек
+## Stack
 
-Python 3.12, FastAPI, SQLite (WAL), обычный JavaScript, hls.js, Docker
+Python 3.12, FastAPI, SQLite (WAL), plain JavaScript (ES5), hls.js, Docker
 Compose, nginx, Cloudflare Tunnel.
 
-Зависимостей пять: FastAPI, uvicorn, httpx, pillow, qrcode. Двухфакторный
-вход, QR-коды и разбор ответов справочников написаны здесь же — за
-тридцать строк арифметики незачем тянуть библиотеку, которую потом надо
-обновлять.
+Runtime dependencies: FastAPI, uvicorn, httpx, Pillow (exact versions in
+`api/requirements.txt` and `api/constraints.txt`). Two-factor sign-in, QR
+codes and subtitle conversion are written here — there is no reason to
+pull in a library for a few dozen lines that would then need updating.
+
+Code comments and the output of the check suites are in Russian.
 
 ---
 
-## Лицензия
+## Licence
 
-Код — [MIT](LICENSE): берите, меняйте, используйте, сохраняя упоминание
-автора.
+The code is [MIT](LICENSE): take it, change it, use it, keeping the
+author's name with it.
 
-Две вещи в репозитории не мои и живут по своим правилам:
-`web/hls.min.js` — это [hls.js](https://github.com/video-dev/hls.js) под
-Apache 2.0, а ролики, которые играет демонстрационный режим, — фильмы
-Blender Foundation под Creative Commons BY 3.0.
+Two things in the repository are not mine and follow their own licences:
+`web/hls.min.js` is [hls.js](https://github.com/video-dev/hls.js) under
+Apache 2.0; the clips the demonstration mode plays are Blender Foundation
+films under Creative Commons BY 3.0. The Nunito font in `web/fonts/` is
+under the SIL Open Font License.

@@ -72,72 +72,134 @@
 
 /* ================== единые токены оформления ================== */
 :root{
-  --mint:#84CBB6; --sky:#8DB5DF; --lilac:#AEA1D8; --sand:#D9A97F;
+  /* --acc0 — акцент, который выбрал человек; --mint — акцент, которым
+     красится сайт. Обычно это одно и то же, а в праздник --mint чуть
+     подмешивает цвет праздника (см. раздел ПРАЗДНИКИ): так снег, тыквы
+     и кнопки оказываются одной гаммы, а выбор человека не пропадает. */
+  --acc0:#84CBB6; --mint:var(--acc0); --sky:#8DB5DF; --lilac:#AEA1D8; --sand:#D9A97F;
   --warn:#E3A76B; --alert:#DE8A8A;
   --r-lg:22px; --r-md:16px; --r-sm:11px;
   --card-min:178px;
-  --shadow-soft:0 14px 34px -18px rgba(0,0,0,.72);
-  --shadow-lift:0 22px 46px -20px rgba(0,0,0,.8);
-  /* Тень под кнопкой при наведении. Раньше здесь светилось мятным —
-     кнопка будто подсвечивалась изнутри, и на тёмном фоне это било
-     по глазам. Обычная мягкая тень отвечает на тот же вопрос
-     («мышь здесь»), но не кричит. */
-  --shadow-hover:0 10px 22px -12px rgba(0,0,0,.85);
-  --shadow-press:0 3px 10px -6px rgba(0,0,0,.9);
+  /* Тени — печатные: сдвиг без размытия, цвета --print (его задаёт
+     тема, см. ниже). Размытые тени на тёмном фоне почти не видны, а
+     на «Бумаге» ложились грязным пятном; жёсткий сдвиг читается везде
+     одинаково и держит один стиль с кнопками. */
+  --shadow-soft:4px 4px 0 var(--print);
+  --shadow-lift:var(--off-lg) var(--off-lg) 0 var(--print);
+  --shadow-hover:calc(var(--off) + 1px) calc(var(--off) + 1px) 0 var(--print);
+  --shadow-press:1px 1px 0 var(--print);
   /* Одна кривая на все движения: так они выглядят как одна система,
      а не как десять разных анимаций, написанных в разное время. */
   --ease:cubic-bezier(.2,.7,.3,1);
-  --fast:.16s; --mid:.24s; --slow:.4s;
+  /* Стиль «манга»: движения короткие и резкие, как щелчок, а не
+     плавное всплытие. Было .16 / .24 / .4 — под мышкой это читалось
+     как «кисель». */
+  --fast:.09s; --mid:.14s; --slow:.22s;
+  /* Пружинка для «выскочило»: лёгкий перелёт и сразу на место. */
+  --pop:cubic-bezier(.2,1.5,.45,1);
+
+  /* ---------- тушь и печать ----------
+     Кнопки и окна нарисованы как в манге: плотная заливка, обводка
+     тушью и жёсткая тень со сдвигом, без размытия — будто оттиск
+     сдвинулся при печати. Цвета даёт каждая тема (ниже, после тем):
+     --ink      — линия обводки, хорошо видна на фоне (контраст > 7);
+     --ink-soft — тонкая линия для полей и спокойных кнопок (> 3);
+     --print    — цвет сдвинутой тени;
+     --on-acc   — текст на заливке акцентом (акценты все светлые). */
+  --ink:#C3C0CF; --ink-soft:#80879B;
+  --print:color-mix(in oklab,var(--mint) 42%,#07080B);
+  --on-acc:#14161C;
+  --mint-ink:var(--mint); /* акцент как цвет текста: на «Бумаге» темнее */
+  --sky-ink:var(--sky); --lilac-ink:var(--lilac); --sand-ink:var(--sand);
+  --off:3px;      /* сдвиг тени у кнопок */
+  --off-lg:6px;   /* у окон и карточек */
+  --bw:2px;       /* толщина обводки */
 }
-html[data-depth="deep"]{--bg:#191C24;--surface:#22262F;--surface-2:#2A2F3A;--line:#333846;
-  --text:#E5E3EA;--dim:#959AA9;--dimmer:#6F7484}
-html[data-depth="mid"]{--bg:#2C313C;--surface:#363C49;--surface-2:#414857;--line:#4B5262;
-  --text:#EBE9F0;--dim:#A8ADBB;--dimmer:#848A99}
+/* Цвета до того, как скрипт поставил тему (первые миллисекунды загрузки):
+   те же, что у «Как сейчас». */
+:root{--bg:#2C313C;--surface:#363C49;--surface-2:#414857;--line:#4B5262;
+  --text:#EBE9F0;--dim:#B3B8C4;--dimmer:#A3A7B2}
 /* ================== ТЕМЫ ==================
-   Каждая тема — свой набор цветов, и у каждой два варианта под
-   переключатель «Фон: глубже / мягче». Идут после html[data-depth],
-   потому что вес правил одинаковый и решает порядок в файле.
+   Каждая тема — свой набор цветов.
+
+   Раньше у каждой было два варианта под переключатель «Фон: глубже /
+   мягче». Переключатель убран: всегда светлее («мягче») — тёмный вариант
+   сливал кнопки и рамки с фоном. Атрибут data-depth на <html> остался
+   только ради старых сохранённых настроек и больше ничего не меняет.
 
    «Как сейчас» повторяет исходные значения намеренно: так все четыре
    темы устроены одинаково, и ни одна не оказывается особенной. */
 
-/* ---------- Как сейчас ---------- */
-html[data-theme="kak-seychas"]{--bg:#191C24;--surface:#22262F;--surface-2:#2A2F3A;--line:#333846;
-  --text:#E5E3EA;--dim:#959AA9;--dimmer:#6F7484}
-html[data-theme="kak-seychas"][data-depth="mid"]{--bg:#2C313C;--surface:#363C49;--surface-2:#414857;
-  --line:#4B5262;--text:#EBE9F0;--dim:#A8ADBB;--dimmer:#848A99}
+/* ---------- Как сейчас: ровный графит ----------
+   Приглушённый текст (--dim, --dimmer) во всех темах подобран так, чтобы
+   читаться на фоне страницы и карточек с контрастом не ниже 4.5:1 — это
+   порог WCAG AA для мелкого текста. Раньше --dimmer давал 3.2–3.7:1:
+   подписи под числами в итогах года, «Дальше», номера серий, месяцы
+   календаря читались с трудом, особенно на телефоне на солнце. */
+html[data-theme="kak-seychas"]{--bg:#2C313C;--surface:#363C49;--surface-2:#414857;
+  --line:#4B5262;--text:#EBE9F0;--dim:#B3B8C4;--dimmer:#A3A7B2}
 
-/* ---------- Ночь: холоднее и глубже ---------- */
-html[data-theme="noch"]{--bg:#0E1119;--surface:#161A24;--surface-2:#1D2230;--line:#2A3145;
-  --text:#E2E7F2;--dim:#8C96AC;--dimmer:#626C84}
-html[data-theme="noch"][data-depth="mid"]{--bg:#191E2B;--surface:#222839;--surface-2:#2B3245;
-  --line:#38405A;--text:#E8ECF6;--dim:#99A2B8;--dimmer:#6F7890}
+/* ---------- Ночь: холоднее, синяя ---------- */
+html[data-theme="noch"]{--bg:#191E2B;--surface:#222839;--surface-2:#2B3245;
+  --line:#38405A;--text:#E8ECF6;--dim:#99A2B8;--dimmer:#8990A4}
 
 /* ---------- Уголь: почти чёрный, для тёмных комнат и OLED ---------- */
-html[data-theme="ugol"]{--bg:#0A0B0E;--surface:#131519;--surface-2:#1A1D23;--line:#262931;
-  --text:#E6E4E9;--dim:#8C8F97;--dimmer:#61646C}
-html[data-theme="ugol"][data-depth="mid"]{--bg:#15171C;--surface:#1E2128;--surface-2:#262A32;
-  --line:#343841;--text:#EAE8ED;--dim:#999CA4;--dimmer:#6E717A}
+html[data-theme="ugol"]{--bg:#15171C;--surface:#1E2128;--surface-2:#262A32;
+  --line:#343841;--text:#EAE8ED;--dim:#999CA4;--dimmer:#878991}
 
 /* ---------- Бумага: светлая ----------
-   Здесь же переопределены тени: чёрная тень в 85% прозрачности,
-   уместная на тёмном фоне, на светлом выглядит грязным пятном. */
-html[data-theme="bumaga"]{--bg:#EFEBE2;--surface:#FFFFFF;--surface-2:#F6F2EA;--line:#DCD5C8;
-  --text:#22201C;--dim:#6B6459;--dimmer:#857E70;
-  --shadow-soft:0 12px 28px -18px rgba(60,50,35,.42);
-  --shadow-lift:0 18px 40px -20px rgba(60,50,35,.5);
-  --shadow-hover:0 8px 18px -10px rgba(60,50,35,.5);
-  --shadow-press:0 3px 8px -5px rgba(60,50,35,.55)}
-html[data-theme="bumaga"][data-depth="mid"]{--bg:#F8F5EF;--surface:#FFFFFF;--surface-2:#FBF8F3;
-  --line:#E7E1D6;--text:#2A2823;--dim:#665F53;--dimmer:#8C8577}
+   Тени здесь больше не переопределяются: они печатные (сдвиг тушью,
+   см. --print), и одинаково хороши на тёмном и на светлом. */
+html[data-theme="bumaga"]{--bg:#F8F5EF;--surface:#FFFFFF;--surface-2:#FBF8F3;
+  --line:#E7E1D6;--text:#2A2823;--dim:#665F53;--dimmer:#746E63}
 
 /* Заглушка обложки была нарисована тремя тёмно-синими цветами прямо в
    правиле — на светлой теме получалась чёрная дыра посреди страницы.
    Теперь она из тех же переменных, что и всё остальное. */
-html[data-accent="mint"] {--mint:#84CBB6}
-html[data-accent="sky"]  {--mint:#8DB5DF}
-html[data-accent="lilac"]{--mint:#AEA1D8}
-html[data-accent="sand"] {--mint:#D9A97F}
+html[data-accent="mint"] {--acc0:#84CBB6}
+html[data-accent="sky"]  {--acc0:#8DB5DF}
+html[data-accent="lilac"]{--acc0:#AEA1D8}
+html[data-accent="sand"] {--acc0:#D9A97F}
+
+/* ---------- тушь и печать для каждой темы ----------
+   Тёмные темы: светлая линия на тёмной бумаге, а тень — глубокий
+   оттенок акцента (чёрная тень на почти чёрном фоне не видна вовсе).
+   «Бумага» — классика: чёрная тушь на светлой бумаге и чёрный оттиск. */
+html[data-theme="kak-seychas"]{--ink:#C3C0CF;--ink-soft:#80879B;
+  --print:color-mix(in oklab,var(--mint) 42%,#07080B)}
+html[data-theme="noch"]{--ink:#B4C3DD;--ink-soft:#6B79A0;
+  --print:color-mix(in oklab,var(--mint) 40%,#02040A)}
+html[data-theme="ugol"]{--ink:#CCC8D0;--ink-soft:#6E727C;
+  --print:color-mix(in oklab,var(--mint) 38%,#000000)}
+html[data-theme="bumaga"]{--ink:#1E1B17;--ink-soft:#8A7F6B;--print:#1E1B17;
+  --mint-ink:color-mix(in oklab,var(--mint) 52%,#1E1B17);
+  --sky-ink:color-mix(in oklab,var(--sky) 52%,#1E1B17);
+  --lilac-ink:color-mix(in oklab,var(--lilac) 52%,#1E1B17);
+  --sand-ink:color-mix(in oklab,var(--sand) 52%,#1E1B17)}
+
+/* «Бумага»: акцент как цвет ТЕКСТА — тушью потемнее.
+   Пастельные мятный, голубой, лавандовый и песочный хороши как заливка,
+   но буквами на белом читаются плохо: 1.7–2.4:1 при норме 4.5:1 (у
+   крупных цифр итогов — 3:1). Ссылки в подвале, «Очистить», «Начни
+   отсюда», «без спойлеров», номера серий, цифры итогов года были
+   бледными до невидимости. Здесь — только эти надписи и только на
+   светлой теме: заливки, рамки и всё, что лежит на тёмных плашках
+   (подписи на обложках, плеер), не меняются. В тёмных темах --*-ink
+   равны самим акцентам, так что там ничего не меняется вовсе. */
+html[data-theme="bumaga"] footer a,html[data-theme="bumaga"] .sec a,
+html[data-theme="bumaga"] .manual summary,html[data-theme="bumaga"] .b.sky .n{color:var(--sky-ink)}
+html[data-theme="bumaga"] .hero .k,html[data-theme="bumaga"] .hero h1 em,
+html[data-theme="bumaga"] .b.mint .n,html[data-theme="bumaga"] .m.best .vv,
+html[data-theme="bumaga"] .eprow.seen .n,html[data-theme="bumaga"] .eprow.now .n,
+html[data-theme="bumaga"] .nospoil,html[data-theme="bumaga"] .part .first,
+html[data-theme="bumaga"] .part.now .go,html[data-theme="bumaga"] .part:hover .go,
+html[data-theme="bumaga"] .nrow.fresh .when,html[data-theme="bumaga"] .made .r .who-me,
+html[data-theme="bumaga"] .cprog.full .cnum,html[data-theme="bumaga"] .saved{color:var(--mint-ink)}
+html[data-theme="bumaga"] .b.lilac .n,html[data-theme="bumaga"] .made .r .who-ai,
+html[data-theme="bumaga"] .sheet .chip{color:var(--lilac-ink)}
+html[data-theme="bumaga"] .b.sand .n,html[data-theme="bumaga"] .rec .num,
+html[data-theme="bumaga"] .newscount.low,html[data-theme="bumaga"] .nrow.soon .when,
+html[data-theme="bumaga"] .lockbar b{color:var(--sand-ink)}
 
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -291,7 +353,7 @@ header{
   background:var(--surface);color:var(--dim);cursor:pointer;display:grid;place-items:center;transition:.2s;
 }
 .iconbtn:hover{color:var(--text);border-color:var(--dimmer)}
-.iconbtn.accent{color:var(--mint);border-color:color-mix(in srgb,var(--mint) 40%,var(--line))}
+.iconbtn.accent{color:var(--mint-ink);border-color:color-mix(in srgb,var(--mint) 40%,var(--line))}
 .who{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
   border-radius:999px;padding:4px 6px 4px 12px}
 .who span{font-size:13px;color:var(--dim);white-space:nowrap}
@@ -411,6 +473,11 @@ main{max-width:1160px;margin:0 auto;padding:0 24px 90px}
    растут вниз, а верх у всех карточек в ряду совпадает. */
 .card h3{font-family:Nunito;font-weight:700;font-size:15px;line-height:1.35;
   margin:14px 2px 0;overflow-wrap:anywhere}
+/* Строка «год · вид» под названием у карточек поиска. Правило пропало
+   при сведении оформления (e80ced2) вместе со старыми плашками, и строка
+   стала шрифтом страницы — 16px и ярче названия над ней. У карточек
+   своего списка своё правило (.boxcard .meta, ниже) — их это не касается. */
+.card:not(.boxcard) .meta{margin:3px 2px 0;font-size:13px;color:var(--dim)}
 
 /* Кнопка «убрать из списка». Единственный свободный угол обложки —
    правый нижний: справа сверху счётчик серий, слева сверху «продолжить»,
@@ -451,19 +518,68 @@ main{max-width:1160px;margin:0 auto;padding:0 24px 90px}
 .beta{max-width:62ch;line-height:1.45}
 .footlinks{display:flex;gap:18px;align-items:center;flex:none}
 
-/* ---------- страница правил ---------- */
-/* Страница короткая, и без этого футер повисал посреди экрана, а под
-   ним оставалась пустота. Растягиваем на всю высоту окна. */
-[data-page="pravila"] body{min-height:100vh;display:flex;flex-direction:column}
-[data-page="pravila"] main{flex:1}
-.pravila{max-width:760px;margin:0 auto;width:100%;padding:36px 24px 60px}
+/* ---------- футер всегда внизу ----------
+   Раньше так было сделано только на странице правил. На остальных при
+   коротком содержимом (пустой список, пара найденных, итоги без
+   записей) футер висел посреди высокого экрана, а под ним оставалась
+   пустота — выглядело так, будто он «уехал наверх».
+
+   Устроено одинаково на всех четырёх страницах: обёртка страницы —
+   колонка не ниже окна, середина забирает всё свободное место, футер
+   остаётся последним. Длинная страница просто течёт как обычно: футер
+   за содержимым, никаких наложений.
+
+   На главной колонка — #app, а не body: в body лежат ещё экран входа,
+   окна и кнопка «Связаться», и все они position:fixed, — им колонка
+   ни к чему. Пока #app спрятан (экран входа), правило не действует.
+
+   width:100% у середины обязателен: у неё max-width и margin:0 auto, а
+   в колонке такой блок без явной ширины сжимается по содержимому, и
+   пустой список становился бы узким столбиком.
+
+   100dvh — высота окна на телефоне без учёта выезжающей адресной
+   строки; где dvh не знают, остаётся 100vh строкой выше. */
+html[data-page="index"] #app:not([hidden]),
+html[data-page="stats"] body,
+html[data-page="watch"] body,
+html[data-page="pravila"] body{
+  display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+html[data-page="index"] #app > main,
+html[data-page="stats"] body > .wrap,
+html[data-page="watch"] body > .page,
+html[data-page="pravila"] body > main{flex:1 0 auto;width:100%}
+/* Подвал всегда над праздничным задником (.prazdnik, z-index:-1) и со
+   своим фоном — на всех страницах, а не только на главной. */
+html[data-page] footer{flex:none;position:relative;z-index:1;background:var(--bg)}
+
+/* ---------- страница правил ----------
+   Текст лежит на своём листе (.pravila-list) с фоном поверхности, а не
+   прямо на фоне страницы: под правилами бывает праздничный задник —
+   небо, луна, деревья, — и текст на нём сливался с картинкой. Лист —
+   как остальные карточки сайта: обводка тушью и жёсткая тень. */
+.pravila{max-width:760px;margin:0 auto;width:100%;padding:32px 24px 60px}
+.pravila-list{background:var(--surface);border:var(--bw,2px) solid var(--ink-soft);
+  border-radius:var(--r-lg);box-shadow:4px 4px 0 var(--print);padding:30px 34px 22px;
+  position:relative;z-index:1}
+/* Страховка: браузер, который ещё держит в кэше старую разметку правил
+   (без .pravila-list), получает лист на самом <main> — текст и тогда не
+   лежит прямо на картинке. */
+.pravila:not(:has(.pravila-list)){background:var(--surface);
+  border:var(--bw,2px) solid var(--ink-soft);border-radius:var(--r-lg);
+  box-shadow:4px 4px 0 var(--print);margin:24px auto;padding:30px 34px 22px;
+  max-width:760px;position:relative;z-index:1}
+@media (max-width:620px){
+  .pravila{padding:18px 12px 40px}
+  .pravila-list{padding:22px 18px 12px;box-shadow:3px 3px 0 var(--print)}
+}
 .pravila h1{font-size:clamp(26px,4vw,34px);margin:0 0 20px}
 .pravila-text{font-size:15.5px;line-height:1.65;color:var(--text)}
-.pravila-text h2{font-size:19px;margin:30px 0 8px}
+.pravila-text h2{font-size:19px;margin:26px 0 8px}
+.pravila-text h2:first-child{margin-top:0}
 .pravila-text p{margin:0 0 14px}
 .pravila-text ol,.pravila-text ul{margin:0 0 14px;padding-left:22px}
 .pravila-text li{margin-bottom:7px}
-.pravila .lead{color:var(--dim);font-size:15px;margin:0 0 26px;max-width:60ch}
+.pravila .lead{color:var(--dim);font-size:15px;margin:0 0 22px;max-width:60ch}
 .pravila-text .pusto{color:var(--dim)}
 /* Главный абзац раздела об ответственности: он и есть причина, по
    которой страницу открывают, — выделяем рамкой, а не капслоком. */
@@ -552,6 +668,11 @@ footer a:hover{text-decoration:underline}
 }
 .empty.show{display:block}
 .empty b{display:block;font-family:Nunito;font-weight:700;font-size:16px;color:var(--text);margin-bottom:5px}
+/* Список не загрузился: рамка цвета предупреждения, чтобы это не
+   выглядело как обычное «пусто». */
+.empty.bad{border-color:color-mix(in srgb,var(--alert) 45%,var(--line))}
+.empty #empty-retry{display:inline-block;margin-top:14px}
+.empty #empty-retry[hidden]{display:none}
 .card.hidden{display:none}
 
 /* ================= РУЛЕТКА ================= */
@@ -627,7 +748,7 @@ footer a:hover{text-decoration:underline}
 .who:hover{border-color:var(--dimmer)}
 .ava{
   width:26px;height:26px;border-radius:50%;flex:none;display:grid;place-items:center;
-  font-family:Nunito;font-weight:700;font-size:12px;color:#171A21;
+  font-family:Nunito;font-weight:800;font-size:12px;line-height:1;color:#14161C;
   background-size:cover;background-position:center;overflow:hidden;
 }
 /* роль под именем */
@@ -686,6 +807,11 @@ select.inp{cursor:pointer}
 .sc{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;transition:.18s}
 .sc:hover{transform:scale(1.09)}
 .sc.on{border-color:var(--text);box-shadow:0 0 0 3px color-mix(in srgb,var(--text) 14%,transparent)}
+/* Цвет кружка, когда стоит фото, ни на что не влияет — выбор выключен
+   и подписан «Цвет не нужен — стоит фото» (paintAvaLock в index.js). */
+.sc:disabled{cursor:not-allowed}
+.sc:disabled:hover{transform:none}
+.swatches.off .sc{opacity:.35}
 
 /* выбор логотипа */
 /* ---------- карточки тем ---------- */
@@ -703,7 +829,6 @@ select.inp{cursor:pointer}
   border:1px solid color-mix(in srgb,#000 22%,transparent);overflow:hidden;
 }
 .theme .thbar{position:absolute;left:7px;right:7px;top:9px;height:15px;border-radius:4px}
-.theme .thdot{position:absolute;left:7px;bottom:8px;width:11px;height:11px;border-radius:50%}
 .theme .thnm{font-family:Nunito;font-weight:600;font-size:12.5px;color:var(--dim);text-align:center}
 .theme:hover{border-color:var(--dimmer);transform:translateY(-2px);box-shadow:var(--shadow-hover)}
 .theme:active{transform:translateY(0) scale(.97);box-shadow:var(--shadow-press)}
@@ -740,6 +865,11 @@ select.inp{cursor:pointer}
 .adm .acc .ava{width:22px;height:22px;font-size:10px}
 .adm .acc .sp{flex:1}
 .adm .acc em{font-style:normal;font-size:12px;color:var(--dim)}
+/* На телефоне строка аккаунта не помещалась: «Удалить» и «владелец»
+   уезжали за край окна, и нажать «Удалить» было нельзя. Кнопки
+   переносятся на следующую строку, а логин не рвётся посередине. */
+.adm .acc{flex-wrap:wrap;row-gap:7px}
+.adm .acc em{white-space:nowrap}
 .small{
   border:1px solid var(--line);background:var(--surface);color:var(--dim);cursor:pointer;
   border-radius:999px;padding:7px 14px;font-family:Nunito;font-weight:600;font-size:13px;transition:.2s;
@@ -824,10 +954,17 @@ input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;bac
 .nrow.soon .when{color:var(--sand)}
 .drop .df{padding:10px 15px;font-size:12px;color:var(--dimmer);border-top:1px solid var(--line)}
 
-/* ================= УВЕДОМЛЕНИЕ ПРИ ВХОДЕ ================= */
+/* ================= УВЕДОМЛЕНИЕ ПРИ ВХОДЕ =================
+   Под окнами (у них 150), а не над ними. Раньше было 170: совет висел
+   поверх кабинета ровно на месте кнопки «Сохранить» и поверх «Понятно»
+   в окне «Про сайт» — нажатие попадало в совет, и кнопка выглядела
+   сломанной. Над шапкой и кнопкой связи он по-прежнему виден. */
 .toast{
-  position:fixed;left:50%;bottom:24px;transform:translate(-50%,26px);z-index:170;
-  max-width:min(440px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,26px);z-index:140;
+  /* width, а не max-width. При left:50% блоку «по содержимому» достаётся
+     только правая половина экрана: на телефоне совет вытягивался в
+     узкий столбик посреди экрана и закрывал карточки и меню. */
+  width:min(440px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r-md);padding:13px 16px;box-shadow:var(--shadow-lift);
   display:flex;gap:11px;align-items:flex-start;opacity:0;pointer-events:none;transition:.35s;
 }
@@ -837,7 +974,10 @@ input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;bac
   background:color-mix(in srgb,var(--mint) 20%,var(--surface-2));color:var(--mint)}
 .toast .ic svg{display:block}
 /* Кнопка «Включить» — на своей строке, чтобы не жалась к тексту. */
-.toast #toast-go{margin-top:11px}
+/* Отдельной строкой под текстом. Строчная кнопка вставала в хвост
+   последней строки, а её отступ сверху раздувал эту строку: перед
+   «Включить» зияла пустая полоса посреди абзаца. */
+.toast #toast-go{display:block;margin-top:11px}
 .toast .tx{font-size:13.5px;color:var(--dim);line-height:1.42}
 .toast .tx b{color:var(--text);font-family:Nunito;display:block;margin-bottom:2px;font-size:14px}
 .toast .x{border:none;background:none;color:var(--dimmer);cursor:pointer;font-size:17px;line-height:1;padding:0 2px}
@@ -894,16 +1034,40 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
    перестаёт слать pointermove. Полоса выше самой дорожки (5px пальцем
    не поймать), поэтому у неё есть невидимый запас сверху и снизу. */
 .track{position:relative;height:5px;background:color-mix(in srgb,#fff 12%,transparent);
-  cursor:pointer;touch-action:none}
+  cursor:pointer;touch-action:none;
+  /* Дорожка идёт от края до края плеера, без отступов. Раньше по бокам
+     стояло по 14px пустоты, чтобы кружок на 0% и 100% не обрезался о
+     скруглённый край, — и эти полоски читались как тёмные поля, дорожка
+     выглядела сжатой.
+
+     Теперь кружку не нужно вылезать за край: его центр ходит не от 0 до
+     ширины, а от --kr до «ширина − --kr», где --kr — радиус самого
+     крупного кружка (при перетаскивании он в 1,6 раза больше). Так он
+     целый в любой точке, а полоса под ним всё равно от края до края.
+     Тот же пересчёт делает и код, когда переводит нажатие во время, —
+     поэтому видео попадает ровно туда, где стоит кружок.
+
+     Боковой отступ в 14px здесь остаётся только ради полос на странице
+     статистики (.g .track): они берут это же правило и без отступа
+     прилипли бы к подписи. У плеера его снимает .dock .track ниже. */
+  --kr:10px;margin:0 14px}
+.dock .track{margin:0}
+/* Запас для пальца — сверху и снизу. По бокам он больше не нужен:
+   дорожка и так доходит до самого края. */
 .track::before{content:'';position:absolute;left:0;right:0;top:-9px;bottom:-9px}
 /* Пока тянут — дорожка толще и ползунок крупнее: видно, что держишь
-   именно её, и куда попадёшь. */
-.track.dragging{height:7px;margin-top:-1px}
+   именно её, и куда попадёшь. Толще она растёт в обе стороны поровну:
+   раньше рос только верх, и вся панель под ней сдвигалась на пиксель
+   на каждое нажатие. */
+.track.dragging{height:7px;margin-top:-1px;margin-bottom:-1px}
 .track.dragging .knob{transform:scale(1.6)}
-.track:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
-.track .buf{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,#fff 14%,transparent);width:74%}
-.track .pos{position:absolute;left:0;top:0;bottom:0;background:var(--mint);width:38%}
-.track .knob{position:absolute;left:38%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;
+.track:focus-visible{outline:2px solid var(--mint);outline-offset:-2px}
+/* Ширина скачанного и пройденного — только из кода. Здесь стояли 74% и
+   38% из макета, и до запуска дорожка показывала прогресс, которого нет. */
+.track .buf{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,#fff 14%,transparent);width:0}
+.track .pos{position:absolute;left:0;top:0;bottom:0;background:var(--mint);width:0}
+/* left задаёт код — это центр кружка (см. --kr выше). */
+.track .knob{position:absolute;left:var(--kr);top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;
   border-radius:50%;background:var(--mint);box-shadow:0 3px 10px -3px #000;transition:transform .18s}
 .track:hover .knob{transform:scale(1.25)}
 /* метки: опенинг и превью следующей серии */
@@ -1011,8 +1175,20 @@ header{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 9
 
 /* следующая серия */
 .next{display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit}
-.next .nt{width:74px;height:44px;border-radius:9px;overflow:hidden;position:relative;flex:none}
+/* Картинка следующей серии. Раньше это была пустая тёмная коробка:
+   обложку в неё никто не ставил. Теперь там обложка тайтла (её ставит
+   watch.js через A.bg), а под ней — цветная подложка с номером серии.
+   Обложка загрузилась — номер уходит в маленькую метку в углу; не
+   загрузилась — крупный номер и есть картинка. */
+.next .nt{width:74px;height:44px;border-radius:9px;overflow:hidden;position:relative;flex:none;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--mint) 34%,var(--surface-2)),var(--surface-2) 78%);
+  border:1px solid var(--line)}
 .next .nt i{position:absolute;inset:0}
+.next .nt em{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;
+  font-family:Nunito;font-weight:800;font-size:19px;color:var(--text);font-variant-numeric:tabular-nums}
+.next .nt.art em{inset:auto 4px 4px auto;padding:1px 6px;border-radius:6px;font-size:11px;line-height:15px;
+  background:rgba(8,10,14,.74);color:#F2F0F6}
+.next .nt em:empty{display:none}
 .next .nb b{display:block;font-family:Nunito;font-weight:700;font-size:14px}
 .next .nb span{font-size:12.5px;color:var(--dim)}
 .autonext{display:flex;align-items:center;gap:9px;margin-top:13px;font-size:12.5px;color:var(--dim)}
@@ -1078,6 +1254,13 @@ body > .wrap{max-width:960px;margin:0 auto;padding:0 24px 90px}
 .hero .glow{position:absolute;left:50%;top:0;width:520px;height:300px;margin-left:-260px;
   border-radius:50%;filter:blur(90px);opacity:.24;pointer-events:none;
   background:radial-gradient(circle,var(--mint),transparent 70%)}
+/* На телефоне свечение в 520px шире экрана, и страница итогов ездила
+   вбок: появлялась прокрутка по горизонтали и пустая полоса справа.
+   Размытие (filter) прокрутку не создаёт — создаёт сама коробка, поэтому
+   на узком экране коробка не шире заглавия, а свечение то же. */
+@media (max-width:600px){
+  .hero .glow{width:100%;margin-left:-50%}
+}
 .hero .k{position:relative;font-family:Nunito;font-weight:700;font-size:12px;letter-spacing:.24em;
   text-transform:uppercase;color:var(--mint);margin-bottom:12px}
 .hero h1{position:relative;margin:0 0 10px;font-size:clamp(38px,8vw,72px);font-weight:700;line-height:.98}
@@ -1151,8 +1334,14 @@ body > .wrap{max-width:960px;margin:0 auto;padding:0 24px 90px}
 
 [data-page="stats"] footer{border-top:1px solid var(--line);margin-top:44px;
   background:var(--bg)}
-footer .in{max-width:960px;margin:0 auto;padding:20px 24px;font-size:13.5px;color:var(--dim);
-  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+/* Только для итогов: без [data-page] это правило перебивало общее
+   footer .in выше, и на главной футер был уже списка над ним. */
+[data-page="stats"] footer .in{max-width:960px;margin:0 auto;padding:20px 24px;font-size:13.5px;
+  color:var(--dim);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* Футер страницы просмотра — как у правил: короткая строка внизу. */
+[data-page="watch"] footer{border-top:1px solid var(--line);background:var(--bg)}
+[data-page="watch"] footer .in{max-width:1240px}
 
 /* ==================== НАСТОЯЩЕЕ ВИДЕО ==================== */
 #video{
@@ -1164,6 +1353,9 @@ footer .in{max-width:960px;margin:0 auto;padding:20px 24px;font-size:13.5px;colo
 .loadwrap{
   position:absolute;inset:0;z-index:6;display:grid;place-items:center;
   background:rgba(8,10,14,.45);
+  /* Значок загрузки не перехватывает нажатия: пока видео подгружается,
+     по картинке всё так же ставят паузу и разворачивают её. */
+  pointer-events:none;
 }
 .loadwrap .spin{
   width:42px;height:42px;border-radius:50%;
@@ -1307,6 +1499,9 @@ header{backdrop-filter:none;background:var(--bg)}
   border-radius:999px;padding:4px 11px;font-size:12px;color:var(--dim)}
 .roul .pickres .about{margin-top:12px;font-size:13.5px;line-height:1.55;color:var(--dim);
   text-align:left;max-height:168px;overflow:auto}
+/* Подпись «Описание на английском» над абзацем из запасного справочника */
+.aboutlang{display:block;margin-bottom:4px;font-family:Nunito;font-weight:700;
+  font-size:11.5px;letter-spacing:.02em;color:var(--dimmer)}
 
 /* ================= ВХОД ПО КОДУ ================= */
 .check{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px;
@@ -1345,6 +1540,12 @@ header{backdrop-filter:none;background:var(--bg)}
 .dbox h3{margin:0 0 8px;font-size:19px;font-weight:800;line-height:1.3}
 .dbox p{margin:0 0 18px;font-size:14px;color:var(--dim);line-height:1.55}
 .dbox .inp{margin-bottom:18px}
+/* Список того, что затронет действие. Ограничен по высоте: у коробки
+   бывает и двадцать частей, и окно не должно уезжать за край экрана. */
+.dbox .dlist{margin:-8px 0 18px;padding:10px 12px 10px 28px;max-height:200px;overflow:auto;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);
+  font-size:13.5px;line-height:1.5;color:var(--text)}
+.dbox .dlist li + li{margin-top:3px}
 .dbox .drow{display:flex;flex-direction:column;gap:9px}
 .dbox .wide{width:100%}
 .dbox .wide.danger{background:var(--sand);color:#20180E}
@@ -1358,9 +1559,12 @@ header{backdrop-filter:none;background:var(--bg)}
 .frart{
   width:74px;height:100px;flex:none;border-radius:var(--r-sm);background:var(--surface-2);
   background-size:cover;background-position:center;display:flex;align-items:center;
-  justify-content:center;overflow:hidden;
+  justify-content:center;overflow:hidden;position:relative;
 }
 .frart .noart{font-family:Nunito;font-weight:700;font-size:26px;color:var(--dimmer)}
+/* Картинка шапки — отдельным слоем поверх буквы (см. frArt в index.js):
+   не нашлась обложка — видна буква, нашлась — закрывает её. */
+.frart .frfill{position:absolute;inset:0;background-size:cover;background-position:center}
 .frtx{min-width:0;padding-top:2px}
 .frtx h3{margin:0;font-size:20px;font-weight:700;line-height:1.2}
 .frsub{color:var(--dimmer);font-size:13px;margin-top:3px}
@@ -1400,11 +1604,69 @@ header{backdrop-filter:none;background:var(--bg)}
 .part .go{flex:none;color:var(--dimmer);font-size:20px;line-height:1;width:14px;text-align:center}
 .part:hover .go{color:var(--mint)}
 
+/* Порядок просмотра в окне частей. Всё ниже — только для этого окна
+   (.frsheet): у страницы просмотра свой список частей со своим видом.
+
+   Основная история — с номером шага в кружке. Первый шаг выделен рамкой
+   и пометкой «Начни отсюда». Дополнения — со сдвигом под своим шагом,
+   без фона и мельче: их видно, но глаз сначала цепляется за шаги. */
+.frsheet .part .stepno{
+  flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:Nunito;font-weight:800;font-size:12.5px;line-height:1;
+  background:var(--surface);border:1px solid var(--line);color:var(--text);
+}
+.frsheet .part.start{
+  border-color:color-mix(in srgb,var(--mint) 45%,var(--line));
+  background:color-mix(in srgb,var(--mint) 9%,var(--surface-2));
+}
+.frsheet .part.start .stepno{background:var(--mint);border-color:var(--mint);color:#16201D}
+.frsheet .part.xtra,.frsheet .part.oth{
+  background:transparent;padding:6px 10px;gap:10px;margin-bottom:6px;
+}
+.frsheet .part.xtra{margin-left:38px;width:calc(100% - 38px)}
+.frsheet .part.xtra .th,.frsheet .part.oth .th{width:30px;height:42px;border-radius:6px}
+.frsheet .part.xtra .nm,.frsheet .part.oth .nm{font-size:13.5px;font-weight:600}
+.frsheet .part.xtra .m,.frsheet .part.oth .m{font-size:12px}
+/* Подпись «побочная история», «пересказ», «другая экранизация»: кем
+   часть приходится основной истории. */
+.frsheet .part .plab{
+  display:inline-block;border-radius:999px;padding:0 7px;font-size:11px;font-weight:700;
+  line-height:1.55;color:var(--dim);border:1px solid var(--line);background:var(--surface);
+}
+/* Заголовок группы «Другие версии — можно пропустить». */
+.frsheet .frgroup{
+  margin:14px 2px 8px;padding-top:12px;border-top:1px solid var(--line);
+  font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--dim);
+}
+
+/* Строка части и кнопка «В планы» рядом с ней. Строка — сама кнопка,
+   а кнопку в кнопку не положишь, поэтому обе лежат в обёртке .prow.
+   Сдвиг дополнений вправо и отступ снизу теперь у обёртки. */
+.prow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.frsheet .prow > button.part{flex:1;min-width:0;width:auto;margin:0}
+.frsheet .prow.xtra{margin-left:38px;margin-bottom:6px}
+.planbtn{flex:none;padding:6px 10px;border-radius:9px;cursor:pointer;white-space:nowrap;
+  font-family:Nunito;font-weight:800;font-size:12px;line-height:1.3;
+  background:var(--surface);color:var(--text);border:var(--bw) solid var(--ink-soft);
+  box-shadow:2px 2px 0 var(--print);
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),
+             border-color var(--fast) ease,background-color var(--fast) ease}
+.planbtn:hover{border-color:var(--ink);transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--print)}
+.planbtn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--print);transition-duration:.04s}
+/* Уже в планах — залито акцентом, как всё «включённое» на сайте. */
+.planbtn.on{background:var(--mint);color:var(--on-acc);border-color:var(--rim,#0B0C10)}
+.planbtn.busy{opacity:.55;pointer-events:none}
+
 @media (max-width:520px){
+  .frsheet .prow.xtra{margin-left:20px}
+  .planbtn{padding:5px 8px;font-size:11.5px}
   .frsheet{padding:20px 16px}
   .frhead{gap:12px;margin-right:26px}
   .frart{width:58px;height:80px}
   .frtx h3{font-size:18px}
+  .frsheet .part{gap:9px}
+  .frsheet .part .stepno{width:22px;height:22px;font-size:11.5px}
+  .frsheet .part.xtra{margin-left:20px;width:calc(100% - 20px)}
 }
 
 /* ==================== ЭТА ИСТОРИЯ ЦЕЛИКОМ ====================
@@ -1415,6 +1677,10 @@ header{backdrop-filter:none;background:var(--bg)}
 .sideparts .part{padding:7px 8px;gap:9px;margin-bottom:7px}
 .sideparts .part:last-child{margin-bottom:0}
 .sideparts .part .th{width:32px;height:44px}
+/* Обложка части не нашлась — в рамке первая буква названия, а не
+   пустой прямоугольник. */
+.sideparts .part .th b{position:absolute;inset:0;display:grid;place-items:center;
+  font-family:Nunito;font-weight:800;font-size:15px;color:var(--dim)}
 .sideparts .part .nm{font-size:13.5px}
 .sideparts .part .m{font-size:12px}
 .sideparts .part .go{font-size:17px}
@@ -1451,7 +1717,6 @@ header{backdrop-filter:none;background:var(--bg)}
    («много озвучек», «тут этого нет»), и в узкой колонке она переносилась
    на вторую строку — из-за чего восемь пунктов выглядели как шестнадцать
    и заголовки групп в этой каше терялись. */
-#m-s{min-width:264px}
 .menu .sub{white-space:nowrap}
 .menu button{gap:12px}
 
@@ -1480,6 +1745,40 @@ header{backdrop-filter:none;background:var(--bg)}
 .menu button.gone{color:var(--dimmer);cursor:default;opacity:.72}
 .menu button.gone:hover{background:none;color:var(--dimmer)}
 .menu button.gone .sub{color:color-mix(in srgb,var(--alert) 70%,var(--dimmer))}
+
+/* ---------- строки меню «Источник» ----------
+   Название сверху, «много озвучек / одна озвучка» под ним, справа —
+   пометка: «смотрите», «есть», «тут этого нет», «проверяю…». Ширина
+   меню постоянная, а высота строки не зависит от пометки: ответ
+   сервера меняет только слово справа, и ничего не прыгает. Раньше
+   меню перестраивалось в группы прямо на глазах. */
+#m-s{width:300px;max-width:calc(100vw - 32px)}
+#m-s button.srcrow{gap:10px;padding:7px 10px}
+#m-s .srcname{display:flex;flex-direction:column;min-width:0;flex:1}
+#m-s .srcname b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#m-s .srcname small{font-size:11px;color:var(--dimmer);white-space:nowrap;margin-top:1px}
+#m-s .srcst{flex:none;min-width:96px;text-align:right;font-size:11.5px;white-space:nowrap;color:var(--dimmer)}
+/* Зелёный смешан с цветом текста: чистый --mint на светлой «Бумаге»
+   почти не читается, а так он темнеет там и светлеет на тёмных темах. */
+#m-s .srcst.is-now,#m-s .srcst.is-yes{color:color-mix(in srgb,var(--mint) 50%,var(--text));font-weight:600}
+#m-s .srcst.is-yes::before{content:'✓ '}
+#m-s .srcst.is-no{color:color-mix(in srgb,var(--alert) 70%,var(--dimmer))}
+#m-s .srcst.is-silent{color:color-mix(in srgb,var(--sand) 50%,var(--dim))}
+/* «проверяю…» — тусклая пульсирующая точка перед словом: видно, что
+   ответ в пути, а не забыт. */
+#m-s .srcst.is-wait::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:currentColor;margin-right:6px;vertical-align:1px;animation:srcwait 1s ease-in-out infinite alternate}
+@keyframes srcwait{from{opacity:.25}to{opacity:1}}
+#m-s .srcst.fresh{animation:srcfresh .35s ease-out}
+@keyframes srcfresh{from{opacity:0}to{opacity:1}}
+/* Открытый сейчас источник — первым и подсвечен; галочка из общего
+   правила .menu button.on не нужна: справа и так написано «смотрите». */
+#m-s button.srcrow.on{background:color-mix(in srgb,var(--mint) 12%,transparent)}
+#m-s button.srcrow.on::after{content:none}
+#m-s button.srcrow.on .srcname b{color:var(--text)}
+@media (prefers-reduced-motion:reduce){
+  #m-s .srcst.is-wait::before,#m-s .srcst.fresh{animation:none}
+}
 
 /* Служебная строка меню: «загружается…», «смотрим, у кого оно есть…».
    Не заголовок и не кнопка — просто состояние. */
@@ -1538,6 +1837,19 @@ header{backdrop-filter:none;background:var(--bg)}
 
 /* ==================== ПЛЕЕР: ПАНЕЛИ И ПОЛНЫЙ ЭКРАН ==================== */
 
+/* Дорожка с нижней панелью — одним блоком. Он лежит выше всего, что
+   внутри картинки: ползунок толще дорожки и наполовину заходит на кадр,
+   а видео и слои над ним (у них свои номера слоёв) раньше накрывали
+   эту половину — вместо кружка был полукруг. */
+.dock{position:relative;z-index:8}
+
+/* Плеер тёмный в любой теме — а подписи на его кнопках брали цвет
+   текста темы. На светлой «Бумаге» это тёмно-коричневый: «1 / 3»,
+   «KotoDub», «RU-B», «720p» и время сливались с тёмными кнопками
+   и были не видны вовсе. Свои цвета текста — только кнопкам и времени:
+   выпадающие меню рядом светлые в светлой теме и остаются по теме. */
+.player .selbtn,.player .cbtn,.player .time{--text:#E5E3EA;--dim:#A2A7B5;--dimmer:#8A8E9C}
+
 /* Прозрачный слой для нажатий по картинке. Лежит НАД видео, но ПОД
    надписями и кнопками: нажатие по кнопке «смотреть» не должно
    одновременно считаться нажатием по экрану. */
@@ -1579,8 +1891,7 @@ header{backdrop-filter:none;background:var(--bg)}
 /* Пока смотрят — панели уходят. Появляются от любого движения мыши,
    от паузы и при наведении. */
 .player.idle .topbar,
-.player.idle .ctrl,
-.player.idle .track{opacity:0;pointer-events:none}
+.player.idle .dock{opacity:0;pointer-events:none}
 .player.idle .screen .tapzone{cursor:none}
 .player.idle .topbar{transform:translateY(-8px)}
 
@@ -1607,15 +1918,19 @@ header{backdrop-filter:none;background:var(--bg)}
 .player.fs .screen{flex:1;min-height:0;aspect-ratio:auto;border-radius:0}
 .player:fullscreen video,
 .player.fs video{width:100%;height:100%;object-fit:contain}
-/* Дорожка и панель ложатся поверх картинки, а не отнимают у неё место. */
-.player:fullscreen .track,
-.player.fs .track{position:absolute;left:0;right:0;bottom:52px;z-index:7}
-.player:fullscreen .ctrl,
-.player.fs .ctrl{
-  position:absolute;left:0;right:0;bottom:0;z-index:7;
+/* Дорожка и панель ложатся поверх картинки, а не отнимают у неё место.
+   Ложатся одним блоком: раньше дорожка стояла отдельно, на 52px от низа,
+   а панель с отступами выходила выше 52px — и затемнение панели лежало
+   поверх дорожки (ползунок был тусклым и не ловил нажатия), а на
+   телефоне, где панель в две строки, дорожка оказывалась между кнопок. */
+.player:fullscreen .dock,
+.player.fs .dock{
+  position:absolute;left:0;right:0;bottom:0;
   background:linear-gradient(rgba(8,10,14,0),rgba(8,10,14,.9) 42%);
-  padding:14px 20px 16px;
+  padding-top:26px;
 }
+.player:fullscreen .ctrl,
+.player.fs .ctrl{background:transparent;padding:12px 20px 16px}
 .player:fullscreen .screen .topbar,
 .player.fs .screen .topbar{padding:16px 20px}
 .player:fullscreen .screen .topbar .tb-name,
@@ -1636,6 +1951,29 @@ header{backdrop-filter:none;background:var(--bg)}
 @media (max-width:760px){
   .ctrl .selbtn .cap{display:none}
   .ctrl{gap:7px;padding:10px}
+}
+@media (max-width:700px){
+  /* Время стояло отдельной строкой посреди панели: правило для узких
+     экранов растягивало его на всю ширину, а соседнее ставило в начало —
+     три строки там, где хватает двух. Теперь оно рядом с кнопками. */
+  .ctrl .time{width:auto;order:0}
+  /* Качество занимает остаток строки, но не меньше своей подписи. С
+     основой «по содержимому» оно на 375px не влезало на пиксели и
+     утаскивало с собой на вторую строку одинокую кнопку полного экрана. */
+  .ctrl .sel{flex:1 1 0;min-width:58px}
+}
+@media (max-width:420px){
+  /* На телефоне все кнопки, время, качество и полный экран — в одну
+     строку: на 375px для этого не хватало десятка пикселей зазоров. */
+  .ctrl{gap:4px}
+  .ctrl .cbtn{width:32px}
+}
+/* Пальцем: ползунок крупнее, запас для касания выше. */
+@media (pointer:coarse){
+  .track .knob{width:14px;height:14px;margin:-7px 0 0 -7px}
+  /* 14px × 1,6 при перетаскивании — радиус 11,2px */
+  .track{--kr:12px}
+  .track::before{top:-13px;bottom:-13px}
 }
 @media (max-width:560px){
   .volbox #c-vol{display:none}
@@ -1696,24 +2034,253 @@ header{backdrop-filter:none;background:var(--bg)}
    прятать нельзя — после выбора нажимать снова придётся именно на неё. */
 .player:has(.menu.show) .playbtn{opacity:.22}
 
+/* Меню верхней полосы на телефоне. Общее правило для узких экранов
+   ставит меню от левого края его кнопки — а «Источник» стоит справа, и
+   его список уезжал за правый край плеера, где плеер его обрезал: были
+   видны полтора названия из пяти. Теперь меню верхней полосы на
+   телефоне прижаты к правому краю картинки и не шире её, а высота
+   считается от высоты картинки (она 16:9 от ширины плеера, а плеер на
+   узком экране — во всю ширину без полей страницы): длинный список
+   прокручивается внутри, а не обрезается снизу. */
+@media (max-width:700px){
+  .screen .topbar .sel{position:static}
+  .screen .topbar .menu{left:auto;right:8px;top:calc(100% - 6px);max-width:calc(100% - 16px);
+    max-height:calc((100vw - 24px) * 9 / 16 - 58px)}
+}
+
+/* ======================================================================
+   СТРАНИЦА ПРОСМОТРА: ВСЁ В ОДНОМ МЕСТЕ (fix-19a)
+
+   Было россыпью: над картинкой — полоса с серией, озвучкой и
+   источником; под плеером — отдельно «Следующая серия», «Уже смотрю»
+   и «сохранено»; ниже — «О чём это»; справа — три отдельные карточки.
+   Хозяин: «нормальный дизайн, чтобы всё было в одном месте».
+
+   Теперь три части, и каждая — одно целое:
+     • плеер — тёмный блок: картинка, дорожка, кнопки воспроизведения
+       и панель «что смотрю» (.wbar) прямо под ними: серия ‹ ›,
+       озвучка, источник, язык, субтитры, «следующая сама», «в планы»;
+     • под ним карточка о тайтле (.winfo);
+     • справа одна карточка (.wpane): «дальше» и вкладки «Серии» /
+       «Вся история».
+
+   Блок нарочно отдельный и весь под html[data-page="watch"]: правила
+   выше (плеер, меню, колонка) остались как были и действуют там, где
+   этот блок их не перекрывает. Плеер тёмный в любой теме, поэтому
+   панель в нём тоже тёмная; карточки вокруг — цвета темы.
+   ====================================================================== */
+
+/* ---------- каркас ----------
+   Шире, чем было (1240): панель под плеером должна вставать в одну
+   строку на обычном ноутбуке, а колонка справа — вмещать «Дальше» с
+   картинкой и вкладки. */
+html[data-page="watch"] .bar,
+html[data-page="watch"] footer .in{max-width:1360px}
+html[data-page="watch"] .wpage{max-width:1360px;grid-template-columns:minmax(0,1fr) 336px;
+  gap:24px;padding-top:20px}
+html[data-page="watch"] .wmain{min-width:0;display:grid;gap:18px;align-content:start}
+html[data-page="watch"] .wmain > .notice,
+html[data-page="watch"] .wmain > .demonote{margin:0}
+
+/* ---------- плеер: один тёмный блок ----------
+   overflow у плеера больше не режет: меню панели под картинкой
+   раскрываются наверх, по кадру, и на телефоне вниз, за край плеера, —
+   обрезанное меню было бы бесполезно. Скругление теперь держат сами
+   части: картинка сверху, панель снизу. */
+html[data-page="watch"] .player{overflow:visible;border-radius:var(--r-lg);
+  box-shadow:0 0 0 var(--bw) var(--ink-soft),var(--off-lg) var(--off-lg) 0 var(--print)}
+html[data-page="watch"] .player .screen{border-radius:var(--r-lg) var(--r-lg) 0 0}
+html[data-page="watch"] .player .dock{border-radius:0 0 var(--r-lg) var(--r-lg)}
+/* Полоса поверх картинки — только в полном экране (там нет ни шапки,
+   ни названия под плеером). В обычном виде она лишь закрывала кадр. */
+html[data-page="watch"] .player:not(.fs) .topbar{display:none}
+
+/* Где остановились — у времени, мелко и спокойно. */
+html[data-page="watch"] .ctrl .wsaved{background:transparent;border-color:#2B303B;color:#8E93A2;
+  padding:3px 9px;font-size:11.5px;white-space:nowrap}
+
+/* ---------- панель «что смотрю» ---------- */
+.wbar{
+  --text:#E5E3EA;--dim:#A2A7B5;--dimmer:#8A8E9C;
+  position:relative;display:flex;align-items:center;flex-wrap:wrap;gap:8px;
+  padding:9px 12px 11px;background:#101319;border-top:1px solid #20242D;
+  border-radius:0 0 var(--r-lg) var(--r-lg);
+}
+.wbar .sp{flex:1;min-width:4px}
+.wbar .sel{position:relative;display:flex;align-items:center}
+.wbar .selbtn{height:34px;padding:0 12px;gap:7px}
+.wbar .selbtn .ic{flex:none;color:var(--dimmer)}
+.wbar .selbtn:hover .ic{color:var(--text)}
+.wbar .selbtn i{max-width:150px;overflow:hidden;text-overflow:ellipsis}
+/* Подписи «Озвучка» / «Источник» заменяет значок: в одну строку панель
+   иначе не встаёт. Подпись «Серия» остаётся — «1 / 12» без неё
+   читалось бы как дробь. */
+.wbar #dub-btn .cap,.wbar [data-menu="m-s"] .cap{display:none}
+/* Серия: ‹ номер › — одной группой. */
+.wb-ep{display:inline-flex;align-items:center;gap:4px;padding:2px;border-radius:12px;
+  background:#0B0D12;border:1px solid #1E222B}
+.wbtn{
+  height:34px;min-width:34px;padding:0 9px;border-radius:9px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  background:#1A1D25;border:var(--bw) solid rgba(229,227,234,.3);color:var(--dim);
+  font-family:Nunito;font-weight:700;font-size:13px;white-space:nowrap;
+  /* Тот же «оттиск», что у остальных кнопок плеера (см. МАНГА ниже). */
+  --o:2px;--sc:#000;box-shadow:var(--o) var(--o) 0 var(--sc);
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),
+             background-color var(--fast) ease,border-color var(--fast) ease,color var(--fast) ease;
+}
+.wbtn:hover:not(:disabled){color:var(--text);border-color:#E5E3EA;transform:translate(-1px,-1px);
+  box-shadow:calc(var(--o) + 1px) calc(var(--o) + 1px) 0 var(--sc)}
+.wbtn:active:not(:disabled){transform:translate(var(--o),var(--o));box-shadow:0 0 0 var(--sc);
+  transition-duration:.04s}
+.wbtn:disabled{opacity:.35;cursor:default;box-shadow:none}
+/* Внутри группы серий кнопки плоские: группа сама — одна плашка. */
+.wb-ep .wbtn,.wb-ep .selbtn{--o:0px;background:transparent;border-color:transparent}
+.wb-ep .wbtn:hover:not(:disabled),.wb-ep .selbtn:hover{background:#1A1D25;border-color:rgba(229,227,234,.3)}
+/* Субтитры: значок CC и язык включённой дорожки. */
+.wbar .selbtn.cc{padding:0 10px}
+.wbar .selbtn.cc .ccmark{font-family:Nunito;font-weight:800;font-size:11px;letter-spacing:.04em;
+  border:1.5px solid currentColor;border-radius:4px;padding:0 3px;line-height:14px;color:var(--dimmer)}
+.wbar .selbtn.cc.on .ccmark{background:var(--mint);border-color:var(--mint);color:#16201D}
+.wbar .selbtn.cc i{font-size:12px;color:var(--dim)}
+/* «Следующая сама» и «в планы» — справа, своей группой. */
+.wb-me{display:flex;align-items:center;gap:10px;margin-left:auto}
+.wbar .autonext{margin:0;color:var(--dim);font-size:12.5px;white-space:nowrap}
+.wbar .autonext .wnote{color:var(--dimmer);font-size:11.5px}
+.wbar .autonext .wnote:empty{display:none}
+/* Переключатель нарисован цветами темы, а панель тёмная в любой: на
+   «Бумаге» тёмная тушь пропала бы на тёмном. Свои цвета — только ему. */
+.wbar .sw{flex:none;--surface-2:#232733;--ink-soft:#6E7586;--ink:#E5E3EA;--line:#3A4150;--print:#000}
+.wplan.planon{color:#16201D;background:var(--mint);border-color:var(--mint)}
+.wplan:disabled{opacity:.7}
+.wplan:disabled svg{color:var(--mint)}
+
+/* Меню панели раскрываются вверх, по картинке: под ними — карточка о
+   тайтле, и место над панелью — сам кадр, ему не жалко. Высота — с
+   запасом под кадр 16:9 у колонки шириной от 700px. */
+.wbar .menu{bottom:calc(100% + 8px);top:auto;max-height:min(56vh,380px)}
+.wbar .sel:first-child .menu,.wb-ep .menu{left:0;right:auto}
+.wbar #m-e{min-width:300px}
+.wbar .menu.wlang{min-width:250px}
+/* Варианты языка аниме: название сверху, пояснение мелко под ним, ✓
+   справа. В одну строку «English — субтитры · японская речь, англ.
+   текст» в меню не влезало и рвалось посреди слов. */
+.wbar .menu.wlang button[data-alang]{display:grid;grid-template-columns:1fr auto;column-gap:12px;
+  row-gap:1px;text-align:left;white-space:nowrap}
+.wbar .menu.wlang button[data-alang] .sub{grid-column:1;grid-row:2;margin:0;white-space:nowrap}
+.wbar .menu.wlang button[data-alang]::after{grid-column:2;grid-row:1 / span 2;align-self:center;
+  margin-left:0}
+.wbar .menu .mgroup{margin-top:8px}
+
+/* ---------- полный экран: панель вместе с дорожкой поверх кадра ---------- */
+.player.fs .wbar,.player:fullscreen .wbar{background:transparent;border-top:none;border-radius:0;
+  padding:2px 20px 16px}
+.player.fs .dock,.player:fullscreen .dock{border-radius:0}
+.player.fs .ctrl,.player:fullscreen .ctrl{padding-bottom:6px}
+
+/* ---------- о тайтле ---------- */
+.winfo{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:20px 22px 22px;box-shadow:var(--shadow-soft)}
+.winfo .wi-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin-bottom:14px;
+  padding-bottom:14px;border-bottom:1px solid var(--line)}
+.winfo h2{margin:0;font-size:22px;line-height:1.25;font-weight:800;min-width:0;overflow-wrap:anywhere}
+.winfo h2 .agebadge{vertical-align:3px}
+.winfo .epnote{margin:0;color:var(--dim);font-size:13.5px;white-space:nowrap}
+.winfo .epnote:empty{display:none}
+.winfo .wi-cap{margin:0 0 8px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:9px;
+  color:var(--text)}
+.winfo #w-about{margin:0 0 14px;color:var(--dim);font-size:14.5px;line-height:1.6}
+.winfo #w-about .aboutlang{display:inline-block;margin-right:8px;font-size:11.5px;
+  color:var(--dimmer);border:1px solid var(--line);border-radius:99px;padding:0 8px}
+.winfo .tags:empty{display:none}
+
+/* ---------- правая колонка: одна карточка ---------- */
+/* top — как отступ колонки от шапки в начале страницы: колонка
+   прилипает сразу там, где стоит, и не съезжает ниже плеера. */
+html[data-page="watch"] .wside{display:block;top:66px}
+.wpane{display:flex;flex-direction:column;max-height:calc(100vh - 100px);max-height:calc(100dvh - 100px)}
+.wpane .next{padding:14px 16px;border-bottom:1px solid var(--line);flex:none}
+.wpane .next:hover .nb b{color:var(--mint-ink)}
+.wpane .next .nt{width:88px;height:50px}
+.wpane .nb{min-width:0;display:flex;flex-direction:column}
+.wpane .nb .nlbl{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer);
+  font-weight:700;line-height:1.3}
+.wpane .nb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.wtabs{display:flex;gap:2px;padding:6px 10px 0;border-bottom:1px solid var(--line);flex:none}
+.wtab{flex:1;position:relative;background:none;border:none;cursor:pointer;color:var(--dim);
+  font-family:Nunito;font-weight:700;font-size:13.5px;padding:10px 8px 11px;border-radius:10px 10px 0 0;
+  white-space:nowrap}
+.wtab:hover{color:var(--text);background:var(--surface-2)}
+.wtab:active{transform:none}
+.wtab.on{color:var(--text)}
+.wtab.on::after{content:'';position:absolute;left:14px;right:14px;bottom:-1px;height:3px;
+  border-radius:3px 3px 0 0;background:var(--mint)}
+.wtab .cnt{margin-left:6px;font-weight:600;font-size:12px;color:var(--dimmer);
+  font-variant-numeric:tabular-nums}
+.wtab .cnt:empty{display:none}
+
+.wpanel{display:flex;flex-direction:column;min-height:0;flex:1 1 auto}
+.wpanel[hidden]{display:none}
+.wpanel .wprog{padding:10px 16px 2px;flex:none}
+.wpanel .wprog .prog{margin:4px 0 7px}
+.wpanel .eplist{max-height:none;flex:1 1 auto;min-height:120px}
+.wpanel .sideparts{max-height:none;flex:1 1 auto;min-height:120px}
+
+/* ---------- узкие экраны ---------- */
+@media (max-width:1180px){
+  html[data-page="watch"] .wpage{grid-template-columns:minmax(0,1fr) 300px}
+  .wbar .autonext > span:not(.wnote){display:none}
+}
+@media (max-width:1000px){
+  html[data-page="watch"] .wpage{grid-template-columns:minmax(0,1fr)}
+  html[data-page="watch"] .wside{position:static}
+  .wpane{max-height:none}
+  .wpanel .eplist,.wpanel .sideparts{max-height:360px}
+  .wbar .autonext > span:not(.wnote){display:inline}
+}
+@media (max-width:700px){
+  html[data-page="watch"] .wpage{gap:16px;padding:12px 12px 56px}
+  html[data-page="watch"] .wmain{gap:14px}
+  html[data-page="watch"] .player{border-radius:16px}
+  html[data-page="watch"] .player .screen{border-radius:16px 16px 0 0}
+  html[data-page="watch"] .player .dock,.wbar{border-radius:0 0 16px 16px}
+  html[data-page="watch"] .ctrl .wsaved{display:none}
+  /* Панель переносится строками, а не уезжает вбок: серия и озвучка,
+     потом источник, язык и CC, внизу — «следующая сама» и «в планы». */
+  .wbar{gap:6px;padding:8px 8px 10px}
+  .wbar .sp{display:none}
+  html[data-page="watch"] .wbar .sel{flex:1 1 auto;min-width:0;position:static}
+  html[data-page="watch"] .wbar .selbtn{width:100%;justify-content:center;padding:0 10px}
+  .wbar .selbtn i{max-width:none}
+  .wb-ep{flex:1 1 100%}
+  .wb-ep .sel{flex:1 1 auto}
+  .wbar .selbtn.cc{min-width:64px}
+  .wb-me{flex:1 1 100%;justify-content:space-between;margin:2px 0 0;padding-top:8px;
+    border-top:1px dashed #262B35}
+  /* Меню — на всю ширину панели и вниз, за край плеера: наверху у них
+     только узкая полоска кадра. */
+  html[data-page="watch"] .wbar .menu{left:6px;right:6px;top:calc(100% + 6px);bottom:auto;
+    width:auto;min-width:0;max-width:none;max-height:min(62vh,420px)}
+  .player.fs .wbar .menu,.player:fullscreen .wbar .menu{top:auto;bottom:calc(100% + 6px);
+    max-height:min(70vh,320px)}
+  .winfo{padding:16px 15px 18px}
+  .winfo h2{font-size:19px}
+  .wpane .next{padding:12px 14px}
+}
+
 /* ==================== КОРОБКИ В СПИСКЕ ====================
    Одна карточка на историю, а не на каждую запись. У «Ван-Пис» их было
    четыре подряд — сериал с двух источников, фильм и ещё один без
    обложки; четыре одинаковых названия в ряд читаются как ошибка. */
 
-/* Число частей на обложке — как корешки дисков на торце коробки. */
-.card .pic .discs{
-  position:absolute;left:9px;top:9px;z-index:2;border-radius:999px;padding:3px 9px;
-  font-family:Nunito;font-weight:700;font-size:11.5px;line-height:1.35;
-  background:rgba(16,19,26,.74);color:#E6E4EC;backdrop-filter:blur(3px);
-}
-/* Коробка чуть глубже обычной карточки: тонкая полоска слева намекает
-   на стопку внутри. */
-.card.boxcard .wrap::before{
-  content:'';position:absolute;left:-4px;top:8px;bottom:8px;width:4px;border-radius:4px 0 0 4px;
-  background:color-mix(in srgb,var(--mint) 34%,var(--surface-2));opacity:.75;
-}
-.card.boxcard:hover .wrap::before{opacity:1}
+/* Число частей теперь не плашкой на обложке, а словами в строке под
+   названием («2 части · 1999 · RU-A»): левый верхний угол обложки
+   отдан плашке «Новая серия». */
+/* Зелёной полоски слева у карточки больше нет. Она задумывалась как
+   намёк на «стопку частей» внутри коробки, но висела у каждой карточки,
+   в том числе одиночной, и читалась как непонятная метка. Сколько частей
+   в коробке, теперь написано словами — в строке под названием. */
 
 
 /* Свои части в открытой коробке — ссылки, ведут прямо в плеер. */
@@ -1756,46 +2323,139 @@ header{backdrop-filter:none;background:var(--bg)}
   margin:11px 0 0;
 }
 
-/* ---------- нижняя строка карточки ----------
-   Полоса просмотра и номер серии в одну линию, прижатые к низу.
+/* ---------- карточка своего списка (boxcard) ----------
+   Обложка, на ней две плашки: внизу «Серия 3 из 12», вверху — «Новая
+   серия», если вышла. Под обложкой название, строка «что это» (части,
+   год, источник) и прижатый к низу блок: полоса и «сколько осталось».
 
-   Прижаты не для красоты: названия разной длины — одно в строку, другое
-   в две, — и строка, идущая сразу за названием, у каждой карточки
-   оказывается на своей высоте. Ряд от этого выглядит рассыпанным.
+   Плашки на обложке — на своей тёмной подложке, а не прямо на кадре:
+   обложки бывают какие угодно, светлые и пёстрые, и надпись без подложки
+   на половине из них не видна. Цвета подложек не из темы намеренно —
+   под ними всегда картинка, а не фон страницы. Всё под обложкой, наоборот,
+   только из переменных темы: так оно читается в любой теме и в любой
+   праздник. */
 
-   На обложке полоса лежать не может: обложки у всех разные, и на
-   светлой она теряется, на тёмной режет глаз, на пёстрой её не видно
-   вовсе. */
-.card .foot{
-  margin-top:auto;padding-top:10px;
-  display:flex;align-items:center;gap:10px;
+/* Затемнение снизу: плашка серии стоит на нём, а не на голом кадре. */
+.boxcard .pic::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:38%;z-index:2;pointer-events:none;
+  background:linear-gradient(to top,rgba(8,10,15,.66),rgba(8,10,15,0));
 }
-.card .foot .seenbar{
-  position:relative;flex:1;min-width:0;height:3px;border-radius:99px;
+.boxcard .pic.bare::after{display:none}
+.boxcard .epchip{
+  position:absolute;left:8px;bottom:8px;z-index:4;max-width:calc(100% - 16px);
+  padding:3px 9px;border-radius:999px;
+  font-family:Nunito;font-weight:700;font-size:11.5px;line-height:1.35;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;
+  background:rgba(14,16,22,.8);color:#F1EFF5;backdrop-filter:blur(4px);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08);
+}
+/* Акцентные цвета все светлые, на тёмной подложке читаются любые. */
+.boxcard .epchip.done{color:var(--mint)}
+.boxcard .newep{
+  position:absolute;left:8px;top:8px;z-index:4;max-width:calc(100% - 48px);
+  display:inline-flex;align-items:center;gap:6px;padding:3px 9px 3px 8px;border-radius:999px;
+  font-family:Nunito;font-weight:800;font-size:11.5px;line-height:1.35;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
+  background:var(--sand);color:#1B140C;box-shadow:0 6px 16px -8px rgba(0,0,0,.75);
+  animation:popIn .3s var(--ease) both .15s;
+}
+.boxcard .newep::before{content:'';flex:none;width:6px;height:6px;border-radius:50%;background:#1B140C}
+
+/* «Что будет по нажатию» поверх обложки: при наведении и при фокусе с
+   клавиатуры. Без этого единственная подсказка, что карточка — кнопка,
+   была в том, что под мышкой она чуть приподнимается. */
+.boxcard .playhint{
+  position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;padding:0 10px;text-align:center;color:#F4F2F7;
+  background:rgba(10,12,18,.52);opacity:0;transition:opacity var(--fast) var(--ease);
+}
+.boxcard .playhint .pbtn{
+  width:46px;height:46px;border-radius:50%;display:grid;place-items:center;margin-bottom:7px;
+  background:var(--mint);color:#12151C;font-size:16px;line-height:1;
+  box-shadow:0 10px 24px -10px rgba(0,0,0,.85);
+  transform:scale(.82);transition:transform var(--mid) var(--ease);
+}
+.boxcard .playhint b{font-family:Nunito;font-weight:800;font-size:13.5px;line-height:1.25}
+.boxcard .playhint small{max-width:100%;font-size:11.5px;line-height:1.3;opacity:.86;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.boxcard:hover .playhint,.boxcard:focus-visible .playhint{opacity:1}
+.boxcard:hover .playhint .pbtn,.boxcard:focus-visible .playhint .pbtn{transform:none}
+@media (hover:none){.boxcard .playhint{display:none}}
+
+/* Фокус с клавиатуры — рамка вокруг обложки, а не вокруг всей колонки
+   с текстом: так видно, на какой карточке стоишь, и ничего не скачет. */
+.card.boxcard:focus-visible{outline:none}
+.card.boxcard:focus-visible .pic{outline:2px solid var(--mint);outline-offset:3px}
+
+/* Крестик — в правом верхнем углу: левый верх занят новой серией, низ —
+   плашкой серии. */
+.card.boxcard .del{top:8px;right:8px;bottom:auto;z-index:5}
+
+.boxcard .meta{
+  margin-top:3px;font-size:12px;line-height:1.35;color:var(--dim);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+/* Прижат к низу: названия разной длины, а полосы в ряду — на одной линии. */
+.boxcard .foot{margin-top:auto;padding-top:10px}
+.boxcard .lbar{
+  position:relative;height:4px;border-radius:99px;overflow:hidden;
+  background:color-mix(in srgb,var(--line) 85%,transparent);
+}
+.boxcard .lbar i{
+  position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--mint);
+  transform-origin:left center;animation:growLine .5s var(--ease) both .12s;
+}
+/* Досмотренное — спокойнее: полосе уже некуда расти. */
+.boxcard .lbar.full i{background:color-mix(in srgb,var(--mint) 70%,var(--line))}
+/* Сколько всего, неизвестно: полосы нет, но место держим — иначе ряд
+   разъедется по высоте. */
+.boxcard .lbar.nobar{visibility:hidden}
+.boxcard .lrow{
+  display:flex;align-items:baseline;gap:8px;margin-top:6px;
+  font-size:12px;line-height:1.35;color:var(--dim);
+}
+.boxcard .lrow .l{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.boxcard .lrow .r{margin-left:auto;flex:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.boxcard .lrow .l.hot{color:var(--text);font-weight:700}
+.boxcard .lrow .l.hot::before{
+  content:'';display:inline-block;width:6px;height:6px;margin-right:6px;vertical-align:1px;
+  border-radius:50%;background:var(--sand);
+}
+/* Карточка, перерисованная на месте (вышла серия), не выезжает снизу
+   заново: весь ряд остаётся как стоял. */
+.grid .card.still{animation:none}
+
+/* ---------- счётчики на вкладках ---------- */
+.sec .tabs a span{color:inherit;font-size:inherit}
+.sec .tabs a .tabn{
+  margin-left:7px;padding:1px 7px;border-radius:99px;font-size:11.5px;font-weight:700;
+  font-variant-numeric:tabular-nums;color:var(--dim);
   background:color-mix(in srgb,var(--line) 70%,transparent);
 }
-.card .foot .seenbar i{
-  position:absolute;left:0;top:0;bottom:0;border-radius:99px;
-  background:var(--sky);transition:width .4s cubic-bezier(.2,.7,.3,1);
-}
-/* Точка на конце заполненной части: показывает, где именно вы стоите.
-   Без неё короткий отрезок в начале длинной полосы почти не читается —
-   у «Ван-Пис» это две серии из тысячи. */
-.card .foot .seenbar i::after{
-  content:'';position:absolute;right:-3px;top:50%;width:7px;height:7px;
-  margin-top:-3.5px;border-radius:50%;background:var(--sky);
-}
-/* Досмотренное — спокойный цвет: полосе уже некуда расти, подсвечивать
-   её как «идёт прямо сейчас» неправильно. */
-.card .foot .seenbar.full i,
-.card .foot .seenbar.full i::after{background:color-mix(in srgb,var(--mint) 75%,var(--line))}
+.sec .tabs a .tabn:empty{display:none}
+.sec .tabs a.on .tabn{color:var(--text);background:color-mix(in srgb,var(--mint) 24%,var(--surface))}
 
-.card .foot .num{
-  flex:none;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums;
-  white-space:nowrap;
+/* ---------- колокольчик: уведомления от браузера ---------- */
+.drop .dnotify{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;padding:10px 15px;
+  border-top:1px solid var(--line)}
+.drop .nswitch{
+  display:inline-flex;align-items:center;gap:9px;border:none;background:none;padding:2px 0;
+  color:var(--text);font-family:Nunito;font-weight:600;font-size:13px;cursor:pointer;
 }
-/* Когда полосы нет — номер занимает строку сам и стоит слева. */
-.card .foot .num.only{margin-right:auto;color:var(--dimmer)}
+.drop .nswitch .nknob{
+  position:relative;flex:none;width:30px;height:18px;border-radius:99px;
+  background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line);
+  transition:background var(--fast) var(--ease);
+}
+.drop .nswitch .nknob::after{
+  content:'';position:absolute;left:3px;top:3px;width:12px;height:12px;border-radius:50%;
+  background:var(--dim);transition:transform var(--fast) var(--ease),background var(--fast) var(--ease);
+}
+.drop .nswitch.on .nknob{background:color-mix(in srgb,var(--mint) 60%,var(--surface-2))}
+.drop .nswitch.on .nknob::after{transform:translateX(12px);background:var(--text)}
+.drop .nhint{font-size:11.5px;color:var(--dim)}
+.drop .nhint:empty{display:none}
 
 /* Обложки бывают любой формы, а плитка одна. Заполняем её целиком:
    иначе у одних карточек картинка во всю ширину, у других с полями по
@@ -2009,7 +2669,14 @@ button:active, .chipbtn:active, .share:active { transform: scale(.97); }
 .drop.show { animation: dropIn .22s var(--ease); }
 .nrow { transition: background var(--fast) var(--ease), transform var(--fast) var(--ease); }
 .nrow:hover { transform: translateX(3px); }
-.toast.show { animation: slideUp .36s var(--ease); }
+/* Своя анимация, а не общая slideUp: та заканчивается на transform:none
+   и на время анимации снимала translate(-50%) — совет выезжал сдвинутым
+   вправо на полширины и в конце прыгал на середину. */
+@keyframes toastUp {
+  from { opacity: 0; transform: translate(-50%, 16px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+.toast.show { animation: toastUp .36s var(--ease); }
 
 /* ---------- рулетка ---------- */
 .roul.done .pickres .cover { animation: popIn .38s var(--ease) both; }
@@ -2074,53 +2741,114 @@ a { transition: color var(--fast) var(--ease); }
                     border-color var(--mid) var(--ease); }
 
 /* ================= ПРАЗДНИКИ =================
-   Украшение поверх темы. Цвета темы не трогаются — поэтому во время
-   праздника переключение тем работает как обычно, а праздник остаётся
-   при любой теме. Акцентный цвет тоже не трогается: иначе кнопки
-   выбора акцента на месяц превратились бы в кнопки, которые ничего не
-   делают.
+   Праздник — СЛОЙ поверх темы, а не другая тема. Он не трогает ни фон,
+   ни поверхности, ни текст: всё это по-прежнему решает тема, поэтому
+   читаемость в праздник та же, что и без него.
 
-   Слой лежит ПОД содержимым (z-index:0, содержимое — 1). Снег,
-   пролетающий поверх текста, мил секунд десять, а на одиннадцатой
-   мешает читать; в просветах между карточками его видно достаточно. */
-/* Два слоя.
+   Что праздник добавляет:
+   1) украшения — снег и гирлянда, кладбище с луной и летучими мышами,
+      лепестки и ветка сакуры. Всегда pointer-events:none, их немного,
+      и они полупрозрачные;
+   2) подкраску — мягкое свечение сверху и снизу (на «Бумаге» вместо
+      свечения растр точками, как в печатной манге);
+   3) немного своего цвета в акцент: --mint = акцент человека + чуть
+      цвета праздника (--hol, доля --hol-p). Кнопки, полосы и снег
+      оказываются одной гаммы, а выбранный акцент всё равно узнаётся.
 
-   Заливка — под всем (z-index:0): она красит страницу.
-   Летающее — над содержимым (z-index:100), но под окнами кабинета
-   (150) и под экраном входа (200): при вводе пароля мельтешение ни к
-   чему, а вот над карточками снег и должен идти. Под содержимым он
-   прятался за обложками и шёл в основном по пустому низу страницы. */
-.prazdnik{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+   Каждое сочетание тема × праздник задаёт только переменные ниже.
+   Сами украшения нарисованы один раз и берут цвета из переменных —
+   поэтому «Ночь» в Новый год получается ночной, «Уголь» тлеющим, а
+   «Бумага» бумажной, без отдельной копии правил на каждый случай.
+
+   Два слоя. Заливка — под содержимым (z-index:-1). Летающее — над
+   содержимым (100), но под окнами (150) и экраном входа (200): над
+   карточками снег и должен идти, а при вводе пароля мельтешить незачем. */
+/* Нижний слой — z-index:-1, а не 0. На страницах просмотра, итогов и
+   правил нет обёртки #app со своим слоем, содержимое лежит прямо в body,
+   и слой с z-index:0 рисовался ПОВЕРХ него: надгробия и ветка сакуры
+   налезали на кнопку «Следующая серия» и панель «Дальше». С -1 он
+   всегда под содержимым, но над фоном страницы (фон body браузер
+   рисует под всем). Поднимать .page своим слоем нельзя: внутри неё
+   плеер, который в режиме «.fs» должен лечь поверх шапки. */
+.prazdnik{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .prazdnik.verh{z-index:100}
 #app{position:relative;z-index:1}
 .prazdnik .zaliv{position:absolute;inset:0}
+.prazdnik .zaliv::before,.prazdnik .zaliv::after{content:'';position:absolute;left:0;right:0}
+/* Тёмные темы: свечение. Сила --hol-k намеренно небольшая: праздник
+   должен быть заметен краем глаза, а не заливать экран цветом. */
+.prazdnik .zaliv::before{top:0;height:48vh;
+  background:radial-gradient(120% 100% at 50% 0%,
+             color-mix(in srgb,var(--hol-a) var(--hol-k),transparent),transparent 72%)}
+.prazdnik .zaliv::after{bottom:0;height:44vh;
+  background:radial-gradient(110% 100% at 50% 100%,
+             color-mix(in srgb,var(--hol-b) var(--hol-k),transparent),transparent 72%)}
+/* «Бумага»: растр — точки, которые редеют к середине экрана. Это
+   печатный приём той же манги, из которой пришли кнопки. */
+html[data-theme="bumaga"] .prazdnik .zaliv::before,
+html[data-theme="bumaga"] .prazdnik .zaliv::after{
+  background:radial-gradient(circle,var(--ton) 1.3px,transparent 1.8px) 0 0/8px 8px}
+html[data-theme="bumaga"] .prazdnik .zaliv::before{--ton:color-mix(in srgb,var(--hol-a) 78%,transparent);
+  -webkit-mask-image:linear-gradient(#000,rgba(0,0,0,.35) 35%,transparent);
+          mask-image:linear-gradient(#000,rgba(0,0,0,.35) 35%,transparent)}
+html[data-theme="bumaga"] .prazdnik .zaliv::after{--ton:color-mix(in srgb,var(--hol-b) 78%,transparent);
+  -webkit-mask-image:linear-gradient(0deg,#000,rgba(0,0,0,.35) 35%,transparent);
+          mask-image:linear-gradient(0deg,#000,rgba(0,0,0,.35) 35%,transparent)}
 
-/* ---------- Новый год ---------- */
-html[data-holiday="newyear"] .prazdnik .zaliv{
-  background:
-    radial-gradient(130% 70% at 50% -16%, color-mix(in srgb,#6FB3E0 62%,transparent), transparent 72%),
-    radial-gradient(100% 55% at 8% 108%, color-mix(in srgb,#8AA6D8 44%,transparent), transparent 74%),
-    linear-gradient(180deg, color-mix(in srgb,#4E7FA8 20%,transparent), transparent 42%);
+/* Акцент праздника подмешивается к акценту человека. */
+html[data-holiday]{--mint:color-mix(in oklab,var(--acc0),var(--hol) var(--hol-p))}
+
+/* ---------- Новый год: переменные ----------
+   --sneg  — цвет снежинки, --sneg-k — насколько она видна (множитель);
+   --gir-1…3 — лампочки гирлянды, --gir-w — провод. */
+html[data-holiday="newyear"]{
+  --hol:#8FC3EA;--hol-p:22%;--hol-a:#6FA8D6;--hol-b:#7C8FD0;--hol-k:24%;
+  --sneg:#EEF5FF;--sneg-k:1;
+  --gir-1:#8FC7EA;--gir-2:#E8C27A;--gir-3:#E79A9A;--gir-w:#4B5262;
 }
-/* Размер и прозрачность — через переменные, а не прямо в элементе.
-   Свойство, записанное в сам элемент, сильнее любого правила из файла,
-   и переопределить его под светлую тему было бы нечем. */
+/* Ночь: лунный, серебристо-синий, приглушённый — ночью не слепят. */
+html[data-theme="noch"][data-holiday="newyear"]{
+  --hol:#9DB8F0;--hol-a:#5C7FC4;--hol-b:#3A4F8C;--hol-k:20%;
+  --sneg:#DCE6F7;--sneg-k:.8;
+  --gir-1:#9FC1F2;--gir-2:#E3D3A2;--gir-3:#C3B4EC;--gir-w:#344060;
+}
+/* Уголь: тлеющие угли — тёплое золото и пепельный снег, часть
+   снежинок — искры. */
+html[data-theme="ugol"][data-holiday="newyear"]{
+  --hol:#E2B66A;--hol-p:20%;--hol-a:#8A6A3A;--hol-b:#B5652E;--hol-k:15%;
+  --sneg:#E6E0D6;--sneg-k:.75;
+  --gir-1:#E8B25C;--gir-2:#D9784A;--gir-3:#F1E3C2;--gir-w:#2E3038;
+}
+/* Бумага: открытка, отпечатанная в три краски — синий растр сверху,
+   ёлочно-зелёный акцент, лампочки красная, зелёная и золотая с
+   обводкой тушью. */
+html[data-theme="bumaga"][data-holiday="newyear"]{
+  --hol:#2F7A55;--hol-p:30%;--hol-a:#4A86C5;--hol-b:#C8433A;
+  --gir-1:#D24B3E;--gir-2:#2F8A5A;--gir-3:#E0A93A;--gir-w:#6B6255;
+}
+
+/* ---------- Новый год: снег ----------
+   Размер и прозрачность — через переменные, а не прямо в элементе:
+   свойство в самом элементе сильнее любого правила, и под тему его
+   было бы не переопределить. */
 .snezh{
   position:absolute;top:-14px;border-radius:50%;
   width:var(--razmer,7px);height:var(--razmer,7px);
-  background:radial-gradient(circle at 34% 32%, #fff, color-mix(in srgb,#DCEBFA 70%,transparent));
+  background:radial-gradient(circle at 34% 32%,var(--sneg),color-mix(in srgb,var(--sneg) 60%,transparent));
   opacity:0;animation:snegopad linear infinite;
 }
-/* На светлой теме белый снег на белом фоне пропадает. Здесь хлопья
-   крупнее, синее, с каймой и собственной тенью — и заметно плотнее:
-   прозрачность берётся из отдельной переменной, потому что обычную
-   элемент задаёт сам, и правилом её не перебить. */
+/* Искры у «Угля»: каждая пятая снежинка — тёплый уголёк со свечением. */
+html[data-theme="ugol"] .snezh:nth-child(5n){
+  background:radial-gradient(circle,#F3C77A 30%,color-mix(in srgb,#E8823A 70%,transparent));
+  box-shadow:0 0 6px 1px color-mix(in srgb,#E8A04A 45%,transparent);
+}
+/* На «Бумаге» белое на белом пропадает: снежинка — белый кружок,
+   обведённый тушью, как в манге. Прозрачность своя (--vidno-svet):
+   на светлом фоне те же значения читаются слабее. */
 html[data-theme="bumaga"] .snezh{
-  width:calc(var(--razmer,7px) * 1.45);
-  height:calc(var(--razmer,7px) * 1.45);
-  background:radial-gradient(circle at 32% 28%, #FFFFFF 26%, #7FAAD6);
-  box-shadow:0 0 0 1px color-mix(in srgb,#2F5F91 52%,transparent),
-             0 2px 4px -1px rgba(28,58,92,.45);
+  width:calc(var(--razmer,7px) * 1.3);height:calc(var(--razmer,7px) * 1.3);
+  background:radial-gradient(circle at 35% 30%,#FFFFFF 45%,#D3E3F5);
+  box-shadow:0 0 0 1.3px color-mix(in srgb,#2B4F78 75%,transparent);
   animation-name:snegopadSvet;
 }
 @keyframes snegopadSvet{
@@ -2131,65 +2859,447 @@ html[data-theme="bumaga"] .snezh{
 }
 @keyframes snegopad{
   0%   {transform:translate3d(0,-20px,0) scale(.85);opacity:0}
-  8%   {opacity:var(--vidno,.5)}
-  92%  {opacity:var(--vidno,.5)}
+  8%   {opacity:calc(var(--vidno,.5) * var(--sneg-k,1))}
+  92%  {opacity:calc(var(--vidno,.5) * var(--sneg-k,1))}
   100% {transform:translate3d(var(--snos,18px),102vh,0) scale(1);opacity:0}
 }
 
-/* ---------- Хэллоуин ---------- */
+/* ---------- Новый год: гирлянда ----------
+   Провисающий провод с лампочками по верхнему краю окна. Нарисована
+   одними градиентами — ни картинок, ни элементов, ни скрипта, и
+   цвета берёт из переменных темы. Высота 22px: висит над шапкой и
+   ничего не закрывает. */
+html[data-holiday="newyear"] .prazdnik.verh::before{
+  content:'';position:absolute;left:-28px;right:0;top:0;height:22px;opacity:.9;
+  background:
+    radial-gradient(circle at 50% 13px,var(--gir-1) 3px,
+      color-mix(in srgb,var(--gir-1) 28%,transparent) 4.2px,transparent 8px) 0 0/168px 22px repeat-x,
+    radial-gradient(circle at 50% 13px,var(--gir-2) 3px,
+      color-mix(in srgb,var(--gir-2) 28%,transparent) 4.2px,transparent 8px) 56px 0/168px 22px repeat-x,
+    radial-gradient(circle at 50% 13px,var(--gir-3) 3px,
+      color-mix(in srgb,var(--gir-3) 28%,transparent) 4.2px,transparent 8px) 112px 0/168px 22px repeat-x,
+    radial-gradient(29px 10px at 50% 0,transparent calc(100% - 3px),var(--gir-w) calc(100% - 2.4px),
+      var(--gir-w) 100%,transparent calc(100% + .4px)) 0 0/56px 22px repeat-x;
+}
+/* На «Бумаге» лампочки без свечения, зато с обводкой тушью. */
+html[data-theme="bumaga"][data-holiday="newyear"] .prazdnik.verh::before{
+  opacity:1;
+  background:
+    radial-gradient(circle at 50% 13px,var(--gir-1) 3px,var(--ink) 3.4px,var(--ink) 4.5px,transparent 5px) 0 0/168px 22px repeat-x,
+    radial-gradient(circle at 50% 13px,var(--gir-2) 3px,var(--ink) 3.4px,var(--ink) 4.5px,transparent 5px) 56px 0/168px 22px repeat-x,
+    radial-gradient(circle at 50% 13px,var(--gir-3) 3px,var(--ink) 3.4px,var(--ink) 4.5px,transparent 5px) 112px 0/168px 22px repeat-x,
+    radial-gradient(29px 10px at 50% 0,transparent calc(100% - 3px),var(--gir-w) calc(100% - 2.4px),
+      var(--gir-w) 100%,transparent calc(100% + .4px)) 0 0/56px 22px repeat-x;
+}
+
+/* ---------- Новый год: зимняя ночь ----------
+   Сцена того же устройства, что у Хэллоуина (см. раздел Хэллоуина ниже
+   и «Новый год и сакура» в app.js): глубокое синее небо со
+   звёздами и северным сиянием, луна в правом поле, заснеженные холмы с
+   ельником и домиком, дымка, ели в снегу, сугробы. Снег и гирлянда по
+   верхнему краю — те же, что и были.
+
+   Звёзды, луна и дымка — общие с Хэллоуином куски, их цвета —
+   переменные --hall-* (имя осталось с тех пор, как сцена была одна).
+   Свои у Нового года:
+     --ny-dal-2 / --ny-el-dal-2 — дальний гребень и ельник на нём;
+     --ny-dal / --ny-el-dal     — холмы ближе и ельник на них;
+     --ny-dom, --ny-krysha, --ny-okno, --ny-dym — домик, снег на крыше,
+                                  окна, дым из трубы;
+     --ny-el / --ny-el-sneg     — ели переднего плана и снег на лапах;
+     --ny-sugrob, --ny-sugrob-2, --ny-sugrob-blesk — сугробы и блеск по гребню;
+     --ny-ogon-1…3             — огоньки гирлянды на елях;
+     --ny-siyanie-1/2          — полосы северного сияния.
+   Снег ночью не белый, а сине-серый в лунном свете: светлый сугроб под
+   полупрозрачным подвалом спорил бы со светлым текстом. */
+html[data-holiday="newyear"]{
+  --hall-nebo-1:#262C3C;--hall-nebo-2:#1C2848;--hall-nebo-3:#24386A;
+  --hall-gorizont:rgba(120,176,240,.26);--hall-zvezda:#EEF4FF;
+  --hall-luna-1:#FCFDFF;--hall-luna-2:#E4EBF6;--hall-luna-kray:#C4D0E4;
+  --hall-luna-svet:rgba(196,218,255,.30);--hall-krater:rgba(136,154,190,.40);
+  --hall-tuman:rgba(200,222,255,.13);
+  --ny-dal-2:#2B3B68;--ny-el-dal-2:#24315A;
+  --ny-dal:#3D5084;--ny-el-dal:#1C2648;
+  --ny-dom:#18203A;--ny-krysha:#8A9DC6;--ny-okno:#F6C76C;--ny-dym:rgba(196,210,236,.32);
+  --ny-el:#0F1830;--ny-el-sneg:#5F75A6;
+  --ny-sugrob:#34466F;--ny-sugrob-2:#3A4D7A;--ny-sugrob-blesk:rgba(170,196,240,.5);
+  --ny-ogon-1:#FFD27A;--ny-ogon-2:#FF9E5E;--ny-ogon-3:#FF7A7A;
+  --ny-siyanie-1:rgba(96,226,186,.22);--ny-siyanie-2:rgba(132,140,255,.18);
+}
+/* Ночь: то же, но глубже и холоднее — почти чёрная синева вверху. */
+html[data-theme="noch"][data-holiday="newyear"]{
+  --hall-nebo-1:#171C2B;--hall-nebo-2:#141F42;--hall-nebo-3:#1B2D5E;
+  --hall-gorizont:rgba(96,150,236,.24);
+  --hall-luna-1:#F7F8FF;--hall-luna-2:#DCE1F2;--hall-luna-kray:#B7BFDA;
+  --ny-dal-2:#202D57;--ny-el-dal-2:#1A2550;
+  --ny-dal:#2F4174;--ny-el-dal:#141C3C;
+  --ny-dom:#101730;--ny-krysha:#7286B4;
+  --ny-el:#0A1124;--ny-el-sneg:#4D6396;
+  --ny-sugrob:#283863;--ny-sugrob-2:#2D3F6E;--ny-sugrob-blesk:rgba(150,180,236,.45);
+}
+/* Уголь: ночь у тлеющего очага — пепельный снег, тёплое зарево у земли,
+   луна тёплая, сияние едва заметно. */
+html[data-theme="ugol"][data-holiday="newyear"]{
+  --hall-nebo-1:#141619;--hall-nebo-2:#14182A;--hall-nebo-3:#1D2440;
+  --hall-gorizont:rgba(214,136,80,.18);--hall-zvezda:#F2ECE2;
+  --hall-luna-1:#FFF6E2;--hall-luna-2:#EEDDB8;--hall-luna-kray:#CDB083;
+  --hall-luna-svet:rgba(245,214,160,.22);--hall-krater:rgba(160,128,84,.36);
+  --hall-tuman:rgba(220,206,196,.09);
+  --ny-dal-2:#22252F;--ny-el-dal-2:#1C1E27;
+  --ny-dal:#30333F;--ny-el-dal:#15171D;
+  --ny-dom:#0E0F13;--ny-krysha:#6F7180;--ny-okno:#F0B25C;--ny-dym:rgba(214,206,196,.24);
+  --ny-el:#07080A;--ny-el-sneg:#4A4C57;
+  --ny-sugrob:#26282F;--ny-sugrob-2:#2B2D35;--ny-sugrob-blesk:rgba(214,200,180,.32);
+  --ny-siyanie-1:rgba(120,200,170,.16);--ny-siyanie-2:rgba(150,130,220,.12);
+}
+/* Бумага: морозное утро. Бледно-голубое небо с розовым рассветом у
+   земли, утренняя луна — диск, обведённый тушью, сияния нет. Холмы и
+   ели — светлая голубая размывка, снег белый, а контур елей и сугробов
+   обведён тушью, как в манге. */
+html[data-theme="bumaga"][data-holiday="newyear"]{
+  --hall-nebo-1:#F8F6F1;--hall-nebo-2:#EDF2F8;--hall-nebo-3:#DFEAF5;
+  --hall-gorizont:rgba(250,200,182,.42);--hall-zvezda:#9AAEC8;
+  --hall-luna-1:#FFFFFF;--hall-luna-2:#F2F5FA;--hall-luna-kray:#DCE4EF;
+  --hall-luna-svet:rgba(255,220,196,.36);--hall-krater:rgba(150,170,200,.26);
+  --hall-tuman:rgba(255,255,255,.66);
+  --ny-dal-2:#E3EBF4;--ny-el-dal-2:#CCD9E8;
+  --ny-dal:#EEF3F9;--ny-el-dal:#B3C5DA;
+  --ny-dom:#AFC0D4;--ny-krysha:#FFFFFF;--ny-okno:#F2B24A;--ny-dym:rgba(150,166,190,.30);
+  --ny-el:#A6BBD3;--ny-el-sneg:#FFFFFF;
+  --ny-sugrob:#F7FAFD;--ny-sugrob-2:#FFFFFF;--ny-sugrob-blesk:color-mix(in srgb,var(--ink) 55%,transparent);
+  --ny-ogon-1:#E8A33A;--ny-ogon-2:#D9603E;--ny-ogon-3:#D24B3E;
+  --ny-siyanie-1:transparent;--ny-siyanie-2:transparent;
+}
+
+/* Небо, точки и подвал — как у Хэллоуина (правила те же, только для
+   своего праздника: Хэллоуин свои не делит, чтобы его не задеть). */
+html[data-holiday="newyear"] .prazdnik .zaliv,
+html[data-holiday="sakura"] .prazdnik .zaliv{
+  background:
+    radial-gradient(85% 42% at 50% 100%,var(--hall-gorizont),transparent 72%),
+    linear-gradient(180deg,var(--hall-nebo-1) 0%,var(--hall-nebo-2) 46%,var(--hall-nebo-3) 100%)}
+html[data-holiday="newyear"] .prazdnik .zaliv::before,
+html[data-holiday="newyear"] .prazdnik .zaliv::after,
+html[data-holiday="sakura"] .prazdnik .zaliv::before,
+html[data-holiday="sakura"] .prazdnik .zaliv::after{display:none}
+html[data-holiday="newyear"]:not([data-dots="off"]) .prazdnik .zaliv::after,
+html[data-holiday="sakura"]:not([data-dots="off"]) .prazdnik .zaliv::after{
+  display:block;inset:0;height:auto;
+  background:radial-gradient(circle,var(--dots-c) 1px,transparent 1.6px) 0 0/9px 9px;
+  -webkit-mask-image:none;mask-image:none}
+/* Утром звёзд почти не видно. */
+html[data-theme="bumaga"][data-holiday="newyear"] .zvezdy{opacity:.35}
+
+/* Даль и передний план — те же высоты, что у кладбища (см. там). */
+.scena-dal{position:absolute;left:0;bottom:0;width:100%;display:block;overflow:visible;
+  height:clamp(150px,min(30vh,48vw),300px)}
+.scena{position:absolute;left:0;bottom:0;width:100%;display:block;overflow:visible;
+  height:clamp(110px,min(23vh,36vw),230px)}
+
+/* Северное сияние: две мягкие полосы наискось в верхней половине неба.
+   Над текстом страницы оно едва заметно — подсветка, а не прожектор.
+   Колышется медленно; «меньше движения» — стоит. */
+.siyanie{position:absolute;left:-15%;width:130%;top:6vh;height:34vh;pointer-events:none;
+  background:
+    radial-gradient(30% 34% at 18% 58%,var(--ny-siyanie-1),transparent 70%),
+    radial-gradient(26% 30% at 40% 44%,var(--ny-siyanie-1),transparent 70%),
+    radial-gradient(24% 26% at 58% 36%,var(--ny-siyanie-2),transparent 72%),
+    radial-gradient(30% 30% at 82% 30%,var(--ny-siyanie-1),transparent 70%);
+  -webkit-mask-image:repeating-linear-gradient(96deg,#000 0 18px,rgba(0,0,0,.72) 30px,#000 44px);
+          mask-image:repeating-linear-gradient(96deg,#000 0 18px,rgba(0,0,0,.72) 30px,#000 44px);
+  transform:rotate(-7deg);transform-origin:50% 50%;
+  animation:siyanie 34s ease-in-out infinite alternate}
+.siyanie.s2{top:14vh;height:26vh;opacity:.7;transform:rotate(-3deg);
+  background:
+    radial-gradient(28% 34% at 26% 50%,var(--ny-siyanie-2),transparent 70%),
+    radial-gradient(30% 36% at 66% 52%,var(--ny-siyanie-1),transparent 70%);
+  animation-duration:46s;animation-direction:alternate-reverse}
+@keyframes siyanie{
+  from{translate:-3% 0;opacity:.75}
+  to  {translate:3% 1.2vh;opacity:1}}
+
+/* Огоньки на елях мигают по очереди, медленно. Свечение под ними не
+   мигает: так гирлянда «дышит», а не моргает. */
+.ogonek{animation:ogonek 2.6s ease-in-out infinite alternate}
+.ogonek.o1{animation-delay:-.9s}
+.ogonek.o2{animation-delay:-1.7s}
+@keyframes ogonek{from{opacity:.45}to{opacity:1}}
+html[data-theme="bumaga"] .ogni-svet{display:none}
+/* Дым из трубы: клубы поднимаются, растут и тают, по очереди. */
+.dym{transform-box:fill-box;transform-origin:50% 50%;opacity:0;
+  animation:dym 9s ease-out infinite}
+.dym.d1{animation-delay:-3s}
+.dym.d2{animation-delay:-6s}
+@keyframes dym{
+  0%  {transform:translate(0,0) scale(.6);opacity:0}
+  15% {opacity:.9}
+  100%{transform:translate(24px,-54px) scale(1.9);opacity:0}}
+/* «Бумага»: контур елей и сугробов тушью. */
+html[data-theme="bumaga"] .zima .yolka path,
+html[data-theme="bumaga"] .zima-dal .domik path{
+  stroke:color-mix(in srgb,var(--ink) 55%,transparent);stroke-width:1.2;stroke-linejoin:round}
+
+/* ---------- Хэллоуин: ночное небо с луной ----------
+   Раньше фоном была мутная фиолетово-бурая подсветка, луна торчала
+   половинкой из-за правого края, а кладбище было плоской полосой.
+   Теперь это сцена (собирается в app.js, см. «Хэллоуин: ночное небо»):
+   тёмно-фиолетовое небо с несколькими звёздами, полная луна целиком в
+   верхнем углу, на горизонте — холм с часовней в дымке, ниже — туман и
+   передний план: кривые голые деревья, кованая ограда, надгробия.
+
+   Небо — непрозрачное: под ним не видно ни цвета темы, ни точек. Поэтому
+   точки (если они включены в «Вид») слой рисует у себя сам — тем же
+   цветом и шагом, что и фон страницы, ровно поверх неба и под луной.
+   Выключены — их нет и здесь. Сам слой точек не тронут.
+
+   Верх неба близок к фону темы — шапка (она цвета темы) переходит в
+   небо без ступеньки. Карточки и окна по-прежнему со своим фоном:
+   сцена только под ними.
+
+   Переменные:
+     --hall-nebo-1…3  небо сверху вниз, --hall-gorizont — зарево у земли;
+     --hall-zvezda    звёзды;
+     --hall-luna-1/2, --hall-luna-kray — диск от блика к краю,
+     --hall-luna-svet — свечение, --hall-krater — «моря»;
+     --hall-dal       дальний план, --hall-temno — передний,
+     --hall-kamen     дальние камни переднего плана;
+     --hall-tuman     туман, --hall-okno — окошко часовни;
+     --hall-tykva/--hall-ogon — тыква и её огонь, --hall-mysh — мыши. */
+html[data-holiday="halloween"]{
+  --hol:#E89A4E;--hol-p:26%;--hol-a:#7E5AA8;--hol-b:#E08A3C;--hol-k:26%;
+  --hall-nebo-1:#2A2E40;--hall-nebo-2:#2A2646;--hall-nebo-3:#40305E;
+  --hall-gorizont:rgba(168,120,220,.32);--hall-zvezda:#EEEAFF;
+  --hall-luna-1:#FFFAEC;--hall-luna-2:#EFE4C8;--hall-luna-kray:#D6C7A6;
+  --hall-luna-svet:rgba(255,238,200,.30);--hall-krater:rgba(170,150,112,.42);
+  --hall-dal:#383255;--hall-temno:#14121D;--hall-kamen:#221F31;
+  --hall-tuman:rgba(205,196,240,.17);--hall-okno:#F0B860;
+  --hall-tykva:#E0782A;--hall-ogon:#FFC85A;--hall-mysh:#141220;
+}
+/* Ночь: холодное индиго, луна серебряная. */
+html[data-theme="noch"][data-holiday="halloween"]{
+  --hol:#C99AE8;--hol-p:24%;--hol-a:#5E4FB0;--hol-b:#B8703A;--hol-k:22%;
+  --hall-nebo-1:#181D2F;--hall-nebo-2:#1D1B3D;--hall-nebo-3:#36275A;
+  --hall-gorizont:rgba(140,104,224,.30);--hall-zvezda:#E6E9FF;
+  --hall-luna-1:#F7F7FF;--hall-luna-2:#DCDDF0;--hall-luna-kray:#B9BBD8;
+  --hall-luna-svet:rgba(200,206,255,.30);--hall-krater:rgba(128,132,178,.40);
+  --hall-dal:#2C2850;--hall-temno:#0B0A14;--hall-kamen:#1A1830;
+  --hall-tuman:rgba(176,176,240,.15);--hall-mysh:#0E0D18;
+}
+/* Уголь: почти чёрная ночь, у земли — тлеющее багровое зарево,
+   луна тёплая. */
+html[data-theme="ugol"][data-holiday="halloween"]{
+  --hol:#E8823A;--hol-p:24%;--hol-a:#4A2E5A;--hol-b:#D0662A;--hol-k:20%;
+  --hall-nebo-1:#15161B;--hall-nebo-2:#191529;--hall-nebo-3:#2E1A3A;
+  --hall-gorizont:rgba(190,84,96,.24);--hall-zvezda:#F2E9E0;
+  --hall-luna-1:#FFF4DA;--hall-luna-2:#EBD3A0;--hall-luna-kray:#C9A86E;
+  --hall-luna-svet:rgba(245,205,140,.22);--hall-krater:rgba(160,120,70,.38);
+  --hall-dal:#271C33;--hall-temno:#060508;--hall-kamen:#141019;
+  --hall-tuman:rgba(210,180,200,.11);--hall-mysh:#09080C;
+}
+/* Бумага: сумерки на бумаге. Бледно-лавандовое небо с персиковым
+   закатом у земли, луна — кремовый диск, обведённый тушью, силуэты —
+   светлая лиловая размывка туши, как подмалёвок в манге. Тёмное небо
+   на светлой теме выглядело бы дырой; а светлые силуэты не спорят с
+   тёмным текстом поверх них. */
+html[data-theme="bumaga"][data-holiday="halloween"]{
+  --hol:#D2691E;--hol-p:30%;--hol-a:#6B4A8C;--hol-b:#E07B2C;
+  --hall-nebo-1:#F7F4F2;--hall-nebo-2:#EEE7F3;--hall-nebo-3:#E5D9EE;
+  --hall-gorizont:rgba(246,178,150,.42);--hall-zvezda:#9488B6;
+  --hall-luna-1:#FFFDF6;--hall-luna-2:#FBF1D9;--hall-luna-kray:#F0DDB4;
+  --hall-luna-svet:rgba(255,206,130,.34);--hall-krater:rgba(200,168,112,.30);
+  --hall-dal:#DCD3E8;--hall-temno:#BCAFD0;--hall-kamen:#CEC3DC;
+  --hall-tuman:rgba(255,255,255,.62);--hall-okno:#F2A93E;
+  --hall-tykva:#EE8A36;--hall-ogon:#FFD27A;--hall-mysh:#4A3F5C;
+}
+
+/* Небо. Подсветка у горизонта — эллипсом снизу, сверху — ровный
+   переход от цвета, близкого к теме, к фиолетовому. */
 html[data-holiday="halloween"] .prazdnik .zaliv{
   background:
-    radial-gradient(120% 66% at 50% 112%, color-mix(in srgb,#E08A3C 58%,transparent), transparent 70%),
-    radial-gradient(95% 58% at 86% -10%, color-mix(in srgb,#7E5AA8 52%,transparent), transparent 72%),
-    linear-gradient(180deg, color-mix(in srgb,#4A2F5E 22%,transparent), transparent 46%);
-}
-/* Цвета задника собраны в одном месте: на светлой теме силуэт должен
-   быть темнее, а луна теплее, иначе всё сливается с бумагой. */
-html[data-holiday="halloween"]{
-  --hall-temno:#1B1424; --hall-kamen:#2C2338; --hall-kost:#C9C2B4;
-  --hall-ogon:#F2A93E; --hall-luna:#F3E4B8; --hall-luna-svet:rgba(243,228,184,.16);
-  --hall-krater:rgba(180,164,120,.5);
-}
-html[data-theme="bumaga"][data-holiday="halloween"]{
-  --hall-temno:#3A2B45; --hall-kamen:#4C3B5A; --hall-kost:#F0EADC;
-  --hall-luna:#F6C46A; --hall-luna-svet:rgba(246,196,106,.3);
-}
-/* Кладбище во всю ширину у нижнего края — это фон, а не украшение
-   поверх текста, поэтому живёт в нижнем слое. */
-/* Высота не задаётся: она получается из ширины, потому что картинка
-   держит свои пропорции. Задать и то и другое — значит вернуть
-   растягивание, из-за которого тыквы были овальными. */
-.kladbische{
-  position:absolute;left:0;right:0;bottom:0;width:100%;height:auto;display:block;
-}
-/* Луна высоко: пусть её меньше видно за содержимым — так просили.
-   Над самым кладбищем она смотрелась приземлённо. */
+    radial-gradient(85% 42% at 50% 100%,var(--hall-gorizont),transparent 72%),
+    linear-gradient(180deg,var(--hall-nebo-1) 0%,var(--hall-nebo-2) 46%,var(--hall-nebo-3) 100%)}
+/* Обычные праздничные подсветки (и растр «Бумаги») здесь не нужны:
+   небо — уже подсветка. */
+html[data-holiday="halloween"] .prazdnik .zaliv::before,
+html[data-holiday="halloween"] .prazdnik .zaliv::after{display:none}
+/* Точки поверх неба — те же, что у фона страницы (ТОЧКИ НА ФОНЕ):
+   тот же цвет --dots-c и тот же шаг 9px от левого верхнего угла окна,
+   так что они совпадают с точками за шапкой. Выключены — нет и их. */
+html[data-holiday="halloween"]:not([data-dots="off"]) .prazdnik .zaliv::after{
+  display:block;inset:0;height:auto;
+  background:radial-gradient(circle,var(--dots-c) 1px,transparent 1.6px) 0 0/9px 9px;
+  -webkit-mask-image:none;mask-image:none}
+
+/* Звёзды: немного и тусклые, только в верхней половине неба. Две
+   группы мерцают по очереди (::before, ::after), остальные стоят. */
+.zvezdy{position:absolute;left:0;right:0;top:0;height:64vh;
+  background:
+    radial-gradient(1.3px 1.3px at 8% 14%,var(--hall-zvezda),transparent),
+    radial-gradient(1px 1px at 17% 38%,var(--hall-zvezda),transparent),
+    radial-gradient(1.4px 1.4px at 29% 9%,var(--hall-zvezda),transparent),
+    radial-gradient(1px 1px at 41% 27%,var(--hall-zvezda),transparent),
+    radial-gradient(1.2px 1.2px at 56% 12%,var(--hall-zvezda),transparent),
+    radial-gradient(1px 1px at 64% 44%,var(--hall-zvezda),transparent),
+    radial-gradient(1.3px 1.3px at 73% 21%,var(--hall-zvezda),transparent),
+    radial-gradient(1px 1px at 92% 52%,var(--hall-zvezda),transparent),
+    radial-gradient(1px 1px at 3% 58%,var(--hall-zvezda),transparent),
+    radial-gradient(1.1px 1.1px at 48% 61%,var(--hall-zvezda),transparent);
+  opacity:.8;
+  -webkit-mask-image:linear-gradient(#000 55%,transparent);
+          mask-image:linear-gradient(#000 55%,transparent)}
+.zvezdy::before,.zvezdy::after{content:'';position:absolute;inset:0;
+  animation:mertsanie 5.5s ease-in-out infinite alternate}
+.zvezdy::before{
+  background:
+    radial-gradient(1.8px 1.8px at 22% 20%,var(--hall-zvezda),transparent),
+    radial-gradient(1.6px 1.6px at 61% 30%,var(--hall-zvezda),transparent),
+    radial-gradient(1.5px 1.5px at 35% 50%,var(--hall-zvezda),transparent)}
+.zvezdy::after{animation-delay:-2.7s;animation-duration:7s;
+  background:
+    radial-gradient(1.7px 1.7px at 12% 28%,var(--hall-zvezda),transparent),
+    radial-gradient(1.5px 1.5px at 48% 7%,var(--hall-zvezda),transparent),
+    radial-gradient(1.6px 1.6px at 81% 36%,var(--hall-zvezda),transparent)}
+@keyframes mertsanie{from{opacity:.25}to{opacity:1}}
+html[data-theme="bumaga"] .zvezdy{opacity:.8}
+
+/* Луна — полная и целиком, в правом верхнем углу под шапкой.
+
+   Стоит в правом поле — между краем списка (он не шире 1112px) и
+   краем окна, — и размером ровно с это поле. Поэтому на компьютере она
+   не попадает ни под карточки, ни под текст: заголовки, «Очистить» и
+   подписи к обложкам всегда читаются, а сама луна не выглядывает
+   половинкой из-за чего-нибудь. Чем шире окно, тем она крупнее:
+   на 1280 — около 70px, на 1440 — 140px, дальше — не больше 176px.
+
+   SVG вдвое шире диска (вокруг — свечение), поэтому отступы считаются
+   так: центр диска — посередине поля, верх диска — --luna-y от верха
+   окна, чуть ниже шапки. У гостя над шапкой ещё полоса с часами —
+   луна опускается на её высоту, иначе пряталась бы за шапку. */
 .luna{
-  position:absolute;right:clamp(18px,8vw,140px);
-  top:clamp(88px,17vh,200px);
-  width:clamp(78px,10vw,136px);height:auto;display:block;
+  --zazor:max(0px,calc((100vw - var(--shir,1112px)) / 2));
+  --disk:clamp(var(--disk-min,60px),calc(var(--zazor) - 12px),176px);
+  --luna-y:100px;
+  position:absolute;display:block;height:auto;
+  width:calc(var(--disk) * 2);
+  right:calc(max(var(--zazor) / 2,var(--disk) / 2 + 10px) - var(--disk));
+  top:calc(var(--luna-y) - var(--disk) / 2)}
+html:has(#guestbar.show) .luna{--luna-y:142px}
+/* У страниц своя ширина и своя шапка. Просмотр шире списка, и поле
+   справа узкое — луна там меньше, зато не прячется за «Дальше». Итоги
+   уже — там луна крупнее. */
+html[data-page="watch"] .luna{--shir:1192px;--disk-min:34px;--luna-y:70px}
+html[data-page="stats"] .luna{--shir:912px}
+/* На просмотре без правого поля луна оказалась бы за плеером и
+   «Дальше» — там её просто нет: на этой странице главное — плеер. */
+@media (max-width:1259px){
+  html[data-page="watch"] .luna{display:none}
 }
+/* Уже 1236px поля под луну не остаётся, а просвета над списком, как
+   на телефоне, тоже нет: справа в строке заголовка — вкладки или
+   «Очистить». Луна там выглядывала бы из-за них обрезком — ровно то,
+   за что не любили прошлую. Поэтому на таких экранах (планшет, узкое
+   окно) неба со звёздами и кладбищем хватает и без неё. */
+@media (min-width:621px) and (max-width:1235px){
+  .luna{display:none}
+}
+/* «Бумага»: диск обведён тушью, как в манге. */
+html[data-theme="bumaga"] .luna .disk{stroke:var(--ink);stroke-width:1.6}
+
+/* Дальний план и передний: высота — от высоты окна, ширина — во весь
+   экран. Рисунок под эту ширину собирает app.js («Раскладка сцены под
+   окно»): по бокам ничего не срезается, а предметы, которым не хватило
+   места, не рисуются вовсе, а не торчат обрубками.
+
+   На узком высоком экране (телефон) высота — ещё и от ширины (vw):
+   иначе план выходил высоким и узким, и в него помещалось одно дерево.
+
+   overflow:visible — верхушки деревьев выше рамки рисунка. Раньше они
+   срезались ровной линией, будто ножницами; над планом всё равно одно
+   небо, им есть куда расти. */
+.kladb-dal{position:absolute;left:0;bottom:0;width:100%;display:block;overflow:visible;
+  height:clamp(150px,min(30vh,48vw),300px)}
+.kladbische{position:absolute;left:0;bottom:0;width:100%;display:block;overflow:visible;
+  height:clamp(110px,min(23vh,36vw),230px)}
+
+/* Туман: несколько размытых пятен, медленно плывёт вбок и обратно. */
+.tuman{position:absolute;left:-25%;width:150%;pointer-events:none;
+  background:
+    radial-gradient(28% 55% at 12% 60%,var(--hall-tuman),transparent 72%),
+    radial-gradient(24% 48% at 38% 50%,var(--hall-tuman),transparent 72%),
+    radial-gradient(30% 58% at 63% 62%,var(--hall-tuman),transparent 72%),
+    radial-gradient(26% 50% at 88% 52%,var(--hall-tuman),transparent 72%);
+  animation:tuman 48s ease-in-out infinite alternate}
+.tuman.t1{bottom:clamp(54px,11vh,120px);height:clamp(80px,16vh,170px)}
+.tuman.t2{bottom:-18px;height:clamp(60px,11vh,120px);opacity:.85;
+  animation-duration:64s;animation-direction:alternate-reverse}
+@keyframes tuman{from{transform:translate3d(-5%,0,0)}to{transform:translate3d(5%,0,0)}}
+
+/* Подвал в праздник — та же плотная полоса, что и без праздника.
+
+   В fix-19b у подвала забрали фон и рамку (прозрачный сверху градиент
+   и тень у букв), чтобы не резать деревья. Вышло, что подвал «исчез»:
+   мелкий серый текст ложился прямо на стволы, ограду и надгробия того
+   же тона и читался как часть картинки. Теперь подвал — своя панель:
+   фон темы почти без прозрачности, лёгкое размытие сцены под ним и
+   линия сверху. Сцена видна выше подвала, а сам он виден всегда.
+   Правило общее для всех праздников и всех четырёх страниц. */
+html[data-holiday] footer{
+  position:relative;z-index:2;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  border-top:1px solid var(--line);
+  box-shadow:0 -10px 24px -14px color-mix(in srgb,var(--bg) 80%,transparent)}
+html[data-holiday] footer .in{color:var(--dim);text-shadow:none}
+
+/* Летучие мыши — над содержимым, маленькие и полупрозрачные.
+
+   В fix-20 при правке подвала это правило (и @keyframes polyot сразу
+   под ним) оказалось съедено: от него остался обрывок «color-mix(…))}»,
+   браузер склеил его со следующим @keyframes в одно битое правило и
+   выбросил оба. Мыши остались без position и без анимации — висели
+   неподвижной кучкой в левом верхнем углу, а «меньше движения» не мог
+   их расставить (top/left без position не работают). Проверка —
+   check28_css (скобки сходятся, у каждой анимации есть @keyframes). */
 .letuchka{
-  position:absolute;color:color-mix(in srgb,#241C2C 72%,transparent);
-  opacity:.5;animation:polyot linear infinite;
+  position:absolute;left:0;color:var(--hall-mysh);
+  opacity:.6;animation:polyot linear infinite;
+  will-change:transform;
 }
-html[data-theme="bumaga"] .letuchka{color:color-mix(in srgb,#4A3A55 60%,transparent)}
+/* На тёмном небе тёмная мышь пропадает — ей нужен лунный контур. */
+html[data-holiday="halloween"]:not([data-theme="bumaga"]) .letuchka svg{
+  filter:drop-shadow(0 0 1.5px color-mix(in srgb,var(--hall-luna-2) 55%,transparent))}
 @keyframes polyot{
   0%   {transform:translate3d(-10vw,0,0) rotate(-4deg)}
   50%  {transform:translate3d(50vw,-26px,0) rotate(5deg)}
   100% {transform:translate3d(112vw,0,0) rotate(-4deg)}
 }
 
-/* ---------- Сакура ---------- */
-html[data-holiday="sakura"] .prazdnik .zaliv{
-  background:
-    radial-gradient(125% 64% at 50% -14%, color-mix(in srgb,#E894B0 52%,transparent), transparent 72%),
-    radial-gradient(95% 52% at 90% 106%, color-mix(in srgb,#E8B58C 40%,transparent), transparent 74%),
-    linear-gradient(180deg, color-mix(in srgb,#9C5C77 18%,transparent), transparent 44%);
+/* ---------- Сакура: переменные ----------
+   --lep-1/--lep-2 — лепесток (градиент), --lep-k — обводка. */
+html[data-holiday="sakura"]{
+  --hol:#EFA3BC;--hol-p:24%;--hol-a:#E894B0;--hol-b:#E8B58C;--hol-k:22%;
+  --lep-1:#F7C6D6;--lep-2:#EFA3BC;--lep-k:transparent;
+}
+/* Ночь — ёдзакура, сакура ночью: бледные лепестки и тёплый свет
+   фонарей снизу. */
+html[data-theme="noch"][data-holiday="sakura"]{
+  --hol:#F2B5CB;--hol-p:22%;--hol-a:#B0648A;--hol-b:#C98A50;--hol-k:17%;
+  --lep-1:#F6D3E0;--lep-2:#E7A4BE;
+}
+/* Уголь — приглушённая пыльная роза на сливовом. */
+html[data-theme="ugol"][data-holiday="sakura"]{
+  --hol:#D98AA6;--hol-p:22%;--hol-a:#6E3550;--hol-b:#8A4A5A;--hol-k:17%;
+  --lep-1:#E2B3C3;--lep-2:#C98299;
+}
+/* Бумага — розовый растр и лепестки, обведённые тушью. */
+html[data-theme="bumaga"][data-holiday="sakura"]{
+  --hol:#D9547E;--hol-p:26%;--hol-a:#E57FA0;--hol-b:#F0A27A;
+  --lep-1:#FBD3E0;--lep-2:#F09BB7;--lep-k:color-mix(in srgb,var(--ink) 70%,transparent);
 }
 .lepestok{
   position:absolute;top:-16px;
-  background:linear-gradient(140deg,#F7C6D6,#EFA3BC);
+  background:linear-gradient(140deg,var(--lep-1),var(--lep-2));
+  box-shadow:0 0 0 1px var(--lep-k);
   border-radius:70% 30% 62% 38% / 60% 62% 38% 40%;
   opacity:0;animation:padenie linear infinite;
 }
@@ -2199,10 +3309,94 @@ html[data-holiday="sakura"] .prazdnik .zaliv{
   90%  {opacity:var(--vidno,.55)}
   100% {transform:translate3d(var(--snos,60px),102vh,0) rotate(420deg);opacity:0}
 }
+/* ---------- Сакура: весенние сумерки ----------
+   Сцена того же устройства, что у Хэллоуина и Нового года: розово-
+   лиловое вечернее небо с редкими звёздами, бледная туманная луна в
+   правом поле (обородзуки — «луна в дымке», весенняя), вдали гора с
+   белой шапкой, пагода и тории, дымка, впереди — цветущие деревья,
+   бумажные фонарики на верёвке и каменный фонарь. Лепестки летят те же.
+   Ветка в правом верхнем углу ушла: там теперь луна, а цветущих ветвей
+   хватает внизу.
+
+   Свои переменные:
+     --sk-gora / --sk-gora-sneg — гора и её шапка;
+     --sk-dal / --sk-dal-cvet   — холмы вдали и облачка цветущих деревьев;
+     --sk-pagoda                — пагода и тории;
+     --sk-stvol                 — стволы, ветви, верёвка;
+     --sk-cvet-ten / --sk-cvet / --sk-cvet-blik — кроны: тень, цвет, блик;
+     --sk-bereg                 — земля;
+     --sk-kamen                 — каменный фонарь;
+     --sk-fonar / --sk-ogon     — бумага фонарика и огонь.
+   Кроны в сумерках приглушённые, пыльно-розовые: яркие пятна внизу
+   спорили бы с текстом подвала. */
+html[data-holiday="sakura"]{
+  --hall-nebo-1:#2B2E3C;--hall-nebo-2:#3A2F50;--hall-nebo-3:#64405F;
+  --hall-gorizont:rgba(246,160,140,.36);--hall-zvezda:#FFF0F6;
+  --hall-luna-1:#FFFAF6;--hall-luna-2:#F5E7E6;--hall-luna-kray:#E2CBD0;
+  --hall-luna-svet:rgba(255,212,222,.36);--hall-krater:rgba(196,160,170,.30);
+  --hall-tuman:rgba(255,206,224,.15);
+  --sk-gora:#4E3D66;--sk-gora-sneg:#C4B4D2;
+  --sk-dal:#3A2C4F;--sk-dal-cvet:#6F4D72;--sk-pagoda:#2A2038;
+  --sk-stvol:#1E1622;--sk-bereg:#1C1520;--sk-kamen:#2A2230;
+  --sk-cvet-ten:#6E4262;--sk-cvet:#A86E90;--sk-cvet-blik:#CB97B2;
+  --sk-fonar:#E0744E;--sk-ogon:#FFD08A;
+}
+/* Ночь: поздние сумерки, синее глубже, кроны — ёдзакура в свете
+   фонарей. */
+html[data-theme="noch"][data-holiday="sakura"]{
+  --hall-nebo-1:#181C2B;--hall-nebo-2:#272246;--hall-nebo-3:#52385F;
+  --hall-gorizont:rgba(232,140,150,.30);
+  --hall-luna-1:#FFF8F8;--hall-luna-2:#EFE2EA;--hall-luna-kray:#D4C2D2;
+  --sk-gora:#3E3460;--sk-gora-sneg:#ACA2C8;
+  --sk-dal:#2C2546;--sk-dal-cvet:#5C4370;--sk-pagoda:#1E1932;
+  --sk-stvol:#141220;--sk-bereg:#13111C;--sk-kamen:#201C2C;
+  --sk-cvet-ten:#5F3D60;--sk-cvet:#976689;--sk-cvet-blik:#BC90AE;
+}
+/* Уголь: пыльная роза на сливовом, зарево тёплое, луна янтарная. */
+html[data-theme="ugol"][data-holiday="sakura"]{
+  --hall-nebo-1:#151619;--hall-nebo-2:#211A28;--hall-nebo-3:#432939;
+  --hall-gorizont:rgba(214,112,92,.26);--hall-zvezda:#F2E6E6;
+  --hall-luna-1:#FFF5EA;--hall-luna-2:#F0DCCB;--hall-luna-kray:#D2B39E;
+  --hall-luna-svet:rgba(245,196,170,.24);--hall-krater:rgba(170,130,110,.30);
+  --hall-tuman:rgba(230,190,200,.10);
+  --sk-gora:#3A2A3E;--sk-gora-sneg:#9C8C9C;
+  --sk-dal:#281D2A;--sk-dal-cvet:#503444;--sk-pagoda:#1A141C;
+  --sk-stvol:#0E0B0F;--sk-bereg:#0E0B10;--sk-kamen:#1A161C;
+  --sk-cvet-ten:#5E3646;--sk-cvet:#93596F;--sk-cvet-blik:#B47E91;
+}
+/* Бумага: розово-кремовая бумага — светлое небо с персиковым закатом,
+   луна обведена тушью, гора и холмы — бледная размывка, кроны — светлый
+   розовый с контуром тушью, как в манге. */
+html[data-theme="bumaga"][data-holiday="sakura"]{
+  --hall-nebo-1:#F9F6F0;--hall-nebo-2:#F8ECEC;--hall-nebo-3:#F3DDE3;
+  --hall-gorizont:rgba(255,190,160,.46);--hall-zvezda:#C49AAE;
+  --hall-luna-1:#FFFDF8;--hall-luna-2:#FCF1EE;--hall-luna-kray:#F1D9D8;
+  --hall-luna-svet:rgba(255,196,200,.40);--hall-krater:rgba(210,170,170,.26);
+  --hall-tuman:rgba(255,255,255,.60);
+  --sk-gora:#E6DAE8;--sk-gora-sneg:#FFFFFF;
+  --sk-dal:#EEDFE6;--sk-dal-cvet:#F2CBD8;--sk-pagoda:#CDB9CB;
+  --sk-stvol:#8E7484;--sk-bereg:#EADAE0;--sk-kamen:#C9B8C4;
+  --sk-cvet-ten:#EDB2C6;--sk-cvet:#F7CCDA;--sk-cvet-blik:#FFE8EF;
+  --sk-fonar:#EE8A5E;--sk-ogon:#FFD58E;
+}
+/* Фонарики светятся ровно, чуть «дышат». */
+.fonar-svet{animation:fonar 4.5s ease-in-out infinite alternate}
+@keyframes fonar{from{opacity:.7}to{opacity:1}}
+/* «Бумага»: кроны и гора обведены тушью. */
+html[data-theme="bumaga"] .sakura-sad .sakura-derevo path[fill="var(--sk-cvet-ten)"],
+html[data-theme="bumaga"] .sakura-dal path[fill="var(--sk-gora)"]{
+  stroke:color-mix(in srgb,var(--ink) 50%,transparent);stroke-width:1.1}
 
 /* ---------- Значок рядом с логотипом ---------- */
 .prazdznak{display:grid;place-items:center;flex:none;margin-left:-2px}
 .prazdznak svg{display:block}
+
+/* ---------- Вкладка не на виду — праздник стоит ----------
+   Пока вкладка спрятана, анимации незачем крутиться. Класс ставит
+   app.js по событию visibilitychange. */
+html.prazdnik-pauza .prazdnik *,
+html.prazdnik-pauza .prazdnik::before,
+html.prazdnik-pauza .prazdnik *::before{animation-play-state:paused}
 
 /* ================= КНОПКИ ШАПКИ И СВЯЗЬ =================
    На широком экране .acts — обычный ряд кнопок, подписи спрятаны, а
@@ -2222,6 +3416,14 @@ html[data-holiday="sakura"] .prazdnik .zaliv{
 }
 .svyaz:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover),var(--shadow-lift)}
 .svyaz:active{transform:translateY(0) scale(.94)}
+/* Кнопка «Связаться» висит в правом нижнем углу поверх всего. Когда
+   страница прокручена до конца, под ней оказывается футер — и правый
+   край футера (ссылки «Правила», «О проекте») уходил под кнопку. Пока
+   экран не настолько широк, чтобы футер кончался левее кнопки, держим
+   справа место под неё. */
+@media (max-width:1320px){
+  [data-page="index"] footer .in{padding-right:max(24px, calc(clamp(14px,2.5vw,26px) + 64px))}
+}
 
 @media (max-width:620px){
   .burger{display:grid}
@@ -2294,7 +3496,16 @@ html[data-holiday="sakura"] .prazdnik .zaliv{
 
   /* Праздник: украшений вдвое меньше — экран меньше, батарею жалко.
      Число задаётся в коде, здесь только размеры. */
-  .luna{top:clamp(70px,12vh,120px);right:12px}
+  /* Луна на телефоне — в углу под шапкой (она здесь в два ряда, и
+     выше). Маленькая: ровно в просвет справа от заголовка «Мой список»
+     или «Найдено», над вкладками и над строкой «… тайтлов». */
+  .luna{--disk:50px;--luna-y:121px;width:100px;right:-9px;transition:opacity .4s ease}
+  html:has(#guestbar.show) .luna{--luna-y:163px}
+  /* Прокрутили — под луной поехал список, и его светлый текст мог бы
+     встать прямо на светлый диск. Тогда луна почти гаснет (класс
+     prokrutka ставит app.js); вернулись наверх — снова светит. На
+     «Бумаге» текст тёмный — ему светлая луна не мешает. */
+  html.prokrutka:not([data-theme="bumaga"]) .luna{opacity:.2}
 }
 
 @media (max-width:400px){
@@ -2302,6 +3513,307 @@ html[data-holiday="sakura"] .prazdnik .zaliv{
   /* Прячем только имя. Первый вариант правила убирал все span внутри
      плашки — вместе с именем исчезала и аватарка. */
   #whoami{display:none}
+}
+
+/* ==================== ОДИНАКОВЫЙ ВИД: МАНГА ==================== */
+/* Стиль «манга / комикс» — один слой для всего, что нажимается.
+
+   Правила:
+   • заливка плоская, без градиентов и размытых теней;
+   • обводка тушью (--ink / --ink-soft, толщина --bw);
+   • тень — жёсткий сдвиг (--off), как оттиск при печати;
+   • наведение — кнопка приподнимается из тени (тень чуть длиннее);
+   • нажатие — кнопка «въезжает» в свою тень: сдвигается на её место,
+     тень пропадает. Получается щелчок, который видно и чувствуется;
+   • движения короткие (--fast/--mid) и с пружинкой (--pop);
+   • тушь — по чуть-чуть: мазок под заголовком, мазок под ссылкой при
+     наведении, обводка-фокус и растр точками на затемнении окна.
+
+   Цвета туши и тени задаёт каждая тема (раздел ТЕМЫ), праздник
+   подмешивает свой цвет в акцент — поэтому этот раздел цветов не
+   знает вовсе, только переменные.
+
+   Раздел — доводка (как «ОДИНАКОВЫЙ ВИД НА ВСЕХ ЭКРАНАХ» и «ДВИЖЕНИЕ»):
+   он нарочно лежит в конце и перерисовывает уже описанные выше вещи.
+   Поэтому проверка «одно имя — одна вещь» его не считает, а сами вещи
+   (размеры, отступы, раскладка) остались в своих разделах. */
+
+/* ---------- фокус с клавиатуры: обводка тушью ---------- */
+:focus-visible{outline:2.5px solid var(--ink);outline-offset:3px}
+.card.boxcard:focus-visible .pic{outline:2.5px solid var(--ink);outline-offset:4px}
+
+/* ---------- общая механика «оттиска» ----------
+   Каждой кнопке достаточно задать --o (сдвиг тени) и --sc (цвет тени),
+   движение у всех одно. */
+.wide,.chipbtn,.share,.noticego,.small,.filtbtn,.who button,.guest .mini-btn,
+.theme,.logopick,.ep,.toast #toast-go,.selbtn,.svyaz{
+  --o:var(--off);--sc:var(--print);
+  box-shadow:var(--o) var(--o) 0 var(--sc);
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),
+             background-color var(--fast) ease,border-color var(--fast) ease,color var(--fast) ease;
+}
+.wide:hover,.chipbtn:hover,.share:hover,.noticego:hover,.small:hover,.filtbtn:hover,
+.who button:hover,.guest .mini-btn:hover,.theme:hover,.logopick:hover,.ep:hover,
+.toast #toast-go:hover,.selbtn:hover,.svyaz:hover{
+  transform:translate(-1px,-1px);box-shadow:calc(var(--o) + 1px) calc(var(--o) + 1px) 0 var(--sc);
+  filter:none;
+}
+.wide:active,.chipbtn:active,.share:active,.noticego:active,.small:active,.filtbtn:active,
+.who button:active,.guest .mini-btn:active,.theme:active,.logopick:active,.ep:active,
+.toast #toast-go:active,.selbtn:active,.svyaz:active{
+  transform:translate(var(--o),var(--o));box-shadow:0 0 0 var(--sc);transition-duration:.04s;
+}
+
+/* ---------- главная кнопка: заливка акцентом ---------- */
+.wide,.chipbtn.primary,.share{
+  background:var(--mint);color:var(--on-acc);
+  border:var(--bw) solid var(--rim,#0B0C10);border-radius:12px;
+  font-weight:800;letter-spacing:.01em;
+}
+html[data-theme="bumaga"]{--rim:var(--ink)}
+.wide{padding:11px 12px}
+.dbox .wide.danger{background:var(--sand);color:#20180E}
+.noticego{background:var(--sand);color:#20180E;border:var(--bw) solid var(--rim,#0B0C10);
+  border-radius:10px;--o:2px}
+
+/* ---------- обычная кнопка: бумага с обводкой ---------- */
+.wide.ghost,.chipbtn,.small,.filtbtn,.guest .mini-btn,.toast #toast-go{
+  background:var(--surface);color:var(--text);
+  border:var(--bw) solid var(--ink-soft);border-radius:10px;font-weight:700;
+}
+.wide.ghost{border-radius:12px}
+.wide.ghost:hover,.chipbtn:hover,.small:hover,.filtbtn:hover,.guest .mini-btn:hover,
+.toast #toast-go:hover{border-color:var(--ink);color:var(--text)}
+.chipbtn.primary{background:var(--mint);color:var(--on-acc);border-color:var(--rim,#0B0C10)}
+.chipbtn.primary:hover{border-color:var(--rim,#0B0C10);color:var(--on-acc)}
+.chipbtn.mute{color:var(--dim)}
+.small,.guest .mini-btn,.toast #toast-go{--o:2px}
+.small.warn{color:var(--alert);border-color:color-mix(in srgb,var(--alert) 55%,var(--ink-soft))}
+.small.warn:hover{border-color:var(--alert);color:var(--alert)}
+.filtbtn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* «Выйти» в плашке профиля — маленькая, тень короче. */
+.who{border:var(--bw) solid var(--ink-soft);border-radius:12px;
+  transition:border-color var(--fast) ease}
+.who:hover{border-color:var(--ink)}
+.who button{background:var(--surface-2);color:var(--text);border:1.5px solid var(--ink-soft);
+  border-radius:8px;--o:2px}
+.who button:hover{border-color:var(--ink)}
+
+/* ---------- кнопки-значки в шапке ----------
+   Круг с обводкой. Тени в покое нет — шапка остаётся спокойной; под
+   мышкой значок приподнимается в тень, под пальцем въезжает в неё. */
+.iconbtn,.sheet .close,.card .del{
+  border:var(--bw) solid var(--ink-soft);background:var(--surface);color:var(--dim);
+  box-shadow:0 0 0 var(--print);
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),
+             border-color var(--fast) ease,color var(--fast) ease,opacity var(--fast) ease;
+}
+.iconbtn:hover{color:var(--text);border-color:var(--ink);
+  transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--print)}
+.iconbtn:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--print);
+  transition-duration:.04s}
+.iconbtn.accent{color:var(--mint-ink);border-color:color-mix(in srgb,var(--mint) 60%,var(--ink-soft))}
+.iconbtn.accent:hover{color:var(--mint-ink);border-color:var(--mint-ink)}
+.card .del{background:var(--surface);backdrop-filter:none}
+.card .del:hover{color:var(--text);border-color:var(--ink);box-shadow:2px 2px 0 var(--print);
+  background:var(--surface)}
+.dotcount{border-color:var(--bg);box-shadow:1px 1px 0 var(--print)}
+
+/* Кнопка «Связаться» — крупная, висит поверх всего: её тень длиннее. */
+.svyaz{border:var(--bw) solid var(--ink);background:var(--surface);color:var(--mint-ink);--o:4px}
+
+/* ---------- логотип: тот же оттиск ---------- */
+.brand .mark{filter:drop-shadow(2px 2px 0 var(--print))}
+.brand b i{color:var(--mint-ink)}
+
+/* ---------- переключатели-сегменты ----------
+   Выбранное — «залито тушью»: светлая плашка на тёмных темах, чёрная на
+   «Бумаге». Это читается сильнее, чем прежний чуть-более-серый фон, и не
+   тратит акцентный цвет на то, что не является действием. */
+.seg,.sec .tabs,.lang-seg{
+  background:var(--surface);border:var(--bw) solid var(--ink-soft);border-radius:12px;
+  box-shadow:2px 2px 0 var(--print);
+}
+.seg.wrap{border-radius:12px}
+.seg button,.sec .tabs a,.lang-seg .lang{
+  border-radius:8px;font-weight:700;
+  transition:background-color var(--fast) ease,color var(--fast) ease,transform var(--fast) var(--pop);
+}
+.seg button:hover,.sec .tabs a:hover,.lang-seg .lang:hover{color:var(--text);transform:none;box-shadow:none}
+.seg button:active,.sec .tabs a:active,.lang-seg .lang:active{transform:translateY(1px) scale(.97)}
+.seg button.on,.sec .tabs a.on,.lang-seg .lang.on{
+  background:var(--ink);color:var(--bg);box-shadow:none;
+}
+.sec .tabs a.on{animation:mgPop .16s var(--pop)}
+.sec .tabs a.on .tabn{color:var(--bg);background:color-mix(in srgb,var(--bg) 22%,transparent)}
+.gate .langrow .lang{border:1.5px solid transparent;border-radius:8px}
+
+/* ---------- метки и плашки ---------- */
+.tag,.pill,.roul .pickres .rtags .tag{border-radius:8px;border:1.5px solid var(--ink-soft)}
+.role,.nospoil,.sheet .chip{border-radius:7px}
+
+/* ---------- поля ввода ----------
+   Обводка тушью; в фокусе линия темнеет (светлеет) и под полем
+   появляется оттиск акцентом — видно, куда сейчас печатаешь. */
+.find input,.field input,.inp,.dbox .inp{
+  border:var(--bw) solid var(--ink-soft);border-radius:12px;background:var(--surface);
+  transition:border-color var(--fast) ease,box-shadow var(--fast) var(--pop),transform var(--fast) var(--pop);
+}
+.field input,.inp{border-radius:10px}
+.find input:focus,.field input:focus,.inp:focus{
+  outline:none;border-color:var(--ink);background:var(--surface);
+  box-shadow:3px 3px 0 var(--mint);transform:translate(-1px,-1px);
+}
+.find::before{border-color:var(--ink-soft);box-shadow:6px 6px 0 -4.6px var(--ink-soft)}
+
+/* ---------- переключатели да/нет ---------- */
+.sw{border:var(--bw) solid var(--ink-soft);background:var(--surface-2);
+  transition:background-color var(--fast) ease,border-color var(--fast) ease}
+.sw::after{top:2px;background:var(--ink-soft);box-shadow:1px 1px 0 var(--print);
+  transition:left .13s var(--pop),background-color var(--fast) ease}
+.sw[aria-checked="true"]{background:var(--mint);border-color:var(--ink);animation:none}
+.sw[aria-checked="true"]::after{background:var(--ink)}
+.sw:active::after{width:21px}
+.drop .nswitch .nknob{box-shadow:inset 0 0 0 var(--bw) var(--ink-soft)}
+.drop .nswitch .nknob::after{background:var(--ink-soft);transition:transform .13s var(--pop),background-color var(--fast) ease}
+.drop .nswitch.on .nknob{background:var(--mint);box-shadow:inset 0 0 0 var(--bw) var(--ink)}
+.drop .nswitch.on .nknob::after{background:var(--ink)}
+
+/* ---------- образцы акцента, темы, логотипы ---------- */
+.sc{border:none;box-shadow:0 0 0 var(--bw) var(--ink-soft)}
+.sc:hover{transform:translate(-1px,-1px);box-shadow:0 0 0 var(--bw) var(--ink),2px 2px 0 var(--bw) var(--print)}
+.sc.on{box-shadow:0 0 0 var(--bw) var(--ink),3px 3px 0 var(--bw) var(--print)}
+.theme,.logopick{border:var(--bw) solid var(--ink-soft);border-radius:12px;--o:0px}
+.theme:hover,.logopick:hover{border-color:var(--ink);--o:2px}
+.theme.on,.logopick.on{border-color:var(--ink);--o:3px}
+.theme.on:hover,.logopick.on:hover{--o:3px}
+
+/* ---------- окна и всплывающие списки ----------
+   Рамка тушью толще, чем у кнопок, и длинный оттиск: окно — главный
+   «кадр» на экране. Появляется щелчком: чуть меньше — чуть больше —
+   на месте, за шесть сотых секунды до того, как глаз начнёт ждать. */
+.panel,.sheet,.dbox,.roul,.box,.cropwrap{
+  border:2.5px solid var(--ink);border-radius:16px;box-shadow:var(--off-lg) var(--off-lg) 0 var(--print);
+}
+.drop,.menu,.toast{
+  border:var(--bw) solid var(--ink);border-radius:12px;box-shadow:4px 4px 0 var(--print);
+}
+.panel .phead,.panel .pfoot,.drop .dh,.drop .df{border-color:var(--ink-soft)}
+.veil.show .panel,.veil.show .sheet,.veil.show .roul,.veil.show .cropwrap,.veil.dialog .dbox{
+  animation:mgPop .18s var(--pop);
+}
+.dbox h3{animation:riseIn .16s var(--ease) both .03s}
+.dbox p{animation:riseIn .16s var(--ease) both .05s}
+.dbox .drow{animation:riseIn .16s var(--ease) both .07s}
+.drop.show{transform-origin:top right;animation:mgPop .14s var(--pop)}
+.menu.show{transform-origin:bottom right;animation:mgPop .14s var(--pop)}
+.menu.down.show{transform-origin:top right}
+.toast.show{animation:toastUp .2s var(--pop)}
+.gate .box{animation:mgPop .22s var(--pop)}
+/* Затемнение под окном — растр точками, как тон в манге. */
+.veil{background:radial-gradient(circle,rgba(255,255,255,.055) 1px,transparent 1.5px) 0 0/7px 7px,
+                 rgba(8,10,14,.82)}
+html[data-theme="bumaga"] .veil{
+  background:radial-gradient(circle,rgba(30,27,23,.22) 1px,transparent 1.5px) 0 0/7px 7px,
+             rgba(46,40,32,.5)}
+.menu button{border-radius:8px}
+.menu button:hover{transform:translateX(2px)}
+.menu .epgrid button.on{background:var(--mint);color:var(--on-acc);box-shadow:inset 0 0 0 1.5px var(--rim,#0B0C10)}
+@keyframes mgPop{
+  0%  {opacity:0;transform:scale(.9)}
+  100%{opacity:1;transform:none}
+}
+
+/* ---------- карточки ----------
+   Обложка в рамке, как кадр манги. Под мышкой карточка приподнимается
+   в оттиск — тот же жест, что у кнопок, только крупнее. */
+.card .pic{border-radius:12px;box-shadow:0 0 0 var(--bw) var(--ink-soft);
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop)}
+.card:hover .pic{transform:translate(-3px,-4px);
+  box-shadow:0 0 0 var(--bw) var(--ink),6px 7px 0 var(--bw) var(--print)}
+.card:active .pic{transform:translate(1px,1px);box-shadow:0 0 0 var(--bw) var(--ink);transition-duration:.04s}
+.card .wrap{border-radius:12px}
+.grid .card{animation:mgCard .22s var(--pop) both}
+@keyframes mgCard{
+  from{opacity:0;transform:translateY(8px) scale(.97)}
+  to  {opacity:1;transform:none}
+}
+.mini{border:1.5px solid var(--ink-soft);border-radius:12px}
+.mini:hover{transform:translate(-2px,-2px);border-color:var(--ink);box-shadow:4px 4px 0 var(--print)}
+.part{border:1.5px solid var(--ink-soft);
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),border-color var(--fast) ease}
+.part:hover{transform:translate(-1px,-1px);border-color:var(--ink);box-shadow:3px 3px 0 var(--print)}
+.part.now,.part.now:hover{transform:none;box-shadow:none;border-color:color-mix(in srgb,var(--mint) 60%,var(--ink-soft))}
+.boxcard .newep{border:1.5px solid #0B0C10;box-shadow:2px 2px 0 #0B0C10}
+.boxcard .playhint .pbtn{background:var(--mint);color:var(--on-acc);border:var(--bw) solid #0B0C10;
+  box-shadow:3px 3px 0 #0B0C10}
+.ep{border:1.5px solid var(--ink-soft);--o:0px}
+.ep:hover{border-color:var(--ink);--o:2px}
+.ep.now{background:var(--sky);border-color:var(--rim,#0B0C10);color:#151D27;--o:2px}
+
+/* ---------- мазок тушью ----------
+   Под заголовком раздела — короткий мазок акцентом (всегда). Под
+   ссылкой — такой же мазок цветом ссылки, вырастает слева направо при
+   наведении. Форма мазка одна, в маске: кисть с утолщением в начале и
+   рваным хвостом. */
+.sec h2,.hero h1,.cabh h3{position:relative}
+.sec h2::after,.cabh h3::after{
+  content:'';position:absolute;left:-3px;bottom:-6px;width:calc(100% + 8px);height:8px;
+  background:var(--mint);opacity:.85;pointer-events:none;
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M3 7.6C30 3.6 72 2.4 118 3.1c30 .5 56 1.4 79 1.1l-1.6 3.6c-22 1.4-52 1.8-84 2.3-38 .6-72 1.3-104 2.2z'/></svg>") center/100% 100% no-repeat;
+          mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M3 7.6C30 3.6 72 2.4 118 3.1c30 .5 56 1.4 79 1.1l-1.6 3.6c-22 1.4-52 1.8-84 2.3-38 .6-72 1.3-104 2.2z'/></svg>") center/100% 100% no-repeat;
+}
+footer a,.sec > a,.back,.pravila-text a{position:relative;text-decoration:none}
+footer a:hover,.sec > a:hover,.pravila-text a:hover{text-decoration:none}
+footer a::after,.sec > a::after,.back::after,.pravila-text a::after{
+  content:'';position:absolute;left:-2px;right:-2px;bottom:-4px;height:5px;
+  background:currentColor;pointer-events:none;
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform var(--mid) var(--pop);
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M3 7.6C30 3.6 72 2.4 118 3.1c30 .5 56 1.4 79 1.1l-1.6 3.6c-22 1.4-52 1.8-84 2.3-38 .6-72 1.3-104 2.2z'/></svg>") center/100% 100% no-repeat;
+          mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M3 7.6C30 3.6 72 2.4 118 3.1c30 .5 56 1.4 79 1.1l-1.6 3.6c-22 1.4-52 1.8-84 2.3-38 .6-72 1.3-104 2.2z'/></svg>") center/100% 100% no-repeat;
+}
+footer a:hover::after,.sec > a:hover::after,.back:hover::after,.pravila-text a:hover::after,
+footer a:focus-visible::after,.back:focus-visible::after{transform:scaleX(1)}
+
+/* ---------- плеер ----------
+   Плеер тёмный в любой теме, поэтому у него своя тушь: светлая линия
+   и чёрный оттиск. Логику плеера стиль не трогает — только вид. */
+.player{--p-ink:#E5E3EA;--p-soft:rgba(229,227,234,.3)}
+.cbtn{border:var(--bw) solid transparent;border-radius:9px;
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),
+             border-color var(--fast) ease,background-color var(--fast) ease,color var(--fast) ease}
+.cbtn:hover{background:#1A1D25;border-color:var(--p-soft);color:var(--text);
+  transform:translate(-1px,-1px);box-shadow:2px 2px 0 #000}
+.cbtn:active{transform:translate(1px,1px);box-shadow:0 0 0 #000;transition-duration:.04s}
+.selbtn{background:#1A1D25;border:var(--bw) solid var(--p-soft);border-radius:9px;
+  --o:2px;--sc:#000}
+.selbtn:hover{border-color:var(--p-ink)}
+.selbtn.flat,.selbtn.flat:hover,.selbtn.flat:active{transform:none;box-shadow:none;border-color:var(--p-soft)}
+.playbtn{background:var(--mint);color:var(--on-acc);border:3px solid #0B0C10;
+  box-shadow:5px 5px 0 #000;
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),opacity .2s ease}
+.playbtn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #000}
+.playbtn:active{transform:translate(4px,4px);box-shadow:1px 1px 0 #000;transition-duration:.04s}
+/* Линии скорости вокруг кнопки пуска — единственное место, где они
+   есть: «сейчас поедет». Под мышкой вспыхивают и чуть проворачиваются. */
+.playbtn::before{
+  content:'';position:absolute;inset:-30px;border-radius:50%;z-index:-1;pointer-events:none;
+  background:repeating-conic-gradient(from 4deg,transparent 0 8deg,rgba(255,255,255,.5) 8deg 9.4deg);
+  -webkit-mask:radial-gradient(circle,transparent 46%,#000 50%,#000 64%,transparent 72%);
+          mask:radial-gradient(circle,transparent 46%,#000 50%,#000 64%,transparent 72%);
+  opacity:0;transform:scale(.8) rotate(-8deg);
+  transition:opacity var(--mid) ease,transform var(--mid) var(--pop);
+}
+.playbtn:hover::before{opacity:.75;transform:none}
+.track .knob{box-shadow:0 0 0 2px #0B0C10,2px 2px 0 2px #000}
+
+/* ---------- узкий экран ---------- */
+@media (max-width:620px){
+  .acts{border:var(--bw) solid var(--ink);border-radius:12px;box-shadow:4px 4px 0 var(--print)}
+  .acts.open{transform-origin:top center;animation:mgPop .14s var(--pop)}
+  .acts .iconbtn,.acts .filtbtn,.acts .bellwrap>.iconbtn{box-shadow:none;border:none}
+  .acts .iconbtn:active,.acts .filtbtn:active{transform:none;background:var(--surface-2)}
 }
 
 /* ======================================================================
@@ -2330,6 +3842,964 @@ html[data-holiday="sakura"] .prazdnik .zaliv{
     top: var(--stoyat, 30%);
     opacity: var(--vidno, .5);
   }
+  /* Хэллоуин: туман стоит, звёзды не мерцают — просто светят. */
+  .tuman, .zvezdy::before, .zvezdy::after { animation: none; }
+  /* Новый год и сакура: сияние, огоньки, дым и фонари стоят. Дым —
+     одним неподвижным облачком над трубой. */
+  .siyanie, .ogonek, .fonar-svet { animation: none; }
+  .dym { animation: none; opacity: .8; }
+  .dym.d1, .dym.d2 { display: none; }
   .letuchka { left: var(--stoyat-x, 30%); }
   html[data-theme="bumaga"] .snezh { opacity: var(--vidno-svet, .9); }
 }
+
+/* ==========================================================================
+   Язык сайта / язык аниме и 18+ (fix-12). Только поведение — минимум
+   правил, остальное берётся из общих .seg/.opt/.sw.
+   ========================================================================== */
+.gate .langrow{flex-wrap:wrap;align-items:center}
+.gate .langlbl{flex-basis:100%;text-align:center;font-size:12px;color:var(--dim)}
+.seg button[disabled]{opacity:.55;cursor:not-allowed}
+.seg button[disabled]:hover{color:inherit}
+.seg .soon{margin-left:4px;font-size:.85em;opacity:.8}
+/* Гостю кабинет — только для чтения, но язык он выбрать может (живёт в
+   браузере): блок языка из «серого» режима исключён. */
+.pbody.ro #cab-lang .grp{opacity:1;pointer-events:auto}
+
+/* ==================== КАРТОЧКА ПРОФИЛЯ И КАБИНЕТ ==================== */
+/* Нажатие на себя в шапке открывает карточку — «кадр» манги: шапка
+   залита акцентом с растром и линиями скорости, аватар в обводке тушью,
+   роль — наклейкой. Ниже цифры, быстрые тема и язык и крупные входы.
+   На широком экране карточка выпадает из-под плашки пузырём реплики
+   (хвостик смотрит на аватар), на телефоне выезжает снизу листом.
+
+   Кабинет — тот же язык: шапка-кадр, слева полоса разделов (выбранный
+   «залит тушью», как сегмент), справа один раздел. Группы настроек —
+   рамки с подписью-плашкой на краю, как надписи в кадре.
+
+   Цвета — только переменные темы. Текст на заливке акцентом — --on-acc
+   (акценты светлые во всех темах), обводка поверх акцента — --rim
+   (тёмная везде). */
+
+/* ---------- плашка в шапке ---------- */
+[data-page="index"] .who{padding:3px 10px 3px 3px;gap:8px}
+[data-page="index"] .who .ava{width:30px;height:30px;font-size:13px;
+  box-shadow:0 0 0 var(--bw) var(--ink-soft)}
+/* Стрелка → крестик. Раньше открытая карточка переворачивала стрелку
+   на 180° с «пружиной» (--pop): она проскакивала за половину оборота и
+   возвращалась, и на середине пути мелькал косой уголок — казалось, что
+   значок дёргается слева направо. Теперь стрелка — две палочки, и
+   каждая на месте поворачивается и вытягивается: «⌄» плавно сходится в
+   «×» и обратно. Сам значок (12×12) не двигается и не меняет размер —
+   поэтому не сдвигаются ни аватарка, ни имя. Палочка — отрезок длиной
+   8.4 по центру (6, 6); в стрелке она короче (×0.573 = прежние 4.8) и
+   сдвинута к своей половине «галочки». */
+.whocaret{flex:none;color:var(--dim);transition:color var(--fast) ease}
+.whocaret path{transform-box:view-box;transform-origin:6px 6px;
+  transition:transform var(--slow) cubic-bezier(.4,0,.2,1)}
+.whocaret .wc1{transform:translate(-1.7px,.1px) rotate(45deg) scaleX(.573)}
+.whocaret .wc2{transform:translate(1.7px,.1px) rotate(-45deg) scaleX(.573)}
+.who[aria-expanded="true"] .whocaret .wc1{transform:translate(0,0) rotate(45deg) scaleX(.9)}
+.who[aria-expanded="true"] .whocaret .wc2{transform:translate(0,0) rotate(-45deg) scaleX(.9)}
+.who:hover .whocaret{color:var(--text)}
+.who[aria-expanded="true"]{border-color:var(--ink);box-shadow:2px 2px 0 var(--print)}
+.who[aria-expanded="true"] .whocaret{color:var(--text)}
+
+/* ---------- слой под карточкой ----------
+   Прозрачный на широком экране (нажатие мимо закрывает), растр — на
+   телефоне, где карточка становится листом поверх страницы. */
+.ucwrap{position:fixed;inset:0;z-index:145;display:none}
+.ucwrap.show{display:block}
+
+/* ---------- карточка ---------- */
+.ucard{
+  --uc-rim:var(--rim,#0B0C10);
+  --uc-danger:var(--alert);
+  position:fixed;top:72px;right:16px;width:348px;max-width:calc(100vw - 24px);
+  background:var(--surface);color:var(--text);
+  border:2.5px solid var(--ink);border-radius:16px;
+  box-shadow:var(--off-lg) var(--off-lg) 0 var(--print);
+  transform-origin:calc(100% - 34px) -12px;
+}
+html[data-theme="bumaga"] .ucard{--uc-danger:color-mix(in oklab,var(--alert) 52%,#1E1B17)}
+.ucwrap.show .ucard{animation:ucPop .2s var(--pop)}
+@keyframes ucPop{
+  0%  {opacity:0;transform:translateY(-6px) scale(.86) rotate(1.5deg)}
+  100%{opacity:1;transform:none}
+}
+/* Хвостик реплики: чёрный треугольник туши и поверх него — цвета
+   шапки, на полтора пикселя меньше. Получается обведённый хвост. */
+.ucard::before,.ucard::after{content:'';position:absolute;pointer-events:none;
+  clip-path:polygon(50% 0,100% 100%,0 100%)}
+.ucard::before{top:-14px;right:24px;width:22px;height:14px;background:var(--ink)}
+.ucard::after{top:-9.5px;right:27.5px;width:15px;height:10px;background:var(--mint)}
+
+/* шапка-кадр */
+.uchead{position:relative;display:flex;align-items:center;gap:14px;padding:18px 18px 16px;
+  background:var(--mint);color:var(--on-acc);border-bottom:2.5px solid var(--ink);
+  border-radius:13px 13px 0 0;overflow:hidden;isolation:isolate}
+/* Обложка профиля. Своё, ни на что вокруг не похожее оформление:
+   два светлых косых росчерка через всю шапку (как блик на обложке
+   манги) и крупный растр «ромбиком» из правого верхнего угла, который
+   тает к аватару. У фона страницы точки мелкие и в клетку, у тела
+   карточки точек нет вовсе — три слоя больше не сливаются в один.
+   Росчерки — на самом .ucfx, растр — в ::after со своей маской
+   (маска на .ucfx обрезала бы и росчерки). */
+.ucfx{position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    linear-gradient(112deg,transparent 0 56%,rgba(255,255,255,.2) 56% 63%,transparent 63% 66.5%,
+                    rgba(255,255,255,.14) 66.5% 68.5%,transparent 68.5%),
+    linear-gradient(180deg,transparent 55%,rgba(11,12,16,.07))}
+.ucfx::after{content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(circle,rgba(11,12,16,.2) 2.1px,transparent 2.7px) 0 0/12px 12px,
+    radial-gradient(circle,rgba(11,12,16,.2) 2.1px,transparent 2.7px) 6px 6px/12px 12px;
+  -webkit-mask:radial-gradient(120% 150% at 100% 0%,#000 0,rgba(0,0,0,.55) 32%,transparent 62%);
+          mask:radial-gradient(120% 150% at 100% 0%,#000 0,rgba(0,0,0,.55) 32%,transparent 62%)}
+/* Баннер профиля — своя картинка вместо цветной полосы с росчерками и
+   растром (и в карточке, и в шапке настроек). Картинка — cover по
+   центру, сверху — затемнение: слева, где имя и роль, гуще, к правому
+   краю слабее. Имя на нём — светлое с лёгкой тенью: на любой картинке
+   читается, а наклейка роли и так на своей бумаге. Ставит класс has-ban
+   paintBanner в index.js. */
+.ucban{position:absolute;inset:0;z-index:-2;pointer-events:none;display:none;
+  background-position:center;background-size:cover;background-repeat:no-repeat}
+.ucban::after{content:'';position:absolute;inset:0;
+  background:
+    linear-gradient(90deg,rgba(9,10,14,.72),rgba(9,10,14,.4) 55%,rgba(9,10,14,.16)),
+    linear-gradient(0deg,rgba(9,10,14,.3),transparent 65%)}
+.has-ban .ucban{display:block}
+.has-ban .ucfx{display:none}
+.uchead.has-ban #uc-name,.panel.cab .phead.has-ban #set-name{
+  color:#F6F3EC;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+/* Хвостик карточки — цвета шапки; у баннера цвета нет, хвостик — тушью. */
+.ucard.has-ban::after{background:var(--ink)}
+.ucpic{position:relative;flex:none}
+.ucpic .ava{width:62px;height:62px;font-size:25px;font-weight:800;
+  border:3px solid var(--uc-rim);box-shadow:3px 3px 0 var(--uc-rim)}
+.ucstar{position:absolute;right:-6px;bottom:-4px;width:24px;height:24px;border-radius:50%;
+  display:grid;place-items:center;background:var(--sand);color:#20180E;
+  border:2px solid var(--uc-rim);box-shadow:1.5px 1.5px 0 var(--uc-rim);transform:rotate(-12deg)}
+.ucwho{min-width:0;flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.ucwho b{display:block;max-width:100%;font-size:20px;font-weight:800;line-height:1.15;
+  letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Роль — наклейка: бумага, обводка, тень, чуть наискось. */
+.ucrole{display:inline-block;padding:2px 9px 3px;border-radius:6px;
+  font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;line-height:1.5;
+  background:var(--surface);color:var(--text);border:2px solid var(--uc-rim);
+  box-shadow:2px 2px 0 var(--uc-rim);transform:rotate(-3deg)}
+.ucrole[data-kind="admin"]{background:var(--uc-rim);color:#F4F1EA}
+.ucrole[data-kind="guest"]{background:var(--sand);color:#20180E}
+.ucx{display:none}
+
+/* цифры */
+.ucstats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 16px 4px}
+.ucstat{border:var(--bw) solid var(--ink-soft);border-radius:12px;padding:9px 12px 8px;
+  background:var(--surface-2);box-shadow:2px 2px 0 var(--print)}
+.ucstat b{display:block;font-size:26px;font-weight:800;line-height:1.05;color:var(--text)}
+.ucstat span{display:block;font-size:12.5px;font-weight:700;color:var(--dim)}
+
+/* время гостя */
+.ucguest{margin:16px 16px 4px;padding:10px 12px;border:var(--bw) solid var(--ink-soft);border-radius:12px;
+  background:var(--surface-2);box-shadow:2px 2px 0 var(--print)}
+.uctime{display:block;font-size:14px;font-weight:700;color:var(--text)}
+.ucrail{display:block;height:7px;margin-top:8px;border-radius:99px;overflow:hidden;
+  background:var(--surface);border:1.5px solid var(--ink-soft)}
+.ucrail i{display:block;height:100%;background:var(--sand);transition:width .4s ease}
+.ucguest.warn{border-color:var(--uc-danger)}
+.ucguest.warn .ucrail i{background:var(--alert)}
+
+/* быстрые тема и язык */
+.ucquick{padding:10px 16px 8px}
+.ucrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 0}
+.uclbl{font-size:13px;font-weight:700;color:var(--dim)}
+.ucthemes{display:flex;gap:8px}
+.ucth{width:32px;height:32px;padding:3px;border-radius:50%;cursor:pointer;
+  background:var(--surface);border:var(--bw) solid var(--ink-soft);
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),border-color var(--fast) ease}
+.ucth i{position:relative;display:block;width:100%;height:100%;border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(128,128,128,.35)}
+.ucth:hover{border-color:var(--ink);transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--print)}
+.ucth:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--print);transition-duration:.04s}
+.ucth[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+.ucrow .seg button{padding:5px 11px;font-size:12.5px}
+
+/* входы */
+.ucmenu{display:flex;flex-direction:column;gap:2px;padding:8px 10px 12px;
+  border-top:1.5px solid var(--uc-sep,var(--line));margin-top:4px}
+.ucgo{display:flex;align-items:center;gap:12px;width:100%;padding:8px 10px;margin:0;
+  border:var(--bw) solid transparent;border-radius:12px;background:none;color:var(--text);
+  font:inherit;text-align:left;text-decoration:none;cursor:pointer;
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),
+             background-color var(--fast) ease,border-color var(--fast) ease}
+.ucic{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+  background:var(--surface-2);color:var(--text);border:var(--bw) solid var(--ink-soft);
+  box-shadow:2px 2px 0 var(--print);
+  transition:background-color var(--fast) ease,color var(--fast) ease,border-color var(--fast) ease,
+             transform var(--fast) var(--pop)}
+.uct{min-width:0;flex:1}
+.uct b{display:block;font-size:14.5px;font-weight:800;line-height:1.25}
+.uct small{display:block;font-size:12px;color:var(--dim);line-height:1.35;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ucarr{flex:none;font-size:20px;line-height:1;color:var(--dimmer);font-weight:700;
+  transition:transform var(--fast) var(--pop),color var(--fast) ease}
+.ucgo:hover,.ucgo:focus-visible{background:var(--surface-2);border-color:var(--ink);
+  transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--print);outline:none}
+.ucgo:hover .ucic,.ucgo:focus-visible .ucic{background:var(--mint);color:var(--on-acc);
+  border-color:var(--uc-rim);transform:rotate(-6deg)}
+.ucgo:hover .ucarr,.ucgo:focus-visible .ucarr{transform:translateX(3px);color:var(--text)}
+.ucgo:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--print);transition-duration:.04s}
+/* «Войти» у гостя — главный вход: значок сразу залит акцентом. */
+.ucin .ucic{background:var(--mint);color:var(--on-acc);border-color:var(--uc-rim)}
+/* «Выйти» — отдельно, под чертой, цветом тревоги. Подтверждения нет
+   (выйти — не потерять), но и случайно, мимоходом, его не нажать. */
+.ucout{position:relative;margin-top:12px}
+.ucout::before{content:'';position:absolute;left:6px;right:6px;top:-9px;
+  border-top:1.5px solid var(--uc-sep,var(--line));pointer-events:none}
+.ucout .uct b,.ucout .ucic{color:var(--uc-danger)}
+.ucout .ucic{border-color:color-mix(in srgb,var(--uc-danger) 60%,var(--ink-soft))}
+.ucout:hover,.ucout:focus-visible{background:color-mix(in srgb,var(--alert) 13%,var(--surface));
+  border-color:var(--uc-danger)}
+.ucout:hover .ucic,.ucout:focus-visible .ucic{background:var(--alert);color:#1B0F0F;border-color:var(--uc-rim)}
+
+/* Низкий экран ноутбука: карточка не влезает — прокручивается сама,
+   хвостик прячем (он вне рамки и обрезался бы). */
+@media (max-height:640px) and (min-width:621px){
+  .ucard{max-height:calc(100vh - 86px);overflow-y:auto}
+  .ucard::before,.ucard::after{display:none}
+}
+
+/* ---------- телефон: лист снизу ---------- */
+@media (max-width:620px){
+  .ucard{top:auto;left:0;right:0;bottom:0;width:auto;max-width:none;max-height:88vh;overflow-y:auto;
+    border-radius:20px 20px 0 0;border-bottom:none;box-shadow:0 -5px 0 var(--print);
+    padding-bottom:env(safe-area-inset-bottom);transform-origin:bottom center}
+  .ucwrap.show .ucard{animation:ucSheet .24s var(--pop)}
+  .ucard::before,.ucard::after{display:none}
+  .uchead{border-radius:17px 17px 0 0;padding:20px 16px 16px}
+  /* «ручка» листа */
+  .uchead::before{content:'';position:absolute;left:50%;top:7px;width:40px;height:4px;margin-left:-20px;
+    border-radius:99px;background:color-mix(in srgb,var(--on-acc) 45%,transparent)}
+  .ucx{display:grid;place-items:center;flex:none;align-self:flex-start;width:34px;height:34px;padding:0;
+    border-radius:50%;cursor:pointer;font-size:20px;line-height:1;font-family:inherit;
+    background:var(--surface);color:var(--text);border:var(--bw) solid var(--uc-rim);
+    box-shadow:2px 2px 0 var(--uc-rim)}
+  .ucx:active{box-shadow:2px 2px 0 var(--uc-rim)}
+  .ucgo{padding:10px}
+}
+@keyframes ucSheet{
+  0%  {transform:translateY(40%);opacity:.4}
+  100%{transform:none;opacity:1}
+}
+
+/* ---------- кабинет: каркас ---------- */
+.panel.cab{max-width:880px;height:min(700px,calc(100vh - 32px));max-height:calc(100vh - 32px);
+  display:flex;flex-direction:column;overflow:hidden;padding:0}
+.panel.cab .close{position:absolute;right:14px;top:14px;z-index:3;width:36px;height:36px;padding:0;
+  border-radius:50%;cursor:pointer;font-size:19px;line-height:1;font-family:inherit;
+  background:var(--surface);color:var(--text);border:var(--bw) solid var(--rim,#0B0C10);
+  box-shadow:2px 2px 0 var(--rim,#0B0C10);
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop)}
+
+/* ---------- крестики «Закрыть» ----------
+   Все крестики — кабинета, окон, карточки профиля, помощника, совета —
+   ведут себя одинаково и спокойно: стоят на месте. Под мышкой — лёгкий
+   тон фона и обводка темнее, под пальцем — чуть уменьшаются, никуда не
+   съезжая. Тень (у кого она есть) не меняется.
+
+   Раньше крестик кабинета под мышкой поворачивался и уезжал вверх-влево
+   с тенью длиннее, а при нажатии прыгал вниз-вправо и терял тень:
+   казалось, что кнопка дёргается. Крестики окон делали то же, только
+   на пиксель. */
+.panel.cab .close,.sheet .close,.ucx,.hlpx,.toast .x{
+  transition:background-color var(--fast) ease,border-color var(--fast) ease,
+             color var(--fast) ease,transform .09s ease}
+.sheet .close{box-shadow:none}
+.panel.cab .close:hover,.sheet .close:hover,.ucx:hover,.hlpx:hover{
+  transform:none;color:var(--text);border-color:var(--ink);
+  background:color-mix(in srgb,var(--mint) 16%,var(--surface))}
+.sheet .close:hover{box-shadow:none}
+.panel.cab .close:hover{box-shadow:2px 2px 0 var(--rim,#0B0C10)}
+.panel.cab .close:active,.sheet .close:active,.ucx:active,.hlpx:active,.toast .x:active{
+  transform:scale(.9);transition-duration:.05s}
+.panel.cab .close:active{box-shadow:2px 2px 0 var(--rim,#0B0C10)}
+.panel.cab .close:focus-visible,.sheet .close:focus-visible,.ucx:focus-visible,.hlpx:focus-visible{
+  outline:2px solid var(--mint);outline-offset:2px}
+
+.panel.cab .phead{position:relative;isolation:isolate;overflow:hidden;flex:none;gap:15px;
+  padding:18px 64px 18px 22px;background:var(--mint);color:var(--on-acc);border-bottom:2.5px solid var(--ink)}
+.panel.cab .phead .ava{width:54px;height:54px;font-size:22px;font-weight:800;color:#171A21;
+  border:3px solid var(--rim,#0B0C10);box-shadow:3px 3px 0 var(--rim,#0B0C10)}
+.panel.cab .phead b{font-size:21px;font-weight:800;color:var(--on-acc);line-height:1.2;margin-bottom:6px}
+.panel.cab .phead .role{margin:0;padding:2px 9px 3px;border-radius:6px;font-size:11px;font-weight:800;
+  letter-spacing:.09em;text-transform:uppercase;line-height:1.5;
+  background:var(--surface);color:var(--text);border:2px solid var(--rim,#0B0C10);
+  box-shadow:2px 2px 0 var(--rim,#0B0C10);transform:rotate(-3deg)}
+.panel.cab .phead .role[data-kind="admin"]{background:var(--rim,#0B0C10);color:#F4F1EA}
+.panel.cab .phead .role[data-kind="guest"]{background:var(--sand);color:#20180E}
+
+.cabbody{flex:1;min-height:0;display:grid;grid-template-columns:204px minmax(0,1fr)}
+
+/* полоса разделов */
+.cabrail{display:flex;flex-direction:column;gap:6px;padding:18px 14px;overflow-y:auto;
+  background:var(--surface-2);border-right:2.5px solid var(--ink)}
+.cabtab{position:relative;display:flex;align-items:center;gap:11px;width:100%;padding:10px 12px;
+  border:var(--bw) solid transparent;border-radius:11px;background:none;color:var(--dim);
+  font:inherit;font-size:14.5px;font-weight:700;text-align:left;cursor:pointer;white-space:nowrap;
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),
+             background-color var(--fast) ease,color var(--fast) ease,border-color var(--fast) ease}
+.cabtab svg{flex:none}
+.cabtab:hover{color:var(--text);border-color:var(--ink-soft);background:var(--surface);
+  transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--print)}
+.cabtab:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--print);transition-duration:.04s}
+/* Выбранный раздел залит тушью и «указывает» в своё содержимое
+   треугольником — как сегмент-переключатель, только с хвостом. */
+.cabtab.on,.cabtab.on:hover{background:var(--ink);color:var(--bg);border-color:var(--ink);
+  transform:none;box-shadow:3px 3px 0 var(--mint)}
+.cabtab.on{animation:mgPop .16s var(--pop)}
+.cabtab.on::after{content:'';position:absolute;right:-24px;top:50%;margin-top:-8px;
+  border:8px solid transparent;border-left-color:var(--ink);pointer-events:none}
+#cab-t-admin{margin-top:auto}
+#cab-t-admin:not(.on){color:var(--text);border-color:var(--ink-soft);border-style:dashed}
+
+/* содержимое */
+.panel.cab .pbody{flex:none;max-height:none;min-height:0;overflow-y:auto;padding:22px 28px 26px}
+.cabsec.cabin{animation:cabIn .2s var(--pop)}
+@keyframes cabIn{
+  0%  {opacity:0;transform:translateX(16px)}
+  100%{opacity:1;transform:none}
+}
+.cabh{margin:0 0 26px;padding-right:12px}
+.cabh h3{display:inline-block;margin:0;font-size:25px;font-weight:800;line-height:1.15}
+.cabh p{margin:13px 0 0;font-size:13.5px;line-height:1.5;color:var(--dim);max-width:560px}
+
+/* Группы — рамки кадра с подписью-плашкой на верхней линии. */
+.panel.cab .grp,.panel.cab .grp:last-child{position:relative;margin:0 0 26px;padding:20px 16px 10px;
+  background:var(--surface);border:var(--bw) solid var(--ink-soft);border-radius:14px;
+  box-shadow:3px 3px 0 var(--print)}
+.panel.cab .grp > h4{position:absolute;left:12px;top:-12px;margin:0;padding:1px 9px 2px;
+  background:var(--surface);color:var(--text);border:var(--bw) solid var(--ink);border-radius:6px;
+  font-size:11px;font-weight:800;letter-spacing:.11em;line-height:1.5;transform:rotate(-1.2deg)}
+.panel.cab .grp .opt + .opt{border-top:1px solid var(--uc-sep,var(--line))}
+.panel.cab .grp > .themes{margin:4px 0 8px}
+.panel.cab .opt .lb b{font-weight:700}
+.panel.cab .opt .lb > span{display:block;margin-top:2px;line-height:1.45}
+.panel.cab .twofa{margin-bottom:8px}
+/* Аккаунты уже лежат в рамке группы — вторая цветная коробка внутри
+   была бы рамкой в рамке. */
+.panel.cab .adm{background:none;border:none;padding:4px 0 6px;border-radius:0}
+.panel.cab .adm .accs{margin-top:0}
+
+/* низ: «Сохранить» и пометка о несохранённом */
+.panel.cab .pfoot{flex:none;align-items:center;gap:14px;padding:12px 22px;
+  background:var(--surface-2);border-top:2.5px solid var(--ink)}
+.cabdirty{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--text)}
+.cabdirty::before{content:'';width:9px;height:9px;border-radius:50%;flex:none;
+  background:var(--sand);box-shadow:0 0 0 1.5px var(--ink)}
+.panel.cab .pfoot .wide.due{animation:cabNudge .42s var(--pop)}
+@keyframes cabNudge{
+  0%,100%{rotate:0deg} 30%{rotate:-3deg} 65%{rotate:2deg}
+}
+
+/* ---------- кабинет на телефоне ----------
+   Разделы — строкой сверху, прокручиваются вбок; шапка ниже, место —
+   содержимому. */
+@media (max-width:620px){
+  #veil-set{padding:8px}
+  .panel.cab{height:calc(100vh - 16px);height:calc(100dvh - 16px);max-height:none;padding:0}
+  .panel.cab .phead{padding:12px 58px 12px 14px;gap:12px}
+  .panel.cab .phead .ava{width:42px;height:42px;font-size:18px}
+  .panel.cab .phead b{font-size:18px;margin-bottom:4px}
+  .panel.cab .close{right:10px;top:10px;width:34px;height:34px}
+  .cabbody{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .cabrail{flex-direction:row;gap:6px;padding:10px 10px 12px;overflow-x:auto;overflow-y:hidden;
+    border-right:none;border-bottom:2.5px solid var(--ink);scrollbar-width:none}
+  .cabrail::-webkit-scrollbar{display:none}
+  .cabtab{flex:none;width:auto;padding:8px 12px;font-size:13.5px;gap:8px}
+  .cabtab.on::after{display:none}
+  #cab-t-admin{margin-top:0}
+  .panel.cab .pbody{padding:18px 14px 22px}
+  .panel.cab .themes{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cabh{margin-bottom:22px}
+  .cabh h3{font-size:22px}
+  .panel.cab .grp,.panel.cab .grp:last-child{padding:18px 12px 8px}
+  .panel.cab .pfoot{padding:10px 14px}
+  @keyframes cabIn{
+    0%  {opacity:0;transform:translateY(10px)}
+    100%{opacity:1;transform:none}
+  }
+}
+
+
+/* ================= ТОЧКИ НА ФОНЕ =================
+   Раньше растр точками жил только в отдельных местах: под окнами, в шапке
+   карточки профиля, в праздничной заливке «Бумаги». Где-то он был, где-то
+   нет, и выглядело это как случайность. Теперь это настоящий фон всей
+   страницы: один ровный слой под содержимым, приколоченный к окну
+   (не едет при прокрутке). Цвет — тушь своей темы, едва заметно.
+
+   Кому не нравится — «Вид» → «Точки на фоне». Тогда убираются все точки
+   сразу: и фон, и растр под окнами, и в карточке профиля, и праздничный. */
+:root{--dots-c:color-mix(in srgb,var(--ink) 9%,transparent)}
+html[data-theme="bumaga"]{--dots-c:color-mix(in srgb,var(--ink) 11%,transparent)}
+html:not([data-dots="off"]) body{
+  background-image:radial-gradient(circle,var(--dots-c) 1px,transparent 1.6px);
+  background-size:9px 9px;background-attachment:fixed}
+
+html[data-dots="off"] .veil{background:rgba(8,10,14,.82)}
+html[data-dots="off"][data-theme="bumaga"] .veil{background:rgba(46,40,32,.5)}
+html[data-dots="off"] .ucfx::after{display:none}
+html[data-dots="off"][data-theme="bumaga"] .prazdnik .zaliv::before{
+  background:radial-gradient(120% 100% at 50% 0%,color-mix(in srgb,var(--hol-a) 22%,transparent),transparent 72%);
+  -webkit-mask-image:none;mask-image:none}
+html[data-dots="off"][data-theme="bumaga"] .prazdnik .zaliv::after{
+  background:radial-gradient(110% 100% at 50% 100%,color-mix(in srgb,var(--hol-b) 22%,transparent),transparent 72%);
+  -webkit-mask-image:none;mask-image:none}
+
+/* ================= АДМИНКА ОТДЕЛЬНО =================
+   «Настройки» и «Админка» открывали одно и то же окно — отличался только
+   раздел, на котором оно открывалось, и было непонятно, зачем две кнопки.
+   Теперь «Админка» — своё окно: без полосы разделов и без «Сохранить»
+   (там всё сохраняется сразу), только аккаунты и объявление. А в
+   «Настройках» раздела «Админка» больше нет. */
+#veil-set.adminmode .cabrail,
+#veil-set.adminmode .pfoot{display:none}
+#veil-set.adminmode .cabbody{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+
+/* ==================== ОДИНАКОВЫЙ ВИД: ШАПКА, КАРТОЧКА, КАБИНЕТ (fix-14) ==================== */
+/* Доводка после того, как сайт посмотрели с телефона.
+
+   • Кнопки шапки сливались с ней: та же заливка, что у шапки, тусклая
+     обводка и серый значок. Теперь у них своя «бумага» — светлее шапки
+     в тёмных темах и белая на «Бумаге», — обводка тушью, оттиск в покое
+     и значок цветом текста.
+     (Отменено в fix-16: светлые обводки и цветные оттиски резали глаз.)
+   • Нажатая плашка профиля (карточка открыта) — «вдавлена» в свой
+     оттиск и залита акцентом, как всё включённое на сайте.
+   • Карточка профиля и кабинет лежат на «приподнятой» поверхности —
+     светлее страницы в каждой теме, без точек; рамка — не светлая
+     линия, а акцент, смешанный с поверхностью: окно читается одним
+     куском вместе с обложкой-шапкой. Страница под карточкой чуть
+     притемнена (без растра), плашка в шапке остаётся светлой.
+   • Разделители — ровные тонкие линии вместо пунктира.
+
+   Раздел — доводка (см. «ОДИНАКОВЫЙ ВИД: МАНГА»): лежит в конце и
+   дописывает уже описанные вещи. Цвета — только переменные темы. */
+:root{
+  --hb-face:color-mix(in oklab,var(--surface-2) 78%,var(--ink));     /* заливка кнопок шапки */
+  --hb-line:color-mix(in oklab,var(--ink) 85%,var(--surface-2));     /* их обводка */
+  --hb-print:color-mix(in oklab,var(--mint) 60%,#05060A);            /* их оттиск */
+  --raised:color-mix(in oklab,var(--surface-2) 90%,var(--ink));      /* карточка и кабинет */
+  --raised-in:color-mix(in oklab,var(--surface-2) 55%,var(--bg));    /* ячейки внутри них */
+  --uc-line:color-mix(in oklab,var(--mint) 55%,var(--surface-2));    /* рамка карточки и кабинета */
+  --uc-sep:color-mix(in oklab,var(--ink-soft) 62%,var(--raised));    /* разделитель внутри */
+  --uc-print:color-mix(in oklab,var(--mint) 48%,#05060A);            /* оттиск окна */
+  --uc-dim:rgba(4,5,9,.5);                                           /* притемнение под карточкой */
+  /* Подписи на приподнятой поверхности — на ступень светлее: она
+     светлее фона страницы, и обычный --dim там терял контраст. */
+  --dim-up:color-mix(in oklab,var(--dim) 52%,var(--text));
+}
+html[data-theme="bumaga"]{--hb-face:#FFFFFF;--hb-line:var(--ink);--hb-print:var(--ink);
+  --raised:#FFFFFF;--raised-in:#F6F2EA;--uc-line:var(--ink);--uc-sep:#DCD5C8;
+  --uc-print:var(--ink);--uc-dim:rgba(46,40,32,.2);--dim-up:var(--dim)}
+
+/* ---------- 1, 3. кнопки шапки и нажатая плашка профиля ----------
+   Были здесь; переписаны в разделе «ШАПКА КАК БЫЛА, ЧУТЬ ЯРЧЕ (fix-16)»
+   в конце файла. */
+/* Ссылки-кнопки в списке бургера не подчёркиваем — это кнопки. */
+.acts a.iconbtn{text-decoration:none}
+
+/* ---------- 2. аватар везде одинаковый ----------
+   Фон и цвет буквы ставит A.paintAvatar (цвет буквы — от фона), здесь —
+   только то, что не должно зависеть от места: жирность и отсутствие
+   унаследованных цветов подписи. */
+.ava{font-weight:800;letter-spacing:0}
+
+/* ---------- 5. притемнение под карточкой с «окошком» для плашки ---------- */
+.ucwrap::before{content:'';position:fixed;pointer-events:none;
+  left:calc(var(--chip-x,-40px) - 3px);top:calc(var(--chip-y,-40px) - 3px);
+  width:calc(var(--chip-w,0px) + 8px);height:calc(var(--chip-h,0px) + 8px);
+  border-radius:15px;box-shadow:0 0 0 200vmax var(--uc-dim)}
+@media (max-width:620px){
+  .ucwrap{--uc-dim:rgba(4,5,9,.62)}
+  html[data-theme="bumaga"] .ucwrap{--uc-dim:rgba(46,40,32,.42)}
+}
+
+/* ---------- 4–7. карточка профиля ---------- */
+.ucard{--dim:var(--dim-up);background:var(--raised);border-color:var(--uc-line);
+  box-shadow:var(--off-lg) var(--off-lg) 0 var(--uc-print)}
+.ucard::before{background:var(--uc-line)}
+.uchead{border-bottom-color:var(--uc-line)}
+.ucstat,.ucguest,.ucic,.ucth,.ucquick .seg{background:var(--raised-in)}
+.ucstat,.ucguest{border-color:var(--uc-sep)}
+.ucrail{background:var(--raised)}
+.ucgo:hover,.ucgo:focus-visible{background:var(--raised-in)}
+.ucout:hover,.ucout:focus-visible{background:color-mix(in srgb,var(--alert) 13%,var(--raised))}
+.ucth[aria-pressed="true"]{box-shadow:0 0 0 2px var(--raised),0 0 0 4px var(--ink)}
+@media (max-width:620px){
+  .ucard{box-shadow:0 -5px 0 var(--uc-print)}
+}
+
+/* ---------- 9. образцы тем в карточке: только сама тема ----------
+   Кружок — фон темы, тонкое кольцо внутри — её тушь. Цветной точки
+   больше нет. */
+.ucth i{box-shadow:inset 0 0 0 1.5px var(--sw-ink,rgba(128,128,128,.4))}
+.ucth[data-th="kak-seychas"]{--sw-ink:#C3C0CF}
+.ucth[data-th="noch"]{--sw-ink:#B4C3DD}
+.ucth[data-th="ugol"]{--sw-ink:#CCC8D0}
+.ucth[data-th="bumaga"]{--sw-ink:#1E1B17}
+
+/* ---------- 8. кабинет: чистая светлая поверхность ----------
+   Ни точек, ни узоров внутри окна; рамка — как у карточки. Цвета
+   выбранного (раздел, переключатели, акцент) не трогаем. */
+.panel.cab{--dim:var(--dim-up);background:var(--raised);border-color:var(--uc-line);
+  box-shadow:var(--off-lg) var(--off-lg) 0 var(--uc-print)}
+.panel.cab .phead{border-bottom-color:var(--uc-line)}
+.panel.cab .pbody{background:var(--raised)}
+.cabrail{background:var(--raised-in);border-right-color:var(--uc-line)}
+.panel.cab .pfoot{background:var(--raised-in);border-top-color:var(--uc-line)}
+.panel.cab .grp,.panel.cab .grp:last-child{background:var(--raised);border-color:var(--uc-sep)}
+.panel.cab .grp > h4{background:var(--raised)}
+.panel.cab .theme{background:var(--raised-in)}
+@media (max-width:620px){
+  .cabrail{border-bottom-color:var(--uc-line)}
+}
+
+/* ---------- 10. «Планирую» на обложке ---------- */
+.boxcard .epchip.plan{color:var(--sky)}
+/* Три вкладки на телефоне: подписи переносятся на вторую строку, а не
+   выталкивают третью вкладку за край экрана. */
+@media (max-width:620px){
+  .sec .tabs a{white-space:normal;line-height:1.2;display:flex;align-items:center;
+    justify-content:center;flex-wrap:wrap;gap:3px 5px;padding:7px 6px}
+}
+/* В списке бургера кнопки — строки: «открытый» колокольчик там не
+   вдавливаем, иначе строка съезжает на два пикселя. */
+@media (max-width:620px){
+  .acts .iconbtn[aria-expanded="true"]{transform:none}
+}
+
+/* ---------- закладка «В планы» на обложке в результатах поиска ----------
+   Наклейка в правом верхнем углу кадра: бумага, тушь, оттиск. В планах —
+   залита акцентом. На узком экране подпись прячется, остаётся значок
+   (подсказка и aria-label на месте). */
+.planmark{position:absolute;top:8px;right:8px;z-index:5;display:inline-flex;align-items:center;gap:5px;
+  padding:5px 9px 5px 7px;border-radius:9px;cursor:pointer;font-family:Nunito;font-weight:800;
+  font-size:12px;line-height:1.2;white-space:nowrap;
+  background:var(--hb-face);color:var(--text);border:var(--bw) solid var(--rim,#0B0C10);
+  box-shadow:2px 2px 0 var(--rim,#0B0C10);
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop),background-color var(--fast) ease}
+.planmark svg{flex:none}
+.planmark:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--rim,#0B0C10)}
+.planmark:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--rim,#0B0C10);transition-duration:.04s}
+.planmark.on{background:var(--mint);color:var(--on-acc)}
+.planmark.on svg path{fill:currentColor}
+.planmark.busy{opacity:.6;pointer-events:none}
+@media (max-width:620px){
+  .planmark{padding:6px;top:6px;right:6px}
+  .planmark .pmt{display:none}
+}
+
+/* ---------- короткое сообщение внизу экрана ---------- */
+.flash{position:fixed;left:50%;bottom:24px;z-index:160;max-width:calc(100vw - 32px);
+  padding:10px 16px;border-radius:12px;font-weight:800;font-size:14px;line-height:1.35;text-align:center;
+  background:var(--raised);color:var(--text);border:var(--bw) solid var(--uc-line);
+  box-shadow:4px 4px 0 var(--uc-print);
+  opacity:0;pointer-events:none;transform:translate(-50%,12px);
+  transition:opacity var(--mid) ease,transform var(--mid) var(--pop)}
+.flash.show{opacity:1;transform:translate(-50%,0)}
+@media (max-width:620px){
+  .flash{bottom:76px}
+  /* Совет про вход по коду — выше кнопки «?»: на телефоне он во всю
+     ширину экрана и лежал ровно поверх неё (z-index у совета больше),
+     и первые 16 секунд после входа нажать «?» было нельзя. */
+  .toast{bottom:76px}
+}
+
+/* ---------- «В планы» под плеером ---------- */
+#w-plan.planon{background:var(--mint);color:var(--on-acc);border-color:var(--rim,#0B0C10)}
+#w-plan.planon svg path{fill:currentColor}
+#w-plan[disabled]{opacity:.6;cursor:default;transform:none;box-shadow:none}
+#w-plan.busy{opacity:.6;pointer-events:none}
+
+/* ==================== ОДИНАКОВЫЙ ВИД: ПАНЕЛЬ ШАПКИ, ПЕРЕКЛЮЧАТЕЛИ, ТЕМЫ (fix-15) ==================== */
+/* Доводка после отзыва владельца.
+
+   • Шапка: у каждой круглой кнопки, у плашки профиля и у вкладок были
+     свои светлые обводки и светлые оттиски — всё вместе резало глаз.
+     Теперь кнопки-значки собраны в ОДНУ панель: одна приподнятая
+     поверхность с тихой рамкой и тёмным оттиском, кнопки внутри без
+     своих обводок, значки — мягкой тушью. Наведение и фокус — заливка
+     с оттенком акцента, нажатие — кнопка «вдавливается». «Рандом»
+     — единственная выделенная: оттенок акцента и тёмная тушь по краю.
+     Плашка профиля и вкладки — в том же тихом стиле. На «Бумаге» обводки
+     тушью остаются: там они и есть стиль.
+     (Панель отменена в fix-16 — владельцу не понравилась; вкладки
+     остались в тихом стиле.)
+   • Переключатели да/нет — плоские, как в манге: дорожка в тонкой
+     обводке; выключено — тёмная дорожка и кружок мягкой тушью; включено
+     — дорожка залита акцентом, кружок цветом печати и с галочкой.
+   • Образцы тем — маленькая страница в цветах самой темы (шапка, строки,
+     акцент), а не тёмный кружок; рядом с «Тема» — название выбранной.
+   • Значок «18+» и подсказка в поиске.
+
+   Раздел — доводка (см. «ОДИНАКОВЫЙ ВИД: МАНГА»): лежит в конце и
+   дописывает уже описанные вещи. */
+:root{
+  --cap-face:color-mix(in oklab,var(--surface) 55%,var(--surface-2));  /* поверхность панели */
+  --cap-line:color-mix(in oklab,var(--ink-soft) 60%,var(--cap-face));  /* тихая рамка */
+  --cap-print:color-mix(in oklab,var(--mint) 16%,#05060A);              /* тёмный оттиск */
+  --cap-icon:color-mix(in oklab,var(--ink) 62%,var(--ink-soft));        /* значки — мягкая тушь */
+  --cap-hover:color-mix(in oklab,var(--mint) 20%,var(--cap-face));      /* наведение */
+  --cap-down:color-mix(in oklab,var(--mint) 32%,var(--cap-face));       /* нажато / открыто */
+  --cap-rim:#0B0C10;                                                    /* тёмная тушь по краю */
+  --sel-face:color-mix(in oklab,var(--mint) 28%,var(--surface));        /* выбранная вкладка */
+}
+html[data-theme="ugol"]{--cap-print:color-mix(in oklab,var(--mint) 22%,#000)}
+html[data-theme="bumaga"]{--cap-face:#FFFFFF;--cap-line:var(--ink);--cap-print:var(--ink);
+  --cap-icon:#3A352E;--cap-hover:color-mix(in oklab,var(--mint) 26%,#FFFFFF);
+  --cap-down:color-mix(in oklab,var(--mint) 42%,#FFFFFF);--cap-rim:var(--ink);
+  --sel-face:color-mix(in oklab,var(--mint) 38%,#FFFFFF)}
+
+/* ---------- 1, 2. панель кнопок в шапке, плашка профиля, бургер ----------
+   Были здесь: кнопки-значки собраны в одну тёмную «капсулу». Владельцу
+   не понравилось — шапка вернулась к отдельным круглым кнопкам, см.
+   раздел «ШАПКА КАК БЫЛА, ЧУТЬ ЯРЧЕ (fix-16)» в конце файла. */
+
+/* ---------- 3. вкладки и сегменты: тихая рамка, выбранное — акцентом ----------
+   Было: светлая обводка и выбранное «залито тушью» — светло-серой плашкой.
+   Теперь рамка тихая, выбранное — заливка с оттенком акцента. */
+.seg,.sec .tabs,.lang-seg{border:1.5px solid var(--cap-line);box-shadow:2px 2px 0 var(--cap-print)}
+.sec .tabs{background:var(--cap-face)}
+.seg button.on,.sec .tabs a.on,.lang-seg .lang.on{background:var(--sel-face);color:var(--text);
+  box-shadow:inset 0 0 0 1.5px color-mix(in oklab,var(--mint) 60%,var(--surface))}
+.sec .tabs a.on .tabn{color:var(--text);background:color-mix(in oklab,var(--text) 14%,transparent)}
+html[data-theme="bumaga"] .seg button.on,html[data-theme="bumaga"] .sec .tabs a.on,
+html[data-theme="bumaga"] .lang-seg .lang.on{color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+
+/* ---------- 4. переключатели да/нет ----------
+   Плоско: ни блика, ни градиента. Кружок едет трансформацией, а не
+   left — щелчком, с маленьким перелётом. Галочка — на самом кружке
+   (::before едет вместе с ним). */
+.sw{--sw-x:0px;width:46px;height:26px;padding:0;border-radius:99px;position:relative;flex:none;cursor:pointer;
+  background:color-mix(in oklab,var(--bg) 70%,#000);border:1.5px solid var(--ink-soft);box-shadow:none;
+  animation:none;transition:background-color var(--fast) ease,border-color var(--fast) ease}
+.sw::after,.sw::before{content:'';position:absolute;top:50%;left:3px;width:18px;height:18px;margin-top:-9px;
+  border-radius:50%;transform:translateX(var(--sw-x));
+  transition:transform .12s cubic-bezier(.3,1.45,.55,1),background-color var(--fast) ease,opacity var(--fast) ease}
+.sw::after{background:var(--ink-soft);box-shadow:none}
+.sw::before{z-index:1;opacity:0;background:var(--mint);
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'><path d='M5 9.3l2.6 2.6L13 6.4' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/100% no-repeat;
+          mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'><path d='M5 9.3l2.6 2.6L13 6.4' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/100% no-repeat}
+.sw:hover{border-color:var(--ink)}
+.sw[aria-checked="true"]{--sw-x:19px;background:var(--mint);border-color:var(--cap-rim);animation:none}
+.sw[aria-checked="true"]::after{left:3px;background:var(--on-acc)}
+.sw[aria-checked="true"]::before{left:3px;opacity:1}
+.sw:active::after{width:18px}
+.sw:focus-visible{outline:2.5px solid var(--ink);outline-offset:3px;
+  box-shadow:0 0 0 2px color-mix(in oklab,var(--mint) 45%,transparent)}
+.sw[disabled]{opacity:.5;cursor:not-allowed}
+/* «Бумага»: дорожка выключенного — светлая бумага, кружок тушью. */
+html[data-theme="bumaga"] .sw{background:#ECE6DA;border-color:var(--ink)}
+html[data-theme="bumaga"] .sw::after{background:#8A7F6B}
+html[data-theme="bumaga"] .sw[aria-checked="true"]{background:var(--mint)}
+html[data-theme="bumaga"] .sw[aria-checked="true"]::after{background:var(--ink)}
+/* Плеер всегда тёмный — у переключателя под ним своя тушь. */
+.autonext .sw{background:#14161C;border-color:#6F7484}
+.autonext .sw::after{background:#8A8FA0}
+.autonext .sw[aria-checked="true"]{background:var(--mint);border-color:#0B0C10}
+.autonext .sw[aria-checked="true"]::after{background:#14161C}
+/* Маленький переключатель в колокольчике — тот же рисунок. */
+.drop .nswitch .nknob{width:34px;height:20px;background:color-mix(in oklab,var(--bg) 70%,#000);
+  box-shadow:inset 0 0 0 1.5px var(--ink-soft)}
+.drop .nswitch .nknob::after{left:3px;top:3px;width:14px;height:14px;background:var(--ink-soft);
+  transition:transform .12s cubic-bezier(.3,1.45,.55,1),background-color var(--fast) ease}
+.drop .nswitch.on .nknob{background:var(--mint);box-shadow:inset 0 0 0 1.5px var(--cap-rim)}
+.drop .nswitch.on .nknob::after{transform:translateX(14px);background:var(--on-acc)}
+html[data-theme="bumaga"] .drop .nswitch .nknob{background:#ECE6DA;box-shadow:inset 0 0 0 1.5px var(--ink)}
+html[data-theme="bumaga"] .drop .nswitch.on .nknob{background:var(--mint)}
+html[data-theme="bumaga"] .drop .nswitch.on .nknob::after{background:var(--ink)}
+
+/* ---------- 5. образцы тем: маленькая страница в цветах темы ----------
+   Цвета — те же, что у самой темы (раздел ТЕМЫ): фон, шапка, тушь.
+   Повторены здесь, потому что образец показывает тему, которая сейчас
+   НЕ включена, — переменными текущей его не нарисовать. Акцент — свой
+   (--acc0), он у всех тем общий. Размеры — в em: один рисунок на
+   крупную карточку в «Вид» и на кнопку в карточке профиля. */
+[data-th="kak-seychas"]{--pv-bg:#2C313C;--pv-bar:#414857;--pv-line:#80879B;--pv-ink:#C3C0CF;--pv-soft:#80879B}
+[data-th="noch"]{--pv-bg:#191E2B;--pv-bar:#2B3245;--pv-line:#6B79A0;--pv-ink:#B4C3DD;--pv-soft:#6B79A0}
+[data-th="ugol"]{--pv-bg:#0E0F12;--pv-bar:#262A32;--pv-line:#6E727C;--pv-ink:#CCC8D0;--pv-soft:#4A4E57}
+[data-th="bumaga"]{--pv-bg:#F8F5EF;--pv-bar:#FFFFFF;--pv-line:#1E1B17;--pv-ink:#1E1B17;--pv-soft:#B3A993}
+.thpv{position:relative;display:block;overflow:hidden;background:var(--pv-bg);font-size:10px}
+.thpv i{position:absolute;display:block;box-shadow:none;border-radius:99px}
+.thpv .thbar{position:absolute;left:0;right:0;top:0;height:32%;border-radius:0;
+  background:var(--pv-bar);box-shadow:0 .15em 0 var(--pv-line)}
+/* в шапке — акцентный значок слева и круглая кнопка тушью справа */
+.thpv .thbar i:first-child{left:.8em;top:50%;width:1.1em;height:1.1em;margin-top:-.55em;border-radius:.3em;
+  background:var(--acc0)}
+.thpv .thbar i:last-child{right:.8em;top:50%;width:1.2em;height:1.2em;margin-top:-.6em;border-radius:50%;
+  box-shadow:inset 0 0 0 .15em var(--pv-ink)}
+/* «Ночь» узнаётся по месяцу вместо кнопки */
+[data-th="noch"] .thpv .thbar i:last-child{box-shadow:inset .32em -.12em 0 0 #E6ECFA;transform:rotate(-18deg)}
+/* «Уголь»: шапка темнее фона не бывает — зато самая яркая линия */
+[data-th="ugol"] .thpv .thbar{box-shadow:0 .15em 0 var(--pv-ink)}
+.thpv .thbody{position:absolute;left:.8em;right:.8em;top:46%;bottom:0}
+.thpv .thbody i:nth-child(1){left:0;top:0;width:58%;height:.5em;background:var(--pv-ink)}
+.thpv .thbody i:nth-child(2){left:0;top:1.05em;width:82%;height:.5em;background:var(--pv-soft)}
+.thpv .thbody i:nth-child(3){right:0;top:.1em;width:1.9em;height:.9em;border-radius:.3em;
+  background:var(--acc0);box-shadow:inset 0 0 0 .12em color-mix(in srgb,#0B0C10 70%,transparent)}
+
+/* крупные карточки в «Вид» */
+.theme .thpv{height:56px;border-radius:9px;font-size:11px;border:1.5px solid var(--pv-line)}
+.theme .thsub{display:block;margin-top:-5px;font-size:11.5px;font-weight:700;color:var(--dim);text-align:center;
+  line-height:1.2}
+.theme.on .thsub{color:var(--text)}
+.theme.on{border-color:var(--mint);--sc:var(--cap-print)}
+/* Галочка у выбранной — наклейкой на углу карточки, а не внутри
+   образца: внутри она закрывала месяц «Ночи». */
+.theme{position:relative}
+.theme.on .thpv::after{display:none}
+.theme.on::before{content:'';position:absolute;right:-8px;top:-8px;z-index:3;width:22px;height:22px;
+  border-radius:50%;border:2px solid var(--cap-rim);background:var(--mint) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.6 10.4l2.9 2.9 6-6' fill='none' stroke='%230B0C10' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/100% no-repeat;
+  box-shadow:2px 2px 0 var(--cap-print)}
+
+/* кнопки в карточке профиля */
+.ucthemes{gap:7px;flex:none}
+.ucth{width:41px;height:31px;padding:0;border-radius:10px;overflow:hidden;position:relative;
+  background:var(--pv-bg);border:1.5px solid var(--cap-line)}
+.ucth .thpv{position:absolute;inset:0;font-size:6px;border-radius:0}
+.ucth .thpv .thbody i:nth-child(3){display:none}
+.ucth:hover{border-color:var(--ink);transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--cap-print)}
+.ucth[aria-pressed="true"]{border-color:var(--cap-rim);
+  box-shadow:0 0 0 2px var(--raised),0 0 0 4.5px var(--mint)}
+html[data-theme="bumaga"] .ucth[aria-pressed="true"]{box-shadow:0 0 0 2px var(--raised),0 0 0 4.5px var(--ink)}
+/* галочка у выбранной */
+.ucth[aria-pressed="true"]::after{content:'';position:absolute;right:1px;bottom:1px;z-index:2;width:13px;height:13px;
+  border-radius:50%;border:1.5px solid #0B0C10;background:var(--mint) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.6 10.4l2.9 2.9 6-6' fill='none' stroke='%230B0C10' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/100% no-repeat}
+/* «Тема · Ночь» */
+#uc-theme-row .uclbl{white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.uclbl .ucthsep{color:var(--dimmer)}
+.uclbl .ucthname{color:var(--text);font-weight:800}
+
+/* ---------- 6. 18+ ---------- */
+.agebadge{display:inline-block;vertical-align:middle;padding:0 5px;border-radius:6px;
+  font-family:Nunito;font-weight:800;font-size:10.5px;line-height:16px;letter-spacing:.02em;white-space:nowrap;
+  background:var(--alert);color:#1B0F0F;border:1.5px solid #0B0C10;transform:rotate(-3deg)}
+.card .pic .agebadge{position:absolute;left:8px;top:8px;z-index:5;box-shadow:2px 2px 0 #0B0C10}
+/* Хентай — свой значок: тёмная малина вместо красного этти и светлый
+   текст. Рядом с «18+» этти его не спутать ни по цвету, ни по надписи.
+   Цвета постоянные, не из темы: значок должен читаться одинаково на
+   обложке, на «Бумаге» и на тёмных темах. */
+.agebadge.hentai{background:#7A1846;color:#FFE6F0;transform:rotate(-2deg)}
+/* «Есть только на английском / русском» у названия на странице просмотра
+   (fix-21): хентай, которого нет на вашем языке аниме, играет на том, где
+   он есть. Спокойная плашка в цветах темы — это сведение, не тревога. */
+.langonly{display:inline-block;vertical-align:middle;padding:0 7px;border-radius:6px;
+  font-size:11px;font-weight:800;line-height:17px;white-space:nowrap;
+  color:var(--text);background:var(--surface-2);border:1px solid var(--line)}
+/* Почему «Хентай» сейчас нельзя включить: «Сначала включи 18+» или
+   «Только для вошедших». Строкой под описанием, с замочком. */
+.panel.cab .opt .lb > .swwhy,.swwhy{display:inline-flex;align-items:center;gap:6px;margin-top:6px;
+  padding:2px 9px 2px 7px;border-radius:99px;font-size:12px;font-weight:700;line-height:18px;
+  color:var(--text);background:color-mix(in srgb,var(--ink-soft) 22%,transparent)}
+.swwhy::before{content:'';width:11px;height:11px;flex:none;background:currentColor;opacity:.75;
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M3.6 5.2V3.9a2.4 2.4 0 0 1 4.8 0v1.3' fill='none' stroke='black' stroke-width='1.5'/><rect x='2.2' y='5.2' width='7.6' height='5.6' rx='1.4'/></svg>") center/100% no-repeat;
+          mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M3.6 5.2V3.9a2.4 2.4 0 0 1 4.8 0v1.3' fill='none' stroke='black' stroke-width='1.5'/><rect x='2.2' y='5.2' width='7.6' height='5.6' rx='1.4'/></svg>") center/100% no-repeat}
+.panel.cab .opt .lb > .swwhy[hidden],.swwhy[hidden]{display:none}
+/* Пока «Хентай» включить нельзя — подпись бледнее, чтобы было видно,
+   что строка «спит», а причина (swwhy) — нет. */
+#opt-hentai.swlock .lb > b,#opt-hentai.swlock #hentai-note{opacity:.6}
+.adulthint{grid-column:1/-1;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;
+  background:var(--surface);border:var(--bw) solid var(--ink-soft);border-radius:14px;
+  box-shadow:3px 3px 0 var(--cap-print)}
+.adulthint > .agebadge{font-size:15px;line-height:24px;padding:0 8px;border-width:2px}
+.adulthint .ahtx{flex:1;min-width:200px}
+.adulthint .ahtx b{display:block;font-size:15px;font-weight:800}
+.adulthint .ahtx span{display:block;margin-top:2px;font-size:13px;line-height:1.45;color:var(--dim)}
+/* Строка под выдачей: хентай — только тот, что можно посмотреть. */
+.search-foot{margin:14px 2px 0;font-size:13px;line-height:1.45;color:var(--dim)}
+
+/* ==================== ПОМОЩНИК (fix-16) ==================== */
+/* Окошко над кнопкой «?»: справка и чат. Оформлено как карточка профиля —
+   та же приподнятая поверхность (--raised), рамка (--uc-line) и оттиск
+   (--uc-print), — чтобы на всех четырёх темах выглядеть своим. На
+   телефоне — лист снизу во всю ширину. Все цвета — переменные темы. */
+.hlp{position:fixed;z-index:130;right:clamp(14px,2.5vw,26px);bottom:calc(clamp(14px,3vh,28px) + 64px);
+  width:380px;max-width:calc(100vw - 24px);height:min(580px,calc(100vh - 130px));
+  display:flex;flex-direction:column;overflow:hidden;
+  background:var(--raised);color:var(--text);border:2.5px solid var(--uc-line);border-radius:16px;
+  box-shadow:var(--off-lg) var(--off-lg) 0 var(--uc-print);
+  transform-origin:calc(100% - 24px) 100%;animation:hlpPop .18s var(--pop)}
+/* Спросить нельзя (гость, нет ключа, демо) — окошко по содержимому,
+   без пустого места под справкой. */
+.hlp.nochat{height:auto;max-height:min(580px,calc(100vh - 130px))}
+@keyframes hlpPop{0%{opacity:0;transform:translateY(8px) scale(.9)}100%{opacity:1;transform:none}}
+
+.hlphead{flex:none;display:flex;align-items:center;gap:10px;padding:12px 12px 11px 14px;
+  border-bottom:1.5px solid var(--uc-sep)}
+.hlpic{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+  font-family:Nunito;font-weight:800;font-size:15px;line-height:1;
+  background:var(--mint);color:var(--on-acc);border:var(--bw) solid var(--rim,#0B0C10)}
+.hlphead b{flex:1;min-width:0;font-family:Nunito;font-weight:800;font-size:15.5px}
+.hlpbtn{flex:none;padding:5px 10px;border-radius:9px;cursor:pointer;font:inherit;font-size:12.5px;font-weight:700;
+  background:var(--raised-in);color:var(--dim);border:1.5px solid var(--uc-sep);
+  transition:border-color var(--fast) ease,color var(--fast) ease}
+.hlpbtn:hover{color:var(--text);border-color:var(--ink)}
+.hlpx{flex:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:20px;line-height:1;
+  display:grid;place-items:center;background:var(--raised-in);color:var(--hb-icon,var(--text));
+  border:var(--bw) solid var(--hb-edge,var(--ink-soft));
+  transition:border-color var(--fast) ease,color var(--fast) ease,background-color var(--fast) ease,
+             transform .09s ease}
+.hlpx:hover{color:var(--text);border-color:var(--ink);background:var(--hb-tint,var(--raised-in))}
+
+.hlpbody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 14px 14px}
+.hlpintro p{margin:0 0 10px;font-size:13.5px;line-height:1.45}
+.hlpintro .hlpsmall{margin:10px 0 0;font-size:12px;color:var(--dim)}
+.hlpquick{display:flex;flex-wrap:wrap;gap:7px}
+
+/* Кнопка-ссылка: быстрые ссылки и «Открыть: …» под ответом. */
+.hlpchip{display:inline-flex;align-items:center;padding:5px 11px;border-radius:99px;cursor:pointer;
+  font-family:Nunito;font-weight:800;font-size:12.5px;line-height:1.3;text-align:left;
+  background:var(--raised-in);color:var(--text);border:1.5px solid var(--hb-edge,var(--ink-soft));
+  transition:border-color var(--fast) ease,background-color var(--fast) ease,transform var(--fast) var(--pop)}
+.hlpchip:hover,.hlpchip:focus-visible{border-color:var(--ink);background:var(--hb-tint,var(--raised-in))}
+.hlpchip:active{transform:translate(1px,1px)}
+.hlpchip.go{margin-top:7px;background:color-mix(in oklab,var(--mint) 22%,var(--raised));
+  border-color:color-mix(in oklab,var(--mint) 55%,var(--ink-soft))}
+.hlpchip.go:hover,.hlpchip.go:focus-visible{background:color-mix(in oklab,var(--mint) 34%,var(--raised));
+  border-color:var(--ink)}
+html[data-theme="bumaga"] .hlpchip.go{border-color:var(--ink)}
+
+/* разговор */
+.hlplog{display:flex;flex-direction:column;gap:10px;margin-top:14px;padding-top:14px;
+  border-top:1.5px solid var(--uc-sep)}
+.hlpmsg{max-width:88%;display:flex;flex-direction:column;align-items:flex-start}
+.hlpmsg .hlptx{padding:8px 12px;border-radius:13px;font-size:14px;line-height:1.45;
+  white-space:pre-wrap;overflow-wrap:anywhere}
+.hlpmsg.bot{align-self:flex-start}
+.hlpmsg.bot .hlptx{background:var(--raised-in);border:1.5px solid var(--uc-sep);border-bottom-left-radius:4px}
+.hlpmsg.me{align-self:flex-end;align-items:flex-end}
+.hlpmsg.me .hlptx{background:color-mix(in oklab,var(--mint) 24%,var(--raised));
+  border:1.5px solid color-mix(in oklab,var(--mint) 50%,var(--uc-sep));border-bottom-right-radius:4px}
+html[data-theme="bumaga"] .hlpmsg.me .hlptx{border-color:var(--ink)}
+.hlpmsg.err .hlptx{color:var(--uc-danger,var(--alert));
+  border-color:color-mix(in srgb,var(--alert) 45%,var(--uc-sep))}
+.hlpmsg.typing .hlptx{font-weight:800;letter-spacing:.12em;color:var(--dim);animation:hlpDots 1s ease-in-out infinite alternate}
+@keyframes hlpDots{from{opacity:.35}to{opacity:1}}
+
+/* почему спросить нельзя */
+.hlpnote{flex:none;margin:0 14px 14px;padding:11px 13px;border-radius:12px;font-size:13px;line-height:1.45;
+  background:var(--raised-in);border:1.5px dashed var(--hb-edge,var(--ink-soft))}
+.hlpnote b{display:block;font-weight:800;font-size:13.5px}
+.hlpnote span{display:block;margin-top:3px;color:var(--dim)}
+.hlpnote code{display:block;margin-top:7px;padding:6px 9px;border-radius:8px;font-size:12.5px;
+  font-family:ui-monospace,Consolas,monospace;background:var(--raised);border:1px solid var(--uc-sep);
+  overflow-wrap:anywhere;user-select:all}
+
+/* поле ввода */
+.hlpform{flex:none;display:flex;align-items:flex-end;gap:8px;padding:10px 12px 8px;
+  border-top:1.5px solid var(--uc-sep)}
+.hlpform textarea{flex:1;min-width:0;min-height:40px;max-height:118px;resize:none;margin:0;
+  padding:9px 12px;border-radius:12px;font:inherit;font-size:14px;line-height:1.4;
+  background:var(--raised-in);color:var(--text);border:var(--bw) solid var(--hb-edge,var(--ink-soft));
+  transition:border-color var(--fast) ease}
+.hlpform textarea::placeholder{color:var(--dimmer)}
+.hlpform textarea:focus{outline:none;border-color:var(--ink)}
+.hlpsend{flex:none;width:40px;height:40px;border-radius:12px;cursor:pointer;display:grid;place-items:center;
+  background:var(--mint);color:var(--on-acc);border:var(--bw) solid var(--rim,#0B0C10);
+  box-shadow:2px 2px 0 var(--uc-print);
+  transition:transform var(--fast) var(--pop),box-shadow var(--fast) var(--pop)}
+.hlpsend:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--uc-print)}
+.hlpsend:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--uc-print)}
+.hlpsend[disabled]{opacity:.55;cursor:default;transform:none}
+.hlpfoot{flex:none;padding:0 14px 10px;font-size:11.5px;line-height:1.4;color:var(--dim)}
+.hlpfoot span + span::before{content:' '}
+
+/* Кнопка «?», пока окошко открыто, — вдавлена. */
+.svyaz.on,.svyaz.on:hover{transform:translate(2px,2px);box-shadow:0 0 0 var(--print);
+  background:color-mix(in oklab,var(--mint) 24%,var(--surface))}
+
+@media (max-width:620px){
+  .hlp{left:0;right:0;bottom:0;width:auto;max-width:none;height:min(82vh,620px);
+    border-radius:20px 20px 0 0;border-bottom:none;box-shadow:0 -5px 0 var(--uc-print);
+    padding-bottom:env(safe-area-inset-bottom);transform-origin:bottom center}
+  .hlp.nochat{height:auto;max-height:82vh}
+  /* 16px — иначе iPhone увеличивает страницу при касании поля. */
+  .hlpform textarea{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  .hlp,.hlpmsg.typing .hlptx{animation:none}
+}
+
+/* ==================== ОДИНАКОВЫЙ ВИД: ШАПКА КАК БЫЛА, ЧУТЬ ЯРЧЕ (fix-16) ==================== */
+/* Владелец попросил вернуть шапку к исходному виду (отдельные круглые
+   кнопки с обводкой, как до fix-14), только чуть ярче. Что было не так
+   в двух прошлых попытках:
+
+   • fix-14 — светлые обводки тушью и оттиски цветом акцента у каждой
+     кнопки, а значок «Про сайт» — отдельным мятным цветом. Слишком
+     ярко, и цвета делили кнопки неправильно.
+   • fix-15 — все значки в одной тёмной «капсуле». Тоже не то.
+
+   Теперь: раскладка и форма — исходные. Значки — ОДНИМ цветом, почти
+   цветом текста (раньше — приглушённый серый --dim); обводка на ступень
+   заметнее исходной --ink-soft; заливка чуть светлее поверхности.
+   Никаких цветных оттисков в покое. Наведение — обводка тушью и лёгкий
+   оттенок акцента; открытый колокольчик и открытая карточка профиля —
+   оттенок акцента посильнее, плашка профиля при этом «вдавлена».
+   «Рандом» сохраняет свой оттиск — он был у неё и в исходном виде.
+
+   Цвета — только переменные темы. */
+:root{
+  --hb-icon:color-mix(in oklab,var(--text) 80%,var(--dim));           /* один цвет всех значков */
+  --hb-edge:color-mix(in oklab,var(--ink-soft) 76%,var(--ink));       /* обводка кнопок */
+  --hb-bg:color-mix(in oklab,var(--surface) 80%,var(--surface-2));    /* заливка кнопок */
+  --hb-tint:color-mix(in oklab,var(--mint) 13%,var(--hb-bg));         /* наведение */
+  --hb-down:color-mix(in oklab,var(--mint) 26%,var(--hb-bg));         /* открыто */
+}
+/* «Бумага»: значки и обводки — тушью, заливка — белая бумага. */
+html[data-theme="bumaga"]{--hb-icon:color-mix(in oklab,var(--text) 86%,var(--dim));
+  --hb-edge:color-mix(in oklab,var(--ink-soft) 62%,var(--ink));--hb-bg:#FFFFFF;
+  --hb-tint:color-mix(in oklab,var(--mint) 16%,#FFFFFF);
+  --hb-down:color-mix(in oklab,var(--mint) 34%,#FFFFFF)}
+
+/* ---------- круглые кнопки-значки и бургер ---------- */
+header .iconbtn,header .iconbtn.accent{background:var(--hb-bg);color:var(--hb-icon);
+  border-color:var(--hb-edge)}
+header .iconbtn:hover,header .iconbtn.accent:hover,header .iconbtn:focus-visible{
+  background:var(--hb-tint);color:var(--text);border-color:var(--ink)}
+header .iconbtn[aria-expanded="true"]{background:var(--hb-down);color:var(--text);border-color:var(--ink)}
+header .dotcount{border-color:var(--bg)}
+
+/* ---------- «Рандом» ---------- */
+header .filtbtn{background:var(--hb-bg);color:var(--text);border-color:var(--hb-edge)}
+header .filtbtn svg{color:var(--hb-icon)}
+header .filtbtn:hover,header .filtbtn:focus-visible{background:var(--hb-tint);border-color:var(--ink)}
+header .filtbtn:hover svg{color:var(--text)}
+
+/* ---------- плашка профиля ---------- */
+header .who{background:var(--hb-bg);border-color:var(--hb-edge)}
+header .who:hover,header .who:focus-visible{background:var(--hb-tint);border-color:var(--ink)}
+header .who #whoami{color:var(--text);font-weight:600}
+header .who .whocaret{color:var(--hb-icon)}
+[data-page="index"] header .who .ava{box-shadow:0 0 0 1.5px var(--hb-edge)}
+/* Карточка открыта — плашка «вдавлена» и залита оттенком акцента:
+   видно, к чему относится открытое окно. Вдавлена цветом и тенью
+   внутрь, а не сдвигом: сдвиг на пиксель двигал аватарку и имя. */
+header .who[aria-expanded="true"],header .who[aria-expanded="true"]:hover{
+  background:var(--hb-down);border-color:var(--ink);transform:none;
+  box-shadow:inset 1px 1px 0 color-mix(in srgb,var(--print) 35%,transparent)}
+header .who[aria-expanded="true"] .whocaret{color:var(--text)}
+
+/* ---------- телефон: список бургера ----------
+   Внутри списка кнопки — строки без своих рамок (как и было). Значок —
+   тем же цветом, что и в шапке; открытый колокольчик строку не красит. */
+@media (max-width:620px){
+  header .acts .iconbtn,header .acts .iconbtn.accent,header .acts .filtbtn,
+  header .acts .bellwrap>.iconbtn{background:none;color:var(--text);box-shadow:none}
+  header .acts .iconbtn svg,header .acts .filtbtn svg{color:var(--hb-icon)}
+  header .acts .iconbtn:hover,header .acts .filtbtn:hover,header .acts .bellwrap>.iconbtn:hover,
+  header .acts .iconbtn:focus-visible{background:var(--hb-tint);color:var(--text)}
+  header .acts .iconbtn[aria-expanded="true"]{background:var(--hb-tint);transform:none}
+}
+

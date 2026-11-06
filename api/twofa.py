@@ -19,6 +19,7 @@ import os
 import secrets
 import struct
 import time
+import unicodedata
 from urllib.parse import quote
 
 from . import qr
@@ -46,26 +47,37 @@ def _code_at(secret: str, counter: int) -> str:
     return f"{part % 1_000_000:06d}"
 
 
-def verify(secret: str, code: str, at: float | None = None) -> bool:
-    """Проверяет шестизначный код.
+def matched_step(secret: str, code: str, at: float | None = None) -> int:
+    """Номер шага времени, которому соответствует код. 0 — код не подошёл.
+
+    Номер нужен, чтобы не пускать дважды по одному и тому же коду. Из-за
+    допуска в шаг в обе стороны код живёт до полутора минут, и раньше всё
+    это время им можно было войти сколько угодно раз: подсмотрел цифры
+    через плечо или перехватил — и успевай. Теперь вход запоминает номер
+    шага, и всё, что не новее его, отклоняется (см. store.claim_totp_step).
 
     Сравнение через compare_digest: обычное сравнение строк выходит из
     цикла на первом несовпавшем символе, и по времени ответа код можно
     подбирать по одной цифре.
     """
     if not secret or not code:
-        return False
+        return 0
     code = "".join(ch for ch in str(code) if ch.isdigit())
     if len(code) != 6:
-        return False
+        return 0
     now = int((at if at is not None else time.time()) // STEP)
     for shift in range(-WINDOW, WINDOW + 1):
         try:
             if hmac.compare_digest(_code_at(secret, now + shift), code):
-                return True
+                return now + shift
         except Exception:                            # noqa: BLE001
-            return False
-    return False
+            return 0
+    return 0
+
+
+def verify(secret: str, code: str, at: float | None = None) -> bool:
+    """Подходит ли код. Без защиты от повтора — она живёт во входе."""
+    return matched_step(secret, code, at) > 0
 
 
 def otpauth_uri(secret: str, login: str) -> str:
@@ -116,7 +128,27 @@ def new_backup_codes() -> list[str]:
             for _ in range(BACKUP_COUNT)]
 
 
+def normalize_backup(code: str) -> str:
+    """Приводит запасной код к виду, в котором его выдали: «abcd-ef01».
+
+    Раньше код принимался только буква в букву, с дефисом посередине.
+    А переписывают его с бумажки, диктуют по телефону, вставляют из
+    заметок — и дефис теряется, превращается в пробел или в длинное тире.
+    Человек вводит верный код и получает «не подошёл» ровно в тот момент,
+    когда телефона нет и войти иначе нельзя.
+
+    Оставляем только латинские буквы и цифры и ставим дефис на место сами.
+    Именно ставим, а не выбрасываем: в базе уже лежат отпечатки кодов
+    с дефисом, и они должны продолжать совпадать.
+    """
+    raw = unicodedata.normalize("NFKC", str(code or "")).lower()
+    raw = "".join(ch for ch in raw if ch in "0123456789abcdefghijklmnopqrstuvwxyz")
+    if len(raw) == 8:
+        return raw[:4] + "-" + raw[4:]
+    return raw
+
+
 def hash_backup(code: str) -> str:
     """Запасные коды в базе тоже не лежат открытыми."""
     pepper = os.getenv("SESSION_PEPPER", "")
-    return hashlib.sha256((pepper + "backup|" + code.strip().lower()).encode()).hexdigest()
+    return hashlib.sha256((pepper + "backup|" + normalize_backup(code)).encode()).hexdigest()

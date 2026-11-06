@@ -11,10 +11,12 @@ import sys
 import tempfile
 import time
 
-# Проверки публичной версии идут в демонстрационном режиме: другого здесь
-# нет. Внешние источники видео не входят в этот репозиторий, и
-# единственный рабочий источник — свободное видео (api/anime_demo.py).
-os.environ.setdefault("MODE", "demo")
+# Эти проверки написаны под личный режим: они подменяют настоящие
+# источники (ru_a, ru_b…), которых в демо-режиме нет.
+# Режим ставим здесь, а не берём из окружения, — иначе запуск при
+# MODE=demo падал бы не из-за ошибок, а из-за чужих условий.
+# Демо-режим проверяет check10_demo.py.
+os.environ["MODE"] = "private"
 os.environ["DB_PATH"] = os.path.join(tempfile.mkdtemp(), "p7.db")
 os.environ["COOKIE_SECURE"] = "0"
 os.environ["SESSION_PEPPER"] = "pass7"
@@ -28,6 +30,8 @@ logging.getLogger("anime.catalog").setLevel(logging.ERROR)
 
 from fastapi.testclient import TestClient           # noqa: E402
 from api import catalog, mail, main, security, store, twofa   # noqa: E402
+import fake_sources                                 # noqa: E402
+fake_sources.install()
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -64,7 +68,7 @@ def reset():
     main.guests._items.clear()
 
 
-def login(c, user="valera", pwd=PASS, code=""):
+def login(c, user="hozyain", pwd=PASS, code=""):
     r = c.post("/api/auth/login", json={"login": user, "password": pwd, "code": code})
     if r.status_code == 200:
         c.headers["X-CSRF-Token"] = r.json()["csrf"]
@@ -73,10 +77,10 @@ def login(c, user="valera", pwd=PASS, code=""):
 
 def run():
     store.init()
-    for name, role in (("valera", "admin"), ("misha", "user")):
+    for name, role in (("hozyain", "admin"), ("misha", "user")):
         if store.get_user_by_login(name) is None:
             store.create_user(name, PASS, role)
-    admin_id = store.get_user_by_login("valera")["id"]
+    admin_id = store.get_user_by_login("hozyain")["id"]
     user_id = store.get_user_by_login("misha")["id"]
 
     # ==================================================================
@@ -85,7 +89,7 @@ def run():
     u = C()
     login(u, "misha")
     a = C()
-    login(a, "valera")
+    login(a, "hozyain")
 
     check("обычный не пишет объявление",
           u.post("/api/admin/news", json={"text": "я тут главный"}).status_code == 404)
@@ -95,7 +99,7 @@ def run():
           C().post("/api/admin/news", json={"text": "x"}).status_code == 404)
 
     g = C()
-    g.post("/api/auth/guest")
+    g.post("/api/auth/guest", json={})
     check("гость не пишет",
           g.post("/api/admin/news", json={"text": "x"}).status_code == 404)
 
@@ -132,7 +136,7 @@ def run():
     reset()
     t = C()
     login(t, "misha")
-    r = t.post("/api/me/2fa/start")
+    r = t.post("/api/me/2fa/start", json={"password": PASS})
     secret = r.json()["secret"]
     good = twofa._code_at(secret, int(time.time() // twofa.STEP))
     t.post("/api/me/2fa/enable", json={"code": good})
@@ -159,8 +163,8 @@ def run():
     # 3. Чужую настройку не подтвердить своим кодом.
     reset()
     other = C()
-    login(other, "valera")
-    r = other.post("/api/me/2fa/start")
+    login(other, "hozyain")
+    r = other.post("/api/me/2fa/start", json={"password": PASS})
     other_secret = r.json()["secret"]
     check("секреты у разных людей разные", other_secret != secret)
 
@@ -178,7 +182,7 @@ def run():
     lib_text = t.get("/api/library").text
     check("секрета нет в библиотеке", secret not in lib_text)
     adm = C()
-    login(adm, "valera")
+    login(adm, "hozyain")
     check("секрета нет в списке аккаунтов у админа",
           secret not in adm.get("/api/admin/users").text)
 
@@ -190,9 +194,9 @@ def run():
     # 7. Черновик протухает.
     main.pass_limit.reset()
     t2 = C()
-    login(t2, "valera")
-    t2.post("/api/me/2fa/start")
-    aid = store.get_user_by_login("valera")["id"]
+    login(t2, "hozyain")
+    t2.post("/api/me/2fa/start", json={"password": PASS})
+    aid = store.get_user_by_login("hozyain")["id"]
     main.pending_2fa[aid] = (main.pending_2fa[aid][0], time.time() - 4000)
     main.pass_limit.reset()
     check("протухший черновик не включается",
@@ -294,7 +298,7 @@ def run():
     real_about = catalog.about
     calls = []
 
-    async def counting(title):
+    async def counting(title, *args, **extra):
         calls.append(title)
         return None
 
@@ -348,9 +352,9 @@ def run():
     group("Письма: первое включение не заваливает почту")
     reset()
     store.set_mail_prefs(user_id, "misha@example.com", True)
-    store.save_progress(user_id, {"key": "m1", "source": "demo", "title": "Т1",
+    store.save_progress(user_id, {"key": "m1", "source": "ru_a", "title": "Т1",
                                   "status": "watching", "watched_ep": 1})
-    store.save_progress(user_id, {"key": "m2", "source": "demo", "title": "Т2",
+    store.save_progress(user_id, {"key": "m2", "source": "ru_a", "title": "Т2",
                                   "status": "watching", "watched_ep": 1})
 
     real_last = main.last_episode_number
@@ -416,10 +420,10 @@ def run():
     reset()
     v = C()
     login(v, "misha")
-    store.save_progress(admin_id, {"key": "chuzhoe", "source": "demo",
+    store.save_progress(admin_id, {"key": "chuzhoe", "source": "ru_a",
                                    "title": "Чужой тайтл", "status": "watching"})
     # Обложку чужому тайтлу не переписать: ручка правит только свою строку.
-    v.post("/api/library/poster", json={"key": "chuzhoe", "source": "demo",
+    v.post("/api/library/poster", json={"key": "chuzhoe", "source": "ru_a",
                                         "title": "Чужой тайтл"})
     rows = [r for r in store.library(admin_id) if r["key"] == "chuzhoe"]
     check("чужая запись не тронута", rows and rows[0]["poster"] == "", rows)
@@ -427,7 +431,7 @@ def run():
           not any(r["key"] == "chuzhoe" for r in store.library(user_id)))
 
     # То же для отметки «видел новую серию».
-    v.post("/api/updates/seen", json={"key": "chuzhoe", "source": "demo",
+    v.post("/api/updates/seen", json={"key": "chuzhoe", "source": "ru_a",
                                       "title": "Чужой тайтл"})
     rows = [r for r in store.library(admin_id) if r["key"] == "chuzhoe"]
     check("чужой счётчик серий не тронут", rows and rows[0]["total_eps"] == 0, rows)
@@ -439,11 +443,11 @@ def run():
     login(n, "misha")
     saved = n.headers.pop("X-CSRF-Token")
     for path, body in [("/api/me/mail", {"email": "a@b.ru", "want": False}),
-                       ("/api/me/2fa/start", {}),
+                       ("/api/me/2fa/start", {"password": PASS}),
                        ("/api/me/2fa/enable", {"code": "123456"}),
                        ("/api/me/2fa/disable", {"password": PASS}),
-                       ("/api/library/poster", {"key": "k", "source": "demo"}),
-                       ("/api/updates/seen", {"key": "k", "source": "demo"})]:
+                       ("/api/library/poster", {"key": "k", "source": "ru_a"}),
+                       ("/api/updates/seen", {"key": "k", "source": "ru_a"})]:
         code = n.post(path, json=body).status_code
         check(f"без метки отклонено: {path}", code == 403, code)
     n.headers["X-CSRF-Token"] = saved
@@ -453,7 +457,7 @@ def run():
 
     reset()
     c = C()
-    login(c, "valera", PASS)
+    login(c, "hozyain", PASS)
 
     for поле, значение in (
             ("theme", "<script>alert(1)</script>"),
@@ -486,7 +490,7 @@ def run():
     # Гость чужие настройки не тронет
     reset()
     г = C()
-    о = г.post("/api/auth/guest")
+    о = г.post("/api/auth/guest", json={})
     if о.status_code == 200:
         г.headers["X-CSRF-Token"] = о.json()["csrf"]
     check("гость тему не меняет",

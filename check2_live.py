@@ -10,10 +10,12 @@ import tempfile
 import time
 import logging
 
-# Проверки публичной версии идут в демонстрационном режиме: другого здесь
-# нет. Внешние источники видео не входят в этот репозиторий, и
-# единственный рабочий источник — свободное видео (api/anime_demo.py).
-os.environ.setdefault("MODE", "demo")
+# Эти проверки написаны под личный режим: они подменяют настоящие
+# источники (ru_a, ru_b…), которых в демо-режиме нет.
+# Режим ставим здесь, а не берём из окружения, — иначе запуск при
+# MODE=demo падал бы не из-за ошибок, а из-за чужих условий.
+# Демо-режим проверяет check10_demo.py.
+os.environ["MODE"] = "private"
 os.environ["DB_PATH"] = os.path.join(tempfile.mkdtemp(), "p2.db")
 os.environ["COOKIE_SECURE"] = "0"
 os.environ["SESSION_PEPPER"] = "pass2"
@@ -23,6 +25,8 @@ logging.getLogger("anime").setLevel(logging.ERROR)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastapi.testclient import TestClient          # noqa: E402
 from api import main, security, store             # noqa: E402
+import fake_sources                                 # noqa: E402
+fake_sources.install()
 
 # Вывод здесь на русском, а консоль Windows по умолчанию живёт в cp1251:
 # первая же стрелка или галочка роняла весь запуск с UnicodeEncodeError,
@@ -61,7 +65,7 @@ def login(c, u, p):
 
 
 def guest(c):
-    r = c.post("/api/auth/guest")
+    r = c.post("/api/auth/guest", json={})
     if r.status_code == 200:
         c.headers["X-CSRF-Token"] = r.json()["csrf"]
     return r
@@ -78,7 +82,7 @@ def reset():
 def run():
     store.init()
     reset()
-    admin_id = store.create_user("valera", "Zaliv-Pepel-2026", "admin", "valera")
+    admin_id = store.create_user("hozyain", "Zaliv-Pepel-2026", "admin", "hozyain")
     store.create_user("misha", "Tihiy-Signal-2026", "user", "misha")
 
     # ------------------------------------------------------------------
@@ -86,7 +90,7 @@ def run():
     c = C()
     check("до входа главная отдаётся", c.get("/").status_code == 200)
     check("но данные закрыты", c.get("/api/library").status_code == 401)
-    r = login(c, "valera", "Zaliv-Pepel-2026")
+    r = login(c, "hozyain", "Zaliv-Pepel-2026")
     check("вход прошёл", r.status_code == 200)
     me = r.json()["me"]
     check("роль администратор", me["role"] == "admin")
@@ -100,14 +104,16 @@ def run():
     check("настройки читаются обратно", got.get("accent") == "sky" and got.get("logo") == 2, got)
     check("логическое поле сохранилось как есть", got.get("autonext") is False, got.get("autonext"))
 
+    # Обложка — с сайта справочника: чужие адреса сервер не сохраняет
+    # (POSTER_SITES в api/main.py, проверка — check35_be_fixes.py).
     r = c.post("/api/library/progress", json={
-        "key": "source-a:100", "source": "demo", "title": "Тайтл",
-        "poster": "https://example.com/a.jpg", "year": 2024,
+        "key": "ru_a:100", "source": "ru_a", "title": "Тайтл",
+        "poster": "https://shikimori.one/uploads/poster/animes/1/a.jpg", "year": 2024,
         "genres": "Драма,Детектив", "total_eps": 12, "watched_ep": 3,
         "position": 421, "status": "watching"})
     check("прогресс сохранён", r.status_code == 200)
     item = c.get("/api/library").json()["items"][0]
-    check("обложка сохранилась", item["poster"] == "https://example.com/a.jpg", item["poster"])
+    check("обложка сохранилась", item["poster"] == "https://shikimori.one/uploads/poster/animes/1/a.jpg", item["poster"])
     check("жанры сохранились", item["genres"] == "Драма,Детектив", item["genres"])
     check("секунда сохранилась", item["position"] == 421, item["position"])
     check("год сохранился", item["year"] == 2024, item["year"])
@@ -153,7 +159,7 @@ def run():
     check("удаление несуществующего не падает",
           c.request("DELETE", "/api/library/нет-такого").status_code == 200)
     check("ключ с косой чертой обрабатывается",
-          c.request("DELETE", "/api/library/source-a/100").status_code in (200, 404))
+          c.request("DELETE", "/api/library/ru_a/100").status_code in (200, 404))
 
     # ------------------------------------------------------------------
     group("Аватар: краевые случаи")
@@ -219,15 +225,22 @@ def run():
     guest(g)
     check("гость видит список источников", g.get("/api/sources").status_code == 200)
     n = len(g.get("/api/sources").json())
-    # В публичной версии источник ровно один — демонстрационный. Он
-    # обслуживает оба языка: свободное видео не бывает «русским» или
-    # «английским». Число проверяем не ради числа — это ловит случайно
-    # затесавшийся сюда внешний источник.
-    check("источник ровно один", n == 1, n)
+    # Источники разделены по языку сайта, и это не украшение: выбрав
+    # русский сайт в английском меню, человек получил бы русскую озвучку
+    # под японскую картинку. Числа проверяем не ради чисел — они ловят
+    # случайную потерю источника при правках списка.
+    check("по-русски источников восемь", n == 8, n)
     ru_ids = [s["id"] for s in g.get("/api/sources").json()]
-    en_ids = [s["id"] for s in g.get("/api/sources?lang=en").json()]
-    check("и это демонстрационный", ru_ids == ["demo"], ru_ids)
-    check("один и тот же для обоих языков", ru_ids == en_ids, en_ids)
+    check("англоязычного среди них нет", "en_d" not in ru_ids, ru_ids)
+    # lang здесь — язык АНИМЕ, а не сайта. «en» — старое имя варианта
+    # «English — субтитры» (ensub): только английские источники, у которых
+    # есть субтитры (RU-E больше не предлагается — проход 26).
+    en = g.get("/api/sources?lang=en").json()
+    check("lang=en — то же, что ensub: только английские с субтитрами",
+          [s["id"] for s in en] == ["en_a", "en_b", "en_c", "en_d"],
+          [s["id"] for s in en])
+    check("lang=xx — русские источники",
+          [s["id"] for s in g.get("/api/sources?lang=xx").json()] == ru_ids)
     check("каждый источник имеет подпись",
           all(s.get("label") and s.get("note") for s in g.get("/api/sources").json()))
     for path, body in [("/api/library/progress", {"key": "x"}),
@@ -245,7 +258,7 @@ def run():
     group("Статистика")
     reset()
     a = C()
-    login(a, "valera", "Zaliv-Pepel-2026")
+    login(a, "hozyain", "Zaliv-Pepel-2026")
     s0 = a.get("/api/stats/year").json()
     base_eps = s0["episodes"]
     a.post("/api/library/watched", json={
@@ -272,7 +285,7 @@ def run():
     group("Страницы отдаются")
     reset()
     p = C()
-    login(p, "valera", "Zaliv-Pepel-2026")
+    login(p, "hozyain", "Zaliv-Pepel-2026")
     for path in ["/", "/watch", "/stats"]:
         r = p.get(path)
         check(f"{path} отдаётся", r.status_code == 200 and "<html" in r.text.lower(), r.status_code)
@@ -298,7 +311,7 @@ def run():
     group("Устойчивость к мусору")
     reset()
     m = C()
-    login(m, "valera", "Zaliv-Pepel-2026")
+    login(m, "hozyain", "Zaliv-Pepel-2026")
     junk = [
         ("строка вместо объекта", "просто строка"),
         ("число вместо объекта", 42),
@@ -320,18 +333,11 @@ def run():
     group("Поиск: проверка входа")
     reset()
     s = C()
-    login(s, "valera", "Zaliv-Pepel-2026")
-    # В демонстрационном режиме любое имя источника из запроса подменяется
-    # единственным демонстрационным (см. api_search в main.py). Чужое имя
-    # не отклоняется, а не используется: модуль с таким именем не грузится.
-    def foreign_source_ignored(name):
-        r = s.get("/api/search", params={"q": "test", "source": name})
-        if r.status_code == 400:
-            return True
-        return r.status_code == 200 and r.json().get("source") == "demo"
-    check("источник-модуль не используется", foreign_source_ignored("os"))
-    check("обход каталога в источнике не используется",
-          foreign_source_ignored("../../os"))
+    login(s, "hozyain", "Zaliv-Pepel-2026")
+    check("источник-модуль отклонён",
+          s.get("/api/search", params={"q": "test", "source": "os"}).status_code == 400)
+    check("обход каталога в источнике отклонён",
+          s.get("/api/search", params={"q": "test", "source": "../../os"}).status_code == 400)
     check("пустой запрос отклонён",
           s.get("/api/search", params={"q": ""}).status_code == 422)
     check("серия отрицательная отклонена",

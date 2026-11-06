@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru" data-page="index">
+<html lang="ru" data-depth="mid" data-accent="mint" data-lang="ru" data-page="index">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<title>анимеДик</title>
+<title data-ru="анимеДик" data-en="animeDik">анимеДик</title>
+<!-- Значок сайта — одинаково на всех четырёх страницах. SVG берут
+     современные браузеры, ICO (16/32/48) — всё остальное, PNG 180 —
+     iPhone на домашнем экране, манифест — Android и «установить». -->
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/static/site.webmanifest">
+<meta name="theme-color" content="#2C313C">
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
@@ -38,7 +46,7 @@
           <stop stop-color="#84CBB6"/><stop offset=".55" stop-color="#8DB5DF"/><stop offset="1" stop-color="#AEA1D8"/>
         </linearGradient></defs>
       </svg>
-      <b>аниме<i style="color:var(--mint)">Дик</i></b>
+      <b><span data-ru="аниме" data-en="anime">аниме</span><i style="color:var(--mint)" data-ru="Дик" data-en="Dik">Дик</i></b>
     </div>
 
     <h2 data-ru="С возвращением" data-en="Welcome back">С возвращением</h2>
@@ -83,10 +91,14 @@
         Регистрация закрыта. Аккаунты создаёт только администратор — напишите ему, если нужен доступ.</span>
     </div>
 
+    <!-- Только язык САЙТА: меню и кнопки. Озвучку он не меняет — язык
+         аниме выбирается отдельно, в кабинете. Подпись на двух языках
+         сразу: тому, кто не читает по-русски, она нужна до переключения. -->
     <div class="langrow">
-      <div class="seg" role="group" aria-label="Язык">
-        <button class="lang on" type="button" data-set-lang="ru">RU</button>
-        <button class="lang" type="button" data-set-lang="en">EN</button>
+      <span class="langlbl">Язык сайта · Site language</span>
+      <div class="seg" role="group" aria-label="Язык сайта / Site language">
+        <button class="lang on" type="button" data-set-lang="ru">Русский</button>
+        <button class="lang" type="button" data-set-lang="en">English</button>
       </div>
     </div>
   </div>
@@ -137,12 +149,13 @@
             <stop stop-color="#84CBB6"/><stop offset=".55" stop-color="#8DB5DF"/><stop offset="1" stop-color="#AEA1D8"/>
           </linearGradient></defs>
         </svg>
-        <b>аниме<i>Дик</i></b>
+        <b><span data-ru="аниме" data-en="anime">аниме</span><i data-ru="Дик" data-en="Dik">Дик</i></b>
       </a>
 
       <div class="find">
         <input id="q" maxlength="100" data-ru-ph="Что посмотрим?" data-en-ph="What are we watching?"
-               placeholder="Что посмотрим?" aria-label="Поиск">
+               placeholder="Что посмотрим?" aria-label="Поиск"
+               data-ru-aria="Поиск" data-en-aria="Search">
       </div>
 
       <!-- Здесь была кнопка «Фильтры». Фильтры убраны: они отбирали только
@@ -154,7 +167,8 @@
            помещаются в строку, и прятать их за одну — единственный
            способ не превращать шапку в четыре этажа. -->
       <button class="iconbtn burger" id="btn-burger" type="button"
-              aria-expanded="false" aria-controls="acts" aria-label="Меню">
+              aria-expanded="false" aria-controls="acts" aria-label="Меню"
+              data-ru-aria="Меню" data-en-aria="Menu">
         <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
           <path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.7"
                 stroke-linecap="round"/>
@@ -170,14 +184,15 @@
           <circle cx="10.1" cy="5.9" r="1.15" fill="currentColor"/>
           <circle cx="5.9" cy="10.1" r="1.15" fill="currentColor"/>
         </svg>
-        <span data-ru="Реши за меня" data-en="Pick for me">Реши за меня</span>
+        <span data-ru="Рандом" data-en="Random">Рандом</span>
       </button>
 
       <!-- Вкладки «Смотрю / Позже / Всё» убраны: список и так один, а
            ненужное убирается крестиком прямо на карточке. -->
 
       <div class="bellwrap">
-        <button class="iconbtn" id="btn-bell" type="button" aria-label="Расписание">
+        <button class="iconbtn" id="btn-bell" type="button" aria-label="Новые серии"
+                aria-haspopup="true" aria-expanded="false" aria-controls="bell-drop">
           <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path d="M9 2.4a4.4 4.4 0 0 0-4.4 4.4v2.6L3.4 12.1h11.2L13.4 9.4V6.8A4.4 4.4 0 0 0 9 2.4Z"
                   stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
@@ -189,18 +204,30 @@
         <div class="drop" id="bell-drop">
           <div class="dh">
             <b data-ru="Новые серии" data-en="New episodes">Новые серии</b>
+            <span id="bell-when"></span>
           </div>
           <div class="dl" id="bell-list"></div>
+          <!-- Уведомление от браузера: по желанию и только пока сайт
+               открыт хоть в одной вкладке. Без фоновых служб и push —
+               это отдельный большой механизм, а здесь хватает простого. -->
+          <div class="dnotify" id="bell-notify-row" hidden>
+            <button type="button" class="nswitch" id="bell-notify" aria-pressed="false">
+              <span class="nknob" aria-hidden="true"></span>
+              <span data-ru="Уведомлять в браузере" data-en="Browser notifications">Уведомлять в браузере</span>
+            </button>
+            <span class="nhint" id="bell-notify-s"></span>
+          </div>
           <div class="df"
-            data-ru="Только то, что вышло у сохранённых тайтлов"
-            data-en="Only what came out for titles you saved">Только то, что вышло у сохранённых тайтлов</div>
+            data-ru="Только то, что вышло у сохранённых тайтлов. Проверяем каждые 15 минут."
+            data-en="Only what came out for titles you saved. Checked every 15 minutes.">Только то, что вышло у сохранённых тайтлов. Проверяем каждые 15 минут.</div>
         </div>
       </div>
 
       <!-- Новости сайта. Кнопка видна только администратору: обычному
            человеку править объявление нечем, а место в шапке она заняла бы. -->
       <button class="iconbtn" id="btn-news" type="button" aria-label="Новости"
-              title="Новости" hidden>
+              title="Новости" hidden data-ru-aria="Объявление" data-en-aria="Announcement"
+              data-ru-title="Объявление" data-en-title="Announcement">
         <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
           <path d="M3.2 4.6h9.2v8.8H4.6a1.4 1.4 0 0 1-1.4-1.4V4.6Z" stroke="currentColor"
                 stroke-width="1.4" stroke-linejoin="round"/>
@@ -212,7 +239,9 @@
         <span class="lbl" data-ru="Объявление" data-en="Announcement">Объявление</span>
       </button>
 
-      <a class="iconbtn" id="btn-stats" href="/stats" aria-label="Итоги года" title="Итоги года">
+      <a class="iconbtn" id="btn-stats" href="/stats" aria-label="Итоги года" title="Итоги года"
+         data-ru-aria="Итоги года" data-en-aria="Year in review"
+         data-ru-title="Итоги года" data-en-title="Year in review">
         <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
           <path d="M3.4 14.6V9.8M7.6 14.6V4.2M11.8 14.6v-7M16 14.6V6.6" stroke="currentColor"
                 stroke-width="1.7" stroke-linecap="round"/>
@@ -220,7 +249,8 @@
         <span class="lbl" data-ru="Итоги года" data-en="Year in review">Итоги года</span>
       </a>
 
-      <button class="iconbtn accent" id="btn-about" type="button" aria-label="Про сайт">
+      <button class="iconbtn accent" id="btn-about" type="button" aria-label="Про сайт"
+              data-ru-aria="Про сайт" data-en-aria="About">
         <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
           <circle cx="9" cy="9" r="7.1" stroke="currentColor" stroke-width="1.4"/>
           <path d="M9 8.1v4.2M9 5.6v.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -229,7 +259,8 @@
       </button>
 
       <a class="iconbtn" id="btn-rules" href="/pravila" target="_blank" rel="noopener"
-         aria-label="Правила" title="Правила">
+         aria-label="Правила" title="Правила"
+         data-ru-aria="Правила" data-en-aria="Rules" data-ru-title="Правила" data-en-title="Rules">
         <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
           <path d="M4.2 3.2h6.4l3.2 3.2v8.4H4.2z" stroke="currentColor" stroke-width="1.4"
                 stroke-linejoin="round"/>
@@ -242,19 +273,24 @@
       </a>
       </div><!-- /acts -->
 
-      <!-- Переключатель языка стоит на виду, а не в настройках.
-           Человек, который не знает русского, до настроек не доберётся:
-           чтобы их открыть, надо сперва понять, что написано на кнопке.
-           Поэтому кнопка языка есть на каждой странице и работает до
-           входа — выбор запоминается в самом браузере. -->
-      <div class="seg lang-seg" role="group" aria-label="Язык / Language">
-        <button class="lang" type="button" data-set-lang="ru">RU</button>
-        <button class="lang" type="button" data-set-lang="en">EN</button>
-      </div>
-      <div class="who" id="who" role="button" tabindex="0" title="Настройки">
+      <!-- Переключателя RU/EN в шапке больше нет. Он путал: люди думали,
+           что «EN» переключает и озвучку в плеере. Язык сайта и язык
+           аниме — две отдельные настройки в кабинете (и язык сайта — ещё
+           на странице входа). -->
+      <!-- Нажатие открывает карточку профиля (см. КАРТОЧКА ПРОФИЛЯ ниже).
+           «Выйти» здесь больше нет: стоял вплотную к имени и нажимался
+           случайно — теперь он в карточке, отдельной строкой. -->
+      <div class="who" id="who" role="button" tabindex="0" title="Профиль и настройки"
+           data-ru-title="Профиль и настройки" data-en-title="Profile and settings"
+           aria-haspopup="dialog" aria-expanded="false" aria-controls="ucard">
         <span class="ava" id="ava"></span>
         <span id="whoami">—</span>
-        <button id="btn-out" type="button" data-ru="Выйти" data-en="Sign out">Выйти</button>
+        <!-- Стрелка из двух палочек: закрыто — «⌄», открыто — те же палочки
+             сходятся крестиком на месте (см. .whocaret в app.css). -->
+        <svg class="whocaret" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path class="wc1" d="M1.8 6h8.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path class="wc2" d="M1.8 6h8.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
       </div>
     </div>
   </header>
@@ -291,6 +327,8 @@
       <a href="#" id="search-clear" data-ru="Очистить" data-en="Clear">Очистить</a>
     </div>
     <div class="grid" id="search-grid"></div>
+    <!-- Строка под выдачей: хентай показан только тот, что можно посмотреть. -->
+    <p class="search-foot" id="search-foot" hidden></p>
   </section>
 
   <!-- Секция «Продолжить» убрана целиком: она повторяла те же карточки,
@@ -302,10 +340,18 @@
     <span id="list-count"></span>
     <span class="sp"></span>
     <nav class="tabs" id="tabs">
-      <a href="#" class="on" data-tab="open"
-         data-ru="Не закончил" data-en="Not finished">Не закончил</a>
-      <a href="#" data-tab="done"
-         data-ru="Закончил смотреть" data-en="Finished">Закончил смотреть</a>
+      <!-- Надпись — в своём span: смена языка переписывает текст элемента
+           целиком и иначе стёрла бы счётчик рядом с ней. -->
+      <a href="#" class="on" data-tab="open" aria-current="true"><span
+         data-ru="Не закончил" data-en="Not finished">Не закончил</span><span
+         class="tabn" id="tabn-open"></span></a>
+      <a href="#" data-tab="done"><span
+         data-ru="Закончил смотреть" data-en="Finished">Закончил смотреть</span><span
+         class="tabn" id="tabn-done"></span></a>
+      <!-- Отложенное на потом: добавляется кнопкой «В планы» в окне частей. -->
+      <a href="#" data-tab="later"><span
+         data-ru="Планирую смотреть" data-en="Plan to watch">Планирую смотреть</span><span
+         class="tabn" id="tabn-later"></span></a>
     </nav>
   </div>
 
@@ -315,15 +361,18 @@
     <b id="empty-t" data-ru="Здесь пока пусто" data-en="Nothing here yet">Здесь пока пусто</b>
     <span id="empty-s" data-ru="Найдите что-нибудь через поиск наверху."
           data-en="Find something with the search up top.">Найдите что-нибудь через поиск наверху.</span>
+    <!-- Видна только когда список не загрузился: обрыв связи — не повод
+         перезагружать всю страницу. -->
+    <button class="small" id="empty-retry" type="button" hidden
+            data-ru="Попробовать снова" data-en="Try again">Попробовать снова</button>
   </div>
 
 </main>
 
 <footer><div class="in">
   <span class="beta"
-    data-ru="Личный кинозал для аниме: список, отметки о просмотре и уведомления о новых сериях в одном месте. Версия пробная — что-то ещё может работать не так."
-    data-en="A personal home for your anime: your list, watch progress and new-episode alerts in one place. This is an early version — some things may still misbehave.">
-    Личный кинозал для аниме: список, отметки о просмотре и уведомления о новых сериях в одном месте. Версия пробная — что-то ещё может работать не так.</span>
+    data-ru="Аниме, чтобы смотреть с друзьями."
+    data-en="Anime to watch with friends.">Аниме, чтобы смотреть с друзьями.</span>
   <span class="footlinks">
     <a href="/pravila" target="_blank" rel="noopener"
        data-ru="Правила" data-en="Rules">Правила</a>
@@ -332,15 +381,163 @@
 </div></footer>
 </div><!-- /app -->
 
-<!-- ==================== КАБИНЕТ ==================== -->
+<!-- ==================== КАРТОЧКА ПРОФИЛЯ ====================
+     Открывается по нажатию на себя в шапке. Раньше это сразу был большой
+     кабинет на весь экран — ради того, чтобы сменить тему или выйти.
+     Теперь сначала карточка: кто я, сколько смотрю, тема и язык в одно
+     касание и крупные входы — «Настройки», «Итоги года», «Правила».
+     «Выйти» переехал сюда из шапки: там он стоял вплотную к имени и
+     нажимался случайно. Здесь он отделён чертой и подписан цветом.
+
+     У администратора та же карточка, только со значком и входом
+     «Админка». Гостю — время, язык и «Войти», без того, что требует
+     аккаунта. Карточка лежит вне #app: у #app свой слой, и падающий снег
+     праздника иначе ложился бы поверх неё. -->
+<div class="ucwrap" id="ucard-wrap">
+  <div class="ucard" id="ucard" role="dialog" aria-modal="true" aria-labelledby="uc-name">
+    <div class="uchead">
+      <span class="ucban" aria-hidden="true"></span>
+      <span class="ucfx" aria-hidden="true"></span>
+      <span class="ucpic">
+        <span class="ava" id="uc-ava"></span>
+        <span class="ucstar" id="uc-star" hidden title="Администратор"
+              data-ru-title="Администратор" data-en-title="Administrator">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M8 1.2l2 4.3 4.7.5-3.5 3.2 1 4.6L8 11.4l-4.2 2.4 1-4.6L1.3 6l4.7-.5z"/>
+          </svg>
+        </span>
+      </span>
+      <span class="ucwho">
+        <b id="uc-name">—</b>
+        <span class="ucrole" id="uc-role" data-kind="user">—</span>
+      </span>
+      <button class="ucx" id="uc-close" type="button" aria-label="Закрыть"
+              data-ru-aria="Закрыть" data-en-aria="Close">×</button>
+    </div>
+
+    <!-- Цифры — из уже загруженного списка, лишних запросов нет. -->
+    <div class="ucstats" id="uc-stats">
+      <div class="ucstat"><b id="uc-n-open">0</b>
+        <span data-ru="смотрю" data-en="watching">смотрю</span></div>
+      <div class="ucstat"><b id="uc-n-done">0</b>
+        <span data-ru="досмотрел" data-en="finished">досмотрел</span></div>
+    </div>
+    <div class="ucguest" id="uc-guest" hidden>
+      <span class="uctime"><b data-ru="Пропуск" data-en="Pass">Пропуск</b> · <span id="uc-left">—</span></span>
+      <span class="ucrail"><i id="uc-rail"></i></span>
+    </div>
+
+    <div class="ucquick">
+      <div class="ucrow" id="uc-theme-row">
+        <span class="uclbl"><span data-ru="Тема" data-en="Theme">Тема</span><span class="ucthsep" aria-hidden="true"> · </span><b class="ucthname" id="uc-theme-name"
+            data-ru="Как сейчас" data-en="As it is">Как сейчас</b></span>
+        <!-- Образец — маленькая страница в цветах самой темы: шапка, строки
+             текста и её тушь. Кружки одного тёмного цвета были неразличимы. -->
+        <div class="ucthemes" id="uc-theme" role="group" aria-label="Тема"
+             data-ru-aria="Тема" data-en-aria="Theme">
+          <button class="ucth" type="button" data-th="kak-seychas" data-nm-ru="Как сейчас" data-nm-en="As it is"
+                  aria-pressed="false" title="Как сейчас" aria-label="Тема: Как сейчас"><span class="thpv" aria-hidden="true"><span class="thbar"><i></i><i></i></span><span class="thbody"><i></i><i></i><i></i></span></span></button>
+          <button class="ucth" type="button" data-th="noch" data-nm-ru="Ночь" data-nm-en="Night"
+                  aria-pressed="false" title="Ночь" aria-label="Тема: Ночь"><span class="thpv" aria-hidden="true"><span class="thbar"><i></i><i></i></span><span class="thbody"><i></i><i></i><i></i></span></span></button>
+          <button class="ucth" type="button" data-th="ugol" data-nm-ru="Уголь" data-nm-en="Charcoal"
+                  aria-pressed="false" title="Уголь" aria-label="Тема: Уголь"><span class="thpv" aria-hidden="true"><span class="thbar"><i></i><i></i></span><span class="thbody"><i></i><i></i><i></i></span></span></button>
+          <button class="ucth" type="button" data-th="bumaga" data-nm-ru="Бумага" data-nm-en="Paper"
+                  aria-pressed="false" title="Бумага" aria-label="Тема: Бумага"><span class="thpv" aria-hidden="true"><span class="thbar"><i></i><i></i></span><span class="thbody"><i></i><i></i><i></i></span></span></button>
+        </div>
+      </div>
+      <div class="ucrow">
+        <span class="uclbl" data-ru="Язык сайта" data-en="Site language">Язык сайта</span>
+        <div class="seg" id="uc-lang" role="group" aria-label="Язык сайта"
+             data-ru-aria="Язык сайта" data-en-aria="Site language">
+          <button class="lang on" type="button" data-set-lang="ru" title="Русский">RU</button>
+          <button class="lang" type="button" data-set-lang="en" title="English">EN</button>
+        </div>
+      </div>
+      <!-- Гостю — и язык аниме: кабинета у него нет, а знать, на каком
+           языке будет озвучка, ему нужно так же. -->
+      <div class="ucrow" id="uc-alang-row" hidden>
+        <span class="uclbl" data-ru="Язык аниме" data-en="Anime language">Язык аниме</span>
+        <div class="seg" id="uc-alang" role="group" aria-label="Язык аниме"
+             data-ru-aria="Язык аниме" data-en-aria="Anime language">
+          <button class="on" type="button" data-anime-lang="ru" aria-pressed="true" title="Русский">RU</button>
+          <button type="button" data-anime-lang="endub" aria-pressed="false"
+                  title="English — dub">EN</button>
+          <button type="button" data-anime-lang="ensub" aria-pressed="false"
+                  title="English — subtitles">EN sub</button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="ucmenu" aria-label="Профиль" data-ru-aria="Профиль" data-en-aria="Profile">
+      <button class="ucgo" id="uc-set" type="button">
+        <span class="ucic" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+          <path d="M3 5h7M13 5h2M3 13h2M8 13h7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <circle cx="11.5" cy="5" r="1.9" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="6.5" cy="13" r="1.9" stroke="currentColor" stroke-width="1.6"/></svg></span>
+        <span class="uct"><b data-ru="Настройки" data-en="Settings">Настройки</b>
+          <small data-ru="профиль, вид, язык, безопасность" data-en="profile, look, language, security">профиль, вид, язык, безопасность</small></span>
+        <span class="ucarr" aria-hidden="true">›</span>
+      </button>
+      <button class="ucgo" id="uc-admin" type="button" hidden>
+        <span class="ucic" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+          <path d="M9 2.2 14.6 4.3v4.3c0 3.2-2.3 5.9-5.6 7.2-3.3-1.3-5.6-4-5.6-7.2V4.3L9 2.2Z"
+                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="m9 5.8.95 2 2.15.22-1.6 1.45.47 2.1L9 10.5l-1.97 1.07.47-2.1-1.6-1.45 2.15-.22L9 5.8Z" fill="currentColor"/></svg></span>
+        <span class="uct"><b data-ru="Админка" data-en="Admin">Админка</b>
+          <small data-ru="аккаунты и объявление" data-en="accounts and announcement">аккаунты и объявление</small></span>
+        <span class="ucarr" aria-hidden="true">›</span>
+      </button>
+      <a class="ucgo" id="uc-year" href="/stats">
+        <span class="ucic" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+          <path d="M3.4 14.6V9.8M7.6 14.6V4.2M11.8 14.6v-7M16 14.6V6.6" stroke="currentColor"
+                stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="uct"><b data-ru="Итоги года" data-en="Year in review">Итоги года</b>
+          <small data-ru="что и сколько вы посмотрели" data-en="what and how much you watched">что и сколько вы посмотрели</small></span>
+        <span class="ucarr" aria-hidden="true">›</span>
+      </a>
+      <a class="ucgo" href="/pravila" target="_blank" rel="noopener">
+        <span class="ucic" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+          <path d="M4.2 3.2h6.4l3.2 3.2v8.4H4.2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M6.6 9.2h4.8M6.6 11.6h4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <span class="uct"><b data-ru="Правила" data-en="Rules">Правила</b>
+          <small data-ru="откроются в новой вкладке" data-en="open in a new tab">откроются в новой вкладке</small></span>
+        <span class="ucarr" aria-hidden="true">↗</span>
+      </a>
+      <!-- Гостю вместо «Выйти» — «Войти»: пропуск закрывается, и сразу
+           открывается форма входа. -->
+      <button class="ucgo ucin" id="uc-login" type="button" hidden>
+        <span class="ucic" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+          <path d="M10.5 3.2h3.3v11.6h-3.3M3.4 9h7.4M7.8 6l3 3-3 3" stroke="currentColor" stroke-width="1.7"
+                stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="uct"><b data-ru="Войти" data-en="Sign in">Войти</b>
+          <small data-ru="своим логином и паролем" data-en="with your username and password">своим логином и паролем</small></span>
+        <span class="ucarr" aria-hidden="true">›</span>
+      </button>
+      <button class="ucgo ucout" id="btn-out" type="button">
+        <span class="ucic" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+          <path d="M7.5 3.2H4.2v11.6h3.3M14.6 9H7.2M11.6 6l3 3-3 3" stroke="currentColor" stroke-width="1.7"
+                stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="uct"><b data-ru="Выйти" data-en="Sign out">Выйти</b>
+          <small data-ru="на этом устройстве" data-en="on this device">на этом устройстве</small></span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<!-- ==================== КАБИНЕТ ====================
+     Был одной длинной лентой: имя, язык, 18+, тема, письма, вход по коду
+     и аккаунты — подряд, и нужное приходилось выискивать прокруткой.
+     Теперь разделы: слева (на телефоне — сверху) полоса с их названиями,
+     справа — один раздел. Все поля, кнопки и их номера (id) прежние:
+     поменялась раскладка, а не то, что и как сохраняется. -->
 <div class="veil" id="veil-set">
-  <div class="panel" role="dialog" aria-modal="true" aria-label="Настройки">
+  <div class="panel cab" role="dialog" aria-modal="true" aria-labelledby="set-name">
     <button class="close" id="set-close" type="button" aria-label="Закрыть"
-      style="position:absolute;right:16px;top:16px;width:32px;height:32px;border-radius:50%;
-      border:1px solid var(--line);background:var(--surface-2);color:var(--dim);cursor:pointer;
-      font-size:17px;line-height:1;z-index:2">×</button>
+            data-ru-aria="Закрыть" data-en-aria="Close">×</button>
 
     <div class="phead">
+      <span class="ucban" aria-hidden="true"></span>
+      <span class="ucfx" aria-hidden="true"></span>
       <span class="ava" id="set-ava"></span>
       <div>
         <b id="set-name">—</b>
@@ -348,266 +545,506 @@
       </div>
     </div>
 
-    <div class="pbody" id="pbody">
-      <div class="lockbar" id="lockbar">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex:none;margin-top:2px" aria-hidden="true">
-          <rect x="2.5" y="6" width="9" height="6.5" rx="2" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M4.7 6V4.4a2.3 2.3 0 1 1 4.6 0V6" stroke="currentColor" stroke-width="1.3"/>
-        </svg>
-        <span>
-          <b data-ru="Только просмотр" data-en="View only">Только просмотр</b>
-          <span data-ru="Гость видит настройки, но менять их нельзя, и ничего не сохраняется. Нужен полный доступ — напишите администратору."
-                data-en="Guests can see the settings but cannot change them, and nothing is saved. Need full access? Message the administrator.">
-            Гость видит настройки, но менять их нельзя, и ничего не сохраняется. Нужен полный доступ — напишите администратору.</span>
-        </span>
+    <div class="cabbody">
+      <div class="cabrail" id="cab-rail" role="tablist" aria-label="Разделы настроек" aria-orientation="vertical"
+           data-ru-aria="Разделы настроек" data-en-aria="Settings sections">
+        <button class="cabtab on" id="cab-t-profile" type="button" role="tab" data-sec="profile"
+                aria-controls="cab-profile" aria-selected="true">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="6.3" r="3.1" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M3.4 15.2c.7-2.9 2.9-4.4 5.6-4.4s4.9 1.5 5.6 4.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span data-ru="Профиль" data-en="Profile">Профиль</span>
+        </button>
+        <button class="cabtab" id="cab-t-look" type="button" role="tab" data-sec="look"
+                aria-controls="cab-look" aria-selected="false" tabindex="-1">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M9 2.4a6.6 6.6 0 1 0 0 13.2c1.1 0 1.5-.8 1.1-1.6-.5-1 .1-2.1 1.3-2.1h1.6a2.6 2.6 0 0 0 2.6-2.6C15.6 5.6 12.6 2.4 9 2.4Z"
+                  stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <circle cx="5.8" cy="8.4" r="1.1" fill="currentColor"/><circle cx="8.6" cy="5.6" r="1.1" fill="currentColor"/>
+            <circle cx="12" cy="6.6" r="1.1" fill="currentColor"/></svg>
+          <span data-ru="Вид" data-en="Look">Вид</span>
+        </button>
+        <button class="cabtab" id="cab-t-lang" type="button" role="tab" data-sec="lang"
+                aria-controls="cab-lang" aria-selected="false" tabindex="-1">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6.7" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M2.6 9h12.8M9 2.3c1.8 1.9 2.6 4.1 2.6 6.7S10.8 13.8 9 15.7C7.2 13.8 6.4 11.6 6.4 9S7.2 4.2 9 2.3Z"
+                  stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span data-ru="Язык" data-en="Language">Язык</span>
+        </button>
+        <button class="cabtab" id="cab-t-view" type="button" role="tab" data-sec="view"
+                aria-controls="cab-view" aria-selected="false" tabindex="-1">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <rect x="2.2" y="3.4" width="13.6" height="9.6" rx="2.2" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M7.6 6.2v4l3.4-2-3.4-2Z" fill="currentColor"/>
+            <path d="M6 15.6h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span data-ru="Просмотр" data-en="Watching">Просмотр</span>
+        </button>
+        <button class="cabtab" id="cab-t-safe" type="button" role="tab" data-sec="safe"
+                aria-controls="cab-safe" aria-selected="false" tabindex="-1">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M9 2.2 14.6 4.3v4.3c0 3.2-2.3 5.9-5.6 7.2-3.3-1.3-5.6-4-5.6-7.2V4.3L9 2.2Z"
+                  stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="m6.6 8.9 1.7 1.7 3.2-3.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span data-ru="Безопасность" data-en="Security">Безопасность</span>
+        </button>
+        <button class="cabtab" id="cab-t-admin" type="button" role="tab" data-sec="admin"
+                aria-controls="admin-grp" aria-selected="false" tabindex="-1" hidden>
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="m9 2.2 2 4.3 4.7.5-3.5 3.2 1 4.6L9 12.4l-4.2 2.4 1-4.6L2.3 7l4.7-.5z"
+                  stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <span data-ru="Админка" data-en="Admin">Админка</span>
+        </button>
       </div>
 
-      <div class="grp">
-        <h4 data-ru="Профиль" data-en="Profile">Профиль</h4>
-        <div class="opt">
-          <span class="lb"><b data-ru="Отображаемое имя" data-en="Display name">Отображаемое имя</b>
-            <span data-ru="Как вас видно в шапке" data-en="How you appear in the header">Как вас видно в шапке</span></span>
-          <input class="inp" id="s-name" maxlength="40">
-        </div>
-        <div class="opt">
-          <span class="lb"><b data-ru="Фото" data-en="Photo">Фото</b>
-            <span data-ru="Заменит букву в кружке. Не больше 5 МБ, сохраняется как 128×128."
-                  data-en="Replaces the letter in the circle. Up to 5 MB, stored as 128×128.">
-              Заменит букву в кружке. Не больше 5 МБ, сохраняется как 128×128.</span></span>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <input type="file" id="s-photo" accept="image/jpeg,image/png,image/webp" hidden>
-            <button class="small" id="s-photo-btn" type="button" data-ru="Выбрать файл" data-en="Choose a file">Выбрать файл</button>
-            <button class="small" id="s-photo-clear" type="button" hidden
-              data-ru="Убрать фото" data-en="Remove photo">Убрать фото</button>
-          </div>
-        </div>
-        <div class="opt">
-          <span class="lb"><b data-ru="Цвет кружка" data-en="Avatar colour">Цвет кружка</b></span>
-          <div class="swatches" id="s-ava">
-            <button class="sc on" type="button" data-c="#84CBB6" style="background:#84CBB6" aria-label="мятный"></button>
-            <button class="sc" type="button" data-c="#8DB5DF" style="background:#8DB5DF" aria-label="голубой"></button>
-            <button class="sc" type="button" data-c="#AEA1D8" style="background:#AEA1D8" aria-label="лавандовый"></button>
-            <button class="sc" type="button" data-c="#D9A97F" style="background:#D9A97F" aria-label="песочный"></button>
-          </div>
-        </div>
-        <div class="opt">
-          <span class="lb"><b data-ru="Пароль" data-en="Password">Пароль</b>
-            <span data-ru="Администратор его не видит — у него только отпечаток"
-                  data-en="The administrator cannot see it — only a fingerprint is stored">
-              Администратор его не видит — у него только отпечаток</span></span>
-          <button class="small" id="s-pass" type="button" data-ru="Сменить пароль" data-en="Change password">Сменить пароль</button>
-        </div>
-        <div id="pass-box" hidden style="padding:4px 0 8px">
-          <div class="field" style="margin-bottom:9px">
-            <label data-ru="Текущий пароль" data-en="Current password">Текущий пароль</label>
-            <input class="inp" id="p-cur" type="password" autocomplete="current-password" style="width:100%">
-          </div>
-          <div class="field" style="margin-bottom:9px">
-            <label data-ru="Новый пароль (от 10 символов)" data-en="New password (10+ characters)">Новый пароль (от 10 символов)</label>
-            <input class="inp" id="p-new" type="password" autocomplete="new-password" style="width:100%">
-          </div>
-          <button class="small" id="p-save" type="button" data-ru="Сохранить пароль" data-en="Save password">Сохранить пароль</button>
-          <div class="err" id="p-err" role="alert"></div>
-        </div>
-      </div>
-
-      <div class="grp">
-        <h4 data-ru="Внешний вид" data-en="Appearance">Внешний вид</h4>
-        <div class="opt">
-          <span class="lb"><b data-ru="Язык" data-en="Language">Язык</b></span>
-          <div class="seg">
-            <button class="lang on" type="button" data-set-lang="ru">RU</button>
-            <button class="lang" type="button" data-set-lang="en">EN</button>
-          </div>
-        </div>
-        <div class="opt">
-          <span class="lb"><b data-ru="Фон" data-en="Background">Фон</b></span>
-          <div class="seg" id="s-depth">
-            <button class="on" type="button" data-set="deep" data-ru="Глубже" data-en="Deeper">Глубже</button>
-            <button type="button" data-set="mid" data-ru="Мягче" data-en="Softer">Мягче</button>
-          </div>
-        </div>
-        <div class="opt">
-          <span class="lb"><b data-ru="Акцентный цвет" data-en="Accent colour">Акцентный цвет</b></span>
-          <div class="swatches" id="s-accent">
-            <button class="sc on" type="button" data-a="mint" style="background:#84CBB6" aria-label="мята"></button>
-            <button class="sc" type="button" data-a="sky" style="background:#8DB5DF" aria-label="голубой"></button>
-            <button class="sc" type="button" data-a="lilac" style="background:#AEA1D8" aria-label="лаванда"></button>
-            <button class="sc" type="button" data-a="sand" style="background:#D9A97F" aria-label="песочный"></button>
-          </div>
-        </div>
-        <!-- «Размер обложек» убран: настройка, которую выставляют один раз
-             и больше не трогают, а кода за собой тянет много. -->
-        <div class="opt col">
-          <span class="lb"><b data-ru="Тема" data-en="Theme">Тема</b></span>
-          <div class="themes" id="s-theme" role="group" aria-label="Тема">
-            <button class="theme" type="button" data-th="kak-seychas"
-                    aria-pressed="false" aria-label="Как сейчас">
-              <span class="thpv" style="background:#191C24">
-                <span class="thbar" style="background:#22262F"></span>
-                <span class="thdot" style="background:#84CBB6"></span>
-              </span>
-              <span class="thnm" data-ru="Как сейчас" data-en="As it is">Как сейчас</span>
-            </button>
-            <button class="theme" type="button" data-th="noch"
-                    aria-pressed="false" aria-label="Ночь">
-              <span class="thpv" style="background:#0F1219">
-                <span class="thbar" style="background:#171B24"></span>
-                <span class="thdot" style="background:#8DB5DF"></span>
-              </span>
-              <span class="thnm" data-ru="Ночь" data-en="Night">Ночь</span>
-            </button>
-            <button class="theme" type="button" data-th="ugol"
-                    aria-pressed="false" aria-label="Уголь">
-              <span class="thpv" style="background:#0A0B0E">
-                <span class="thbar" style="background:#15171C"></span>
-                <span class="thdot" style="background:#AEA1D8"></span>
-              </span>
-              <span class="thnm" data-ru="Уголь" data-en="Charcoal">Уголь</span>
-            </button>
-            <button class="theme" type="button" data-th="bumaga"
-                    aria-pressed="false" aria-label="Бумага">
-              <span class="thpv" style="background:#F4F1EA">
-                <span class="thbar" style="background:#FFFFFF"></span>
-                <span class="thdot" style="background:#C9855A"></span>
-              </span>
-              <span class="thnm" data-ru="Бумага" data-en="Paper">Бумага</span>
-            </button>
-          </div>
+      <div class="pbody" id="pbody">
+        <div class="lockbar" id="lockbar">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex:none;margin-top:2px" aria-hidden="true">
+            <rect x="2.5" y="6" width="9" height="6.5" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M4.7 6V4.4a2.3 2.3 0 1 1 4.6 0V6" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+          <span>
+            <b data-ru="Только просмотр" data-en="View only">Только просмотр</b>
+            <span data-ru="Гость видит настройки, но менять их нельзя, и ничего не сохраняется. Нужен полный доступ — напишите администратору."
+                  data-en="Guests can see the settings but cannot change them, and nothing is saved. Need full access? Message the administrator.">
+              Гость видит настройки, но менять их нельзя, и ничего не сохраняется. Нужен полный доступ — напишите администратору.</span>
+          </span>
         </div>
 
-        <div class="opt col">
-          <span class="lb"><b data-ru="Праздничное оформление" data-en="Holiday decoration">Праздничное оформление</b></span>
-          <div class="seg wrap" id="s-holiday" role="group" aria-label="Праздник">
-            <button class="on" type="button" data-h="" data-ru="По календарю" data-en="By calendar">По календарю</button>
-            <button type="button" class="adm-only" data-h="newyear" data-ru="Новый год" data-en="New Year">Новый год</button>
-            <button type="button" class="adm-only" data-h="halloween" data-ru="Хэллоуин" data-en="Halloween">Хэллоуин</button>
-            <button type="button" class="adm-only" data-h="sakura" data-ru="Сакура" data-en="Sakura">Сакура</button>
-            <button type="button" data-h="off" data-ru="Выключить" data-en="Off">Выключить</button>
+        <!-- ---------- Профиль ---------- -->
+        <section class="cabsec on" id="cab-profile" role="tabpanel" aria-labelledby="cab-t-profile">
+          <div class="cabh">
+            <h3 data-ru="Профиль" data-en="Profile">Профиль</h3>
+            <p data-ru="Как вас видят на сайте." data-en="How you appear on the site.">Как вас видят на сайте.</p>
           </div>
-          <span class="optnote"
-                data-ru="Сайт сам наряжается к празднику: под Новый год идёт снег, к Хэллоуину появляются тыквы и летучие мыши, весной летят лепестки сакуры. Не нужно — нажмите «Выключить», и украшений не будет никогда."
-                data-en="The site decorates itself for the occasion: snow at New Year, pumpkins and bats at Halloween, sakura petals in spring. Not your thing — press “Off” and there will be no decoration at all.">
-            Сайт сам наряжается к празднику: под Новый год идёт снег, к Хэллоуину появляются тыквы и летучие мыши, весной летят лепестки сакуры. Не нужно — нажмите «Выключить», и украшений не будет никогда.</span>
-          <span class="optnote" id="hol-motion" hidden
-                data-ru="Сейчас снежинки и лепестки не падают, а лежат на месте: в вашей Windows выключены эффекты анимации, и сайт это уважает. Чтобы всё задвигалось: Параметры → Специальные возможности → Визуальные эффекты → Эффекты анимации."
-                data-en="Right now the snow and petals sit still instead of falling: animation effects are turned off in your system and the site respects that. To make things move: Settings → Accessibility → Visual effects → Animation effects.">
-            Сейчас снежинки и лепестки не падают, а лежат на месте: в вашей Windows выключены эффекты анимации, и сайт это уважает. Чтобы всё задвигалось: Параметры → Специальные возможности → Визуальные эффекты → Эффекты анимации.</span>
-        </div>
-        <div class="opt">
-          <span class="lb"><b data-ru="Логотип" data-en="Logo">Логотип</b></span>
-          <div class="logos" id="s-logo">
-            <button class="logopick on" type="button" data-l="1" aria-label="Вариант 1">
-              <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="11" fill="#8DB5DF"/><path d="M13.5 11.2v11.6l9.2-5.8-9.2-5.8Z" fill="#171A21"/></svg></button>
-            <button class="logopick" type="button" data-l="2" aria-label="Вариант 2">
-              <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="11" fill="#8DB5DF"/><path d="M8.6 12.4a3.4 3.4 0 0 1 3.4-3.4h10a3.4 3.4 0 0 1 3.4 3.4v6.1a3.4 3.4 0 0 1-3.4 3.4h-5.1l-4.4 3.5v-3.5h-.5a3.4 3.4 0 0 1-3.4-3.4v-6.1Z" fill="#171A21"/><path d="M15.3 12.9v5.9l5-3-5-2.9Z" fill="#8DB5DF"/></svg></button>
-            <button class="logopick" type="button" data-l="3" aria-label="Вариант 3">
-              <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="16" fill="var(--bg)" stroke="#8DB5DF" stroke-width="2"/><ellipse cx="17" cy="17" rx="15.4" ry="6.2" stroke="#8DB5DF" stroke-width="1.5" opacity=".55" transform="rotate(-28 17 17)"/><path d="M14.4 12.6v8.8l7.2-4.4-7.2-4.4Z" fill="#8DB5DF"/></svg></button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Разделы «Просмотр» и «Список» убраны целиком.
-           «Следующая серия сама» осталась переключателем на самой странице
-           просмотра — там она и нужна, прямо под кнопкой «дальше».
-           Автоотметка на 90% теперь просто работает всегда: это ровно то,
-           чего от плеера ждут, и отдельная настройка тут лишняя.
-           Сортировка и «показывать законченные» ушли вместе со вкладками:
-           список один, самое свежее сверху. -->
-
-      <div class="grp">
-        <h4 data-ru="Уведомления" data-en="Notifications">Уведомления</h4>
-        <div class="opt">
-          <span class="lb"><b data-ru="Письма о новых сериях" data-en="Emails about new episodes">Письма о новых сериях</b>
-            <span data-ru="Придёт письмо, когда выйдет новая серия у тайтла из вашего списка"
-                  data-en="You get an email when a new episode of a saved title comes out">
-              Придёт письмо, когда выйдет новая серия у тайтла из вашего списка</span></span>
-          <button class="sw" id="s-mailnew" type="button" role="switch"
-                  aria-checked="false" aria-label="Письма о новых сериях"></button>
-        </div>
-        <div class="opt" id="opt-email" hidden>
-          <span class="lb"><b data-ru="Адрес почты" data-en="Email address">Адрес почты</b>
-            <span data-ru="Только для этих писем. Больше никуда не уходит."
-                  data-en="Used only for these emails. It goes nowhere else.">
-              Только для этих писем. Больше никуда не уходит.</span></span>
-          <input class="inp" id="s-email" type="email" maxlength="120" autocomplete="email"
-                 data-ru-ph="you@example.com" data-en-ph="you@example.com" placeholder="you@example.com">
-        </div>
-      </div>
-
-      <div class="grp">
-        <h4 data-ru="Безопасность" data-en="Security">Безопасность</h4>
-        <div class="opt">
-          <span class="lb"><b data-ru="Другие устройства" data-en="Other devices">Другие устройства</b>
-            <span id="sess-note"></span></span>
-          <button class="small warn" id="s-logoutall" type="button"
-            data-ru="Выйти везде" data-en="Sign out everywhere">Выйти везде</button>
-        </div>
-
-        <div class="opt">
-          <span class="lb"><b data-ru="Вход по коду из приложения" data-en="Sign-in code from an app">Вход по коду из приложения</b>
-            <span data-ru="Кроме пароля попросим шестизначный код. Подойдёт любое приложение-аутентификатор."
-                  data-en="Besides the password we ask for a six-digit code. Any authenticator app works.">
-              Кроме пароля попросим шестизначный код. Подойдёт любое приложение-аутентификатор.</span></span>
-          <button class="sw" id="s-2fa" type="button" role="switch"
-                  aria-checked="false" aria-label="Вход по коду из приложения"></button>
-        </div>
-
-        <!-- Код появляется только после галочки: показывать его всем подряд
-             незачем, а секрет — тем более. -->
-        <div class="twofa" id="twofa-box" hidden>
-          <div class="qrwrap"><img id="twofa-qr" alt="QR-код для приложения" width="184" height="184">
-            <!-- Если на сервере нечем нарисовать картинку, показываем это
-                 вместо неё: ключ ниже вводится в приложение руками. -->
-            <p class="qrnone" id="twofa-manual" hidden
-               data-ru="Картинку показать нечем — введите ключ в приложение вручную, он ниже."
-               data-en="No QR renderer here — enter the key below into your app by hand.">
-              Картинку показать нечем — введите ключ в приложение вручную, он ниже.</p></div>
-          <div class="twofa-steps">
-            <p data-ru="1. Откройте приложение-аутентификатор и отсканируйте код."
-               data-en="1. Open your authenticator app and scan the code.">
-              1. Откройте приложение-аутентификатор и отсканируйте код.</p>
-            <p data-ru="2. Введите шесть цифр, которые оно покажет."
-               data-en="2. Type the six digits it shows.">2. Введите шесть цифр, которые оно покажет.</p>
-            <div class="codrow">
-              <input class="inp code" id="twofa-code" inputmode="numeric" maxlength="6"
-                     autocomplete="one-time-code" placeholder="000000">
-              <button class="small" id="twofa-confirm" type="button"
-                data-ru="Подтвердить" data-en="Confirm">Подтвердить</button>
+          <div class="grp">
+            <h4 data-ru="Имя и кружок" data-en="Name and avatar">Имя и кружок</h4>
+            <div class="opt">
+              <span class="lb"><b id="s-name-l" data-ru="Отображаемое имя" data-en="Display name">Отображаемое имя</b>
+                <span data-ru="Как вас видно в шапке" data-en="How you appear in the header">Как вас видно в шапке</span></span>
+              <input class="inp" id="s-name" maxlength="40" aria-labelledby="s-name-l">
             </div>
-            <div class="err" id="twofa-err" role="alert"></div>
-            <details class="manual">
-              <summary data-ru="Не сканируется? Ввести вручную" data-en="Cannot scan? Enter manually">Не сканируется? Ввести вручную</summary>
-              <code id="twofa-secret"></code>
-            </details>
+            <div class="opt">
+              <span class="lb"><b data-ru="Фото" data-en="Photo">Фото</b>
+                <span data-ru="Заменит букву в кружке. Не больше 5 МБ, сохраняется как 128×128."
+                      data-en="Replaces the letter in the circle. Up to 5 MB, stored as 128×128.">
+                  Заменит букву в кружке. Не больше 5 МБ, сохраняется как 128×128.</span></span>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <input type="file" id="s-photo" accept="image/jpeg,image/png,image/webp" hidden>
+                <button class="small" id="s-photo-btn" type="button" data-ru="Выбрать файл" data-en="Choose a file">Выбрать файл</button>
+                <button class="small" id="s-photo-clear" type="button" hidden
+                  data-ru="Убрать фото" data-en="Remove photo">Убрать фото</button>
+              </div>
+            </div>
+            <div class="opt">
+              <span class="lb"><b data-ru="Цвет кружка" data-en="Avatar colour">Цвет кружка</b>
+                <!-- Когда стоит фото, цвета кружка не видно: выбор выключен,
+                     и здесь сказано почему. Убрали фото — снова можно. -->
+                <span id="s-ava-note" hidden data-ru="Цвет не нужен — стоит фото"
+                      data-en="No colour needed — a photo is set">Цвет не нужен — стоит фото</span></span>
+              <div class="swatches" id="s-ava">
+                <button class="sc on" type="button" data-c="#84CBB6" style="background:#84CBB6" aria-label="мятный"
+                        data-ru-aria="мятный" data-en-aria="mint"></button>
+                <button class="sc" type="button" data-c="#8DB5DF" style="background:#8DB5DF" aria-label="голубой"
+                        data-ru-aria="голубой" data-en-aria="sky blue"></button>
+                <button class="sc" type="button" data-c="#AEA1D8" style="background:#AEA1D8" aria-label="лавандовый"
+                        data-ru-aria="лавандовый" data-en-aria="lavender"></button>
+                <button class="sc" type="button" data-c="#D9A97F" style="background:#D9A97F" aria-label="песочный"
+                        data-ru-aria="песочный" data-en-aria="sand"></button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+          <!-- Баннер — картинка в шапке карточки профиля и этого окна (там,
+               где зелёная полоса с точками). Как и фото, уходит сразу, без
+               «Сохранить». -->
+          <div class="grp">
+            <h4 data-ru="Баннер" data-en="Banner">Баннер</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Картинка в шапке" data-en="Header picture">Картинка в шапке</b>
+                <span data-ru="Встанет в шапку карточки профиля и настроек вместо цветной полосы. JPG, PNG или WebP до 5 МБ; обрежется по центру до полосы 3:1."
+                      data-en="Goes into the header of your profile card and settings instead of the coloured strip. JPG, PNG or WebP up to 5 MB; cropped around the centre to a 3:1 strip.">
+                  Встанет в шапку карточки профиля и настроек вместо цветной полосы. JPG, PNG или WebP до 5 МБ; обрежется по центру до полосы 3:1.</span></span>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <input type="file" id="s-banner" accept="image/jpeg,image/png,image/webp" hidden>
+                <button class="small" id="s-banner-btn" type="button" data-ru="Выбрать файл" data-en="Choose a file">Выбрать файл</button>
+                <button class="small" id="s-banner-clear" type="button" hidden
+                  data-ru="Убрать баннер" data-en="Remove banner">Убрать баннер</button>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      <div class="grp" id="admin-grp" hidden>
-        <h4 data-ru="Администратор" data-en="Administrator">Администратор</h4>
-        <div class="adm">
-          <div style="font-size:13.5px;color:var(--dim)"
-            data-ru="Этот раздел виден только вам. Регистрации нет — аккаунты создаются здесь."
-            data-en="Only you can see this section. There is no sign-up — accounts are created here.">
-            Этот раздел виден только вам. Регистрации нет — аккаунты создаются здесь.</div>
-          <div class="accs" id="admin-list"></div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            <button class="small" id="a-new" type="button" data-ru="Создать аккаунт" data-en="Create account">Создать аккаунт</button>
-            <span id="guests-now" style="font-size:12.5px;color:var(--dim)"></span>
+        <!-- ---------- Вид ---------- -->
+        <section class="cabsec" id="cab-look" role="tabpanel" aria-labelledby="cab-t-look" hidden>
+          <div class="cabh">
+            <h3 data-ru="Вид" data-en="Look">Вид</h3>
+            <p data-ru="Сайт перекрашивается сразу — смотрите и выбирайте. В аккаунт уходит по «Сохранить»."
+               data-en="The site repaints right away — look and choose. Saved to your account with “Save”.">
+              Сайт перекрашивается сразу — смотрите и выбирайте. В аккаунт уходит по «Сохранить».</p>
           </div>
-          <div id="a-form" hidden style="margin-top:12px;display:grid;gap:8px">
-            <input class="inp" id="a-login" maxlength="32" data-ru-ph="логин латиницей" data-en-ph="username, latin letters" placeholder="логин латиницей">
-            <input class="inp" id="a-pass" type="password" maxlength="200" autocomplete="new-password"
-                   data-ru-ph="пароль от 10 символов" data-en-ph="password, 10+ characters" placeholder="пароль от 10 символов">
-            <label style="font-size:13px;color:var(--dim);display:flex;gap:8px;align-items:center">
-              <input type="checkbox" id="a-admin">
-              <span data-ru="сделать администратором" data-en="make administrator">сделать администратором</span>
-            </label>
-            <button class="small" id="a-save" type="button" data-ru="Создать" data-en="Create">Создать</button>
-            <div class="err" id="a-err" role="alert"></div>
+          <div class="grp">
+            <h4 data-ru="Тема" data-en="Theme">Тема</h4>
+            <div class="themes" id="s-theme" role="group" aria-label="Тема"
+                 data-ru-aria="Тема" data-en-aria="Theme">
+              <button class="theme" type="button" data-th="kak-seychas"
+                      aria-pressed="false" aria-label="Как сейчас"
+                      data-ru-aria="Как сейчас" data-en-aria="As it is">
+                <span class="thpv" aria-hidden="true"><span class="thbar"><i></i><i></i></span><span class="thbody"><i></i><i></i><i></i></span></span>
+                <span class="thnm" data-ru="Как сейчас" data-en="As it is">Как сейчас</span>
+                <span class="thsub" data-ru="графит" data-en="graphite">графит</span>
+              </button>
+              <button class="theme" type="button" data-th="noch"
+                      aria-pressed="false" aria-label="Ночь"
+                      data-ru-aria="Ночь" data-en-aria="Night">
+                <span class="thpv" aria-hidden="true"><span class="thbar"><i></i><i></i></span><span class="thbody"><i></i><i></i><i></i></span></span>
+                <span class="thnm" data-ru="Ночь" data-en="Night">Ночь</span>
+                <span class="thsub" data-ru="холодная синяя" data-en="cold blue">холодная синяя</span>
+              </button>
+              <button class="theme" type="button" data-th="ugol"
+                      aria-pressed="false" aria-label="Уголь"
+                      data-ru-aria="Уголь" data-en-aria="Charcoal">
+                <span class="thpv" aria-hidden="true"><span class="thbar"><i></i><i></i></span><span class="thbody"><i></i><i></i><i></i></span></span>
+                <span class="thnm" data-ru="Уголь" data-en="Charcoal">Уголь</span>
+                <span class="thsub" data-ru="почти чёрная" data-en="near black">почти чёрная</span>
+              </button>
+              <button class="theme" type="button" data-th="bumaga"
+                      aria-pressed="false" aria-label="Бумага"
+                      data-ru-aria="Бумага" data-en-aria="Paper">
+                <span class="thpv" aria-hidden="true"><span class="thbar"><i></i><i></i></span><span class="thbody"><i></i><i></i><i></i></span></span>
+                <span class="thnm" data-ru="Бумага" data-en="Paper">Бумага</span>
+                <span class="thsub" data-ru="светлая" data-en="light">светлая</span>
+              </button>
+            </div>
           </div>
-        </div>
+          <div class="grp">
+            <h4 data-ru="Цвет" data-en="Colour">Цвет</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Акцентный цвет" data-en="Accent colour">Акцентный цвет</b></span>
+              <div class="swatches" id="s-accent">
+                <button class="sc on" type="button" data-a="mint" style="background:#84CBB6" aria-label="мята"
+                        data-ru-aria="мята" data-en-aria="mint"></button>
+                <button class="sc" type="button" data-a="sky" style="background:#8DB5DF" aria-label="голубой"
+                        data-ru-aria="голубой" data-en-aria="sky blue"></button>
+                <button class="sc" type="button" data-a="lilac" style="background:#AEA1D8" aria-label="лаванда"
+                        data-ru-aria="лаванда" data-en-aria="lavender"></button>
+                <button class="sc" type="button" data-a="sand" style="background:#D9A97F" aria-label="песочный"
+                        data-ru-aria="песочный" data-en-aria="sand"></button>
+              </div>
+            </div>
+            <!-- Здесь был выбор «Фон: глубже / мягче». Убран: сайт всегда в
+                 светлом («мягком») варианте — в глубоком кнопки и рамки
+                 сливались с фоном. -->
+          </div>
+          <div class="grp">
+            <h4 data-ru="Праздник" data-en="Holiday">Праздник</h4>
+            <div class="opt col">
+              <span class="lb"><b data-ru="Праздничное оформление" data-en="Holiday decoration">Праздничное оформление</b></span>
+              <div class="seg wrap" id="s-holiday" role="group" aria-label="Праздник"
+                   data-ru-aria="Праздник" data-en-aria="Holiday">
+                <button class="on" type="button" data-h="" data-ru="По календарю" data-en="By calendar">По календарю</button>
+                <button type="button" class="adm-only" data-h="newyear" data-ru="Новый год" data-en="New Year">Новый год</button>
+                <button type="button" class="adm-only" data-h="halloween" data-ru="Хэллоуин" data-en="Halloween">Хэллоуин</button>
+                <button type="button" class="adm-only" data-h="sakura" data-ru="Сакура" data-en="Sakura">Сакура</button>
+                <button type="button" data-h="off" data-ru="Выключить" data-en="Off">Выключить</button>
+              </div>
+              <span class="optnote"
+                    data-ru="Сайт сам наряжается к празднику: под Новый год идёт снег, к Хэллоуину появляются тыквы и летучие мыши, весной летят лепестки сакуры. Не нужно — нажмите «Выключить», и украшений не будет никогда."
+                    data-en="The site decorates itself for the occasion: snow at New Year, pumpkins and bats at Halloween, sakura petals in spring. Not your thing — press “Off” and there will be no decoration at all.">
+                Сайт сам наряжается к празднику: под Новый год идёт снег, к Хэллоуину появляются тыквы и летучие мыши, весной летят лепестки сакуры. Не нужно — нажмите «Выключить», и украшений не будет никогда.</span>
+              <span class="optnote" id="hol-motion" hidden
+                    data-ru="Сейчас снежинки и лепестки не падают, а лежат на месте: в вашей Windows выключены эффекты анимации, и сайт это уважает. Чтобы всё задвигалось: Параметры → Специальные возможности → Визуальные эффекты → Эффекты анимации."
+                    data-en="Right now the snow and petals sit still instead of falling: animation effects are turned off in your system and the site respects that. To make things move: Settings → Accessibility → Visual effects → Animation effects.">
+                Сейчас снежинки и лепестки не падают, а лежат на месте: в вашей Windows выключены эффекты анимации, и сайт это уважает. Чтобы всё задвигалось: Параметры → Специальные возможности → Визуальные эффекты → Эффекты анимации.</span>
+            </div>
+          </div>
+          <div class="grp">
+            <h4 data-ru="Фон" data-en="Background">Фон</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Точки на фоне" data-en="Dotted background">Точки на фоне</b>
+                <span data-ru="Растр как в манге — под всей страницей и под окнами. Мешает — выключите."
+                      data-en="A manga-style dot screen behind the whole page and under dialogs. Turn it off if it bothers you.">
+                  Растр как в манге — под всей страницей и под окнами. Мешает — выключите.</span></span>
+              <button class="sw" id="s-dots" type="button" role="switch"
+                      aria-checked="true" aria-label="Точки на фоне"
+                      data-ru-aria="Точки на фоне" data-en-aria="Dotted background"></button>
+            </div>
+          </div>
+          <div class="grp">
+            <h4 data-ru="Логотип" data-en="Logo">Логотип</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Значок в шапке" data-en="Header badge">Значок в шапке</b></span>
+              <div class="logos" id="s-logo">
+                <button class="logopick on" type="button" data-l="1" aria-label="Вариант 1" data-ru-aria="Вариант 1" data-en-aria="Option 1">
+                  <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="11" fill="#8DB5DF"/><path d="M13.5 11.2v11.6l9.2-5.8-9.2-5.8Z" fill="#171A21"/></svg></button>
+                <button class="logopick" type="button" data-l="2" aria-label="Вариант 2" data-ru-aria="Вариант 2" data-en-aria="Option 2">
+                  <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="11" fill="#8DB5DF"/><path d="M8.6 12.4a3.4 3.4 0 0 1 3.4-3.4h10a3.4 3.4 0 0 1 3.4 3.4v6.1a3.4 3.4 0 0 1-3.4 3.4h-5.1l-4.4 3.5v-3.5h-.5a3.4 3.4 0 0 1-3.4-3.4v-6.1Z" fill="#171A21"/><path d="M15.3 12.9v5.9l5-3-5-2.9Z" fill="#8DB5DF"/></svg></button>
+                <button class="logopick" type="button" data-l="3" aria-label="Вариант 3" data-ru-aria="Вариант 3" data-en-aria="Option 3">
+                  <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="16" fill="var(--bg)" stroke="#8DB5DF" stroke-width="2"/><ellipse cx="17" cy="17" rx="15.4" ry="6.2" stroke="#8DB5DF" stroke-width="1.5" opacity=".55" transform="rotate(-28 17 17)"/><path d="M14.4 12.6v8.8l7.2-4.4-7.2-4.4Z" fill="#8DB5DF"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Язык ----------
+             Язык сайта и язык аниме — два отдельных блока, и каждый прямо
+             говорит, что меняет. Раньше был один переключатель RU/EN, и
+             его понимали как «язык всего», включая озвучку. Оба блока
+             работают и у гостя (кнопки guest-ok): гостю выбор помнит
+             браузер. Сохраняется сразу, без «Сохранить». -->
+        <section class="cabsec" id="cab-lang" role="tabpanel" aria-labelledby="cab-t-lang" hidden>
+          <div class="cabh">
+            <h3 data-ru="Язык" data-en="Language">Язык</h3>
+            <p data-ru="Две разные настройки: на каком языке сайт и на каком языке само аниме. Меняются сразу."
+               data-en="Two separate settings: the language of the site and the language of the anime itself. Applied right away.">
+              Две разные настройки: на каком языке сайт и на каком языке само аниме. Меняются сразу.</p>
+          </div>
+          <div class="grp" id="lang-grp">
+            <h4 data-ru="Сайт" data-en="Site">Сайт</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Язык сайта — меню и кнопки" data-en="Site language — menus and buttons">Язык сайта — меню и кнопки</b>
+                <span data-ru="Надписи, кнопки, названия и описания в каталоге. Озвучку в плеере не меняет."
+                      data-en="Labels, buttons, titles and descriptions in the catalogue. Does not change the audio in the player.">
+                  Надписи, кнопки, названия и описания в каталоге. Озвучку в плеере не меняет.</span></span>
+              <div class="seg" id="s-uilang" role="group" aria-label="Язык сайта"
+                   data-ru-aria="Язык сайта" data-en-aria="Site language">
+                <button class="lang on guest-ok" type="button" data-set-lang="ru">Русский</button>
+                <button class="lang guest-ok" type="button" data-set-lang="en">English</button>
+              </div>
+            </div>
+          </div>
+          <div class="grp" id="alang-grp">
+            <h4 data-ru="Аниме" data-en="Anime">Аниме</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Язык аниме — озвучка и субтитры в плеере" data-en="Anime language — dub and subtitles in the player">Язык аниме — озвучка и субтитры в плеере</b>
+                <span data-ru="На каком языке говорит и подписано само аниме. От языка сайта не зависит."
+                      data-en="The language the anime itself is voiced and subtitled in. Independent of the site language.">
+                  На каком языке говорит и подписано само аниме. От языка сайта не зависит.</span></span>
+              <!-- Три варианта. Оба английских — только у английских
+                   источников:
+                   «озвучка» — английский дубляж, «субтитры» — японская речь
+                   и английский текст. Русское при английском не включается. Три длинные кнопки
+                   на телефоне в строку не лезут — отсюда .wrap. -->
+              <div class="seg wrap" id="s-animelang" role="group" aria-label="Язык аниме"
+                   data-ru-aria="Язык аниме" data-en-aria="Anime language">
+                <button class="on guest-ok" type="button" data-anime-lang="ru" aria-pressed="true"
+                        data-ru="Русский" data-en="Russian">Русский</button>
+                <button class="guest-ok" type="button" data-anime-lang="endub" aria-pressed="false"
+                        data-ru="English — озвучка" data-en="English — dub">English — озвучка</button>
+                <button class="guest-ok" type="button" data-anime-lang="ensub" aria-pressed="false"
+                        data-ru="English — субтитры" data-en="English — subtitles">English — субтитры</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Просмотр ---------- -->
+        <section class="cabsec" id="cab-view" role="tabpanel" aria-labelledby="cab-t-view" hidden>
+          <div class="cabh">
+            <h3 data-ru="Просмотр" data-en="Watching">Просмотр</h3>
+            <p data-ru="Что показывает каталог, как ведёт себя плеер и когда звать вас к новой серии."
+               data-en="What the catalogue shows, how the player behaves and when to call you for a new episode.">
+              Что показывает каталог, как ведёт себя плеер и когда звать вас к новой серии.</p>
+          </div>
+          <!-- 18+. Выключено по умолчанию, гостю не включается вовсе.
+               Переключатель сохраняется сразу и перечитывает открытую выдачу.
+               «Хентай» (рейтинг rx) — сразу под ним и только поверх него:
+               пока 18+ выключено, «Хентай» серый и не нажимается; выключил
+               18+ — выключился и хентай (это же проверяет сервер). Гостю —
+               серый с пометкой «Только для вошедших». Включение — после
+               подтверждения возраста в окне сайта (index.js, s-hentai). -->
+          <div class="grp" id="adult-grp">
+            <h4 data-ru="18+ (этти)" data-en="18+ (ecchi)">18+ (этти)</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Показывать 18+ — этти: откровенные сцены, без порнографии"
+                                  data-en="Show 18+ — ecchi: explicit scenes, no pornography">Показывать 18+ — этти: откровенные сцены, без порнографии</b>
+                <span id="adult-note" data-ru="Включите — и этти появится в поиске (с пометкой «18+»), в частях франшизы и в «Рандоме». Напишите в поиске «этти» — будет список самых популярных."
+                      data-en="Turn it on and ecchi appears in search (marked “18+”), in franchise parts and in “Random”. Type “ecchi” in search for a list of the most popular ones.">
+                  Включите — и этти появится в поиске (с пометкой «18+»), в частях франшизы и в «Рандоме». Напишите в поиске «этти» — будет список самых популярных.</span></span>
+              <button class="sw" id="s-adult" type="button" role="switch"
+                      aria-checked="false" aria-label="Показывать аниме 18+"
+                      data-ru-aria="Показывать аниме 18+" data-en-aria="Show 18+ anime"></button>
+            </div>
+            <div class="opt" id="opt-hentai">
+              <span class="lb"><b data-ru="Хентай" data-en="Hentai">Хентай</b>
+                <span id="hentai-note" data-ru="Показывать хентай в поиске и на страницах аниме (с пометкой «18+ · хентай»). Напишите в поиске «хентай» — будет список. Только для взрослых."
+                      data-en="Show hentai in search and on anime pages (marked “18+ · hentai”). Type “hentai” in search for a list. Adults only.">
+                  Показывать хентай в поиске и на страницах аниме (с пометкой «18+ · хентай»). Напишите в поиске «хентай» — будет список. Только для взрослых.</span>
+                <span class="swwhy" id="hentai-why" hidden></span></span>
+              <button class="sw" id="s-hentai" type="button" role="switch"
+                      aria-checked="false" aria-label="Показывать хентай"
+                      data-ru-aria="Показывать хентай" data-en-aria="Show hentai"></button>
+            </div>
+          </div>
+          <!-- Тот же переключатель, что под плеером: «следующая серия сама».
+               Сохраняется сразу — как и там. -->
+          <div class="grp">
+            <h4 data-ru="Плеер" data-en="Player">Плеер</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Следующая серия сама" data-en="Play the next episode automatically">Следующая серия сама</b>
+                <span data-ru="Кончилась серия — через несколько секунд начинается следующая. То же, что переключатель под плеером."
+                      data-en="When an episode ends, the next one starts a few seconds later. Same as the switch under the player.">
+                  Кончилась серия — через несколько секунд начинается следующая. То же, что переключатель под плеером.</span></span>
+              <button class="sw" id="s-autonext" type="button" role="switch"
+                      aria-checked="true" aria-label="Следующая серия сама"
+                      data-ru-aria="Следующая серия сама" data-en-aria="Play the next episode automatically"></button>
+            </div>
+          </div>
+          <div class="grp">
+            <h4 data-ru="Новые серии" data-en="New episodes">Новые серии</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Письма о новых сериях" data-en="Emails about new episodes">Письма о новых сериях</b>
+                <span data-ru="Придёт письмо, когда выйдет новая серия у тайтла из вашего списка"
+                      data-en="You get an email when a new episode of a saved title comes out">
+                  Придёт письмо, когда выйдет новая серия у тайтла из вашего списка</span></span>
+              <button class="sw" id="s-mailnew" type="button" role="switch"
+                      aria-checked="false" aria-label="Письма о новых сериях"
+                      data-ru-aria="Письма о новых сериях" data-en-aria="Emails about new episodes"></button>
+            </div>
+            <div class="opt" id="opt-email" hidden>
+              <span class="lb"><b id="s-email-l" data-ru="Адрес почты" data-en="Email address">Адрес почты</b>
+                <span data-ru="Только для этих писем. Больше никуда не уходит."
+                      data-en="Used only for these emails. It goes nowhere else.">
+                  Только для этих писем. Больше никуда не уходит.</span></span>
+              <input class="inp" id="s-email" type="email" maxlength="120" autocomplete="email" aria-labelledby="s-email-l"
+                     data-ru-ph="you@example.com" data-en-ph="you@example.com" placeholder="you@example.com">
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Безопасность ---------- -->
+        <section class="cabsec" id="cab-safe" role="tabpanel" aria-labelledby="cab-t-safe" hidden>
+          <div class="cabh">
+            <h3 data-ru="Безопасность" data-en="Security">Безопасность</h3>
+            <p data-ru="Пароль, вход по коду и устройства, с которых вы вошли."
+               data-en="Password, sign-in code and the devices you are signed in on.">
+              Пароль, вход по коду и устройства, с которых вы вошли.</p>
+          </div>
+          <div class="grp">
+            <h4 data-ru="Пароль" data-en="Password">Пароль</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Пароль" data-en="Password">Пароль</b>
+                <span data-ru="Администратор его не видит — у него только отпечаток"
+                      data-en="The administrator cannot see it — only a fingerprint is stored">
+                  Администратор его не видит — у него только отпечаток</span></span>
+              <button class="small" id="s-pass" type="button" data-ru="Сменить пароль" data-en="Change password">Сменить пароль</button>
+            </div>
+            <div id="pass-box" hidden style="padding:4px 0 8px">
+              <div class="field" style="margin-bottom:9px">
+                <label for="p-cur" data-ru="Текущий пароль" data-en="Current password">Текущий пароль</label>
+                <input class="inp" id="p-cur" type="password" autocomplete="current-password" style="width:100%">
+              </div>
+              <div class="field" style="margin-bottom:9px">
+                <label for="p-new" data-ru="Новый пароль (от 10 символов)" data-en="New password (10+ characters)">Новый пароль (от 10 символов)</label>
+                <input class="inp" id="p-new" type="password" autocomplete="new-password" style="width:100%">
+              </div>
+              <button class="small" id="p-save" type="button" data-ru="Сохранить пароль" data-en="Save password">Сохранить пароль</button>
+              <div class="err" id="p-err" role="alert"></div>
+            </div>
+          </div>
+
+          <div class="grp">
+            <h4 data-ru="Вход по коду" data-en="Sign-in code">Вход по коду</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Вход по коду из приложения" data-en="Sign-in code from an app">Вход по коду из приложения</b>
+                <span data-ru="Кроме пароля попросим шестизначный код. Подойдёт любое приложение-аутентификатор."
+                      data-en="Besides the password we ask for a six-digit code. Any authenticator app works.">
+                  Кроме пароля попросим шестизначный код. Подойдёт любое приложение-аутентификатор.</span></span>
+              <button class="sw" id="s-2fa" type="button" role="switch"
+                      aria-checked="false" aria-label="Вход по коду из приложения"
+                      data-ru-aria="Вход по коду из приложения" data-en-aria="Sign-in code from an app"></button>
+            </div>
+
+            <!-- Код появляется только после галочки: показывать его всем подряд
+                 незачем, а секрет — тем более. -->
+            <div class="twofa" id="twofa-box" hidden>
+              <div class="qrwrap"><img id="twofa-qr" alt="QR-код для приложения" width="184" height="184"
+                   data-ru-alt="QR-код для приложения" data-en-alt="QR code for your app">
+                <!-- Если на сервере нечем нарисовать картинку, показываем это
+                     вместо неё: ключ ниже вводится в приложение руками. -->
+                <p class="qrnone" id="twofa-manual" hidden
+                   data-ru="Картинку показать нечем — введите ключ в приложение вручную, он ниже."
+                   data-en="No QR renderer here — enter the key below into your app by hand.">
+                  Картинку показать нечем — введите ключ в приложение вручную, он ниже.</p></div>
+              <div class="twofa-steps">
+                <p data-ru="1. Откройте приложение-аутентификатор и отсканируйте код."
+                   data-en="1. Open your authenticator app and scan the code.">
+                  1. Откройте приложение-аутентификатор и отсканируйте код.</p>
+                <p data-ru="2. Введите шесть цифр, которые оно покажет."
+                   data-en="2. Type the six digits it shows.">2. Введите шесть цифр, которые оно покажет.</p>
+                <div class="codrow">
+                  <input class="inp code" id="twofa-code" inputmode="numeric" maxlength="6"
+                         autocomplete="one-time-code" placeholder="000000"
+                         aria-label="Шесть цифр из приложения"
+                         data-ru-aria="Шесть цифр из приложения" data-en-aria="Six digits from the app">
+                  <button class="small" id="twofa-confirm" type="button"
+                    data-ru="Подтвердить" data-en="Confirm">Подтвердить</button>
+                </div>
+                <div class="err" id="twofa-err" role="alert"></div>
+                <details class="manual">
+                  <summary data-ru="Не сканируется? Ввести вручную" data-en="Cannot scan? Enter manually">Не сканируется? Ввести вручную</summary>
+                  <code id="twofa-secret"></code>
+                </details>
+              </div>
+            </div>
+          </div>
+
+          <div class="grp">
+            <h4 data-ru="Устройства" data-en="Devices">Устройства</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Другие устройства" data-en="Other devices">Другие устройства</b>
+                <span id="sess-note"></span></span>
+              <button class="small warn" id="s-logoutall" type="button"
+                data-ru="Выйти везде" data-en="Sign out everywhere">Выйти везде</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Админка ---------- -->
+        <section class="cabsec" id="admin-grp" role="tabpanel" aria-labelledby="cab-t-admin" hidden>
+          <div class="cabh">
+            <h3 data-ru="Админка" data-en="Admin">Админка</h3>
+            <p data-ru="Этот раздел виден только вам. Регистрации нет — аккаунты создаются здесь."
+               data-en="Only you can see this section. There is no sign-up — accounts are created here.">
+              Этот раздел виден только вам. Регистрации нет — аккаунты создаются здесь.</p>
+          </div>
+          <div class="grp">
+            <h4 data-ru="Аккаунты" data-en="Accounts">Аккаунты</h4>
+            <div class="adm">
+              <div class="accs" id="admin-list"></div>
+              <!-- Ошибки списка аккаунтов и кнопок «Выключить/Удалить». Своё
+                   место, а не #a-err: тот лежит внутри формы создания, которая
+                   обычно свёрнута, и ошибка в ней была невидима. -->
+              <div class="err" id="admin-err" role="alert"></div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <button class="small" id="a-new" type="button" data-ru="Создать аккаунт" data-en="Create account">Создать аккаунт</button>
+                <span id="guests-now" style="font-size:12.5px;color:var(--dim)"></span>
+              </div>
+              <div id="a-form" hidden style="margin-top:12px;display:grid;gap:8px">
+                <input class="inp" id="a-login" maxlength="32" data-ru-ph="логин латиницей" data-en-ph="username, latin letters" placeholder="логин латиницей"
+                       aria-label="Логин нового аккаунта" data-ru-aria="Логин нового аккаунта" data-en-aria="Username for the new account">
+                <input class="inp" id="a-pass" type="password" maxlength="200" autocomplete="new-password"
+                       aria-label="Пароль нового аккаунта" data-ru-aria="Пароль нового аккаунта" data-en-aria="Password for the new account"
+                       data-ru-ph="пароль от 10 символов" data-en-ph="password, 10+ characters" placeholder="пароль от 10 символов">
+                <label style="font-size:13px;color:var(--dim);display:flex;gap:8px;align-items:center">
+                  <input type="checkbox" id="a-admin">
+                  <span data-ru="сделать администратором" data-en="make administrator">сделать администратором</span>
+                </label>
+                <button class="small" id="a-save" type="button" data-ru="Создать" data-en="Create">Создать</button>
+                <div class="err" id="a-err" role="alert"></div>
+              </div>
+            </div>
+          </div>
+          <div class="grp">
+            <h4 data-ru="Объявление" data-en="Announcement">Объявление</h4>
+            <div class="opt">
+              <span class="lb"><b data-ru="Объявление для всех" data-en="Announcement for everyone">Объявление для всех</b>
+                <span data-ru="Строка вверху главной у каждого, кто зайдёт. Например: «сервер перезапустится в 23:00»."
+                      data-en="A line at the top of the main page for everyone. For example: “the server restarts at 23:00”.">
+                  Строка вверху главной у каждого, кто зайдёт. Например: «сервер перезапустится в 23:00».</span></span>
+              <button class="small" id="cab-news" type="button" data-ru="Написать" data-en="Write">Написать</button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
 
@@ -616,6 +1053,8 @@
         data-ru="Сохранить" data-en="Save">Сохранить</button>
       <!-- Кнопка «Закрыть» убрана: крестик в углу делает то же самое,
            и две кнопки рядом только заставляют выбирать между ними. -->
+      <span class="cabdirty" id="set-dirty" hidden
+            data-ru="Есть несохранённые изменения" data-en="You have unsaved changes">Есть несохранённые изменения</span>
       <span class="saved" id="saved" data-ru="Сохранено" data-en="Saved">Сохранено</span>
     </div>
   </div>
@@ -623,14 +1062,15 @@
 
 <!-- ==================== НОВОСТИ (АДМИН) ==================== -->
 <div class="veil" id="veil-news">
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="Новости сайта" style="max-width:520px">
-    <button class="close" id="news-x" type="button" aria-label="Закрыть">×</button>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="news-h" style="max-width:520px">
+    <button class="close" id="news-x" type="button" aria-label="Закрыть"
+            data-ru-aria="Закрыть" data-en-aria="Close">×</button>
     <span class="chip" data-ru="Только для администратора" data-en="Administrator only">Только для администратора</span>
-    <h3 data-ru="Объявление для всех" data-en="Announcement for everyone">Объявление для всех</h3>
+    <h3 id="news-h" data-ru="Объявление для всех" data-en="Announcement for everyone">Объявление для всех</h3>
     <p data-ru="Текст появится вверху главной страницы у каждого, кто зайдёт. Например: сервер будет перезапущен в 23:00."
        data-en="This text shows at the top of the main page for everyone. For example: the server restarts at 23:00.">
       Текст появится вверху главной страницы у каждого, кто зайдёт. Например: сервер будет перезапущен в 23:00.</p>
-    <label class="newslabel" data-ru="По-русски" data-en="In Russian">По-русски</label>
+    <label class="newslabel" for="news-text" data-ru="По-русски" data-en="In Russian">По-русски</label>
     <textarea class="inp" id="news-text" rows="3" maxlength="300"
       style="width:100%;resize:vertical;font-family:inherit;font-size:14px;line-height:1.5"
       data-ru-ph="Что сообщить людям…" data-en-ph="What to tell everyone…"
@@ -643,7 +1083,7 @@
          туда не просился. Поэтому второе поле, и заполняет его тот же
          админ. Не заполнил — англоязычным покажется русский текст:
          своё объявление не на том языке полезнее пустоты. -->
-    <label class="newslabel" data-ru="По-английски — необязательно"
+    <label class="newslabel" for="news-text-en" data-ru="По-английски — необязательно"
            data-en="In English — optional">По-английски — необязательно</label>
     <textarea class="inp" id="news-text-en" rows="3" maxlength="300"
       style="width:100%;resize:vertical;font-family:inherit;font-size:14px;line-height:1.5"
@@ -664,16 +1104,16 @@
 
 <!-- ==================== ОБРЕЗКА ФОТО ==================== -->
 <div class="veil" id="veil-crop">
-  <div class="sheet cropwrap" role="dialog" aria-modal="true" style="max-width:340px">
-    <h3 style="font-size:19px;margin-bottom:4px" data-ru="Обрежьте фото" data-en="Crop your photo">Обрежьте фото</h3>
+  <div class="sheet cropwrap" role="dialog" aria-modal="true" aria-labelledby="crop-h" style="max-width:340px">
+    <h3 id="crop-h" style="font-size:19px;margin-bottom:4px" data-ru="Обрежьте фото" data-en="Crop your photo">Обрежьте фото</h3>
     <p style="margin-bottom:16px;font-size:13.5px"
        data-ru="Тяните картинку и меняйте масштаб — в кружок попадёт то, что внутри круга."
        data-en="Drag the image and change the zoom — whatever sits inside the circle becomes your avatar.">
       Тяните картинку и меняйте масштаб — в кружок попадёт то, что внутри круга.</p>
     <div class="stage" id="stage"><img id="cropimg" alt=""></div>
     <div class="zoomrow">
-      <span data-ru="Масштаб" data-en="Zoom">Масштаб</span>
-      <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
+      <span id="zoom-l" data-ru="Масштаб" data-en="Zoom">Масштаб</span>
+      <input type="range" id="zoom" min="1" max="3" step="0.01" value="1" aria-labelledby="zoom-l">
     </div>
     <div class="hint" id="crophint">—</div>
     <button class="wide" id="crop-ok" type="button" data-ru="Готово" data-en="Done">Готово</button>
@@ -682,10 +1122,10 @@
   </div>
 </div>
 
-<!-- ==================== РЕШИ ЗА МЕНЯ ==================== -->
+<!-- ==================== РАНДОМ ==================== -->
 <div class="veil" id="veil-roul">
-  <div class="roul" id="roul" role="dialog" aria-modal="true">
-    <h3 data-ru="Реши за меня" data-en="Pick for me">Реши за меня</h3>
+  <div class="roul" id="roul" role="dialog" aria-modal="true" aria-labelledby="roul-h">
+    <h3 id="roul-h" data-ru="Рандом" data-en="Random">Рандом</h3>
     <div class="sub" data-ru="Случайное аниме из открытого каталога"
          data-en="A random anime from an open catalogue">Случайное аниме из открытого каталога</div>
 
@@ -715,7 +1155,8 @@
      такой выдаче было нельзя. -->
 <div class="veil" id="veil-fr">
   <div class="sheet frsheet" role="dialog" aria-modal="true" aria-labelledby="fr-title">
-    <button class="close" id="fr-close" type="button" aria-label="Закрыть">&times;</button>
+    <button class="close" id="fr-close" type="button" aria-label="Закрыть"
+            data-ru-aria="Закрыть" data-en-aria="Close">&times;</button>
     <div class="frhead">
       <div class="frart" id="fr-art" aria-hidden="true"></div>
       <div class="frtx">
@@ -731,34 +1172,37 @@
 
 <!-- ==================== ПРО САЙТ ==================== -->
 <div class="veil" id="veil">
-  <div class="sheet" role="dialog" aria-modal="true">
-    <button class="close" id="btn-close" type="button" aria-label="Закрыть">×</button>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="about-h">
+    <button class="close" id="btn-close" type="button" aria-label="Закрыть"
+            data-ru-aria="Закрыть" data-en-aria="Close">×</button>
     <span class="chip" data-ru="О проекте" data-en="About">О проекте</span>
-    <h3 data-ru="анимеДик" data-en="anime Dick">анимеДик</h3>
+    <h3 id="about-h" data-ru="анимеДик" data-en="animeDik">анимеДик</h3>
+    <!-- Голос — мой, от первого лица. Без технических обещаний: их
+         приходилось бы переписывать после каждой переделки. -->
     <p class="strong"
-      data-ru="Личный кинозал для аниме. Список того, что смотрите, отметки о просмотре с точностью до секунды и уведомления, когда выходит новая серия."
-      data-en="A personal home for your anime. The list of what you are watching, progress saved down to the second, and a nudge when a new episode is out.">
-      Личный кинозал для аниме. Список того, что смотрите, отметки о просмотре с точностью до секунды и уведомления, когда выходит новая серия.</p>
+      data-ru="Этот сайт — проверка: что сможет собрать ИИ (Claude), если дать ему настоящую задачу. Получилось вот это."
+      data-en="This site is a test: what can an AI (Claude) build when given a real job? This is what came out.">
+      Этот сайт — проверка: что сможет собрать ИИ (Claude), если дать ему настоящую задачу. Получилось вот это.</p>
 
     <div class="made">
-      <div class="r"><b data-ru="Ваши данные" data-en="Your data">Ваши данные</b>
-        <span class="who-me" data-ru="только на этом сервере" data-en="on this server only">только на этом сервере</span></div>
-      <div class="r"><b data-ru="Реклама и слежка" data-en="Ads and tracking">Реклама и слежка</b>
-        <span class="who-me" data-ru="нет" data-en="none">нет</span></div>
+      <div class="r"><b data-ru="Зачем" data-en="Why">Зачем</b>
+        <span class="who-ai" data-ru="посмотреть, на что способен ИИ" data-en="to see what an AI can do">посмотреть, на что способен ИИ</span></div>
       <div class="r"><b data-ru="Видео" data-en="Video">Видео</b>
-        <span class="who-ai" data-ru="с открытых источников" data-en="from public sources">с открытых источников</span></div>
+        <span class="who-ai" data-ru="с открытых источников в интернете" data-en="from open sources on the internet">с открытых источников в интернете</span></div>
       <div class="r"><b data-ru="Доступ" data-en="Access">Доступ</b>
-        <span class="who-ai" data-ru="по приглашению" data-en="by invitation">по приглашению</span></div>
+        <span class="who-me" data-ru="лично от меня, по приглашению" data-en="from me personally, by invite">лично от меня, по приглашению</span></div>
+      <div class="r"><b data-ru="Реклама" data-en="Ads">Реклама</b>
+        <span class="who-me" data-ru="нет, конечно" data-en="none, of course">нет, конечно</span></div>
     </div>
 
-    <p data-ru="Сайт не хранит видео у себя — он находит его на открытых источниках и показывает в одном удобном плеере. Сохраняются только ваш список и место, на котором вы остановились."
-       data-en="The site does not host any video. It finds it on public sources and plays it in one convenient player. All it keeps is your list and where you left off.">
-      Сайт не хранит видео у себя — он находит его на открытых источниках и показывает в одном удобном плеере. Сохраняются только ваш список и место, на котором вы остановились.</p>
+    <p data-ru="Сам сайт видео не хранит: он находит его там, где оно уже лежит в открытом доступе, и показывает в одном плеере."
+       data-en="The site keeps no video of its own: it finds it where it is already openly available and plays it in one player.">
+      Сам сайт видео не хранит: он находит его там, где оно уже лежит в открытом доступе, и показывает в одном плеере.</p>
 
     <p class="quiet"
-       data-ru="Проект личный и некоммерческий. Код написан с помощью ИИ, замысел и решения — мои. Версия пробная: если что-то работает не так или нужен доступ — напишите мне."
-       data-en="A personal, non-commercial project. The code was written with AI; the idea and the decisions are mine. This is an early version — if something breaks or you need access, message me.">
-      Проект личный и некоммерческий. Код написан с помощью ИИ, замысел и решения — мои. Версия пробная: если что-то работает не так или нужен доступ — напишите мне.</p>
+       data-ru="Нужен доступ для друга или что-то сломалось — просто напиши мне."
+       data-en="Want access for a friend, or something broke? Just message me.">
+      Нужен доступ для друга или что-то сломалось — просто напиши мне.</p>
 
     <button class="wide" id="btn-close2" type="button" data-ru="Понятно" data-en="Got it">Понятно</button>
   </div>
@@ -773,14 +1217,17 @@
   </div>
   <div class="loader" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="bootline" id="boot-line"
-       data-ru="Загрузка анимеДик" data-en="Loading анимеДик">Загрузка анимеДик</div>
+       data-ru="Загрузка анимеДик" data-en="Loading animeDik">Загрузка анимеДик</div>
   <div class="bootbar"><i id="boot-bar"></i></div>
 </div>
 
-<!-- Кнопка связи. Всегда на виду у правого края, поверх содержимого,
-     но ниже окон: перекрывать собой диалоги ей незачем. -->
-<button class="svyaz" id="btn-svyaz" type="button" aria-label="Связаться"
-        title="Связаться">
+<!-- Кнопка «?» — помощник. Всегда на виду у правого края, поверх
+     содержимого, но ниже окон: перекрывать собой диалоги ей незачем.
+     Раньше здесь была «кнопка связи», которая честно говорила, что связи
+     пока нет. Эта фраза осталась — внизу короткой справки в окне. -->
+<button class="svyaz" id="btn-svyaz" type="button" aria-label="Помощник"
+        title="Помощник" aria-haspopup="dialog" aria-expanded="false" aria-controls="hlp"
+        data-ru-aria="Помощник" data-en-aria="Helper" data-ru-title="Помощник" data-en-title="Helper">
   <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path d="M20.5 11.7c0 4.2-3.8 7.6-8.5 7.6-1 0-2-.16-2.9-.45L4 20.5l1.7-4.2a7.2 7.2 0 0 1-1.7-4.6C4 7.5 7.8 4.1 12 4.1s8.5 3.4 8.5 7.6Z"
           stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
@@ -789,6 +1236,63 @@
     <circle cx="12" cy="16" r="1" fill="currentColor"/>
   </svg>
 </button>
+
+<!-- ==================== ПОМОЩНИК ====================
+     Короткая справка и чат с помощником. Помощник только отвечает
+     текстом и иногда предлагает кнопку «Открыть: …» — нажимает её сам
+     человек. История разговора живёт только в этой вкладке и пропадает
+     при перезагрузке. Гостю и без настроенного ключа — только справка. -->
+<div class="hlp" id="hlp" role="dialog" aria-labelledby="hlp-title" hidden>
+  <div class="hlphead">
+    <span class="hlpic" aria-hidden="true">?</span>
+    <b id="hlp-title" data-ru="Помощник" data-en="Helper">Помощник</b>
+    <button class="hlpbtn" id="hlp-clear" type="button" hidden
+            data-ru="Очистить" data-en="Clear">Очистить</button>
+    <button class="hlpx" id="hlp-close" type="button" aria-label="Закрыть"
+            data-ru-aria="Закрыть" data-en-aria="Close">×</button>
+  </div>
+
+  <div class="hlpbody" id="hlp-body">
+    <div class="hlpintro" id="hlp-intro">
+      <p data-ru="Спросите, как здесь всё устроено: где включить 18+, как сменить тему, куда делись планы."
+         data-en="Ask how things work here: where to turn on 18+, how to change the theme, where your plans went.">
+        Спросите, как здесь всё устроено: где включить 18+, как сменить тему, куда делись планы.</p>
+      <div class="hlpquick" id="hlp-quick">
+        <button class="hlpchip" type="button" data-go="settings-look" data-ru="Настройки" data-en="Settings">Настройки</button>
+        <button class="hlpchip" type="button" data-go="tab-later" data-ru="Планирую смотреть" data-en="Plan to watch">Планирую смотреть</button>
+        <button class="hlpchip" type="button" data-go="rules" data-ru="Правила" data-en="Rules">Правила</button>
+        <button class="hlpchip" type="button" data-go="about" data-ru="Про сайт" data-en="About">Про сайт</button>
+      </div>
+      <p class="hlpsmall"
+         data-ru="Отдельного способа связи пока нет: по доступу и ошибкам пишите администратору напрямую."
+         data-en="There is no separate contact method yet: for access or errors, message the administrator directly.">
+        Отдельного способа связи пока нет: по доступу и ошибкам пишите администратору напрямую.</p>
+    </div>
+    <div class="hlplog" id="hlp-log" role="log" aria-live="polite" aria-label="Разговор с помощником"
+         data-ru-aria="Разговор с помощником" data-en-aria="Conversation with the helper"></div>
+  </div>
+
+  <!-- Почему спросить нельзя: гость, демо-режим, помощник не настроен. -->
+  <div class="hlpnote" id="hlp-note" hidden></div>
+
+  <form class="hlpform" id="hlp-form" hidden>
+    <textarea id="hlp-in" rows="1" maxlength="500" aria-label="Вопрос помощнику"
+              data-ru-aria="Вопрос помощнику" data-en-aria="Question for the helper"
+              data-ru-ph="Ваш вопрос…" data-en-ph="Your question…" placeholder="Ваш вопрос…"></textarea>
+    <button class="hlpsend" id="hlp-send" type="submit" aria-label="Отправить" title="Отправить"
+            data-ru-aria="Отправить" data-en-aria="Send" data-ru-title="Отправить" data-en-title="Send">
+      <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M3 9h10.5M9.6 4.6 14 9l-4.4 4.4" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </form>
+  <div class="hlpfoot" id="hlp-foot" hidden>
+    <span data-ru="Помощник может ошибаться." data-en="The helper can make mistakes.">Помощник может ошибаться.</span>
+    <span data-ru="Ничего не делает за тебя — только подсказывает."
+          data-en="It does nothing for you — it only gives hints.">Ничего не делает за тебя — только подсказывает.</span>
+  </div>
+</div>
 
 <!-- ==================== УВЕДОМЛЕНИЕ ==================== -->
 <!-- Совет включить вход по коду. Приходит только тому, у кого он ещё
@@ -810,8 +1314,12 @@
     <button class="small" id="toast-go" type="button"
             data-ru="Включить" data-en="Turn it on">Включить</button>
   </div>
-  <button class="x" id="toast-x" type="button" aria-label="Закрыть">×</button>
+  <button class="x" id="toast-x" type="button" aria-label="Закрыть"
+          data-ru-aria="Закрыть" data-en-aria="Close">×</button>
 </div>
+
+<!-- Короткие сообщения: «Добавлено в «Планирую смотреть»» и т. п. -->
+<div class="flash" id="flash" role="status" aria-live="polite"></div>
 
 <script src="/static/app.js"></script>
 <script src="/static/index.js"></script>

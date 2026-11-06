@@ -19,6 +19,8 @@ logging.getLogger("anime").setLevel(logging.ERROR)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastapi.testclient import TestClient          # noqa: E402
 from api import main, security, store, anime       # noqa: E402
+import fake_sources                                 # noqa: E402
+fake_sources.install()
 
 # Вывод здесь на русском, а консоль Windows по умолчанию живёт в cp1251:
 # первая же стрелка или галочка роняла весь запуск с UnicodeEncodeError,
@@ -67,7 +69,7 @@ def reset():
 def run():
     store.init()
     reset()
-    uid = store.create_user("valera", "Zaliv-Pepel-2026", "admin", "valera")
+    uid = store.create_user("hozyain", "Zaliv-Pepel-2026", "admin", "hozyain")
 
     # ==================================================================
     group("Счётчик попыток входа не растёт бесконечно")
@@ -159,7 +161,7 @@ def run():
     group("Ответ сервера при переполнении понятен")
     reset()
     c = C()
-    login(c, "valera", "Zaliv-Pepel-2026")
+    login(c, "hozyain", "Zaliv-Pepel-2026")
     store.MAX_LIBRARY_PER_USER = store.library_count(uid)
     try:
         r = c.post("/api/library/progress", json={"key": "ещё-один", "title": "Ещё"})
@@ -199,10 +201,10 @@ def run():
     group("Просроченные сессии убираются")
     reset()
     s1 = C()
-    login(s1, "valera", "Zaliv-Pepel-2026")
+    login(s1, "hozyain", "Zaliv-Pepel-2026")
     for _ in range(5):
         cc = C()
-        login(cc, "valera", "Zaliv-Pepel-2026")
+        login(cc, "hozyain", "Zaliv-Pepel-2026")
     before = store.connect().execute("SELECT COUNT(*) AS n FROM sessions").fetchone()["n"]
     check("сессий несколько", before >= 5, before)
     old = store.now() - security.SESSION_IDLE - 100
@@ -223,7 +225,7 @@ def run():
     group("Часовой пояс в итогах года")
     reset()
     t = C()
-    login(t, "valera", "Zaliv-Pepel-2026")
+    login(t, "hozyain", "Zaliv-Pepel-2026")
     check("сдвиг принимается", t.get("/api/stats/year?tz=180").status_code == 200)
     check("нулевой сдвиг принимается", t.get("/api/stats/year?tz=0").status_code == 200)
     check("отрицательный принимается", t.get("/api/stats/year?tz=-300").status_code == 200)

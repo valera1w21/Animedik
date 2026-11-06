@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru" data-depth="deep" data-accent="mint" data-lang="ru" data-page="pravila">
+<html lang="ru" data-depth="mid" data-accent="mint" data-lang="ru" data-page="pravila">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<title>анимеДик — правила</title>
+<title data-ru="анимеДик — правила" data-en="animeDik — rules">анимеДик — правила</title>
+<!-- Значок сайта — одинаково на всех четырёх страницах. SVG берут
+     современные браузеры, ICO (16/32/48) — всё остальное, PNG 180 —
+     iPhone на домашнем экране, манифест — Android и «установить». -->
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/static/site.webmanifest">
+<meta name="theme-color" content="#2C313C">
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
@@ -17,136 +25,69 @@
               stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span data-ru="На главную" data-en="Home">На главную</span>
     </a>
+    <span class="sp"></span>
+    <!-- Переключателя RU/EN в шапке больше нет. Он путал: люди думали,
+           что «EN» переключает и озвучку в плеере. Язык сайта и язык
+           аниме — две отдельные настройки в кабинете (и язык сайта — ещё
+           на странице входа). -->
   </div>
 </header>
 
 <main class="pravila">
+  <!-- Текст лежит на своей «бумаге» (.pravila-list): под страницей бывает
+       праздничный задник, и прямо на нём текст сливался с фоном. -->
+  <div class="pravila-list">
   <h1 data-ru="Правила" data-en="Rules">Правила</h1>
   <p class="lead"
-     data-ru="Коротко о том, как здесь всё устроено и за что отвечает каждый."
-     data-en="A short account of how things work here and who answers for what.">
-    Коротко о том, как здесь всё устроено и за что отвечает каждый.</p>
+     data-ru="Коротко и по-дружески."
+     data-en="Short and friendly.">
+    Коротко и по-дружески.</p>
 
   <div class="pravila-text">
 
-    <h2 data-ru="1. Что это за сайт" data-en="1. What this site is">1. Что это за сайт</h2>
-    <p data-ru="Это домашний сайт для своих: список аниме, отметки о просмотре и напоминания о новых сериях. Он не продаётся, не показывает рекламу и не собирается становиться сервисом. Работает как получится: может лежать, может ошибаться, может однажды закрыться."
-       data-en="This is a home-made site for a small circle: your anime list, watch progress and new-episode reminders. It is not sold, shows no ads and is not trying to become a service. It runs as best it can: it may be down, it may be wrong, and one day it may simply close.">
-      Это домашний сайт для своих: список аниме, отметки о просмотре и напоминания о новых сериях. Он не продаётся, не показывает рекламу и не собирается становиться сервисом. Работает как получится: может лежать, может ошибаться, может однажды закрыться.</p>
+    <h2 data-ru="Что это" data-en="What this is">Что это</h2>
+    <p data-ru="Это мой личный сайт — для меня, моих друзей и тех, кому я сам дал доступ. Не публичный сервис: регистрации, подписок и рекламы здесь нет."
+       data-en="This is my personal site — for me, my friends and people I chose to give access to. It is not a public service: no sign-up, no subscriptions, no ads.">
+      Это мой личный сайт — для меня, моих друзей и тех, кому я сам дал доступ. Не публичный сервис: регистрации, подписок и рекламы здесь нет.</p>
 
-    <h2 data-ru="2. Доступ" data-en="2. Access">2. Доступ</h2>
-    <ul>
-      <li data-ru="Регистрации нет. Аккаунты создаёт администратор."
-          data-en="There is no sign-up. Accounts are created by the administrator.">
-        Регистрации нет. Аккаунты создаёт администратор.</li>
-      <li data-ru="Аккаунт выдан лично вам. Передавать его другим не нужно — попросите администратора завести отдельный."
-          data-en="Your account is yours personally. Do not hand it to anyone else — ask the administrator for a separate one.">
-        Аккаунт выдан лично вам. Передавать его другим не нужно — попросите администратора завести отдельный.</li>
-      <li data-ru="Гостевой вход даётся на час, без сохранения: он для того, чтобы посмотреть, а не чтобы вести список."
-          data-en="Guest access lasts an hour and saves nothing: it is for looking around, not for keeping a list.">
-        Гостевой вход даётся на час, без сохранения: он для того, чтобы посмотреть, а не чтобы вести список.</li>
-      <li data-ru="Администратор может отключить аккаунт без объяснений — например, если им пользуется кто-то другой."
-          data-en="The administrator may disable an account without explanation — for instance if someone else is using it.">
-        Администратор может отключить аккаунт без объяснений — например, если им пользуется кто-то другой.</li>
-    </ul>
-
-    <h2 data-ru="3. Ваш аккаунт — ваша ответственность"
-        data-en="3. Your account is your responsibility">3. Ваш аккаунт — ваша ответственность</h2>
-    <p data-ru="Сайт делает свою часть: пароль хранится не текстом, а необратимым отпечатком; сессия привязана к устройству; попытки подбора притормаживаются; вход по коду из приложения доступен всем. Дальше дело за вами."
-       data-en="The site does its part: your password is stored as an irreversible fingerprint, not as text; your session is bound to your device; guessing attempts are slowed down; sign-in codes are available to everyone. The rest is up to you.">
-      Сайт делает свою часть: пароль хранится не текстом, а необратимым отпечатком; сессия привязана к устройству; попытки подбора притормаживаются; вход по коду из приложения доступен всем. Дальше дело за вами.</p>
-    <ul>
-      <li data-ru="Придумайте пароль, который больше нигде не используется. Утечка с любого другого сайта — самый частый способ потерять аккаунт."
-          data-en="Choose a password you use nowhere else. A leak from some other site is the most common way accounts are lost.">
-        Придумайте пароль, который больше нигде не используется. Утечка с любого другого сайта — самый частый способ потерять аккаунт.</li>
-      <li data-ru="Не храните пароль в заметках, в переписке и на бумажке у монитора. Менеджер паролей — нормально."
-          data-en="Do not keep it in notes, in chats, or on a sticker by the screen. A password manager is fine.">
-        Не храните пароль в заметках, в переписке и на бумажке у монитора. Менеджер паролей — нормально.</li>
-      <li data-ru="Включите вход по коду из приложения. Тогда одного пароля для входа мало — попросят ещё шесть цифр с вашего телефона."
-          data-en="Turn on the sign-in code. Then a password alone is not enough — six digits from your phone are asked for as well.">
-        Включите вход по коду из приложения. Тогда одного пароля для входа мало — попросят ещё шесть цифр с вашего телефона.</li>
-      <li data-ru="Сохраните запасные коды, которые выдаются при включении. Без них потерянный телефон означает потерянный аккаунт."
-          data-en="Keep the backup codes you are given. Without them, a lost phone means a lost account.">
-        Сохраните запасные коды, которые выдаются при включении. Без них потерянный телефон означает потерянный аккаунт.</li>
-      <li data-ru="На чужом компьютере выходите из аккаунта. В настройках есть «Выйти везде» — если сомневаетесь, нажмите."
-          data-en="Sign out on someone else’s computer. Settings has “Sign out everywhere” — press it if in doubt.">
-        На чужом компьютере выходите из аккаунта. В настройках есть «Выйти везде» — если сомневаетесь, нажмите.</li>
-    </ul>
-
-    <h2 data-ru="4. Почта" data-en="4. Email">4. Почта</h2>
-    <p data-ru="Адрес нужен только для писем о новых сериях и указывается по желанию. Он никуда не передаётся и не продаётся. Но письмо — это ваш почтовый ящик: если доступ к нему у кого-то есть, он увидит и эти письма. Защищайте почту хотя бы так же, как этот сайт."
-       data-en="Your address is used only for new-episode emails and is optional. It is not passed on or sold. But an email lands in your mailbox: whoever can read it will see those letters too. Protect your mail at least as well as this site.">
-      Адрес нужен только для писем о новых сериях и указывается по желанию. Он никуда не передаётся и не продаётся. Но письмо — это ваш почтовый ящик: если доступ к нему у кого-то есть, он увидит и эти письма. Защищайте почту хотя бы так же, как этот сайт.</p>
-
-    <h2 data-ru="5. За что администратор не отвечает"
-        data-en="5. What the administrator does not answer for">5. За что администратор не отвечает</h2>
+    <h2 data-ru="Ответственность" data-en="Responsibility">Ответственность</h2>
     <p class="vazhno"
-       data-ru="Администратор не берёт на себя ответственность за доступ к вашему аккаунту и за пропажу ваших данных, если вы сами не приняли доступных мер защиты."
-       data-en="The administrator does not accept responsibility for access to your account or loss of your data if you have not taken the protective measures available to you.">
-      Администратор не берёт на себя ответственность за доступ к вашему аккаунту и за пропажу ваших данных, если вы сами не приняли доступных мер защиты.</p>
-    <p data-ru="Это относится в том числе к таким случаям:"
-       data-en="This covers, among others:">Это относится в том числе к таким случаям:</p>
-    <ul>
-      <li data-ru="пароль был простой, повторял пароль с другого сайта или утёк оттуда;"
-          data-en="the password was weak, reused from another site, or leaked from there;">
-        пароль был простой, повторял пароль с другого сайта или утёк оттуда;</li>
-      <li data-ru="пароль хранился так, что его увидел кто-то ещё, или был кому-то передан;"
-          data-en="the password was stored where someone else could see it, or was given to someone;">
-        пароль хранился так, что его увидел кто-то ещё, или был кому-то передан;</li>
-      <li data-ru="вход по коду из приложения не был включён, хотя такая возможность есть у каждого;"
-          data-en="the sign-in code was not turned on, although it is available to everyone;">
-        вход по коду из приложения не был включён, хотя такая возможность есть у каждого;</li>
-      <li data-ru="запасные коды не сохранены или сохранены там, где их прочитали;"
-          data-en="the backup codes were not kept, or were kept where someone read them;">
-        запасные коды не сохранены или сохранены там, где их прочитали;</li>
-      <li data-ru="доступ получили через вашу почту;"
-          data-en="access was gained through your mailbox;">
-        доступ получили через вашу почту;</li>
-      <li data-ru="аккаунт остался открытым на чужом или общем компьютере;"
-          data-en="the account was left open on a shared or someone else’s computer;">
-        аккаунт остался открытым на чужом или общем компьютере;</li>
-      <li data-ru="на вашем устройстве оказалась вредоносная программа."
-          data-en="malicious software ended up on your device.">
-        на вашем устройстве оказалась вредоносная программа.</li>
-    </ul>
-    <p data-ru="Также администратор не отвечает за перерывы в работе, потерю списка при сбое, за то, что показывают чужие источники видео, и за содержимое, которое оттуда приходит."
-       data-en="The administrator likewise does not answer for downtime, for a list lost in a failure, for what third-party video sources show, or for the content that comes from them.">
-      Также администратор не отвечает за перерывы в работе, потерю списка при сбое, за то, что показывают чужие источники видео, и за содержимое, которое оттуда приходит.</p>
-    <p data-ru="Если аккаунт всё же увели — напишите администратору. Помочь он постарается в любом случае, независимо от того, что написано выше."
-       data-en="If your account is taken anyway, write to the administrator. They will try to help regardless of anything above.">
-      Если аккаунт всё же увели — напишите администратору. Помочь он постарается в любом случае, независимо от того, что написано выше.</p>
+       data-ru="Я не беру на себя ответственность ни за что. Сайт работает как получится: может лежать, ошибаться или однажды закрыться, а видео приходит с чужих открытых источников."
+       data-en="I take no responsibility for anything. The site runs as best it can: it may be down, get things wrong or one day close, and the video comes from other people’s open sources.">
+      Я не беру на себя ответственность ни за что. Сайт работает как получится: может лежать, ошибаться или однажды закрыться, а видео приходит с чужих открытых источников.</p>
 
-    <h2 data-ru="6. Чего делать не нужно" data-en="6. What not to do">6. Чего делать не нужно</h2>
+    <h2 data-ru="Пара просьб" data-en="A couple of requests">Пара просьб</h2>
     <ul>
-      <li data-ru="Пытаться зайти в чужой аккаунт или обойти проверки."
-          data-en="Try to enter someone else’s account or bypass the checks.">
-        Пытаться зайти в чужой аккаунт или обойти проверки.</li>
-      <li data-ru="Нагружать сайт запросами: он живёт на одной небольшой машине."
-          data-en="Hammer the site with requests: it lives on one small machine.">
-        Нагружать сайт запросами: он живёт на одной небольшой машине.</li>
-      <li data-ru="Выкладывать сюда чужие личные данные."
-          data-en="Post other people’s personal data here.">
-        Выкладывать сюда чужие личные данные.</li>
-      <li data-ru="Раздавать ссылку на сайт незнакомым людям."
-          data-en="Hand the site link to strangers.">
-        Раздавать ссылку на сайт незнакомым людям.</li>
+      <li data-ru="Не передавай свой аккаунт другим. Другу нужен доступ — просто скажи мне."
+          data-en="Don’t pass your account on. A friend needs access — just tell me.">
+        Не передавай свой аккаунт другим. Другу нужен доступ — просто скажи мне.</li>
+      <li data-ru="Возьми пароль, который больше нигде не используешь, и включи вход по коду из приложения — так спокойнее."
+          data-en="Use a password you don’t use anywhere else, and turn on the sign-in code from an app — it’s calmer that way.">
+        Возьми пароль, который больше нигде не используешь, и включи вход по коду из приложения — так спокойнее.</li>
+      <li data-ru="Не ломай и не нагружай сайт: он живёт на одной домашней машине."
+          data-en="Don’t try to break or overload the site: it lives on one home machine.">
+        Не ломай и не нагружай сайт: он живёт на одной домашней машине.</li>
+      <li data-ru="Не раздавай ссылку незнакомым."
+          data-en="Don’t hand the link to strangers.">
+        Не раздавай ссылку незнакомым.</li>
     </ul>
 
-    <h2 data-ru="7. Данные" data-en="7. Data">7. Данные</h2>
-    <p data-ru="Хранится только то, без чего сайт не работает: логин, отпечаток пароля, ваш список с отметками, настройки внешнего вида и, если указали, адрес почты. Видео сайт у себя не держит — оно проигрывается с чужих источников. Захотите удалить аккаунт — напишите администратору, он удалит."
-       data-en="Only what the site cannot work without is kept: your login, a password fingerprint, your list with progress, appearance settings and, if you gave one, an email address. No video is stored here — it plays from third-party sources. Want the account deleted? Write to the administrator and it will be.">
-      Хранится только то, без чего сайт не работает: логин, отпечаток пароля, ваш список с отметками, настройки внешнего вида и, если указали, адрес почты. Видео сайт у себя не держит — оно проигрывается с чужих источников. Захотите удалить аккаунт — напишите администратору, он удалит.</p>
+    <h2 data-ru="Данные" data-en="Data">Данные</h2>
+    <p data-ru="Хранится только то, без чего сайт не работает: логин, твой список, настройки, картинки профиля и почта, если ты её указал (она нужна только для писем о новых сериях). Попросишь — удалю."
+       data-en="Only what the site needs is kept: your login, your list, your settings, your profile pictures and your email if you gave one (it is only for new-episode emails). Ask and I’ll delete it.">
+      Хранится только то, без чего сайт не работает: логин, твой список, настройки, картинки профиля и почта, если ты её указал (она нужна только для писем о новых сериях). Попросишь — удалю.</p>
 
-    <h2 data-ru="8. Изменения" data-en="8. Changes">8. Изменения</h2>
-    <p data-ru="Правила могут меняться. Сайт собран с помощью ИИ и продолжает переделываться, так что что-то ещё может работать не так, как здесь написано."
-       data-en="These rules may change. The site was built with AI and keeps being reworked, so something may still behave differently from what is written here.">
-      Правила могут меняться. Сайт собран с помощью ИИ и продолжает переделываться, так что что-то ещё может работать не так, как здесь написано.</p>
+    <h2 data-ru="Если что" data-en="Anything else">Если что</h2>
+    <p data-ru="Правила могут поменяться. Что-то сломалось или есть вопрос — пиши мне."
+       data-en="These rules may change. Something broke or you have a question — message me.">
+      Правила могут поменяться. Что-то сломалось или есть вопрос — пиши мне.</p>
 
+  </div>
   </div>
 </main>
 
 <footer><div class="in">
-  <span data-ru="анимеДик" data-en="анимеДик">анимеДик</span>
+  <span data-ru="анимеДик" data-en="animeDik">анимеДик</span>
   <a href="/" data-ru="На главную" data-en="Home">На главную</a>
 </div></footer>
 

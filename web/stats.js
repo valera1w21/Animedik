@@ -33,7 +33,8 @@
     $('st-hours-sub').textContent = hours >= 24
       ? A.t('это ' + Math.floor(hours / 24) + ' ' +
             plural(Math.floor(hours / 24), 'полные сутки', 'полных суток', 'полных суток'),
-            "that's " + Math.floor(hours / 24) + ' full days')
+            /* По-английски тоже два вида: «1 full day», «2 full days». */
+            "that's " + Math.floor(hours / 24) + (Math.floor(hours / 24) === 1 ? ' full day' : ' full days'))
       : A.t('пока немного', 'not much yet');
 
     $('st-titles').textContent = d.finished;
@@ -47,7 +48,14 @@
       : '';
 
     $('st-days').textContent = dayCount;
-    var passed = Math.round((Date.now() - new Date(year, 0, 1)) / 864e5);
+    /* Сколько дней года прошло, считая сегодняшний. Раньше бралось
+       округление разницы во времени: утром 1 января выходило «из 0
+       прошедших», а вечером — «275 из 274», активных дней больше, чем
+       дней вообще. Считаем по календарным датам (в UTC, чтобы переход
+       на летнее время не съедал час) и прибавляем сегодня. */
+    var today = new Date();
+    var passed = Math.floor((Date.UTC(year, today.getMonth(), today.getDate()) -
+                             Date.UTC(year, 0, 1)) / 864e5) + 1;
     $('st-days-sub').textContent = A.t('из ' + passed + ' прошедших',
                                        'of ' + passed + ' days so far');
 
@@ -81,13 +89,21 @@
     gen.textContent = '';
     var colors = ['var(--mint)', 'var(--sky)', 'var(--lilac)', 'var(--sand)', 'var(--dimmer)', 'var(--line)'];
     var top = d.genres.length ? d.genres[0][1] : 1;
-    if (!d.genres.length) {
+    var named = d.genres.filter(function (row) { return !!A.genreName(row[0]); });
+    if (!named.length) {
       gen.appendChild(A.el('div', 'cap', A.t('Пока нечего показать — жанры появятся, когда наберётся статистика.',
                                              'Nothing to show yet — genres appear as you watch.')));
     }
+    /* Жанры в журнале просмотров — те, что прислал источник видео, то
+       есть по-русски. На английской странице переводим их общим словарём
+       (A.genreName), а незнакомый русский не показываем вовсе: раньше тут
+       стояли «Экшен, Сёнэн, Фэнтези» посреди английского текста. Цвет
+       полосы — по месту жанра в исходном списке, как и раньше. */
     d.genres.forEach(function (row, i) {
+      var name = A.genreName(row[0]);
+      if (!name) return;
       var g = A.el('div', 'g');
-      g.appendChild(A.el('span', 'nm', row[0]));
+      g.appendChild(A.el('span', 'nm', name));
       var track = A.el('span', 'track');
       var fill = A.el('i');
       fill.style.width = Math.max(4, row[1] / top * 100) + '%';

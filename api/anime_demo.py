@@ -118,9 +118,6 @@ CLIPS = [
     },
 ]
 
-_BY_ID = {c["id"]: c for c in CLIPS}
-
-
 def pick_clip(query: str) -> dict:
     """Какой ролик отдать на этот запрос.
 
@@ -203,7 +200,3 @@ class Extractor:
     async def a_search(self, query: str) -> list[Search]:
         return [Search(pick_clip(query), query)]
 
-
-def clip_by_key(key: str) -> dict:
-    """Ролик по сохранённому ключу — для ссылок из списка и закладок."""
-    return _BY_ID.get(str(key), CLIPS[0])

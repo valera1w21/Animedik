@@ -31,6 +31,8 @@ for _n in ("anime", "httpx", "anime.catalog", "anime.sources"):
 
 from fastapi.testclient import TestClient           # noqa: E402
 from api import main, store                         # noqa: E402
+import fake_sources                                 # noqa: E402
+fake_sources.install()
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -75,7 +77,7 @@ def войти(c, логин, пароль):
 
 
 def гостем(c):
-    r = c.post("/api/auth/guest")
+    r = c.post("/api/auth/guest", json={})
     if r.status_code == 200:
         c.headers["X-CSRF-Token"] = r.json()["csrf"]
     return r
@@ -137,7 +139,7 @@ def run():
     store.init()
     reset()
 
-    админ = store.create_user("valera", ADMIN_PASS, "admin", "Валера")
+    админ = store.create_user("hozyain", ADMIN_PASS, "admin", "Хозяин")
     обычный = store.create_user("misha", USER_PASS, "user", "Миша")
     жертва = store.create_user("olya", "Spokoynyy-Veter-2026", "user", "Оля")
     check("подопытные созданы", админ and обычный and жертва)
@@ -194,7 +196,7 @@ def run():
 
     reset()
     шеф = клиент()
-    войти(шеф, "valera", ADMIN_PASS)
+    войти(шеф, "hozyain", ADMIN_PASS)
     r = шеф.get("/api/admin/users")
     check("список аккаунтов открыт", r.status_code == 200, r.status_code)
     r = шеф.post("/api/admin/news", json={"text": "Работы в субботу"})
@@ -223,7 +225,7 @@ def run():
 
     reset()
     шеф = клиент()
-    войти(шеф, "valera", ADMIN_PASS)
+    войти(шеф, "hozyain", ADMIN_PASS)
     админ_метка = шеф.headers["X-CSRF-Token"]
 
     чужой = клиент()
@@ -286,7 +288,7 @@ def run():
 
     reset()
     шеф = клиент()
-    войти(шеф, "valera", ADMIN_PASS)
+    войти(шеф, "hozyain", ADMIN_PASS)
     check("пока включён — админка открыта", шеф.get("/api/admin/users").status_code == 200)
     store.set_disabled(админ, True)
     check("после отключения — закрыта", шеф.get("/api/admin/users").status_code == 404)
@@ -303,7 +305,7 @@ def run():
     reset()
     c = клиент()
     войти(c, "olya", "Spokoynyy-Veter-2026")
-    r = c.post("/api/me/2fa/start")
+    r = c.post("/api/me/2fa/start", json={"password": "Spokoynyy-Veter-2026"})
     check("настройка началась", r.status_code == 200, r.status_code)
     секрет = r.json()["secret"]
     свой = twofa._code_at(секрет, int(_time.time() // twofa.STEP))
@@ -406,7 +408,7 @@ def run():
 
     reset()
     шеф = клиент()
-    войти(шеф, "valera", ADMIN_PASS)
+    войти(шеф, "hozyain", ADMIN_PASS)
     for праздник in ("newyear", "halloween", "sakura", "off", ""):
         r = шеф.post("/api/me/settings", json={"holiday": праздник})
         check("администратор ставит «%s»" % (праздник or "по календарю"),

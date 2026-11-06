@@ -9,14 +9,15 @@ import sys
 import tempfile
 import time
 
+# Эти проверки написаны под личный режим: они работают с подменными
+# источниками (fake_sources.py: ru_a, ru_b…), которых в демо-режиме нет.
+# Режим ставим здесь, а не берём из окружения, — иначе запуск при
+# MODE=demo падал бы не из-за ошибок, а из-за чужих условий.
+# Демо-режим проверяет check10_demo.py.
+os.environ["MODE"] = "private"
 os.environ["DB_PATH"] = os.path.join(tempfile.mkdtemp(), "test.db")
 os.environ["COOKIE_SECURE"] = "0"
 os.environ["SESSION_PEPPER"] = "test-pepper"
-
-# Проверки публичной версии идут в демонстрационном режиме: другого здесь
-# нет. Внешние источники видео не входят в этот репозиторий, и
-# единственный рабочий источник — свободное видео (api/anime_demo.py).
-os.environ.setdefault("MODE", "demo")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -27,6 +28,8 @@ logging.getLogger("anime").setLevel(logging.WARNING)
 from fastapi import HTTPException                  # noqa: E402
 from fastapi.testclient import TestClient          # noqa: E402
 from api import main, security, store             # noqa: E402
+import fake_sources                                 # noqa: E402
+fake_sources.install()
 
 # Вывод здесь на русском, а консоль Windows по умолчанию живёт в cp1251:
 # первая же стрелка или галочка роняла весь запуск с UnicodeEncodeError,
@@ -66,7 +69,7 @@ def login(c, user, pwd):
 
 
 def as_guest(c):
-    r = c.post("/api/auth/guest")
+    r = c.post("/api/auth/guest", json={})
     if r.status_code == 200:
         c.headers["X-CSRF-Token"] = r.json()["csrf"]
     return r
@@ -100,18 +103,18 @@ def run():
     check("SQL в логине не проходит валидацию",
           security.login_problem("admin'--") is not None)
     check("пробелы не проходят", security.login_problem("va lera") is not None)
-    check("кириллица не проходит", security.login_problem("валера") is not None)
-    check("Valera == valera", security.normalize_login("  VaLeRa ") == "valera")
-    check("нормальный логин принят", security.login_problem("valera") is None)
+    check("кириллица не проходит", security.login_problem("хозяин") is not None)
+    check("Hozyain == hozyain", security.normalize_login("  HoZyAiN ") == "hozyain")
+    check("нормальный логин принят", security.login_problem("hozyain") is None)
 
     # ---------------------------------------------------------------- аккаунты
     group("Создание аккаунтов")
-    admin_id = store.create_user("valera", "Zaliv-Pepel-2026", "admin", "valera")
+    admin_id = store.create_user("hozyain", "Zaliv-Pepel-2026", "admin", "hozyain")
     user_id = store.create_user("misha", "Tihiy-Signal-2026", "user", "misha")
     check("админ создан", admin_id > 0)
     check("пользователь создан", user_id > 0)
     try:
-        store.create_user("valera", "Drugoy-Parol-2026")
+        store.create_user("hozyain", "Drugoy-Parol-2026")
         check("повтор логина отклонён", False)
     except Exception:
         check("повтор логина отклонён", True)
@@ -127,14 +130,14 @@ def run():
     check("без входа /api/me даёт 401", c.get("/api/me").status_code == 401)
     check("без входа библиотека закрыта", c.get("/api/library").status_code == 401)
 
-    r = login(c, "valera", "неверный-пароль")
+    r = login(c, "hozyain", "неверный-пароль")
     check("неверный пароль → 401", r.status_code == 401, r.status_code)
     check("текст ошибки не выдаёт, что логин есть",
           "не найден" not in r.text.lower() and "нет такого" not in r.text.lower())
 
     main.login_guard.reset()
     c = fresh_client()
-    r = login(c, "valera", "Zaliv-Pepel-2026")
+    r = login(c, "hozyain", "Zaliv-Pepel-2026")
     check("верный пароль → 200", r.status_code == 200, r.status_code)
     check("выдана кука сессии", "sid" in c.cookies)
     check("выдана метка формы", bool(r.json().get("csrf")))
@@ -210,7 +213,7 @@ def run():
           u.request("DELETE", f"/api/admin/users/{admin_id}").status_code == 404)
 
     r = u.post("/api/library/progress", json={
-        "key": "source-a:1", "title": "Пепел над заливом", "source": "demo",
+        "key": "ru_a:1", "title": "Пепел над заливом", "source": "ru_a",
         "watched_ep": 12, "position": 862, "total_eps": 24, "status": "watching"})
     check("свой прогресс сохраняется", r.status_code == 200, r.status_code)
     items = u.get("/api/library").json()["items"]
@@ -220,9 +223,9 @@ def run():
     group("Данные не протекают между людьми")
     a = fresh_client()
     main.login_guard.reset()
-    login(a, "valera", "Zaliv-Pepel-2026")
+    login(a, "hozyain", "Zaliv-Pepel-2026")
     check("у админа своя пустая полка", a.get("/api/library").json()["items"] == [])
-    a.post("/api/library/progress", json={"key": "source-a:9", "title": "Своё"})
+    a.post("/api/library/progress", json={"key": "ru_a:9", "title": "Своё"})
     check("у пользователя по-прежнему одна запись",
           len(u.get("/api/library").json()["items"]) == 1)
     check("у админа одна своя",
@@ -296,7 +299,7 @@ def run():
     group("Куки")
     c3 = fresh_client()
     main.login_guard.reset()
-    r = login(c3, "valera", "Zaliv-Pepel-2026")
+    r = login(c3, "hozyain", "Zaliv-Pepel-2026")
     raw = "; ".join(r.headers.get_list("set-cookie"))
     check("кука сессии недоступна скриптам", "HttpOnly" in raw)
     check("кука не уходит на чужие сайты", "samesite=lax" in raw.lower(), raw[:70])
@@ -331,23 +334,16 @@ def run():
           v.post("/api/me/settings", json={"accent": "'; DROP--"}).status_code == 400)
     check("нормальный акцент принят",
           v.post("/api/me/settings", json={"accent": "sky"}).status_code == 200)
+    # Потолок поиска — 300 знаков, как у названия в списке: страница ищет
+    # и по сохранённому названию (ранобэ бывают длинными).
     check("слишком длинный поиск отклонён",
-          v.get("/api/search", params={"q": "a" * 300}).status_code == 422)
+          v.get("/api/search", params={"q": "a" * 301}).status_code == 422)
     check("слишком короткий поиск отклонён",
           v.get("/api/search", params={"q": "a"}).status_code == 422)
-    # В демонстрационном режиме источник один, и любое имя из запроса
-    # подменяется им (см. api_search в main.py). Значит, чужое имя здесь
-    # не отклоняется, а молча не используется: важно, что до загрузки
-    # модуля с таким именем дело не доходит.
-    def foreign_source_ignored(name):
-        r = v.get("/api/search", params={"q": "test", "source": name})
-        if r.status_code == 400:
-            return True
-        return r.status_code == 200 and r.json().get("source") == "demo"
-    check("неизвестный источник не используется",
-          foreign_source_ignored("../../os"))
-    check("подстановка модуля не срабатывает",
-          foreign_source_ignored("subprocess"))
+    check("неизвестный источник отклонён",
+          v.get("/api/search", params={"q": "test", "source": "../../os"}).status_code == 400)
+    check("подстановка модуля отклонена",
+          v.get("/api/search", params={"q": "test", "source": "subprocess"}).status_code == 400)
 
     # ------------------------------------------------------------- аватар
     group("Аватар")
@@ -400,7 +396,7 @@ def run():
     group("Администратор")
     main.login_guard.reset()
     ad = fresh_client()
-    login(ad, "valera", "Zaliv-Pepel-2026")
+    login(ad, "hozyain", "Zaliv-Pepel-2026")
     check("видит список аккаунтов", ad.get("/api/admin/users").status_code == 200)
     r = ad.post("/api/admin/users",
                 json={"login": "kate", "password": "Dolina-Otrazheniy-26", "role": "user"})
@@ -434,8 +430,8 @@ def run():
     group("Выход со всех устройств")
     main.login_guard.reset()
     d1, d2 = fresh_client(), fresh_client()
-    login(d1, "valera", "Zaliv-Pepel-2026")
-    login(d2, "valera", "Zaliv-Pepel-2026")
+    login(d1, "hozyain", "Zaliv-Pepel-2026")
+    login(d2, "hozyain", "Zaliv-Pepel-2026")
     check("оба входа живы",
           d1.get("/api/me").status_code == 200 and d2.get("/api/me").status_code == 200)
     d1.post("/api/auth/logout-all")
@@ -443,7 +439,7 @@ def run():
 
     group("Ограничение частоты")
     main.guest_limit.reset()
-    codes = [fresh_client().post("/api/auth/guest").status_code for _ in range(10)]
+    codes = [fresh_client().post("/api/auth/guest", json={}).status_code for _ in range(10)]
     check("выдача гостевых пропусков ограничена", 429 in codes,
           f"200: {codes.count(200)}, 429: {codes.count(429)}")
 
@@ -477,7 +473,7 @@ def run_extra():
     gt = g.cookies.get("sid")
     # гость подставляет свой токен как пользовательский и наоборот
     u = fresh_client()
-    login(u, "valera", "Zaliv-Pepel-2026")
+    login(u, "hozyain", "Zaliv-Pepel-2026")
     ut = u.cookies.get("sid")
     x = fresh_client(); x.cookies.set("sid", gt)
     check("гостевой токен не даёт прав пользователя",
@@ -494,7 +490,7 @@ def run_extra():
 
     group("Разные пользователи — разные аватары")
     a = fresh_client(); main.login_guard.reset()
-    login(a, "valera", "Zaliv-Pepel-2026")
+    login(a, "hozyain", "Zaliv-Pepel-2026")
     from PIL import Image
     b1 = io.BytesIO(); Image.new("RGB", (300, 300), (200, 30, 30)).save(b1, "PNG")
     a.post("/api/me/avatar", content=b1.getvalue())
@@ -556,7 +552,7 @@ def run_extra():
     group("Огромное тело запроса")
     main.login_guard.reset()
     c = fresh_client()
-    login(c, "valera", "Zaliv-Pepel-2026")
+    login(c, "hozyain", "Zaliv-Pepel-2026")
     big = {"key": "a", "title": "т" * 100000}
     check("гигантское поле отклонено",
           c.post("/api/library/progress", json=big).status_code == 422)
@@ -602,7 +598,7 @@ def run_fixes():
     main.write_limit.reset(); main.search_limit.reset()
     main.pass_limit.reset(); main.avatar_limit.reset(); main.source_limit.reset()
 
-    ADMIN = ("valera", "Zaliv-Pepel-2026")
+    ADMIN = ("hozyain", "Zaliv-Pepel-2026")
 
     # ------------------------------------------------------------------
     group("Вход не останавливает весь сервер")
@@ -611,33 +607,86 @@ def run_fixes():
     # входы строго по очереди и на всё это время замирал целиком:
     # у остальных не открывалась ни одна страница.
     #
-    # Замерять одним входом бессмысленно: пока замеряющий ждёт, подсчёт
-    # успевает закончиться, и разницы не видно — на этом первая версия
-    # проверки и обманулась. Поэтому запускаем несколько входов разом и
-    # сравниваем с одиночным. Считает потоками — четыре входа занимают
-    # почти столько же, сколько один. Считает в цикле событий — вчетверо
-    # больше, потому что они выстраиваются в очередь.
+    # Как было и почему проверка падала сама по себе. Раньше здесь
+    # сравнивались два замера: четыре входа разом против одного, и «разом»
+    # должно было выйти меньше чем в 2,5 раза дольше. Но это мерило не
+    # код, а машину: при двух ядрах или когда рядом идёт другой набор
+    # проверок, четыре подсчёта в потоках честно занимают вдвое-втрое
+    # дольше одного — и проверка краснела при правильном коде. Вдобавок
+    # теперь подсчётов разом не больше main.HASH_PARALLEL (защита от
+    # перебора, который съедал бы все ядра), и «в очередь» они встают
+    # нарочно — в потоках, а не в цикле событий.
+    #
+    # Поэтому проверяются два свойства, которые от машины не зависят:
+    #   1. подсчёт пароля НИ РАЗУ не шёл в потоке цикла событий — это
+    #      прямо то, ради чего всё затевалось, и проверяется без часов;
+    #   2. пока идут четыре входа, цикл событий не замирает: «пульс»
+    #      (задача, просыпающаяся каждые 10 мс) ни разу не пропадает
+    #      дольше, чем на половину одного подсчёта. Подсчёт в цикле
+    #      событий давал бы паузу во весь подсчёт, а в потоке — нет, как
+    #      бы ни была занята машина: время одного подсчёта меряется тут
+    #      же, на той же машине, и порог растёт вместе с ним.
     import httpx
+    import threading
 
     N = 4
+    threads_seen = []
+    real_verify = main.security.verify_password
+    real_waste = main.security.waste_time_like_a_real_check
 
-    async def timed(count):
+    def spy_verify(*a, **k):
+        threads_seen.append(threading.get_ident())
+        return real_verify(*a, **k)
+
+    def spy_waste(*a, **k):
+        threads_seen.append(threading.get_ident())
+        return real_waste(*a, **k)
+
+    async def logins_with_pulse(count):
         main.login_guard.reset()
+        loop_thread = threading.get_ident()
         transport = httpx.ASGITransport(app=main.app)
+        gaps = []
+        stop = asyncio.Event()
+
+        async def pulse():
+            last = time.perf_counter()
+            while not stop.is_set():
+                await asyncio.sleep(0.01)
+                now = time.perf_counter()
+                gaps.append(now - last)
+                last = now
+
+        beat = asyncio.ensure_future(pulse())
         async with httpx.AsyncClient(transport=transport, base_url="http://t") as ac:
-            t0 = time.perf_counter()
             await asyncio.gather(*[
                 ac.post("/api/auth/login",
                         json={"login": ADMIN[0], "password": f"zavedomo-nevernyy-{i}"})
                 for i in range(count)])
-            return time.perf_counter() - t0
+        stop.set()
+        await beat
+        return loop_thread, max(gaps or [0.0])
 
-    one = asyncio.run(timed(1))
-    many = asyncio.run(timed(N))
-    ratio = many / max(one, 0.0001)
-    check(f"{N} входов разом не выстраиваются в очередь", ratio < 2.5,
-          f"один {one:.2f}с, {N} разом {many:.2f}с — это x{ratio:.1f}, "
-          f"в цикле событий было бы ~x{N}")
+    t0 = time.perf_counter()
+    real_verify("x", main.security._DUMMY_HASH)
+    one_hash = time.perf_counter() - t0
+
+    main.security.verify_password = spy_verify
+    main.security.waste_time_like_a_real_check = spy_waste
+    try:
+        loop_thread, worst_gap = asyncio.run(logins_with_pulse(N))
+    finally:
+        main.security.verify_password = real_verify
+        main.security.waste_time_like_a_real_check = real_waste
+    check(f"{N} входов разом: пароль ни разу не считался в цикле событий",
+          len(threads_seen) >= N and loop_thread not in threads_seen,
+          f"подсчётов {len(threads_seen)}, в цикле событий "
+          f"{sum(1 for t in threads_seen if t == loop_thread)}")
+    limit = max(0.25, one_hash * 0.5)
+    check(f"{N} входов разом: остальные запросы не замирают",
+          worst_gap < limit,
+          f"самая длинная пауза цикла {worst_gap:.2f}с при подсчёте {one_hash:.2f}с "
+          f"(порог {limit:.2f}с)")
 
     # Отдельного замера «за сколько ответит страница во время входов» здесь
     # намеренно нет. Он был — и проходил одинаково при любом коде: ответ
@@ -730,8 +779,10 @@ def run_fixes():
     check("в полке есть записи", len(items) >= 1, len(items))
     check("внутреннего номера пользователя в ответе нет",
           all("user_id" not in it for it in items), list(items[0]))
+    # source_label — подпись источника для карточки: не из базы, а из
+    # списка источников, поэтому её нет в LIBRARY_FIELDS.
     check("поля полки — ровно те, что перечислены",
-          set(items[0]) == set(store.LIBRARY_FIELDS), sorted(items[0]))
+          set(items[0]) == set(store.LIBRARY_FIELDS) | {"source_label"}, sorted(items[0]))
 
     # ------------------------------------------------------------------
     group("Счётчик входов считает только живые")
@@ -812,7 +863,7 @@ def run_fixes():
 
     main.anime.find_episodes = pretend
     try:
-        codes = [s.get("/api/episodes", params={"key": "k", "source": "demo"}).status_code
+        codes = [s.get("/api/episodes", params={"key": "k", "source": "ru_a"}).status_code
                  for _ in range(50)]
     finally:
         main.anime.find_episodes = real
@@ -841,18 +892,17 @@ def run_fixes():
     login(e, *ADMIN)
     real_cache = dict(main.anime._extractors)
     main.anime._extractors.clear()
-    # В публичной версии разборщик один — демонстрационный, его и ломаем.
-    real_extractor = main.anime.anime_demo.Extractor
+    real_make = main.anime.EXTRACTORS["ru_a"]
 
     def broken():
-        raise ImportError("модуль demo не загрузился")
+        raise ImportError("модуль ru_a не загрузился")
 
-    main.anime.anime_demo.Extractor = broken
+    main.anime.EXTRACTORS["ru_a"] = broken
     try:
-        r = e.get("/api/episodes", params={"key": "k", "source": "demo",
+        r = e.get("/api/episodes", params={"key": "k", "source": "ru_a",
                                            "title": "Т"})
     finally:
-        main.anime.anime_demo.Extractor = real_extractor
+        main.anime.EXTRACTORS["ru_a"] = real_make
         main.anime._extractors.update(real_cache)
     check("беда с модулем источника — это 502, а не 500",
           r.status_code == 502, r.status_code)
@@ -882,7 +932,7 @@ def run_fixes():
     main.anime.find_episodes = twelve
     try:
         # Тайтл добавлен только что: сколько у него серий, мы ещё не считали.
-        store.save_progress(uid, {"key": "novyy", "source": "demo",
+        store.save_progress(uid, {"key": "novyy", "source": "ru_a",
                                   "title": "Новый", "total_eps": 0,
                                   "watched_ep": 1, "status": "watching"})
         r = u.get("/api/updates").json()
@@ -905,17 +955,22 @@ def run_fixes():
                   hit[0]["was"] == 10 and hit[0]["now"] == 12 and hit[0]["fresh"] == 2, hit[0])
 
         # «Я видел» гасит уведомление.
-        u.post("/api/updates/seen", json={"key": "novyy", "source": "demo",
+        u.post("/api/updates/seen", json={"key": "novyy", "source": "ru_a",
                                           "title": "Новый"})
         main.source_limit.reset()
         r = u.get("/api/updates").json()
         check("после просмотра уведомление гаснет",
               not any(x["key"] == "novyy" for x in r["items"]), r["items"])
 
-        # Досмотренное не звенит: следим только за тем, что смотрим.
-        store.save_progress(uid, {"key": "novyy", "source": "demo",
-                                  "title": "Новый", "total_eps": 5,
-                                  "watched_ep": 5, "status": "done"})
+        # Досмотренное до последней серии не звенит, даже когда его
+        # проверяют. (Раньше досмотренное не проверялось вовсе; теперь
+        # недавно закрытое проверяется — у онгоинга может выйти следующая
+        # серия, это в check16_updates.py.)
+        store.save_progress(uid, {"key": "novyy", "source": "ru_a",
+                                  "title": "Новый", "total_eps": 12,
+                                  "watched_ep": 12, "status": "done"})
+        with store.tx() as conn:
+            conn.execute("UPDATE library SET checked_at = 0 WHERE key = 'novyy'")
         main.source_limit.reset()
         r = u.get("/api/updates").json()
         check("законченное не беспокоит",
@@ -930,7 +985,7 @@ def run_fixes():
     pc = fresh_client()
     login(pc, *ADMIN)
     uid = store.get_user_by_login(ADMIN[0])["id"]
-    store.save_progress(uid, {"key": "bezfoto", "source": "demo",
+    store.save_progress(uid, {"key": "bezfoto", "source": "ru_a",
                               "title": "Без обложки", "poster": "",
                               "watched_ep": 1, "status": "watching"})
     before = [x for x in store.library(uid) if x["key"] == "bezfoto"][0]
@@ -944,7 +999,7 @@ def run_fixes():
     main.anime.find_poster = fake_poster
     try:
         r = pc.post("/api/library/poster", json={"key": "bezfoto",
-                                                 "source": "demo",
+                                                 "source": "ru_a",
                                                  "title": "Без обложки"})
         check("ручка ответила", r.status_code == 200, r.status_code)
     finally:
@@ -990,15 +1045,15 @@ def run_fixes():
           not twofa.verify(secret, twofa._code_at(secret, int(time.time() // twofa.STEP) - 3)))
     check("мусор вместо кода не роняет", not twofa.verify(secret, "не-цифры"))
     check("в ссылке для приложения есть секрет и издатель",
-          "secret=" + secret in twofa.otpauth_uri(secret, "valera")
-          and "issuer=" in twofa.otpauth_uri(secret, "valera"))
+          "secret=" + secret in twofa.otpauth_uri(secret, "hozyain")
+          and "issuer=" in twofa.otpauth_uri(secret, "hozyain"))
 
     main.login_guard.reset()
     t = fresh_client()
     login(t, "misha", "Sovsem-Novyy-2026")
     uid = store.get_user_by_login("misha")["id"]
 
-    r = t.post("/api/me/2fa/start")
+    r = t.post("/api/me/2fa/start", json={"password": "Sovsem-Novyy-2026"})
     check("настройка началась", r.status_code == 200, r.status_code)
     body = r.json()
     # Ключ обязателен всегда: его можно ввести в приложение руками.
@@ -1096,7 +1151,7 @@ def run_fixes():
     main.catalog_limit.reset()
     real_about = catalog.about
 
-    async def fake_about(title, lang="ru"):
+    async def fake_about(title, lang="ru", **extra):   # title_en, year — с прохода 17
         return {"title": "Тест", "about": "Описание без спойлеров.", "genres": ["Драма"],
                 "year": 2024, "episodes": 12, "poster": "", "score": 80,
                 "title_en": "", "season": "", "format": "TV", "status": ""}
@@ -1112,7 +1167,7 @@ def run_fixes():
     main.catalog_limit.reset()
     real_random = catalog.random_anime
 
-    async def fake_random():
+    async def fake_random(genre=None):
         return {"title": "Случайное", "about": "", "genres": [], "year": 2020,
                 "episodes": 24, "poster": "", "score": None, "title_en": "",
                 "season": "", "format": "TV", "status": ""}
@@ -1135,10 +1190,10 @@ def run_fixes():
     group("Совпадение названий: мусор из выдачи не проходит")
     from api import anime as an
 
-    # Это не выдуманный пример. На «Атака титанов» источники отвечают
-    # ровно этой строкой — совпало слово «атака». Перебор источников
-    # останавливался на первом, кто ответил хоть чем-то, и правильный
-    # ответ у следующего источника не смотрел никто.
+    # Это не выдуманный пример. На «Атака титанов» и RU-A, и RU-C
+    # отвечают ровно этой строкой — совпало слово «атака». Перебор
+    # источников останавливался на первом, кто ответил хоть чем-то, и
+    # правильный ответ у следующего источника не смотрел никто.
     junk = an.relevance("Атака титанов", "Не издевайся, Нагаторо: Вторая атака")
     check("похожее по одному слову не проходит порог",
           junk < an.MIN_RELEVANCE, round(junk, 3))
@@ -1154,7 +1209,7 @@ def run_fixes():
     check("продолжение не считается достаточно точным",
           seq < main.GOOD_ENOUGH, round(seq, 3))
 
-    # Некоторые источники пишут названия одной строкой с латиницей и счётчиком.
+    # RU-D пишет названия одной строкой с латиницей и счётчиком.
     check("хвосты источника отрезаются",
           an.relevance("Наруто", "Наруто / Naruto [1-220 из 220]") == 1.0)
     check("приписка в скобках не мешает",
@@ -1216,10 +1271,12 @@ def run_fixes():
           [p["id"] for p in ordered])
     check("невышедшее уезжает в конец", ordered[-1]["id"] == "d", ordered[-1]["id"])
     # У «Ван-Пис» самое раннее — посторонняя OVA 1998 года, снятая до
-    # сериала. Отметка всё равно на ней: список идёт по годам, и «начало»
-    # обязано совпадать с первой строкой, иначе объяснить его нечем.
-    check("«начало» — самое раннее по году",
-          ordered[0]["main"] and not ordered[1]["main"],
+    # сериала. Начинать с неё не надо, поэтому «начало» — на первом
+    # сериале, хотя строка с OVA и стоит выше (это запасной порядок по
+    # датам; когда справочник отдаёт связи, OVA уходит в дополнения —
+    # см. check14_order.py).
+    check("«начало» — первый сериал, а не OVA, вышедшая раньше",
+          ordered[1]["main"] and not ordered[0]["main"],
           [p["id"] for p in ordered if p["main"]])
 
     # Пересказ первого сезона выходит с ним в один год и помечен как
@@ -1253,10 +1310,10 @@ def run_fixes():
     real_search = cat.search_franchises
     real_parts = cat.franchise_parts
 
-    async def fake_search(q):
+    async def fake_search(q, hentai=False):
         return [cat.franchise_card("naruto", grouped["naruto"])]
 
-    async def fake_parts(fid):
+    async def fake_parts(fid, adult_ok=False, hentai_ok=False, rx_ok=None):
         return cat.mark_main(cat.sort_parts([dict(p) for p in grouped["naruto"]]))
 
     cat.search_franchises = fake_search
@@ -1279,7 +1336,7 @@ def run_fixes():
     # такому ответу уходит искать старым способом, прямо у источников.
     main.catalog_limit.reset()
 
-    async def dead_search(q):
+    async def dead_search(q, hentai=False):
         return None
 
     cat.search_franchises = dead_search
@@ -1292,7 +1349,7 @@ def run_fixes():
 
     main.catalog_limit.reset()
 
-    async def dead_parts(fid):
+    async def dead_parts(fid, adult_ok=False, hentai_ok=False, rx_ok=None):
         return None
 
     cat.franchise_parts = dead_parts
@@ -1321,21 +1378,21 @@ def run_fixes():
 
     main.anime.find_episodes = fake_episodes
 
-    # Источник отвечает двумя строками: сначала мусор, потом правильный
-    # тайтл. Ровно этот случай раньше заканчивался тем, что человек
-    # открывал «Нагаторо» вместо «Атаки титанов»: бралось первое, что
-    # пришло, а не то, что совпало.
-    async def junk_then_right(source, q):
-        return [
-            {"key": "junk", "title": "Не издевайся, Нагаторо: Вторая атака",
-             "poster": "", "year": 2021, "genres": "", "episodes_total": 12,
-             "match": 0.31},
-            {"key": "aot-1", "title": "Атака титанов", "poster": "p",
-             "year": 2013, "genres": "Экшен", "episodes_total": 25,
-             "match": 1.0},
-        ]
+    # Первый источник отвечает мусором, второй — правильным тайтлом.
+    # Ровно этот случай раньше заканчивался тем, что человек открывал
+    # «Нагаторо» вместо «Атаки титанов».
+    async def two_sources(source, q):
+        if source == "ru_a":
+            return [{"key": "junk", "title": "Не издевайся, Нагаторо: Вторая атака",
+                     "poster": "", "year": 2021, "genres": "", "episodes_total": 12,
+                     "match": 0.31}]
+        if source == "ru_b":
+            return [{"key": "aot-1", "title": "Атака титанов", "poster": "p",
+                     "year": 2013, "genres": "Экшен", "episodes_total": 25,
+                     "match": 1.0}]
+        return []
 
-    main.try_source = junk_then_right
+    main.try_source = two_sources
     try:
         r = t.get("/api/resolve", params={"title": "Атака титанов",
                                           "title_en": "Shingeki no Kyojin"})
@@ -1343,7 +1400,7 @@ def run_fixes():
         check("перебор не останавливается на непохожем ответе",
               r.status_code == 200 and body["key"] == "aot-1", body)
         check("и берёт того, у кого совпало точно",
-              body["source"] == "demo" and body["exact"], body.get("source"))
+              body["source"] == "ru_b" and body["exact"], body["source"])
     finally:
         main.try_source = real_try
 
@@ -1394,34 +1451,35 @@ def run_fixes():
 
     # ------------------------------------------------------------------
     # Точное совпадение названия ещё не значит, что тайтл открывается.
-    # Под ровно тем же названием, что в справочнике, может лежать тайтл,
-    # у которого список серий не отдаётся вовсе: разборщик спотыкается на
-    # сдвоенной серии «57-58». Резолв возвращал этот тайтл, и человек
-    # попадал в плеер с «серии не загрузились», хотя рядом лежал
-    # идентичный, но рабочий.
+    # У RU-B «Наруто: Ураганные хроники» лежат под ровно тем же
+    # названием, что в справочнике, а список серий не отдаётся вовсе:
+    # разборщик спотыкается на сдвоенной серии «57-58». Резолв возвращал
+    # этот тайтл, и человек попадал в плеер с «серии не загрузились»,
+    # хотя у двух других источников они есть.
     main.search_limit.reset()
 
     async def one_broken(source, q):
-        return [
-            {"key": "broken", "title": "Наруто: Ураганные хроники",
-             "poster": "", "year": 2007, "genres": "",
-             "episodes_total": 0, "match": 1.0},
-            {"key": "works", "title": "Наруто Ураганные хроники",
-             "poster": "", "year": 2007, "genres": "",
-             "episodes_total": 0, "match": 1.0},
-        ]
+        if source == "ru_b":
+            return [{"key": "broken", "title": "Наруто: Ураганные хроники",
+                     "poster": "", "year": 2007, "genres": "",
+                     "episodes_total": 0, "match": 1.0}]
+        if source == "ru_a":
+            return [{"key": "works", "title": "Наруто Ураганные хроники",
+                     "poster": "", "year": 2007, "genres": "",
+                     "episodes_total": 0, "match": 1.0}]
+        return []
 
     EPS["broken"] = 0                      # серии не отдаются
     EPS["works"] = 131
     main.try_source = one_broken
     try:
         r = t.get("/api/resolve", params={"title": "Наруто: Ураганные хроники",
-                                          "source": "demo"})
+                                          "source": "ru_b"})
         body = r.json()
         check("тайтл без серий не подсовывается, хотя название совпало точно",
               r.status_code == 200 and body["key"] == "works", body)
         check("и число серий берётся из настоящего списка",
-              body.get("episodes_total") == 131, body.get("episodes_total"))
+              body["episodes_total"] == 131, body.get("episodes_total"))
     finally:
         main.try_source = real_try
 
@@ -1441,19 +1499,20 @@ def run_fixes():
         main.try_source = real_try
 
     # ------------------------------------------------------------------
-    # Огрызок вместо сериала. У «Ван-Пис» один источник выложил семь
-    # серий из тысячи ста семидесяти четырёх — название совпало, серии
-    # есть, ошибки нет. А человек получал «серия 1 из 7» у сериала,
-    # который идёт двадцать шестой год.
+    # Огрызок вместо сериала. У «Ван-Пис» RU-A выложила семь серий
+    # из тысячи ста семидесяти четырёх — название совпало, серии есть,
+    # ошибки нет. А человек получал «серия 1 из 7» у сериала, который
+    # идёт двадцать шестой год.
     main.search_limit.reset()
 
     async def stub_and_full(source, q):
-        return [
-            {"key": "stub", "title": "Ван-Пис", "poster": "", "year": 1999,
-             "genres": "", "episodes_total": 0, "match": 1.0},
-            {"key": "full", "title": "Ван-Пис", "poster": "", "year": 1999,
-             "genres": "", "episodes_total": 0, "match": 1.0},
-        ]
+        if source == "ru_a":
+            return [{"key": "stub", "title": "Ван-Пис", "poster": "", "year": 1999,
+                     "genres": "", "episodes_total": 0, "match": 1.0}]
+        if source == "ru_b":
+            return [{"key": "full", "title": "Ван-Пис", "poster": "", "year": 1999,
+                     "genres": "", "episodes_total": 0, "match": 1.0}]
+        return []
 
     EPS["stub"] = 7
     EPS["full"] = 1174
@@ -1480,12 +1539,11 @@ def run_fixes():
     main.search_limit.reset()
 
     async def slightly_behind(source, q):
-        return [
-            {"key": "behind", "title": "Блич", "poster": "", "year": 2004,
-             "genres": "", "episodes_total": 0, "match": 1.0},
-            {"key": "other", "title": "Блич", "poster": "", "year": 2004,
-             "genres": "", "episodes_total": 0, "match": 1.0},
-        ]
+        if source == "ru_a":
+            return [{"key": "behind", "title": "Блич", "poster": "", "year": 2004,
+                     "genres": "", "episodes_total": 0, "match": 1.0}]
+        return [{"key": "other", "title": "Блич", "poster": "", "year": 2004,
+                 "genres": "", "episodes_total": 0, "match": 1.0}]
 
     EPS["behind"] = 352
     EPS["other"] = 366
@@ -1518,9 +1576,9 @@ def run_fixes():
         ordinal = 1
 
         async def a_get_sources(self):
-            # Ровно то, что отдаёт источник B на «Наруто 1: Книга
-            # искусств ниндзя»: два плеера, и ни одной ссылки внутри —
-            # его плееры работают только с определённых адресов.
+            # Ровно то, что отдаёт RU-C на «Наруто 1: Книга искусств
+            # ниндзя»: два плеера, и ни одной ссылки внутри — его плееры
+            # работают только с адресов СНГ.
             return [FakePlayer("пустой", []), FakePlayer("тоже пустой", [])]
 
     async def fake_find(source, key, title):
@@ -1528,7 +1586,7 @@ def run_fixes():
 
     main.anime.find_episodes = fake_find
     try:
-        r = t.get("/api/videos", params={"key": "k", "ordinal": 1, "source": "demo"})
+        r = t.get("/api/videos", params={"key": "k", "ordinal": 1, "source": "ru_c"})
         check("плееры без ссылок наружу не уходят", r.status_code == 502, r.status_code)
         check("и человеку сказано, что именно не так",
               "плеер" in r.text.lower(), r.text[:80])
@@ -1587,7 +1645,7 @@ def run_fixes():
     main.catalog_limit.reset()
     real_related = cat.related_parts
 
-    async def fake_related(title):
+    async def fake_related(title, adult_ok=False, hentai_ok=False, rx_ok=None):
         rows = cat.mark_main(cat.sort_parts([dict(p) for p in sciadv]))
         for row in rows:
             row["current"] = row["title"] == title
@@ -1606,7 +1664,7 @@ def run_fixes():
 
     main.catalog_limit.reset()
 
-    async def dead_related(title):
+    async def dead_related(title, adult_ok=False, hentai_ok=False, rx_ok=None):
         return None
 
     cat.related_parts = dead_related
@@ -1636,18 +1694,18 @@ def run_fixes():
     # Название озвучки лежит в поле title, а код читал name — поля с таким
     # именем у источника нет вовсе. В меню у всех строк стояло «плеер».
     check("название озвучки берётся из title",
-          main.dub_name(Src("Озвучка источник A", []), "demo")[0] == "источник A",
-          main.dub_name(Src("Озвучка источник A", []), "demo")[0])
+          main.dub_name(Src("Озвучка RU-A", []), "ru_a")[0] == "RU-A",
+          main.dub_name(Src("Озвучка RU-A", []), "ru_a")[0])
     check("слово «Озвучка» из строки убирается",
-          main.dub_name(Src("Озвучка студия озвучки", []), "demo")[0] == "студия озвучки")
+          main.dub_name(Src("Озвучка Lis Project", []), "ru_a")[0] == "Lis Project")
     # А вот «Субтитры» убирать нельзя: это разница между «слушать» и
     # «читать», и видеть её надо до нажатия.
-    name, is_sub = main.dub_name(Src("Субтитры крупный сервис", []), "demo")
+    name, is_sub = main.dub_name(Src("Субтитры Luna", []), "ru_a")
     check("субтитры остаются подписанными субтитрами",
-          name == "Субтитры крупный сервис" and is_sub, name)
+          name == "Субтитры Luna" and is_sub, name)
     check("без названия подставляется сам источник",
-          main.dub_name(Src("", []), "demo")[0] == main.anime.SOURCES["demo"]["label"],
-          main.dub_name(Src("", []), "demo")[0])
+          main.dub_name(Src("", []), "ru_a")[0] == main.anime.SOURCES["ru_a"]["label"],
+          main.dub_name(Src("", []), "ru_a")[0])
 
     links = main.pack_links([FakeVideo2("a", 480), FakeVideo2("b", 1080),
                              FakeVideo2("b", 1080), FakeVideo2("", 720)])
@@ -1674,11 +1732,11 @@ def run_fixes():
 
         async def a_get_sources(self):
             # Так это и приходит: одна озвучка несколькими хостингами.
-            return [DubSrc("Озвучка источник A", ["al-1"]),
-                    DubSrc("Озвучка источник A", ["al-2"]),
-                    DubSrc("Озвучка JAM", ["jam-1"]),
-                    DubSrc("Субтитры крупный сервис", ["cr-1"]),
-                    DubSrc("Озвучка студия озвучки", ["studio-1"])]
+            return [DubSrc("Озвучка RU-A", ["al-1"]),
+                    DubSrc("Озвучка RU-A", ["al-2"]),
+                    DubSrc("Озвучка Yozh", ["yozh-1"]),
+                    DubSrc("Субтитры Luna", ["cr-1"]),
+                    DubSrc("Озвучка Lis Project", ["lis-1"])]
 
     async def dub_find(source, key, title):
         return [DubEpisode()]
@@ -1686,16 +1744,16 @@ def run_fixes():
     main.anime.find_episodes = dub_find
     try:
         r = t.get("/api/videos", params={"key": "k", "ordinal": 1,
-                                          "source": "demo"})
+                                          "source": "ru_b"})
         body = r.json()
         check("список озвучек полный", r.status_code == 200
               and [d["name"] for d in body["dubs"]]
-              == ["источник A", "JAM", "студия озвучки", "Субтитры крупный сервис"],
+              == ["RU-A", "Yozh", "Lis Project", "Субтитры Luna"],
               [d["name"] for d in body["dubs"]])
         # Спросить ссылки у всех — это секунды на каждую: у «Магической
         # битвы» их тридцать семь, то есть минута перед пустым плеером.
         check("а ссылки спрошены только у одной", len(asked) == 1, asked)
-        check("открылась первая по порядку", body["chosen"] == "источник A",
+        check("открылась первая по порядку", body["chosen"] == "RU-A",
               body["chosen"])
         check("субтитры уехали в конец списка",
               body["dubs"][-1]["sub"] is True)
@@ -1703,10 +1761,10 @@ def run_fixes():
         main.source_limit.reset()
         asked.clear()
         r = t.get("/api/videos", params={"key": "k", "ordinal": 1,
-                                          "source": "demo",
-                                          "dub": "студия озвучки"})
+                                          "source": "ru_b",
+                                          "dub": "Lis Project"})
         check("выбранная озвучка открывается ею одной",
-              r.json()["chosen"] == "студия озвучки" and len(asked) == 1,
+              r.json()["chosen"] == "Lis Project" and len(asked) == 1,
               r.json()["chosen"] + " / " + str(asked))
     finally:
         main.anime.find_episodes = real_eps3
@@ -1716,21 +1774,24 @@ def run_fixes():
     main.search_limit.reset()
     real_try2 = main.try_source
 
-    async def has_title(source, q):
-        return [{"key": "k", "title": "Магическая битва", "poster": "",
-                 "year": 2020, "genres": "", "episodes_total": 24,
-                 "match": 1.0}]
+    async def only_two(source, q):
+        if source in ("ru_a", "ru_c"):
+            return [{"key": "k", "title": "Магическая битва", "poster": "",
+                     "year": 2020, "genres": "", "episodes_total": 24,
+                     "match": 1.0}]
+        return []
 
-    main.try_source = has_title
+    main.try_source = only_two
     try:
         r = t.get("/api/where", params={"title": "Магическая битва"})
         body = r.json()
-        check("сказано, у кого тайтл есть", body["here"] == ["demo"], body["here"])
-        # Источник один, и это весь перебор: проверено всё, что есть, и
-        # «непроверенных» не остаётся.
+        check("сказано, у кого тайтл есть",
+              sorted(body["here"]) == ["ru_a", "ru_c"], body["here"])
         check("и кого вообще проверяли",
-              body["checked"] == list(main.anime.SOURCES), body["checked"])
-        check("непроверенных не осталось", body["unknown"] == [], body["unknown"])
+              set(body["checked"]) == set(main.FALLBACK_ORDER), body["checked"])
+        check("непроверенные названы отдельно, а не выданы за пустые",
+              all(s not in body["checked"] for s in body["unknown"])
+              and len(body["unknown"]) > 0, body["unknown"])
     finally:
         main.try_source = real_try2
 
@@ -1740,41 +1801,43 @@ def run_fixes():
     real_try3 = main.try_source
     real_eps4 = main.anime.find_episodes
 
-    check("«Субтитры крупный сервис» опознаются как субтитры",
-          main.is_subs("Субтитры крупный сервис"))
-    check("«Озвучка студия озвучки» — не субтитры", not main.is_subs("Озвучка студия озвучки"))
-    # Так это называется у одного из источников: японская дорожка, поверх
-    # которой идёт текст. Правило искало слово «субтитры» только в начале
-    # строки, а здесь оно в скобках на конце — и вариант не видели вовсе,
-    # хотя он есть у «Атаки титанов», «Наруто» и «Ван-Пис».
+    check("«Субтитры Luna» опознаются как субтитры",
+          main.is_subs("Субтитры Luna"))
+    check("«Озвучка KotoDub» — не субтитры", not main.is_subs("Озвучка KotoDub"))
+    # Так это называется у RU-E: японская дорожка, поверх которой
+    # идёт текст. Правило искало слово «субтитры» только в начале строки,
+    # а здесь оно в скобках на конце — и вариант не видели вовсе, хотя
+    # он есть у «Атаки титанов», «Наруто» и «Ван-Пис».
     check("«Оригинал (+субтитры)» — тоже субтитры",
           main.is_subs("Оригинал (+субтитры)"))
     check("просто «Оригинал» без текста субтитрами не считается",
           not main.is_subs("Оригинал"))
-    # В публичной версии списки перебора для субтитров пусты: внешних
-    # источников нет. Пустой список — не поломка, а состояние: за текстом
-    # сайт идёт к единственному источнику, который есть.
-    check("список перебора для субтитров пуст",
-          main.SUB_ORDER == [], main.SUB_ORDER)
-    check("и по-английски тоже пуст",
-          main.SUB_ORDER_EN == [], main.SUB_ORDER_EN)
+    check("за субтитрами ходим и к RU-E",
+          main.SUB_ORDER[0] == "ru_e", main.SUB_ORDER)
+    # По-английски первым спрашивается англоязычный источник: только у
+    # него текст поверх японской дорожки английский.
+    check("по-английски первым идёт англоязычный источник",
+          main.SUB_ORDER_EN[0] == "en_a"
+          and all(main.anime.source_lang(s) == "en" for s in main.SUB_ORDER_EN), main.SUB_ORDER_EN)
     check("«Subtitles (English)» опознаются и как текст, и как английский",
-          main.is_subs("Subtitles (English)")
-          and main.sub_lang("Subtitles (English)") == "en",
-          main.sub_lang("Subtitles (English)"))
+          main.is_subs(fake_sources.SUB_LABEL)
+          and main.sub_lang(fake_sources.SUB_LABEL) == "en",
+          main.sub_lang(fake_sources.SUB_LABEL))
     check("«English dub» субтитрами не считается",
-          not main.is_subs("English dub"))
+          not main.is_subs(fake_sources.DUB_LABEL))
+    check("англоязычный источник есть в общем списке",
+          "en_d" in main.anime.SOURCES)
 
     # Язык текста. Все субтитры, что дают источники, русские — живая
     # проверка по четырём тайтлам не нашла ни одного английского. Но
     # опознавать английский всё равно надо: выдать его за русский было бы
     # хуже, чем не найти вовсе.
     check("русские субтитры помечены русскими",
-          main.sub_lang("Субтитры команда субтитров") == "ru")
+          main.sub_lang("Субтитры Meduza") == "ru")
     check("английские опознаются, если появятся",
           main.sub_lang("Субтитры ENG") == "en", main.sub_lang("Субтитры ENG"))
     check("у озвучки языка текста нет вовсе",
-          main.sub_lang("Озвучка студия озвучки") == "")
+          main.sub_lang("Озвучка KotoDub") == "")
     # Регулярка для этой проверки однажды приехала с символом забоя
     # внутри: через оболочку обратная косая превратилась в настоящий
     # управляющий символ и осела в исходнике невидимкой. Совпадений не
@@ -1797,11 +1860,13 @@ def run_fixes():
         async def a_get_sources(self):
             return [SubSrc(x) for x in self._titles]
 
-    # Раскладка отвечает на вопрос «какие дорожки есть у серии»: озвучка
-    # и текст. Сайт должен находить субтитры сам — человеку не нужно
-    # вручную перебирать дорожки, чтобы узнать, есть ли они.
+    # RU-A отдаёт одну свою озвучку и субтитров не даёт никогда —
+    # значит человек, открывший тайтл на источнике по умолчанию, субтитров
+    # не видел в принципе. А у RU-B они лежат почти у всего.
     LAYOUT = {
-        "demo": ["Озвучка студия озвучки", "Субтитры крупный сервис"],
+        "ru_b": ["Озвучка RU-A", "Субтитры Luna"],
+        "ru_c": ["Озвучка Kanal-7"],
+        "ru_d": ["Озвучка RU-D"],
     }
 
     async def sub_try(source, q):
@@ -1819,25 +1884,23 @@ def run_fixes():
     main.anime.find_episodes = sub_eps
     try:
         r = t.get("/api/subs", params={"title": "Магическая битва",
-                                        "ordinal": 1})
+                                        "ordinal": 1, "skip": "ru_a"})
         body = r.json()
-        check("субтитры найдены",
+        check("субтитры найдены у другого источника",
               r.status_code == 200 and body["found"]
-              and body["source"] == "demo", body)
+              and body["source"] == "ru_b", body)
         check("и названы своим именем",
-              body["dub"] == "Субтитры крупный сервис", body.get("dub"))
+              body["dub"] == "Субтитры Luna", body.get("dub"))
         check("вместе с ключом, по которому их открыть",
-              body["key"] == "demo-key", body.get("key"))
+              body["key"] == "ru_b-key", body.get("key"))
 
         # Источник, где человек уже сидит, второй раз не смотрим.
         main.search_limit.reset()
         r = t.get("/api/subs", params={"title": "Магическая битва",
-                                        "ordinal": 1, "skip": "demo"})
+                                        "ordinal": 1, "skip": "ru_b"})
         check("источник, где уже смотрели, пропускается",
-              "demo" not in r.json()["tried"], r.json()["tried"])
-        # Пропущен единственный источник — искать больше негде.
-        # Это честное «не нашлось», а не ошибка и не пустой плеер.
-        check("искать больше негде — честное «не нашлось»",
+              "ru_b" not in r.json()["tried"], r.json()["tried"])
+        check("а без субтитров у остальных — честное «не нашлось»",
               r.json()["found"] is False, r.json())
     finally:
         main.try_source = real_try3
@@ -1862,7 +1925,7 @@ def run_fixes():
     group("Письма: адрес и шаблон")
     from api import mail
 
-    check("хороший адрес принят", security.looks_like_email("valera@example.com"))
+    check("хороший адрес принят", security.looks_like_email("hozyain@example.com"))
     for bad_addr in ["без-собаки", "два@@собаки.ru", "с пробелом@x.ru",
                      "конец@точка.", "@нет-имени.ru", "перенос@стро\nки.ru"]:
         check(f"плохой адрес отклонён: {bad_addr[:18]}",
@@ -1873,12 +1936,12 @@ def run_fixes():
           t.post("/api/me/mail", json={"email": "", "want": True}).status_code == 400)
     check("с адресом можно",
           t.post("/api/me/mail",
-                 json={"email": "valera@example.com", "want": True}).status_code == 200)
+                 json={"email": "hozyain@example.com", "want": True}).status_code == 200)
     me = t.get("/api/me").json()
-    check("адрес сохранён", me["email"] == "valera@example.com", me["email"])
+    check("адрес сохранён", me["email"] == "hozyain@example.com", me["email"])
     check("согласие сохранено", me["mail_new_eps"] is True)
 
-    letter = mail.episode_html(display_name="Валера", title="Тайтл <script>",
+    letter = mail.episode_html(display_name="Хозяин", title="Тайтл <script>",
                                episode=7, season="Сезон 2", released="1 мая",
                                about="Описание", poster="", watch_url="http://x/y")
     check("в письме есть название сайта", "анимеДик" in letter)
@@ -1892,7 +1955,7 @@ def run_fixes():
     check("вёрстка таблицами, как требуют почтовые клиенты",
           letter.count("<table") >= 4)
     check("без настроек почты письма просто не уходят",
-          mail.send_episode("valera@example.com", title="Т", episode=1) is False
+          mail.send_episode("hozyain@example.com", title="Т", episode=1) is False
           or mail.enabled())
 
     print("\n" + "=" * 56)

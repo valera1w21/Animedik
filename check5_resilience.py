@@ -12,11 +12,13 @@ import tempfile
 import time
 import logging
 
-# Проверки публичной версии идут в демонстрационном режиме: другого здесь
-# нет. Внешние источники видео не входят в этот репозиторий, и
-# единственный рабочий источник — свободное видео (api/anime_demo.py).
-os.environ.setdefault("MODE", "demo")
 WORK = tempfile.mkdtemp()
+# Эти проверки написаны под личный режим: они подменяют настоящие
+# источники (ru_a, ru_b…), которых в демо-режиме нет.
+# Режим ставим здесь, а не берём из окружения, — иначе запуск при
+# MODE=demo падал бы не из-за ошибок, а из-за чужих условий.
+# Демо-режим проверяет check10_demo.py.
+os.environ["MODE"] = "private"
 os.environ["DB_PATH"] = os.path.join(WORK, "p5.db")
 os.environ["COOKIE_SECURE"] = "0"
 os.environ["SESSION_PEPPER"] = "pass5"
@@ -26,6 +28,8 @@ logging.getLogger("anime").setLevel(logging.ERROR)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastapi.testclient import TestClient          # noqa: E402
 from api import main, security, store              # noqa: E402
+import fake_sources                                 # noqa: E402
+fake_sources.install()
 
 # Вывод здесь на русском, а консоль Windows по умолчанию живёт в cp1251:
 # первая же стрелка или галочка роняла весь запуск с UnicodeEncodeError,
@@ -72,7 +76,7 @@ def reset():
 def run():
     store.init()
     reset()
-    uid = store.create_user("valera", "Zaliv-Pepel-2026", "admin", "valera")
+    uid = store.create_user("hozyain", "Zaliv-Pepel-2026", "admin", "hozyain")
     store.create_user("misha", "Tihiy-Signal-2026", "user", "misha")
 
     # ==================================================================
@@ -119,7 +123,7 @@ def run():
     group("Ошибка базы не роняет сервер")
     reset()
     c = C()
-    login(c, "valera", "Zaliv-Pepel-2026")
+    login(c, "hozyain", "Zaliv-Pepel-2026")
 
     real = store.library
     store.library = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("база отвалилась"))
@@ -136,7 +140,7 @@ def run():
     group("Сбой источника не роняет поиск")
     reset()
     s = C()
-    login(s, "valera", "Zaliv-Pepel-2026")
+    login(s, "hozyain", "Zaliv-Pepel-2026")
     real_try = main.try_source
 
     async def always_fail(source, q):
@@ -158,16 +162,16 @@ def run():
     async def second_works(source, q):
         calls.append(source)
         return [{"key": "k", "title": "Найдено", "poster": "", "year": 2024,
-                 "genres": "Драма", "episodes_total": 12}] if source == "demo" else None
+                 "genres": "Драма", "episodes_total": 12}] if source == "ru_c" else None
 
     main.try_source = second_works
     try:
-        r = s.get("/api/search", params={"q": "тест", "source": "demo"})
+        r = s.get("/api/search", params={"q": "тест", "source": "ru_a"})
         check("нашлось на запасном", r.status_code == 200, r.status_code)
         body = r.json()
-        check("сказано, у кого нашлось", body.get("source") == "demo", body.get("source"))
-        check("первым пробовали выбранный", calls and calls[0] == "demo", calls[:3])
-        check("перечислены попытки", "demo" in body.get("tried", []), body.get("tried"))
+        check("сказано, у кого нашлось", body.get("source") == "ru_c", body.get("source"))
+        check("первым пробовали выбранный", calls and calls[0] == "ru_a", calls[:3])
+        check("перечислены попытки", "ru_a" in body.get("tried", []), body.get("tried"))
     finally:
         main.try_source = real_try
 
@@ -175,14 +179,10 @@ def run():
     main.try_source = second_works
     calls.clear()
     try:
-        r = s.get("/api/search", params={"q": "тест2", "source": "demo",
+        r = s.get("/api/search", params={"q": "тест2", "source": "ru_a",
                                          "any_source": "false"})
-        # Источник здесь один, и обходить нечего: отказ единственного —
-        # это и есть отказ поиска. Проверяем, что это доходит наружу
-        # понятным кодом, а не превращается в пустой результат.
-        check("отказ единственного источника виден снаружи",
-              r.status_code in (200, 502), r.status_code)
-        check("пробовали только выбранный", calls == ["demo"], calls)
+        check("с запретом перебора не ищет дальше", r.status_code == 502, r.status_code)
+        check("пробовали только выбранный", calls == ["ru_a"], calls)
     finally:
         main.try_source = real_try
 
@@ -190,7 +190,7 @@ def run():
     group("Ответы сервера соответствуют тому, что ждёт фронтенд")
     reset()
     f = C()
-    login(f, "valera", "Zaliv-Pepel-2026")
+    login(f, "hozyain", "Zaliv-Pepel-2026")
 
     me = f.get("/api/me").json()
     for field in ["kind", "role", "name", "display_name", "avatar_color",
@@ -245,6 +245,9 @@ def run():
                                   "fresh", "now", "was", "checked", "items",
                                   # поля справочника (/api/about, /api/random)
                                   "about", "found", "episodes", "score", "genres",
+                                  # на каком языке описание: "en" — взято
+                                  # из запасного справочника (проход 17)
+                                  "about_lang",
                                   # объявление администратора и вход по коду
                                   "text", "secret", "backup", "totp_on",
                                   "mail_new_eps", "email",
@@ -261,6 +264,33 @@ def run():
                                   # объявление администратора: русская
                                   # версия и английская рядом с ней
                                   "text_en",
+                                  # включение входа по коду: сколько других
+                                  # входов при этом закрыто
+                                  "closed",
+                                  # /api/find на «этти»: что это жанр и
+                                  # подсказка, где включить 18+ (проход 22)
+                                  "genre", "hint",
+                                  # …на «хентай» ещё и включено ли уже 18+:
+                                  # подсказка говорит, каких переключателей
+                                  # не хватает (проход 24)
+                                  "adult",
+                                  # …и хентай только тот, что можно посмотреть:
+                                  # пометка списка, сколько спрятано и сколько
+                                  # ещё проверяется в фоне (проход 24, раздел 12)
+                                  "watchable", "rx_hidden", "rx_pending",
+                                  # помощник в пузыре «?»: включён ли, ответ
+                                  # и кнопки «Открыть: …» (проход 23)
+                                  "state", "reply", "chips",
+                                  # /api/videos: субтитры отдельными файлами
+                                  # (номер, подпись, язык — проход 25)
+                                  "subs",
+                                  # админка: живая проверка английских
+                                  # источников — строки и порядок (проход 26)
+                                  "rows", "order",
+                                  # резолв хентая на другом языке (alang,
+                                  # other_lang) и английские жанры справочника
+                                  # (genres_en) — fix-21, проходы 24 и 30
+                                  "alang", "other_lang", "genres_en",
                                   # свойства браузера, а не поля с сервера
                                   "left", "right", "top", "bottom", "width", "height",
                                   "checked", "disabled", "innerText", "currentSrc"}
@@ -273,7 +303,7 @@ def run():
     e = C()
     check("без входа — 401", e.get("/api/library").status_code == 401)
     g = C()
-    g.post("/api/auth/guest")
+    g.post("/api/auth/guest", json={})
     g.headers["X-CSRF-Token"] = "x"
     check("гостю на запись — 403",
           g.post("/api/library/progress", json={"key": "x"}).status_code in (403,))

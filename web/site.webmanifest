@@ -1,0 +1,17 @@
+{
+  "name": "анимеДик",
+  "short_name": "анимеДик",
+  "description": "Аниме, чтобы смотреть с друзьями",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#191C24",
+  "theme_color": "#191C24",
+  "icons": [
+    { "src": "/static/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/static/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/static/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/static/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

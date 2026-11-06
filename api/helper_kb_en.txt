@@ -1,0 +1,71 @@
+# English cheat-sheet for the helper: used when the site language is English.
+#
+# The same facts as helper_kb.txt, with the button and menu names exactly
+# as the site shows them in English. Changed something in helper_kb.txt —
+# change it here too, or the helper will describe the old site in English.
+#
+# Rules for this file are the same as for helper_kb.txt:
+#   * no site name or address here (the helper calls it "this site");
+#   * lines starting with "#" are not sent to the helper;
+#   * keep it short: the whole file goes with every question.
+
+GENERAL
+- This site is the owner's personal site for watching anime with friends; access is by his invitation only, no ads: your own list, watch progress (the spot in an episode is remembered automatically) and new-episode alerts. The site does not store video; it finds it on open sources.
+- There is no sign-up. Only the administrator creates accounts; for access or errors, ask the administrator. There is no separate contact button yet.
+- Guest access lasts 60 minutes and is view-only: the list, settings and progress are not saved for guests, and guests never see 18+ or hentai.
+
+HEADER (top)
+- The search box "What are we watching?".
+- The "Random" button (a die icon): a random anime from an open catalogue; "Again" gives another one, "Find it here" opens the one you got.
+- The bell "New episodes": titles from your list that have a new episode. Checked every 15 minutes. Inside is the "Browser notifications" switch (works while the site is open in at least one tab).
+- "Year in review", "About" (the "i" button), "Rules" (open in a new tab).
+- "About": the site was made to test what an AI (Claude) can build; video comes from open sources on the internet; access is personal, by the owner's invitation; no ads.
+- The administrator also has an "Announcement" button.
+- On the right is your profile chip (a circle with your name). On a phone the buttons are hidden in the burger menu (three lines).
+
+SEARCH
+- Type a title (2 letters or more) — results appear by themselves; Enter searches right away.
+- Clicking a card opens a window with all parts of that story by year: where to start and what comes next. Clicking a part opens the player.
+- The "Plan" button is on search cards and next to parts in the parts window. Something you started or finished cannot go into plans. Pressing it again ("Planned ✓") removes it from plans.
+- Searching "ecchi" (or "этти", "18+") shows popular ecchi — only if the 18+ setting is on.
+- Searching "hentai" (or "хентай") shows a list — only if both settings are on: 18+ and "Hentai". Otherwise you get a hint about where to turn them on. Only hentai that at least one source really has is shown — in any language (Russian dub, English dub or English subtitles); anything no source has is not shown at all (titles still being checked appear on the next search a minute later). If it is not available in your anime language, the player uses the language it is in and shows "Only available in English" (or "…in Russian") next to the title; your language setting does not change. Regular titles stay strictly in the chosen language. "Random" never picks hentai.
+
+MY LIST (main page)
+- Tabs: "Not finished" (started), "Finished" (watched to the end), "Plan to watch" (added with the "Plan" button).
+- Parts of one story share one card. Clicking a card opens a window with your parts and the rest of the story.
+- One anime is one card, whatever language or source you watched it in: progress is shared (the furthest point wins). The card title follows the current language: English when the site or the anime language is English, Russian otherwise.
+- With the site in English, the watch page shows the title, description and genres in English too. If no catalog has an English description, the Russian one is shown, marked "Only in Russian".
+- The cross on a card removes it from the list (the site asks first).
+- A title gets into the list by itself when you start watching.
+
+WATCH PAGE
+- Above the player is a menu: "Episode" (episodes and parts), "Dub", "Source" (where the video comes from), and below it "Quality".
+- Buttons: play, back/forward 10 seconds, sound and volume, full screen, "Next episode", "Plan to watch".
+- Keys: Space or K — pause, F — full screen, M — sound, left/right arrows — 5 seconds.
+- An episode is marked as watched by itself at 90%. The spot where you stopped is remembered.
+- The "Auto-play the next one" switch (autoplay) is under the player; the same thing is in the settings.
+- Below: "What it is about" (a description without spoilers) and "The whole story" — all parts.
+- If the video does not load, pick another source or dub (there is a "Pick another source" button).
+- "Back to list" — back to the main page.
+
+PROFILE CARD (click your chip on the right of the header)
+- How much you are watching and have finished, quick choice of theme and site language.
+- Entries: "Settings", "Year in review", "Rules", "Sign out". The administrator also has "Admin".
+
+SETTINGS (profile card → "Settings"). Sections on the left (on a phone — at the top):
+- "Profile": display name; photo (up to 5 MB, replaces the letter in the circle; "Remove photo"); avatar colour (only while there is no photo — with a photo it is switched off: "No colour needed — a photo is set"); banner — a picture for the header of the profile card and settings instead of the coloured strip (JPG, PNG or WebP up to 5 MB, cropped to a 3:1 strip; "Remove banner").
+- "Look": theme ("As it is" — graphite, "Night" — cold blue, "Charcoal" — near black, "Paper" — light); accent colour (mint, sky blue, lavender, sand); holiday ("By calendar" — the site dresses up for New Year, Halloween and sakura by itself, or "Off"; a specific holiday can only be chosen by the administrator); "Dotted background" (a manga-style dot screen); header badge (three options).
+- "Language": site language (Russian or English — menus and buttons, it does not change the dub) and anime language (what you hear and read: "Русский", "English — dub" — English voice-over, "English — subtitles" — Japanese audio with English text). Both can also be switched on the watch page with the globe button in the bar under the player; there is also a CC button when subtitles come as separate files (key C).
+- English is strict: with "English — dub" or "English — subtitles" the site only uses English sources and never falls back to a Russian dub or Russian subtitles. "English — subtitles" means Japanese audio with English text only. If a title (or episode) is not available in English anywhere, the site says so — "Not available in English yet" — with a "Watch in Russian" button next to it that switches the anime language to Russian.
+- "Watching": "18+ (ecchi)" — show ecchi in search (marked "18+"), in parts and in "Random", off by default; right under it "Hentai" — show hentai in search and on anime pages (marked "18+ · hentai"): only for signed-in users (guests never have it), can only be turned on while 18+ is on and after confirming "I am 18 or older", and turning 18+ off turns hentai off too; "Play the next episode automatically" (autoplay); "Emails about new episodes" and the email address (emails only work if the administrator set up mail on the server).
+- "Security": change password (needs the current one, the new one is 10+ characters, "Save password" button); "Sign-in code from an app" (two-factor sign-in: any authenticator app, a six-digit code); "Sign out everywhere" — closes sessions on other devices.
+- Profile, Look and emails are saved with the "Save" button at the bottom of the window. Photo and banner are saved right away. Language, 18+, "Hentai" and autoplay are saved right away. The theme from the profile card is saved right away too.
+
+YEAR IN REVIEW
+- Hours watched, titles finished and episodes watched, days with anime, the year day by day, what you watched, records, title of the year, episodes per month. There is a "Print or save as PDF" button.
+
+RULES
+- Whose site this is (personal, for friends and people given access), that the administrator takes no responsibility for anything, a couple of requests (password, sign-in code, do not pass your account on), data, changes.
+
+ADMINISTRATOR
+- The administrator has "Admin" (creating accounts, an announcement for everyone). Regular users do not see it.
