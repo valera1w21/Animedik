@@ -79,6 +79,12 @@
     <button class="wide ghost" id="btn-guest"
       data-ru="Зайти как гость на 60 минут" data-en="Browse as guest for 60 minutes">Зайти как гость на 60 минут</button>
 
+    <!-- Общий демо-аккаунт витрины: вход одной кнопкой, без пароля.
+         Кнопка спрятана, пока сервер не скажет, что демо-аккаунт включён
+         (/api/mode → demo_account, см. showMode в app.js). -->
+    <button class="wide ghost" id="btn-demo" type="button" hidden style="margin-top:10px"
+      data-ru="Войти в демо-аккаунт" data-en="Try the demo account">Войти в демо-аккаунт</button>
+
     <div class="err" id="gate-err" role="alert"></div>
 
     <div class="locked">
@@ -605,9 +611,14 @@
           </svg>
           <span>
             <b data-ru="Только просмотр" data-en="View only">Только просмотр</b>
-            <span data-ru="Гость видит настройки, но менять их нельзя, и ничего не сохраняется. Нужен полный доступ — напишите администратору."
+            <span id="lock-guest" data-ru="Гость видит настройки, но менять их нельзя, и ничего не сохраняется. Нужен полный доступ — напишите администратору."
                   data-en="Guests can see the settings but cannot change them, and nothing is saved. Need full access? Message the administrator.">
               Гость видит настройки, но менять их нельзя, и ничего не сохраняется. Нужен полный доступ — напишите администратору.</span>
+            <!-- То же для общего демо-аккаунта: показывается вместо строки
+                 про гостя (lockForGuest в index.js). -->
+            <span id="lock-demo" hidden data-ru="Это общий демо-аккаунт: посмотреть можно всё, но менять ничего нельзя, и ничего не сохраняется."
+                  data-en="This is a shared demo account: you can look at everything, but nothing can be changed or saved.">
+              Это общий демо-аккаунт: посмотреть можно всё, но менять ничего нельзя, и ничего не сохраняется.</span>
           </span>
         </div>
 

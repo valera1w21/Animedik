@@ -522,7 +522,7 @@
     if (!b || b.disabled) return;
     e.preventDefault();
     applyLang(b.dataset.setLang);
-    if (me && me.role !== 'guest' && me.kind !== 'anon') {
+    if (canEdit()) {
       api.post('/api/me/settings', { ui_lang: lang }).then(function (r) {
         if (r && r.settings && me) me.settings = r.settings;
       }).catch(function () { /* не сохранилось — останется в браузере */ });
@@ -602,7 +602,7 @@
     pageAnime = '';
     try { localStorage.setItem(ANIME_KEY, code); } catch (e) { /* переживём */ }
     var done = Promise.resolve(true);
-    if (me && me.role !== 'guest') {
+    if (canEdit()) {
       /* Помним выбор сразу, не дожидаясь сервера: страница просмотра
          тут же спрашивает источники уже под новый язык. */
       if (me.settings) me.settings.anime_lang = code;
@@ -2258,6 +2258,19 @@
     return me;
   }
 
+  /* Можно ли этому человеку что-то сохранять на сервере.
+
+     Нельзя гостю (у него нет аккаунта) и общему демо-аккаунту витрины
+     (me.demo_account): в нём можно всё посмотреть — полку, итоги, кабинет,
+     — но сервер отклоняет любую запись. Там, где страница сама что-то
+     сохраняет (язык, тема, секунда просмотра, обложка), она спрашивает
+     здесь и для них просто не шлёт запрос — выбор остаётся в этом
+     браузере, как у гостя. Без аргумента — про того, кто вошёл сейчас. */
+  function canEdit(who) {
+    var m = who === undefined ? me : who;
+    return !!m && m.kind !== 'anon' && m.role !== 'guest' && !m.demo_account;
+  }
+
   function loadMe() {
     /* Не вошёл — и спрашивать незачем.
 
@@ -2431,6 +2444,10 @@
     api.get('/api/mode').then(function (r) {
       var demo = !!(r && r.demo);
       box.hidden = !demo;
+      /* Ответ нужен и самой странице: главная по нему показывает кнопку
+         «Войти в демо-аккаунт» (см. index.js). Событием, а не поиском
+         кнопки отсюда: она есть только на главной. */
+      document.dispatchEvent(new CustomEvent('sitemode', { detail: r || {} }));
       try { localStorage.setItem(MODE_KEY, demo ? 'demo' : 'private'); } catch (e) { /* переживём */ }
     }).catch(function () { /* не ответил — молчим, плашка не появится */ });
   }
@@ -2463,7 +2480,7 @@
     applyTheme: applyTheme, applyHoliday: applyHoliday, holidayOn: holidayOn,
     plural: plural, count: count, say: say,
     ask: ask, tell: tell,
-    loadMe: loadMe, setMe: setMe, boot: boot, logout: logout,
+    loadMe: loadMe, setMe: setMe, canEdit: canEdit, boot: boot, logout: logout,
     paintAvatar: paintAvatar, avaInk: avaInk, startGuestClock: startGuestClock,
     ageBadge: ageBadge,
     mmss: mmss, showError: showError, busy: busy,

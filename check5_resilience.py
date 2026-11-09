@@ -291,6 +291,9 @@ def run():
                                   # other_lang) и английские жанры справочника
                                   # (genres_en) — fix-21, проходы 24 и 30
                                   "alang", "other_lang", "genres_en",
+                                  # признак общего демо-аккаунта: /api/me у
+                                  # него и /api/mode (проход 46)
+                                  "demo_account",
                                   # свойства браузера, а не поля с сервера
                                   "left", "right", "top", "bottom", "width", "height",
                                   "checked", "disabled", "innerText", "currentSrc"}

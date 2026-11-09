@@ -46,6 +46,14 @@ cannot be detected.
 not a single row is written to the database. Guest passes per address are
 limited.
 
+**The demo account** (optional, `DEMO_ACCOUNT`, demo mode only). One
+button signs a visitor into a shared ordinary account without a password;
+it never signs anyone in as an administrator. Every request from such a
+session that is not a read gets 403 in one shared layer — only signing out
+is allowed — so nobody can change its password, settings or library. The
+button does not touch the wrong-password counters and is rate-limited per
+address; its login and e-mail are never sent to the page.
+
 **Uploads.** An avatar or banner is never stored as received: it is opened,
 checked, its canvas size is read from the file header *before* decoding (a
 tiny file claiming a gigantic canvas is rejected), cropped and re-encoded

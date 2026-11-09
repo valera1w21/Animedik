@@ -36,7 +36,9 @@
         title: it.title || '',
         title_en: it.title_en || '',
         year: it.year || '',
-        key: own && A.me && A.me.role !== 'guest' ? (it.key || '') : ''
+        /* key — «допиши найденную обложку в мою запись»: это запись,
+           поэтому только тому, кто может сохранять (A.canEdit). */
+        key: own && A.canEdit() ? (it.key || '') : ''
       },
       onOk: opts.onOk,
       onFail: opts.onFail
@@ -89,7 +91,8 @@
     if (me.role !== 'guest') paintSecurity(me);
     loadNews();
     paintNotify();
-    lockForGuest(me.role === 'guest');
+    /* Демо-аккаунт: кабинет виден, но заперт так же, как у гостя. */
+    lockForGuest(me.role === 'guest' || !!me.demo_account);
     boot(showToast);
   }
 
@@ -189,8 +192,9 @@
      цвета ничего не меняет на экране, поэтому он выключен и подписан;
      убрали фото — снова включён. Гостю он выключен в любом случае. */
   function paintAvaLock(me) {
-    var guest = !me || me.role === 'guest';
-    var photo = !guest && !!me.has_avatar;
+    /* guest здесь — «менять нельзя»: гость или демо-аккаунт (A.canEdit). */
+    var guest = !A.canEdit(me || null);
+    var photo = !!me && me.role !== 'guest' && !!me.has_avatar;
     document.querySelectorAll('#s-ava .sc').forEach(function (b) { b.disabled = guest || photo; });
     $('s-ava').classList.toggle('off', photo);
     $('s-ava-note').hidden = !photo;
@@ -288,7 +292,9 @@
       var s = (r.me && r.me.settings) || {};
       var picked = A.pickedLang();
       if (picked && picked !== (s.ui_lang || s.lang)) A.applyLang(picked);
-      if (r.me && r.me.settings && (picked || !(s.ui_lang || s.lang))) {
+      /* Демо-аккаунту (вход паролем, пока он включён) не пишем: сервер
+         откажет, а выбор и так живёт в этом браузере. */
+      if (r.me && r.me.settings && A.canEdit(r.me) && (picked || !(s.ui_lang || s.lang))) {
         A.api.post('/api/me/settings', { ui_lang: A.langCode() }).then(function (x) {
           if (x && x.settings && A.me) A.me.settings = x.settings;
         }).catch(function () { /* останется в браузере */ });
@@ -316,6 +322,29 @@
     A.showError($('gate-err'), '');
     A.busy(box, true);
     A.api.post('/api/auth/guest').then(function (r) {
+      A.setMe(r.me);
+      showApp(r.me);
+    }).catch(function (err) {
+      A.showError($('gate-err'), err.message);
+    }).finally(function () { A.busy(box, false); loginSending = false; });
+  });
+
+  /* Общий демо-аккаунт витрины: одна кнопка, без пароля. Тот же флаг
+     loginSending, что у входа и гостя: двойной щелчок — один запрос
+     (каждый лишний — лишняя сессия в базе и шаг к лимиту частоты).
+     Кнопка видна, только если сервер сказал, что в демо-аккаунт можно
+     войти (/api/mode → demo_account; ответ приносит событие sitemode из
+     showMode в app.js). */
+  document.addEventListener('sitemode', function (e) {
+    $('btn-demo').hidden = !(e.detail && e.detail.demo_account);
+  });
+  $('btn-demo').addEventListener('click', function () {
+    if (loginSending) return;
+    loginSending = true;
+    var box = $('gate').querySelector('.box');
+    A.showError($('gate-err'), '');
+    A.busy(box, true);
+    A.api.post('/api/auth/demo').then(function (r) {
       A.setMe(r.me);
       showApp(r.me);
     }).catch(function (err) {
@@ -377,7 +406,7 @@
   var posterTried = {};
 
   function fixMissingPosters() {
-    if (!A.me || A.me.role === 'guest') return;
+    if (!A.canEdit()) return;
     var need = state.items.filter(function (it) {
       return !it.poster && it.key && it.source && !posterTried[it.key];
     }).slice(0, POSTER_FIX_AT_ONCE);
@@ -462,7 +491,8 @@
     a.href = watchHref(it);
 
     var wrap = A.el('div', 'wrap');
-    if (inLibrary && A.me && A.me.role !== 'guest') {
+    /* «×» и «В планы» — запись: гостю и демо-аккаунту их нет (A.canEdit). */
+    if (inLibrary && A.canEdit()) {
       var del = A.el('button', 'del', '×');
       del.type = 'button';
       del.title = A.t('Убрать из списка', 'Remove from list');
@@ -483,7 +513,7 @@
     pic.appendChild(fill);
     /* Результат поиска прямо у источника: ключ уже известен, искать
        ссылку не нужно — закладка сохраняет как есть. */
-    if (!inLibrary && A.me && A.me.role !== 'guest') {
+    if (!inLibrary && A.canEdit()) {
       pic.appendChild(planMark({
         find: function () { return itemByKey(it.key) || libItemFor(it.title); },
         target: function () {
@@ -737,8 +767,8 @@
 
     /* Крестик живёт на самой обложке: под мышкой она приподнимается, и
        крестик, лежащий рядом, а не на ней, оставался бы на месте —
-       на шесть пикселей мимо угла. */
-    if (A.me && A.me.role !== 'guest') {
+       на шесть пикселей мимо угла. Гостю и демо-аккаунту — без него. */
+    if (A.canEdit()) {
       var del = A.el('button', 'del', '×');
       del.type = 'button';
       del.title = A.t('Убрать из списка', 'Remove from list');
@@ -1513,7 +1543,7 @@
     var frName = A.animeName(fr);
     pic.appendChild(A.el('span', 'noart', (frName || '?').charAt(0).toUpperCase()));
     pic.appendChild(fill);
-    if (A.me && A.me.role !== 'guest') pic.appendChild(franchiseMark(fr));
+    if (A.canEdit()) pic.appendChild(franchiseMark(fr));
     var frAge = A.ageBadge(fr);
     if (frAge) pic.appendChild(frAge);
     /* Оценки на карточке нет намеренно. Здесь висел бейдж «8.0» — чужой
@@ -1816,7 +1846,7 @@
 
     row.addEventListener('click', function () { openPart(p, row, go); });
     line.appendChild(row);
-    if (A.me && A.me.role !== 'guest') line.appendChild(planButton(p));
+    if (A.canEdit()) line.appendChild(planButton(p));
     return line;
   }
 
@@ -2333,7 +2363,7 @@
       var th = b.dataset.th;
       markTheme(th);
       A.applyTheme(th);
-      if (!A.me || A.me.role === 'guest') return;
+      if (!A.canEdit()) return;
       A.api.post('/api/me/settings', { theme: th }).then(function (r) {
         if (r && r.settings && A.me) A.me.settings = r.settings;
       }).catch(function (err) {
@@ -2458,10 +2488,15 @@
     $(id).addEventListener('input', function () { setDirty(true); });
   });
 
+  /* isGuest — «только просмотр»: гость или общий демо-аккаунт. Запирается
+     одно и то же, разница — только в тексте плашки и подписи про 18+. */
   function lockForGuest(isGuest) {
+    var demoAcc = !!(A.me && A.me.demo_account);
     $('pbody').classList.toggle('ro', isGuest);
     $('pfoot').classList.toggle('ro', isGuest);
     $('lockbar').classList.toggle('show', isGuest);
+    $('lock-guest').hidden = demoAcc;
+    $('lock-demo').hidden = !demoAcc;
     $('pbody').querySelectorAll('input, select, button').forEach(function (n) {
       if (n.closest('.lockbar')) return;
       /* Язык гостю менять можно: выбор живёт в его браузере. А «скоро» —
@@ -2470,7 +2505,7 @@
       if (n.dataset.soon) { n.disabled = true; return; }
       n.disabled = isGuest;
     });
-    if (isGuest) {
+    if (isGuest && !demoAcc) {
       /* Через data-атрибуты: смена языка переписывает текст по ним. */
       var note = $('adult-note');
       note.setAttribute('data-ru', 'Гостю 18+ не показывается.');
@@ -2598,6 +2633,9 @@
      что показывает каталог, — и открытая выдача тут же перечитывается. */
   onSwitch('s-adult', function (on) {
     if (!A.me || A.me.role === 'guest') { setCheck('s-adult', false); paintHentai(); return; }
+    /* Демо-аккаунт: переключатель выключен (lockForGuest), а если щелчок
+       всё же дошёл — возвращаем как было, на сервер не шлём. */
+    if (!A.canEdit()) { setCheck('s-adult', !on); paintHentai(); return; }
     /* Выключил 18+ — «Хентай» гаснет и сереет сразу, не дожидаясь
        ответа: сервер выключит его и сам (см. api_settings). */
     if (!on) setCheck('s-hentai', false);
@@ -2625,7 +2663,8 @@
     var adultOn = getCheck('s-adult');
     var reason = guestNow ? ['Только для вошедших', 'Signed-in users only']
                : (!adultOn ? ['Сначала включи 18+', 'Turn on 18+ first'] : null);
-    sw.disabled = !!reason;
+    /* У демо-аккаунта видно, что сохранено, но переключить нельзя. */
+    sw.disabled = !!reason || !A.canEdit();
     if (reason) setCheck('s-hentai', false);
     $('opt-hentai').classList.toggle('swlock', !!reason);
     why.hidden = !reason;
@@ -2641,6 +2680,7 @@
      window.confirm: тот глушат встроенные браузеры, и он выглядит
      чужим. Пока окно открыто, переключатель стоит выключенным. */
   onSwitch('s-hentai', function (on) {
+    if (A.me && A.me.demo_account) { setCheck('s-hentai', !on); paintHentai(); return; }
     if (!A.me || A.me.role === 'guest' || !getCheck('s-adult')) {
       setCheck('s-hentai', false);
       paintHentai();
@@ -2679,7 +2719,7 @@
      ждать «Сохранить» ради неё незачем. Гостю — только на этой странице. */
   onSwitch('s-dots', function (on) {
     document.documentElement.setAttribute('data-dots', on ? 'on' : 'off');
-    if (!A.me || A.me.role === 'guest') return;
+    if (!A.canEdit()) return;
     A.api.post('/api/me/settings', { dots: on }).then(function (r) {
       if (r && r.settings && A.me) A.me.settings = r.settings;
     }).catch(function (err) {
@@ -2695,6 +2735,7 @@
      отправляла бы значение, которое уже записано. */
   onSwitch('s-autonext', function (on) {
     if (!A.me || A.me.role === 'guest') { setCheck('s-autonext', true); return; }
+    if (!A.canEdit()) { setCheck('s-autonext', !on); return; }
     A.api.post('/api/me/settings', { autonext: on }).then(function (r) {
       if (r && r.settings && A.me) A.me.settings = r.settings;
     }).catch(function (err) {
@@ -3514,6 +3555,8 @@
   /* Открыли — значит увидели. Гасим уведомление по этому тайтлу, иначе
      оно горело бы, пока не досмотришь до самой свежей серии. */
   function seenUpdate(u) {
+    /* Это запись; демо-аккаунту её не шлём (сервер всё равно откажет). */
+    if (!A.canEdit()) return;
     A.api.post('/api/updates/seen', {key: u.key, source: u.source, title: u.title}).catch(function () {});
   }
 
@@ -4309,6 +4352,8 @@
   function showToast() {
     var me = A.me;
     if (!me || me.role === 'guest' || me.totp_on) return;
+    /* Демо-аккаунту советовать нечего: включить вход по коду он не может. */
+    if (!A.canEdit(me)) return;
     try { if (localStorage.getItem(СОВЕТ_ЗАКРЫТ) === '1') return; } catch (e) {}
     var toast = $('toast');
     toast.classList.add('show');

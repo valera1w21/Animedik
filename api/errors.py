@@ -57,6 +57,10 @@ EN: dict[str, str] = {
     "Вы уже вошли в аккаунт. Чтобы зайти гостем, сначала выйдите.":
         "You are already signed in. Sign out first to enter as a guest.",
     "Слишком часто. Попробуйте позже.": "Too often. Please try again later.",
+    # демо-аккаунт (main.py, раздел «Демо-аккаунт»)
+    "В демо-аккаунте ничего менять нельзя": "Nothing can be changed in the demo account.",
+    "Вы уже вошли в аккаунт. Чтобы войти в демо-аккаунт, сначала выйдите.":
+        "You are already signed in. Sign out first to enter the demo account.",
     "Сейчас слишком много гостей. Загляните позже.":
         "There are too many guests right now. Please come back later.",
     "Сервер сейчас занят проверкой паролей. Попробуйте через минуту.":

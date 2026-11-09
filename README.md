@@ -65,7 +65,8 @@ an honest **501 Not Implemented**; everything else keeps working.
 - **Accounts without sign-up.** The owner creates accounts from the console
   or the admin page. Roles: guest, user, admin. Two-factor sign-in with an
   authenticator app (TOTP, implemented here without dependencies), backup
-  codes, "sign out everywhere".
+  codes, "sign out everywhere". An optional shared **demo account** for
+  the public demo: one button, look at everything, change nothing.
 - **18+ is hidden by default** and can be turned on in the profile; a
   separate "Hentai" switch exists only for signed-in users, never for
   guests.

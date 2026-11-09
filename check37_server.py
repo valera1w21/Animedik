@@ -515,7 +515,8 @@ def run():
     import inspect
     from fastapi.routing import APIRoute
     LEVEL = {"need_any": "все", "need_user": "вошедший", "need_admin": "админ"}
-    OPEN = {"/api/auth/login", "/api/auth/guest", "/api/auth/logout", "/api/me",
+    # /api/auth/demo — вход в демо-аккаунт одной кнопкой (check46_demo_account.py).
+    OPEN = {"/api/auth/login", "/api/auth/guest", "/api/auth/demo", "/api/auth/logout", "/api/me",
             "/api/mode", "/api/health", "/", "/{page}"}
     srv = Server()
     try:

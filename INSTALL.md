@@ -81,6 +81,50 @@ python -m api.admin …`):
 | `2fa-off LOGIN` | turn off sign-in by a code from an app |
 | `backup` | a consistent copy of the database without stopping the site |
 
+### 1.3.1. A shared demo account (optional)
+
+On the public demo (`MODE=demo`) a guest sees the catalogue and the
+player, but an empty library. A **demo account** lets visitors look at the
+site "from the inside" — a filled library, the year in review, the
+settings — with one button on the sign-in page, without a password.
+
+1. Create an ordinary account (**not** `--admin` — the demo button never
+   signs anyone in as an administrator; with an admin login it stays off):
+
+   ```bash
+   docker compose exec app python -m api.admin add demo
+   ```
+
+2. Add `DEMO_ACCOUNT=demo` to `.env` (optionally `DEMO_SESSION_MIN=60` —
+   how many minutes one demo sign-in lasts; 60 by default) and rebuild:
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+   The sign-in page now shows "Try the demo account" next to the guest
+   button.
+
+**What is forbidden in it.** Everything that changes data: the server
+answers 403 "Nothing can be changed in the demo account" to every request
+from a demo session except reading and signing out. That includes the
+password, two-factor sign-in, "sign out everywhere", the name, photo and
+banner, all settings (18+ and "Hentai" too), the library, the helper and
+deleting the account. The block sits in one place in the server
+(`session_edges` in `api/main.py`), so routes added later are closed
+automatically. Repeated wrong passwords for the demo login do not lock the
+button — it does not use the password at all. In `MODE=private` the feature
+is off even if `DEMO_ACCOUNT` is set.
+
+**Filling its library.** While `DEMO_ACCOUNT` is set, the account is
+read-only even for you. So:
+
+1. Comment out `DEMO_ACCOUNT` in `.env` and restart:
+   `docker compose up -d`.
+2. Sign in as `demo` with its password and add titles, pick a theme and a
+   display name — whatever visitors should see.
+3. Sign out, put `DEMO_ACCOUNT=demo` back and restart again.
+
 ### 1.4. nginx
 
 ```bash

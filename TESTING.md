@@ -1,6 +1,6 @@
 # Check suites
 
-There are **44 suites**: `tests.py` and 43 `check*.py` files. Each one is a
+There are **45 suites**: `tests.py` and 44 `check*.py` files. Each one is a
 standalone program: it starts the site itself on a temporary database
 (your own `anime.db` is never touched), runs its checks and ends with
 "все проверки пройдены" (all checks passed) or a list of failures. Exit
@@ -13,15 +13,15 @@ comments are in Russian.
 ## Running everything
 
 You need the same environment as for running the site (see
-[INSTALL.md](INSTALL.md)). The browser parts of `check33_frontend.py` and
-`check39_live.py` also need Playwright with Chromium (once):
+[INSTALL.md](INSTALL.md)). The browser parts of `check33_frontend.py`,
+`check39_live.py` and `check46_demo_account.py` also need Playwright with Chromium (once):
 
 ```bash
 pip install playwright
 python -m playwright install chromium
 ```
 
-Without Playwright these two suites skip their browser part and say so
+Without Playwright these three suites skip their browser part and say so
 loudly.
 
 **Linux / macOS**, both modes:
@@ -102,5 +102,6 @@ video site is ever made.
 | `check43_crosszone.py` | Subtitles, the episode time limit, source language, avatars, the random pick, `<video>` without crossorigin |
 | `check44_public.py` | This public copy contains nothing private and no traces of real video sources |
 | `check45_no_sources.py` | Private mode with no sources answers an honest 501 |
+| `check46_demo_account.py` | The shared demo account: one-button sign-in, every route that changes data answers 403 to it (the list is taken from the app itself), reading works, rate limit, the button in a real browser |
 
 The numbers 15, 38 and 40 are gaps in the numbering, not lost files.

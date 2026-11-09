@@ -157,6 +157,16 @@ async def lifespan(application: FastAPI):
         log.info("помощник включён: %s, модель %s", helper.BASE_URL, helper.MODEL)
     else:
         log.info("помощник выключен: в .env не задан HELPER_API_KEY")
+    # Демо-аккаунт: ошибку в настройке видно сразу, а не по жалобе «кнопки нет».
+    if DEMO_ACCOUNT and not anime.DEMO:
+        log.warning("DEMO_ACCOUNT задан, но MODE=private: демо-аккаунт работает только "
+                    "в демонстрационном режиме и сейчас выключен.")
+    elif DEMO_ACCOUNT and demo_user(warn=True) is None:
+        log.warning("DEMO_ACCOUNT=%s: такого действующего обычного аккаунта нет — "
+                    "кнопки «Войти в демо-аккаунт» не будет. Создайте его: "
+                    "python -m api.admin add ЛОГИН", security.safe_for_log(DEMO_ACCOUNT))
+    elif DEMO_ACCOUNT:
+        log.info("демо-аккаунт включён, сеанс %d мин", DEMO_SESSION // 60)
     task = asyncio.create_task(housekeeping())
     application.state.housekeeper = task
     # Проверка новых серий — своя задача, а не часть часовой уборки:
@@ -299,6 +309,10 @@ login_guard = security.LoginGuard()
 api_limit = security.RateLimiter(limit=120, period=60)      # общий поток
 search_limit = security.RateLimiter(limit=20, period=60)    # обращения к источникам
 guest_limit = security.RateLimiter(limit=6, period=3600)    # выдача гостевых пропусков
+# Вход в демо-аккаунт одной кнопкой (см. auth_demo): по адресу, как у
+# гостя. Каждый вход — строка сессии в базе, и без потолка скрипт мог бы
+# в цикле выталкивать из демо-аккаунта всех остальных посетителей.
+demo_limit = security.RateLimiter(limit=10, period=3600)
 write_limit = security.RateLimiter(limit=90, period=60)     # запись прогресса
 # Серии и плееры тоже ходят на чужие сайты, просто с кэшем. Общего лимита
 # в 120 запросов в минуту тут мало: сотня промахов мимо кэша — это сотня
@@ -459,6 +473,12 @@ class Caller:
         return self.kind == "admin"
 
     @property
+    def is_demo(self) -> bool:
+        """Общий демо-аккаунт витрины: смотреть можно, менять нельзя.
+        Как это устроено — в разделе «Демо-аккаунт» ниже."""
+        return self.kind == "user" and is_demo_row(self.user)
+
+    @property
     def user_id(self) -> int:
         return int(self.user["id"]) if self.user is not None else 0
 
@@ -512,6 +532,87 @@ def ua_hash(request: Request) -> str:
     return hashlib.sha256(ua.encode("utf-8", "ignore")).hexdigest()[:32]
 
 
+# ==========================================================================
+# Демо-аккаунт: посмотреть можно всё, поменять — ничего
+# ==========================================================================
+# Гость на витрине видит каталог и плеер, но не видит, как сайт выглядит
+# «изнутри»: полка у него пустая, итогов года и кабинета нет. Для этого
+# есть общий демо-аккаунт — обычный аккаунт (не админ), который владелец
+# заводит сам командой `python -m api.admin add <логин>`, наполняет полку
+# и вписывает логин в DEMO_ACCOUNT. Посетитель входит в него одной
+# кнопкой, без пароля (auth_demo).
+#
+# Аккаунт общий для всех посетителей сразу, поэтому менять в нём нельзя
+# НИЧЕГО: иначе первый же шутник сменил бы пароль или имя, удалил полку
+# или включил 18+ всем остальным. Запрет стоит в одном месте — в слое
+# session_edges ниже, — и устроен как «запрещено всё, что не разрешено»:
+# любой запрос, кроме чтения (GET, HEAD, OPTIONS), получает отказ ещё до
+# ручки. Новая ручка, добавленная когда-нибудь потом, закрыта для
+# демо-аккаунта сама — её не нужно не забыть. Разрешён только выход
+# (DEMO_ALLOWED_WRITES): он закрывает лишь свой сеанс.
+#
+# Работает ТОЛЬКО в демонстрационном режиме (MODE=demo). В личном режиме
+# функция выключена, даже если переменная задана: случайно оставленная
+# в .env строка не должна открывать личный сайт кому угодно по кнопке.
+def _demo_minutes(raw: str) -> int:
+    """Срок демо-сеанса в минутах из DEMO_SESSION_MIN; кривое — 60."""
+    text = (raw or "").strip()
+    try:
+        minutes = int(text)
+    except ValueError:
+        minutes = 0
+    if minutes < 1:
+        if text:
+            log.warning("DEMO_SESSION_MIN=%r — нужно целое число минут больше нуля, "
+                        "берём 60.", text[:20])
+        return 60
+    # Дольше двух недель кука всё равно не живёт (security.SESSION_IDLE).
+    return min(minutes, security.SESSION_IDLE // 60)
+
+
+# Логин приводится к тому же виду, что и в базе («Demo » → «demo»).
+DEMO_ACCOUNT = security.normalize_login(os.getenv("DEMO_ACCOUNT", ""))
+DEMO_SESSION = _demo_minutes(os.getenv("DEMO_SESSION_MIN", "60")) * 60
+DEMO_READONLY = "В демо-аккаунте ничего менять нельзя"
+DEMO_ALLOWED_WRITES = frozenset({"/api/auth/logout"})
+
+
+def demo_login() -> str:
+    """Логин демо-аккаунта — или пусто, если функция выключена."""
+    return DEMO_ACCOUNT if anime.DEMO else ""
+
+
+def is_demo_row(user: Any) -> bool:
+    """Эта строка из базы — демо-аккаунт? Админ — никогда: даже если его
+    логин по ошибке вписали в DEMO_ACCOUNT, его права не урезаются (а
+    войти в него кнопкой нельзя — см. demo_user)."""
+    login = demo_login()
+    return bool(login) and user is not None and user["role"] != "admin" \
+        and user["login"] == login
+
+
+def demo_user(warn: bool = False) -> Any:
+    """Демо-аккаунт, если в него сейчас можно войти кнопкой, иначе None.
+
+    Нет такого аккаунта, он выключен или это администратор — None. Про
+    администратора (warn=True) пишем в журнал: кнопка без пароля,
+    выдающая админа, отдала бы сайт первому встречному, и владелец
+    должен узнать, что ошибся в настройке."""
+    login = demo_login()
+    if not login:
+        return None
+    user = store.get_user_by_login(login)
+    if user is None or user["disabled"]:
+        return None
+    if user["role"] == "admin":
+        if warn:
+            log.warning("DEMO_ACCOUNT=%s — это администратор. Демо-вход никогда не выдаёт "
+                        "админа: кнопка выключена. Заведите отдельный обычный аккаунт: "
+                        "python -m api.admin add ЛОГИН", security.safe_for_log(login))
+        return None
+    return user
+
+
 async def whoami(request: Request) -> Caller | None:
     token = request.cookies.get(SESSION_COOKIE, "")
     if not token:
@@ -522,8 +623,16 @@ async def whoami(request: Request) -> Caller | None:
     found = store.session_lookup(token)
     if found is not None:
         user, created = found
+        life = security.SESSION_MAX_LIFE
+        if is_demo_row(user):
+            # Демо-сеанс короткий: DEMO_SESSION от входа, как бы активно
+            # им ни пользовались. Кончился — сессии больше нет.
+            if store.now() - created > DEMO_SESSION:
+                store.drop_session(token)
+                return None
+            life = DEMO_SESSION
         # Запоминаем для продления куки — см. slide_session_cookie.
-        request.state.session_slide = (token, created)
+        request.state.session_slide = (token, created, life)
         return Caller("admin" if user["role"] == "admin" else "user",
                       user=user, token=token)
     return None
@@ -721,7 +830,9 @@ def slide_session_cookie(request: Request, response: Response) -> None:
     slide = getattr(request.state, "session_slide", None)
     if not slide:
         return
-    token, created = slide
+    # life — предельный срок этой сессии: обычно SESSION_MAX_LIFE, у
+    # демо-аккаунта — DEMO_SESSION (см. whoami).
+    token, created, life = slide
     # Ручка сама поставила или стёрла куку (вход, выход, смена пароля) —
     # её решение главнее, не перебиваем.
     for raw in response.headers.getlist("set-cookie"):
@@ -730,7 +841,7 @@ def slide_session_cookie(request: Request, response: Response) -> None:
     now = time.time()
     if now - _cookie_sent.get(security.token_fingerprint(token), 0) < COOKIE_SLIDE_EVERY:
         return
-    max_age = int(min(security.SESSION_IDLE, created + security.SESSION_MAX_LIFE - now))
+    max_age = int(min(security.SESSION_IDLE, created + life - now))
     if max_age <= 0:
         return
     set_session_cookies(response, token, max_age)
@@ -739,7 +850,7 @@ def slide_session_cookie(request: Request, response: Response) -> None:
 
 @app.middleware("http")
 async def session_edges(request: Request, call_next):
-    """Две вещи, которые нужно сделать до и после любой ручки.
+    """Что нужно сделать до и после любой ручки.
 
     До: всё под /api/admin для не-администратора отвечает 404 — сразу,
     до разбора адреса и тела. Раньше 404 отдавала проверка need_admin, но
@@ -749,6 +860,9 @@ async def session_edges(request: Request, call_next):
     чем бы он туда ни стучал. Ответ тот же, что и на любой
     несуществующий адрес под /api. Администратор проходит дальше как
     раньше: метку формы и всё прочее проверяют сами ручки.
+
+    Там же, до ручки: чужой Origin у записи — 403, и любая запись от
+    демо-аккаунта — 403 (кроме выхода).
 
     После: продлеваем куку сессии, если пора (slide_session_cookie).
     """
@@ -761,6 +875,17 @@ async def session_edges(request: Request, call_next):
     if path.startswith("/api/") and not csrf_exempt(request) and not origin_ok(request):
         return JSONResponse(errors.payload("Запрос отклонён", 403, error_lang(request)),
                             status_code=403)
+    # Демо-аккаунт: любой запрос, кроме чтения, — отказ, до ручки и до
+    # разбора тела (см. раздел «Демо-аккаунт» выше). Здесь, а не в каждой
+    # ручке: так новую ручку не нужно не забыть закрыть. Список
+    # разрешённого — DEMO_ALLOWED_WRITES (только выход). Функция
+    # выключена — лишнего обращения к базе нет.
+    if (path.startswith("/api/") and not csrf_exempt(request)
+            and path not in DEMO_ALLOWED_WRITES and demo_login()):
+        who = await whoami(request)
+        if who is not None and who.is_demo:
+            return JSONResponse(errors.payload(DEMO_READONLY, 403, error_lang(request)),
+                                status_code=403)
     response = await call_next(request)
     slide_session_cookie(request, response)
     return response
@@ -1441,7 +1566,11 @@ async def auth_login(body: LoginIn, request: Request, response: Response):
         store.drop_session(previous)
     token = security.new_token()
     store.create_session(user["id"], token, ua_hash(request))
-    csrf = set_session_cookies(response, token, security.SESSION_IDLE)
+    # В демо-аккаунт можно войти и паролем (так владелец его наполняет,
+    # пока функция выключена). Если она включена — срок как у кнопки:
+    # сервер всё равно не примет такую сессию дольше DEMO_SESSION.
+    csrf = set_session_cookies(response, token,
+                               DEMO_SESSION if is_demo_row(user) else security.SESSION_IDLE)
     note_cookie_sent(token)
     log.info("вход: %s (%s)", security.safe_for_log(login), user["role"])
     return {"ok": True, "csrf": csrf, "me": me_payload(
@@ -1485,6 +1614,51 @@ async def auth_guest(request: Request, response: Response):
     csrf = set_session_cookies(response, token, security.GUEST_TTL)
     return {"ok": True, "csrf": csrf,
             "me": me_payload(Caller("guest", guest=data, token=token))}
+
+
+@app.post("/api/auth/demo")
+async def auth_demo(request: Request, response: Response):
+    """Вход в демо-аккаунт одной кнопкой, без пароля.
+
+    Пароль посетителю не нужен и нигде не показывается. Поэтому ручка не
+    смотрит в счётчики неудачных входов (login_guard) и ничего в них не
+    пишет: сколько бы кто ни подбирал пароль демо-аккаунта обычным
+    входом, кнопка у остальных продолжает работать. А сменить пароль
+    или включить вход по коду изнутри нельзя — это запись (session_edges).
+
+    Защиты — как у гостевого пропуска (auth_guest): чужой Origin
+    отсекает session_edges, тело обязано быть JSON (HTML-форма с чужого
+    сайта так не умеет), уже вошедший в свой аккаунт не перезаписывается
+    демо-сеансом. Частота — по адресу, demo_limit.
+
+    Функция выключена, аккаунта нет, он выключен или это администратор —
+    404, будто ручки нет вовсе.
+    """
+    if not demo_login():
+        raise HTTPException(status_code=404, detail="Not Found")
+    ctype = request.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+    if ctype != "application/json":
+        raise HTTPException(status_code=403, detail="Запрос отклонён")
+    who = await whoami(request)
+    if who is not None and not who.is_guest:
+        raise HTTPException(status_code=409,
+                            detail="Вы уже вошли в аккаунт. Чтобы войти в демо-аккаунт, "
+                                   "сначала выйдите.")
+    ip = client_ip(request)
+    if not demo_limit.allow(f"d:{ip}"):
+        raise HTTPException(status_code=429, detail="Слишком часто. Попробуйте позже.")
+    user = demo_user(warn=True)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Not Found")
+    # Гостевой пропуск этого браузера (если был) закрываем — как при входе.
+    if who is not None:
+        guests.drop(who.token)
+    token = security.new_token()
+    store.create_session(user["id"], token, ua_hash(request))
+    csrf = set_session_cookies(response, token, DEMO_SESSION)
+    note_cookie_sent(token)
+    log.info("вход в демо-аккаунт")
+    return {"ok": True, "csrf": csrf, "me": me_payload(Caller("user", user=user, token=token))}
 
 
 @app.post("/api/auth/logout")
@@ -1558,7 +1732,7 @@ def me_payload(who: Caller) -> dict:
             "settings": {}, "can_edit": False,
         }
     u = who.user
-    return {
+    out = {
         "kind": who.kind, "role": u["role"],
         "name": u["login"], "display_name": u["display_name"] or u["login"],
         "avatar_color": u["avatar_color"],
@@ -1577,6 +1751,22 @@ def me_payload(who: Caller) -> dict:
         "mail_new_eps": bool(u["mail_new_eps"]),
         "mail_ready": mail.enabled(),
     }
+    if who.is_demo:
+        # Демо-аккаунт: страница по этому признаку прячет то, что менять
+        # нельзя. Логин и почту наружу не отдаём — аккаунт общий. Имя, если
+        # владелец его не задал, по умолчанию равно логину — тогда «demo».
+        #
+        # Язык сайта и язык аниме — выбор посетителя в его браузере, как у
+        # гостя: сохранить свой он не может, а язык, сохранённый в общем
+        # аккаунте, перебивал бы его выбор на каждой странице (зашёл
+        # англичанин — получил русский сайт и не может переключить).
+        view = {k: v for k, v in out["settings"].items()
+                if k not in ("ui_lang", "lang", "anime_lang")}
+        out.update(demo_account=True, can_edit=False, name="demo", settings=view,
+                   display_name=u["display_name"] if u["display_name"] not in ("", u["login"])
+                   else "demo",
+                   email="", mail_new_eps=False)
+    return out
 
 
 @app.get("/api/me")
@@ -3195,7 +3385,7 @@ async def api_poster_find(
     Страница зовёт её, когда все свои ссылки на картинку не загрузились
     (см. A.bg в app.js). Ответ — {"poster": адрес или ""}.
 
-    Если передан key и вошёл не гость, найденная обложка сразу ложится
+    Если передан key и вошёл не гость (и не демо-аккаунт), найденная обложка сразу ложится
     в эту запись списка — и в следующий раз карточка откроется с первой
     попытки, без похода сюда. Записываем только:
       * в свою собственную запись (UPDATE … WHERE user_id = вы);
@@ -3214,7 +3404,9 @@ async def api_poster_find(
         if not within(poster_limit, "pl", who):
             raise HTTPException(status_code=429, detail="Слишком часто, подождите минуту")
         poster = await catalog.find_poster(title, title_en, when)
-    if poster and key and not who.is_guest:
+    # Демо-аккаунту — нет: это запись, пусть и через GET (session_edges
+    # пропускает чтение не глядя).
+    if poster and key and not who.is_guest and not who.is_demo:
         row = store.library_row(who.user_id, key)
         if row and max(anime.relevance(title or title_en, row["title"] or ""),
                        anime.relevance(title_en or title, row["title"] or "")) \
@@ -5041,8 +5233,16 @@ async def api_mode():
     Открыта намеренно, без входа: страница должна показать плашку про
     демонстрационный режим ещё до того, как человек куда-то войдёт.
     Ничего, кроме одного слова, отсюда не узнать.
+
+    demo_account — показывать ли на странице входа кнопку «Войти в
+    демо-аккаунт»: true, только если в него сейчас действительно можно
+    войти (см. demo_user). Сам логин не отдаётся.
     """
-    return {"demo": anime.DEMO}
+    # Признак — только когда кнопка нужна: остальным ответ прежний, одно слово.
+    out: dict[str, bool] = {"demo": anime.DEMO}
+    if demo_user() is not None:
+        out["demo_account"] = True
+    return out
 
 
 @app.get("/api/health")

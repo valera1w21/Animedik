@@ -2071,7 +2071,8 @@
   /* Сохранение секунды. Гостю сохранять некуда — сервер его не пустит,  */
   /* поэтому даже не пробуем и не пугаем ошибкой.                       */
   /* ------------------------------------------------------------------ */
-  function canSave() { return A.me && A.me.role !== 'guest'; }
+  /* Демо-аккаунту — тоже: сервер отклоняет любую запись (A.canEdit). */
+  function canSave() { return A.canEdit(); }
 
   function payload(watched) {
     /* В полке рядом лежат «на какой серии остановились» и «сколько их
@@ -3297,6 +3298,11 @@
       $('w-autonote').setAttribute('data-ru', 'гостю не сохраняем');
       $('w-autonote').setAttribute('data-en', 'not saved for guests');
       $('w-autonote').textContent = A.t('гостю не сохраняем', 'not saved for guests');
+    } else if (me.demo_account) {
+      $('w-autobox').style.opacity = '.5';
+      $('w-autonote').setAttribute('data-ru', 'в демо-аккаунте не сохраняем');
+      $('w-autonote').setAttribute('data-en', 'not saved in the demo account');
+      $('w-autonote').textContent = A.t('в демо-аккаунте не сохраняем', 'not saved in the demo account');
     }
     /* Хентай, найденный только на другом языке: плеер — на том языке,
        настройка не меняется (см. RX выше). Кому хентай не положен, тому

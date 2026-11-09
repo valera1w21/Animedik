@@ -195,8 +195,10 @@ routes = re.findall(r'@app\.(get|post|delete)\("([^"]+)"\)\s*\nasync def (\w+)\(
 # показать до входа — иначе человек нажмёт «смотреть» и не поймёт,
 # почему вместо серии играет мультфильм про кролика. Наружу оттуда
 # уходит одно слово.
+# /api/auth/demo — вход в демо-аккаунт одной кнопкой: до входа проверять
+# нечего, как и у гостевого пропуска (см. check46_demo_account.py).
 public = {"/api/health", "/api/mode", "/api/auth/login", "/api/auth/guest",
-          "/api/auth/logout", "/", "/{page}"}
+          "/api/auth/demo", "/api/auth/logout", "/", "/{page}"}
 for method, path, fname, args in routes:
     guarded = "Depends(need_" in args
     if path in public:
@@ -211,7 +213,9 @@ print("\n=== 8. Изменяющие запросы требуют метку ф
 for method, path, fname, args in routes:
     if method not in ("post", "delete"):
         continue
-    if path in ("/api/auth/login", "/api/auth/guest", "/api/auth/logout"):
+    # Входы: метки формы до входа ещё нет. Держат их «тело — JSON» и
+    # проверка Origin (session_edges), у демо-входа — так же, как у гостя.
+    if path in ("/api/auth/login", "/api/auth/guest", "/api/auth/demo", "/api/auth/logout"):
         continue
     body = re.search(rf'async def {fname}\(.*?\n(?=@app\.|# =|\Z)', main, re.S)
     if body and "guard_csrf" not in body.group():
